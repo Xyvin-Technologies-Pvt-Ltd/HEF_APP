@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 const String kFamilyName = 'Helvetica';
@@ -273,6 +272,18 @@ const kSmallTitleEB = TextStyle(
 const kSmallerTitleL = TextStyle(
   fontFamily: kFamilyName,
   fontWeight: kLight,
+  color: Colors.black,
+  fontSize: kSize12,
+);
+const kSmallerTitleEL = TextStyle(
+  fontFamily: kFamilyName,
+  fontWeight: kExtraLight,
+  color: Colors.black,
+  fontSize: kSize12,
+);
+const kSmallerTitleUL = TextStyle(
+  fontFamily: kFamilyName,
+  fontWeight: kUltraLight,
   color: Colors.black,
   fontSize: kSize12,
 );

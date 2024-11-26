@@ -34,6 +34,14 @@ dependencies:
   intl_phone_field: ^3.2.0
   pin_code_fields: ^8.0.1
   file_picker: ^8.1.4
+  shimmer: ^3.0.0
+  cached_network_image: ^3.4.1
+  carousel_slider: ^5.0.0
+  smooth_page_indicator: ^1.2.0+3
+  url_launcher: ^6.3.1
+  youtube_player_iframe: ^5.2.1
+  intl: ^0.19.0
+  sidebarx: ^0.17.1
 
 dev_dependencies:
   flutter_test:
@@ -53,3 +61,4 @@ flutter:
     - assets/
     - assets/svg/icons/
     - assets/svg/images/
+    - assets/pngs/

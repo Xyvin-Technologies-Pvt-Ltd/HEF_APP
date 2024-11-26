@@ -2,14 +2,16 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hef/src/data/api_routes/user_api/login/user_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
+import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
-import 'package:hef/src/interface/components/animations/rotate_svg.dart';
+
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_page.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -71,7 +73,7 @@ class PhoneNumberScreen extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Please enter your mobile number',
+                              const Text('Please enter your mobile number',
                                   style: kBodyTitleL),
                               const SizedBox(height: 20),
                               IntlPhoneField(
@@ -102,18 +104,15 @@ class PhoneNumberScreen extends ConsumerWidget {
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8.0),
-                                    borderSide:
-                                        BorderSide(color: Color(0xFFCCCCCC)),
+                                    borderSide: BorderSide(color: kGrey),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8.0),
-                                    borderSide:
-                                        BorderSide(color: Color(0xFFCCCCCC)),
+                                    borderSide: BorderSide(color: kGrey),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xFFCCCCCC)),
+                                    borderSide: const BorderSide(color: kGrey),
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
                                     vertical: 16.0,
@@ -139,10 +138,8 @@ class PhoneNumberScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 20),
                               const Text(
-                                'A 6 digit verification code will be sent',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w400, fontSize: 14),
-                              ),
+                                  'A 6 digit verification code will be sent',
+                                  style: kSmallTitleR),
                               Padding(
                                 padding: const EdgeInsets.only(top: 20),
                                 child: SizedBox(
@@ -172,7 +169,7 @@ class PhoneNumberScreen extends ConsumerWidget {
           // Loading overlay
           if (isLoading)
             Container(
-              color: Colors.black54,
+              color: kBlack54,
               child: const Center(
                 child: LoadingAnimation(),
               ),
@@ -184,6 +181,7 @@ class PhoneNumberScreen extends ConsumerWidget {
 
   Future<void> _handleOtpGeneration(BuildContext context, WidgetRef ref) async {
     SnackbarService scaffoldMessengerKey = SnackbarService();
+    NavigationService navigationService = NavigationService();
     final countryCode = ref.watch(countryCodeProvider);
     ref.read(loadingProvider.notifier).startLoading();
 
@@ -209,13 +207,9 @@ class PhoneNumberScreen extends ConsumerWidget {
           // final resendToken = data['resendToken'];
           // if (verificationId != null && verificationId.isNotEmpty) {
           //   log('Otp Sent successfully');
-          Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => OTPScreen(
-              phone: '$countryCode${_mobileController.text}',
-              // verificationId: verificationId,
-              // resendToken: resendToken ?? '',
-            ),
-          ));
+          navigationService.pushNamedReplacement('Otp',
+              arguments: '$countryCode${_mobileController.text}');
+
           // Navigator.of(context).pushReplacement(MaterialPageRoute(
           //   builder: (context) => OTPScreen(
           //     phone: _mobileController.text,
@@ -238,13 +232,8 @@ class PhoneNumberScreen extends ConsumerWidget {
                 : countryCode ?? 91.toString(),
           );
           scaffoldMessengerKey.showSnackBar(data);
-          Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => OTPScreen(
-              phone: '$countryCode${_mobileController.text}',
-              // verificationId: verificationId,
-              // resendToken: resendToken ?? '',
-            ),
-          ));
+          navigationService.pushNamedReplacement('Otp',
+              arguments: '$countryCode${_mobileController.text}');
 
           // ApiRoutes userApi = ApiRoutes();
 
@@ -273,7 +262,7 @@ class PhoneNumberScreen extends ConsumerWidget {
       }
     } catch (e) {
       log(e.toString());
-      scaffoldMessengerKey.showSnackBar('Failed ');
+      scaffoldMessengerKey.showSnackBar('Failed');
     } finally {
       ref.read(loadingProvider.notifier).stopLoading();
     }
@@ -343,7 +332,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
+      backgroundColor: kPrimaryLightColor,
       body: Stack(
         children: [
           Positioned(
@@ -359,11 +348,16 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
               children: [
                 const SizedBox(height: 40),
                 const SizedBox(height: 80),
-                const Text(
-                  'Enter your OTP',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
+                Text(
+                  'Verify OTP',
+                  style: kHeadTitleB.copyWith(color: kPrimaryColor),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(
+                  height: 40,
+                ),
+                Text('Enter the Otp to verify',
+                    style: kSmallerTitleEL.copyWith(fontSize: 20)),
+                const SizedBox(height: 5),
                 Padding(
                   padding: const EdgeInsets.only(left: 10, right: 10),
                   child: PinCodeTextField(
@@ -381,15 +375,13 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                       shape: PinCodeFieldShape.box,
                       borderRadius: BorderRadius.circular(5),
                       fieldHeight: 55,
-                      fieldWidth: 50, selectedColor: Colors.blue,
+                      fieldWidth: 50, selectedColor: kPrimaryColor,
                       activeColor: const Color.fromARGB(255, 232, 226, 226),
-                      inactiveColor: const Color.fromARGB(
-                          255, 232, 226, 226), // Box color when not focused
-                      activeFillColor: Colors.white, // Box color when focused
-                      selectedFillColor:
-                          Colors.white, // Box color when selected
+                      inactiveColor: kWhite,
+                      activeFillColor: kWhite, // Box color when focused
+                      selectedFillColor: kWhite, // Box color when selected
                       inactiveFillColor:
-                          Colors.white, // Box fill color when not selected
+                          kWhite, // Box fill color when not selected
                     ),
                     animationDuration: const Duration(milliseconds: 300),
                     backgroundColor: Colors.transparent,
@@ -410,9 +402,8 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                             ? 'Enter OTP in $_start seconds'
                             : 'Enter your OTP',
                         style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: _isButtonDisabled ? Colors.grey : Colors.black,
-                        ),
+                            fontWeight: FontWeight.w500,
+                            color: _isButtonDisabled ? kGrey : kBlack),
                       ),
                     ),
                     GestureDetector(
@@ -422,9 +413,8 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                         child: Text(
                           _isButtonDisabled ? '' : 'Resend Code',
                           style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: _isButtonDisabled ? Colors.grey : Colors.red,
-                          ),
+                              fontWeight: FontWeight.w500,
+                              color: _isButtonDisabled ? kGrey : kRed),
                         ),
                       ),
                     ),
@@ -452,7 +442,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
           // Loading overlay
           if (isLoading)
             Container(
-              color: Colors.black54,
+              color: kBlack54,
               child: const Center(
                 child: LoadingAnimation(),
               ),
@@ -464,16 +454,17 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
 
   Future<void> _handleOtpVerification(
       BuildContext context, WidgetRef ref) async {
+    NavigationService navigationService = NavigationService();
     final countryCode = ref.watch(countryCodeProvider);
     ref.read(loadingProvider.notifier).startLoading();
 
     try {
       print(_otpController.text);
       String response = await verifyUser(
-        phone: _mobileController.text,
+        phone: '+91${_mobileController.text}',
         otp: _otpController.text,
       );
-
+      log('Token:$response');
       // Map<String, dynamic> responseMap = await userApi.verifyOTP(
       //     verificationId: widget.verificationId,
       //     fcmToken: fcmToken,
@@ -483,7 +474,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
       // String savedToken = responseMap['token'];
       // String savedId = responseMap['userId'];
 
-      if (token.isNotEmpty) {
+      if (savedToken.isNotEmpty) {
         final SharedPreferences preferences =
             await SharedPreferences.getInstance();
         await preferences.setString('token', savedToken);
@@ -493,8 +484,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
         log('savedToken: $token');
         // log('savedId: $savedId');
         ref.read(userProvider.notifier).refreshUser();
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => ProfileCompletionScreen()));
+        navigationService.pushNamedReplacement('ProfileCompletion');
       } else {
         // CustomSnackbar.showSnackbar(context, 'Wrong OTP');
       }
@@ -507,28 +497,28 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
 }
 
 class ProfileCompletionScreen extends StatelessWidget {
-  ProfileCompletionScreen({super.key});
+  const ProfileCompletionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: kPrimaryLightColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Replace SvgPicture.asset with any image you are using
-            Image.asset('assets/letsgetstarted.png', width: 150),
-
-            const Text(
-              "Let's Get Started,\nComplete your profile",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color.fromARGB(255, 118, 121, 124),
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+            SvgPicture.asset('assets/svg/images/letsgetstarted.svg'),
+            SizedBox(
+              height: 10,
             ),
+            Text("Let's Get Started,\nComplete your profile",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.unna(
+                  color: kGreyDark,
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                )),
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.only(left: 25, right: 25, top: 10),
@@ -540,6 +530,8 @@ class ProfileCompletionScreen extends StatelessWidget {
                       return customButton(
                           label: 'Next',
                           onPressed: () {
+                            _otpController.dispose();
+                            _mobileController.dispose();
                             // Navigator.of(context).pushReplacement(
                             //     MaterialPageRoute(
                             //         settings: RouteSettings(
@@ -553,13 +545,15 @@ class ProfileCompletionScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => const MainPage()));
+                NavigationService navigationService = NavigationService();
+                // _mobileController.dispose();
+                // _otpController.dispose();
+                navigationService.pushNamedReplacement('MainPage');
               },
-              child: const Text('Skip',
-                  style: TextStyle(color: Colors.black, fontSize: 15)),
+              child: Text(
+                'Skip',
+                style: kSmallTitleB.copyWith(color: kPrimaryColor),
+              ),
             )
           ],
         ),

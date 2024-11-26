@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 
@@ -20,7 +19,7 @@ Widget customButton(
           backgroundColor: WidgetStateProperty.all<Color>(buttonColor),
           shape: WidgetStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: BorderRadius.circular(8),
               side: BorderSide(color: sideColor),
             ),
           ),

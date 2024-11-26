@@ -10,8 +10,13 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       return MaterialPageRoute(builder: (context) =>  SplashScreen());
     case 'PhoneNumber':
       return MaterialPageRoute(builder: (context) =>  PhoneNumberScreen());
+    case 'Otp':
+    String phone = settings?.arguments as String;
+      return MaterialPageRoute(builder: (context) =>  OTPScreen(phone: phone,));
     case 'MainPage':
       return MaterialPageRoute(builder: (context) => const MainPage());
+    case 'ProfileCompletion':
+      return MaterialPageRoute(builder: (context) =>  const ProfileCompletionScreen());
  default:
       return MaterialPageRoute(
         builder: (context) => Scaffold(

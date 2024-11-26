@@ -530,8 +530,7 @@ class ProfileCompletionScreen extends StatelessWidget {
                       return customButton(
                           label: 'Next',
                           onPressed: () {
-                            _otpController.dispose();
-                            _mobileController.dispose();
+                          
                             // Navigator.of(context).pushReplacement(
                             //     MaterialPageRoute(
                             //         settings: RouteSettings(

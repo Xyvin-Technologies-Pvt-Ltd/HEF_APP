@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       title: 'HEF',
       theme: ThemeData(
         fontFamily: kFamilyName,
-        colorScheme: ColorScheme.fromSeed(seedColor: kPrimaryColor),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
     );

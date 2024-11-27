@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 const Color kPrimaryColor = Color(0xFFF58220);
 const Color kPrimaryLightColor = Color(0xFFFFEEDA);
+const Color kScaffoldColor = Color.fromARGB(255, 253, 242, 228);
 const Color kTextHeadColor = Color(0xFFD53F11);
+const Color kTertiary = Color(0xFFE8EAED);
 
 //Common Colors
 const Color kWhite = Color.fromARGB(255, 255, 255, 255);

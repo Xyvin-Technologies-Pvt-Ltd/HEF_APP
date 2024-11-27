@@ -13,6 +13,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/promotion_model.dart';
+import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/interface/components/Drawer/drawer.dart';
 import 'package:hef/src/interface/components/common/custom_video.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_news.dart';
@@ -25,16 +26,12 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
-  // final UserModel user;
-  const HomePage({
-    super.key,
-  });
+  final UserModel user;
+  const HomePage({super.key, required this.user});
 
   @override
   ConsumerState<HomePage> createState() => _HomePageState();
 }
-
-mixin UserModel {}
 
 class _HomePageState extends ConsumerState<HomePage> {
   final _advancedDrawerController = AdvancedDrawerController();
@@ -110,7 +107,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               borderRadius: const BorderRadius.all(Radius.circular(16)),
             ),
             child: Scaffold(
-              backgroundColor: kPrimaryLightColor,
+              backgroundColor: kScaffoldColor,
               body: asyncPromotions.when(
                 data: (promotions) {
                   final banners = promotions
@@ -371,67 +368,63 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                         const SizedBox(height: 16),
 
-                        //  News Carousel
-                        // asyncNews.when(
-                        //   data: (news) {
-                        //     return news.isNotEmpty
-                        //         ? Column(
-                        //             children: [
-                        //               Row(
-                        //                 children: [
-                        //                   Padding(
-                        //                     padding: const EdgeInsets.only(
-                        //                         left: 25, top: 10),
-                        //                     child: Text(
-                        //                       'Events',
-                        //                       style: TextStyle(
-                        //                           fontSize: 17,
-                        //                           fontWeight: FontWeight.w600),
-                        //                     ),
-                        //                   ),
-                        //                 ],
-                        //               ),
-                        //               CarouselSlider(
-                        //                 items: news.map((individualNews) {
-                        //                   return Container(
-                        //                       width: MediaQuery.of(context)
-                        //                               .size
-                        //                               .width *
-                        //                           0.4,
-                        //                       child: NewsCard(
-                        //                           imageUrl:
-                        //                               individualNews.media ??
-                        //                                   '',
-                        //                           title: individualNews.title ??
-                        //                               ''));
-                        //                 }).toList(),
-                        //                 options: CarouselOptions(
-                        //                   height: 150,
-                        //                   scrollPhysics: news.length > 1
-                        //                       ? null
-                        //                       : NeverScrollableScrollPhysics(),
-                        //                   autoPlay:
-                        //                       news.length > 1 ? true : false,
-                        //                   viewportFraction: .5,
-                        //                   autoPlayInterval:
-                        //                       Duration(seconds: 3),
-                        //                   onPageChanged: (index, reason) {
-                        //                     setState(() {
-                        //                       _currentEventIndex = index;
-                        //                     });
-                        //                   },
-                        //                 ),
-                        //               ),
+                        asyncNews.when(
+                          data: (news) {
+                            return news.isNotEmpty
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 25, top: 10),
+                                        child: Text(
+                                          'News',
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      SizedBox(
+                                        height:
+                                            150, // Fixed height for the ListView
+                                        child: ListView.builder(
+                                          controller: ScrollController(),
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: news.length,
+                                          itemBuilder: (context, index) {
+                                            final individualNews = news[index];
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8.0),
+                                              child: SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.4,
+                                                child: newsCard(
+                                                  imageUrl:
+                                                      individualNews.media ??
+                                                          '',
+                                                  title: individualNews.title ??
+                                                      '',
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : SizedBox();
+                          },
+                          loading: () => Center(child: LoadingAnimation()),
+                          error: (error, stackTrace) => SizedBox(),
+                        ),
 
-                        //               // _buildDotIndicator(_currentEventIndex,
-                        //               //     news.length, Colors.red),
-                        //             ],
-                        //           )
-                        //         : SizedBox();
-                        //   },
-                        //   loading: () => Center(child: LoadingAnimation()),
-                        //   error: (error, stackTrace) => SizedBox(),
-                        // ),
                         // Videos Carousel
                         if (filteredVideos.isNotEmpty)
                           Column(

@@ -6,7 +6,7 @@ part of 'user_data.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchUserDetailsHash() => r'e4ef0c2535faf38f8e092370c827a5520594c988';
+String _$fetchUserDetailsHash() => r'eb80e2428ecf15af1a6f0e6b846850ea35a5a4c1';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -40,11 +40,9 @@ class FetchUserDetailsFamily extends Family<AsyncValue<UserModel>> {
 
   /// See also [fetchUserDetails].
   FetchUserDetailsProvider call(
-    String token,
     String userId,
   ) {
     return FetchUserDetailsProvider(
-      token,
       userId,
     );
   }
@@ -54,7 +52,6 @@ class FetchUserDetailsFamily extends Family<AsyncValue<UserModel>> {
     covariant FetchUserDetailsProvider provider,
   ) {
     return call(
-      provider.token,
       provider.userId,
     );
   }
@@ -78,12 +75,10 @@ class FetchUserDetailsFamily extends Family<AsyncValue<UserModel>> {
 class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
   /// See also [fetchUserDetails].
   FetchUserDetailsProvider(
-    String token,
     String userId,
   ) : this._internal(
           (ref) => fetchUserDetails(
             ref as FetchUserDetailsRef,
-            token,
             userId,
           ),
           from: fetchUserDetailsProvider,
@@ -95,7 +90,6 @@ class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
           dependencies: FetchUserDetailsFamily._dependencies,
           allTransitiveDependencies:
               FetchUserDetailsFamily._allTransitiveDependencies,
-          token: token,
           userId: userId,
         );
 
@@ -106,11 +100,9 @@ class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.token,
     required this.userId,
   }) : super.internal();
 
-  final String token;
   final String userId;
 
   @override
@@ -126,7 +118,6 @@ class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        token: token,
         userId: userId,
       ),
     );
@@ -139,15 +130,12 @@ class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
 
   @override
   bool operator ==(Object other) {
-    return other is FetchUserDetailsProvider &&
-        other.token == token &&
-        other.userId == userId;
+    return other is FetchUserDetailsProvider && other.userId == userId;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, token.hashCode);
     hash = _SystemHash.combine(hash, userId.hashCode);
 
     return _SystemHash.finish(hash);
@@ -157,9 +145,6 @@ class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin FetchUserDetailsRef on AutoDisposeFutureProviderRef<UserModel> {
-  /// The parameter `token` of this provider.
-  String get token;
-
   /// The parameter `userId` of this provider.
   String get userId;
 }
@@ -169,8 +154,6 @@ class _FetchUserDetailsProviderElement
     with FetchUserDetailsRef {
   _FetchUserDetailsProviderElement(super.provider);
 
-  @override
-  String get token => (origin as FetchUserDetailsProvider).token;
   @override
   String get userId => (origin as FetchUserDetailsProvider).userId;
 }

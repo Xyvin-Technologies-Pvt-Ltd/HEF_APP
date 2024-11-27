@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
+import 'package:hef/src/data/constants/style_constants.dart';
 
 Widget customButton(
     {required String label,
@@ -27,7 +28,9 @@ Widget customButton(
         child: Text(
           label,
           style: TextStyle(
-              color: labelColor, fontSize: double.parse(fontSize.toString())),
+              fontWeight: kBold,
+              color: labelColor,
+              fontSize: double.parse(fontSize.toString())),
         )),
   );
 }

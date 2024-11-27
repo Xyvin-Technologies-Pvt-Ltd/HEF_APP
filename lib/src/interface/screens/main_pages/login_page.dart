@@ -460,7 +460,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
 
     try {
       print(_otpController.text);
-      String response = await verifyUser(
+      Map<String, dynamic> response = await verifyUser(
         phone: '+91${_mobileController.text}',
         otp: _otpController.text,
       );
@@ -470,25 +470,28 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
       //     fcmToken: fcmToken,
       //     smsCode: _otpController.text,
       //     context: context);
-      String savedToken = response;
+      String savedToken = response['token'] ?? '';
+      String savedId = response['userId'] ?? '';
       // String savedToken = responseMap['token'];
       // String savedId = responseMap['userId'];
-
-      if (savedToken.isNotEmpty) {
+      log('savedToken: $token');
+      log('savedId: $savedId');
+      if (savedToken.isNotEmpty && savedId.isNotEmpty) {
         final SharedPreferences preferences =
             await SharedPreferences.getInstance();
         await preferences.setString('token', savedToken);
-        // await preferences.setString('id', savedId);
+        await preferences.setString('id', savedId);
         token = savedToken;
-        // id = savedId;
+        id = savedId;
         log('savedToken: $token');
-        // log('savedId: $savedId');
+        log('savedId: $savedId');
         ref.read(userProvider.notifier).refreshUser();
         navigationService.pushNamedReplacement('ProfileCompletion');
       } else {
         // CustomSnackbar.showSnackbar(context, 'Wrong OTP');
       }
     } catch (e) {
+      print(e);
       // CustomSnackbar.showSnackbar(context, 'Wrong OTP');
     } finally {
       ref.read(loadingProvider.notifier).stopLoading();
@@ -530,7 +533,6 @@ class ProfileCompletionScreen extends StatelessWidget {
                       return customButton(
                           label: 'Next',
                           onPressed: () {
-                          
                             // Navigator.of(context).pushReplacement(
                             //     MaterialPageRoute(
                             //         settings: RouteSettings(

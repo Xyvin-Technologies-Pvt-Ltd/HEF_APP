@@ -28,7 +28,8 @@ Future<String> sendOtp(
   }
 }
 
-Future<String> verifyUser({required String phone, required String otp}) async {
+Future<Map<String, dynamic>> verifyUser(
+    {required String phone, required String otp}) async {
   final url = Uri.parse('$baseUrl/user/verify');
   log('phone :$phone');
   log('otp:$otp');
@@ -41,6 +42,8 @@ Future<String> verifyUser({required String phone, required String otp}) async {
   if (response.statusCode == 200) {
     print('Verified successfully');
     print(json.decode(response.body)['message']);
+    log(response.body);
+    print(json.decode(response.body)['data']);
     return json.decode(response.body)['data'];
   } else {
     print(json.decode(response.body)['message']);

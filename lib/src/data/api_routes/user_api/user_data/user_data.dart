@@ -8,8 +8,8 @@ part 'user_data.g.dart';
 
 @riverpod
 Future<UserModel> fetchUserDetails(
-    FetchUserDetailsRef ref, String token, String userId) async {
-  final url = Uri.parse('$baseUrl/user');
+    FetchUserDetailsRef ref, String userId) async {
+  final url = Uri.parse('$baseUrl/user/single/$userId');
   print('Requesting URL: $url');
   final response = await http.get(
     url,

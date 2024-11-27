@@ -122,7 +122,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       if (!isAppUpdateRequired) {
         print('Logged in : $LoggedIn');
         if (LoggedIn) {
-          navigationSerivce.pushNamedReplacement('NavBar');
+          navigationSerivce.pushNamedReplacement('MainPage');
         } else {
           navigationSerivce.pushNamedReplacement('PhoneNumber');
         }

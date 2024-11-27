@@ -138,6 +138,12 @@ const kHeadTitleEB = TextStyle(
 
 //* SUBHEADING TITLES
 
+const kSubHeadingL = TextStyle(
+  fontFamily: kFamilyName,
+  fontWeight: kLight,
+  color: Colors.black,
+  fontSize: kSubHeading,
+);
 const kSubHeadingR = TextStyle(
   fontFamily: kFamilyName,
   fontWeight: kRegular,

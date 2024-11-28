@@ -35,3 +35,35 @@ Future<List<Event>> fetchEvents(FetchEventsRef ref) async {
     throw Exception(json.decode(response.body)['message']);
   }
 }
+
+
+
+@riverpod
+Future<List<Event>> fetchMyEvents(FetchMyEventsRef ref) async {
+  final url = Uri.parse('$baseUrl/event/reg-events');
+  print('Requesting URL: $url');
+  final response = await http.get(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token"
+    },
+  );
+  print('hello');
+  print(json.decode(response.body)['status']);
+  if (response.statusCode == 200) {
+    final List<dynamic> data = json.decode(response.body)['data'];
+    print(response.body);
+    List<Event> events = [];
+
+    for (var item in data) {
+      events.add(Event.fromJson(item));
+    }
+    print(events);
+    return events;
+  } else {
+    print(json.decode(response.body)['message']);
+
+    throw Exception(json.decode(response.body)['message']);
+  }
+}

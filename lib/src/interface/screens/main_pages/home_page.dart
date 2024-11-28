@@ -85,7 +85,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             // ref.invalidate(fetchEventsProvider);
           },
           child: AdvancedDrawer(
-            drawer: customDrawer(),
+            drawer: customDrawer(user: widget.user),
             backdrop: Container(
               width: double.infinity,
               height: double.infinity,
@@ -347,10 +347,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                         .size
                                                         .width *
                                                     0.95,
-                                                child: eventWidget(
-                                                  withImage: true,
-                                                  context: context,
-                                                  event: event,
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    navigationService.pushNamed(
+                                                        'ViewMoreEvent',
+                                                        arguments: event);
+                                                  },
+                                                  child: eventWidget(
+                                                    withImage: true,
+                                                    context: context,
+                                                    event: event,
+                                                  ),
                                                 ),
                                               );
                                             }).toList(),
@@ -494,9 +501,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                               borderRadius: BorderRadius.circular(10),
                               color: kPrimaryColor,
                             ),
-                            child: InkWell(onTap: () {
-                              
-                            },
+                            child: InkWell(
+                              onTap: () {
+                                navigationService.pushNamed('MemberCreation');
+                              },
                               child: Icon(
                                 Icons.person_add_alt_1_outlined,
                                 color: kWhite,

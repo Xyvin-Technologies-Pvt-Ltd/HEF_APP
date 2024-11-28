@@ -14,6 +14,7 @@ import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/notifiers/business_notifier.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
+import 'package:hef/src/interface/components/ModalSheets/addBusinessSheet.dart';
 import 'package:hef/src/interface/components/custom_widgets/user_tile.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -52,7 +53,7 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
   File? _feedImage;
   ImageSource? _feedImageSource;
 
-  Future<File?> _pickFile({required String imageType}) async {
+  Future<File?> _pickFile() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
@@ -64,9 +65,9 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
         compressQuality: 100,
         uiSettings: [
           AndroidUiSettings(
-            activeControlsWidgetColor: Color(0xFFE30613),
+            activeControlsWidgetColor: kPrimaryColor,
             toolbarTitle: 'Crop Image',
-            toolbarColor: Color(0xFFE30613),
+            toolbarColor: kPrimaryColor,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: true,
@@ -88,20 +89,19 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
     return null;
   }
 
-  // void _openModalSheet({required String sheet}) {
-  //   feedContentController.clear();
-  //   _feedImage = null;
-  //   showModalBottomSheet(
-  //       isScrollControlled: true,
-  //       context: context,
-  //       builder: (context) {
-  //         return ShowAddPostSheet(
-  //           pickImage: _pickFile,
-  //           textController: feedContentController,
-  //           imageType: sheet,
-  //         );
-  //       });
-  // }
+  void _openModalSheet() {
+    feedContentController.clear();
+    _feedImage = null;
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (context) {
+          return ShowAdddBusinessSheet(
+            pickImage: _pickFile,
+            textController: feedContentController,
+          );
+        });
+  }
 
   String selectedFilter = 'All';
 
@@ -122,7 +122,7 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
 
     return RefreshIndicator(
       backgroundColor: Colors.white,
-      color: Colors.red,
+      color: kPrimaryColor,
       onRefresh: () =>
           ref.read(businessNotifierProvider.notifier).refreshFeed(),
       child: Scaffold(
@@ -185,7 +185,7 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
               right: 30,
               bottom: 30,
               child: GestureDetector(
-                // onTap: () => _openModalSheet(sheet: 'post'),
+                onTap: () => _openModalSheet(),
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -213,7 +213,7 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
         //     color: Colors.white,
         //     size: 27,
         //   ),
-        //   backgroundColor: const Color(0xFFE30613),
+        //   backgroundColor: const kPrimaryColor,
         // ),
       ),
     );

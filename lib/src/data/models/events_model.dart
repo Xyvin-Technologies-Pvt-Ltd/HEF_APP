@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 class Event {
+  final String? id;
   final String? eventName;
   final String? description;
   final String? type;
@@ -18,6 +19,7 @@ class Event {
   final List<String>? rsvp;
 
   Event({
+    this.id,
     this.eventName,
     this.description,
     this.type,
@@ -37,16 +39,16 @@ class Event {
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
+
+      id: json['_id'] as String?,
       eventName: json['eventName'] as String?,
       description: json['description'] as String?,
       type: json['type'] as String?,
       image: json['image'] as String?,
-      startDate: json['startDate'] != null
-          ? DateTime.parse(json['startDate'])
-          : null,
-      startTime: json['startTime'] != null
-          ? DateTime.parse(json['startTime'])
-          : null,
+      startDate:
+          json['startDate'] != null ? DateTime.parse(json['startDate']) : null,
+      startTime:
+          json['startTime'] != null ? DateTime.parse(json['startTime']) : null,
       endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : null,
       endTime: json['endTime'] != null ? DateTime.parse(json['endTime']) : null,
       platform: json['platform'] as String?,
@@ -59,14 +61,14 @@ class Event {
               .toList()
           : null,
       status: json['status'] as String?,
-      rsvp: json['rsvp'] != null
-          ? List<String>.from(json['rsvp'] as List)
-          : null,
+      rsvp:
+          json['rsvp'] != null ? List<String>.from(json['rsvp'] as List) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      '_id':id,
       'eventName': eventName,
       'description': description,
       'type': type,

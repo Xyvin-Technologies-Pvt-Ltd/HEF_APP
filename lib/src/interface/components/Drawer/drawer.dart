@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
+import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/services/navgitor_service.dart';
 
-Widget customDrawer() {
+Widget customDrawer({required UserModel user}) {
+  NavigationService navigationService = NavigationService();
   return SafeArea(
     child: SingleChildScrollView(
       child: Column(
@@ -18,40 +21,45 @@ Widget customDrawer() {
           ),
           Container(
             decoration: BoxDecoration(color: Color(0xFFF7F7FC)),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: AssetImage(
-                      'assets/avatar.png'), // Update this to your image
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Alexander',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '9865451265',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage(
+                        user.image ?? ''), // Update this to your image
                   ),
-                ),
-                IconButton(
-                    onPressed: () {},
-                    icon: SvgPicture.asset('assets/svg/icons/edit_icon.svg')),
-              ],
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user.name ?? '',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          user.phone ?? '',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        navigationService.pushNamed('EditUser');
+                      },
+                      icon: SvgPicture.asset('assets/svg/icons/edit_icon.svg')),
+                ],
+              ),
             ),
           ),
           SizedBox(
@@ -61,7 +69,9 @@ Widget customDrawer() {
           _buildDrawerItem(
             icon: 'assets/svg/icons/requestnfc.svg',
             label: 'Request NFC',
-            onTap: () {},
+            onTap: () {
+              navigationService.pushNamed('RequestNFC');
+            },
           ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_subscription.svg',
@@ -76,7 +86,9 @@ Widget customDrawer() {
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_events.svg',
             label: 'My Events',
-            onTap: () {},
+            onTap: () {
+              navigationService.pushNamed('MyEvents');
+            },
           ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_transactions.svg',
@@ -86,7 +98,9 @@ Widget customDrawer() {
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_requirements.svg',
             label: 'My Requirements',
-            onTap: () {},
+            onTap: () {
+              navigationService.pushNamed('MyBusinesses');
+            },
           ),
           SizedBox(
             height: 40,

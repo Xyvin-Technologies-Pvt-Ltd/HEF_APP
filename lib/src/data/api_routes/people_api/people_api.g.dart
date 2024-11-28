@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'products_api.dart';
+part of 'people_api.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchProductsHash() => r'478f411ffde8ba7868a4dabec151b655bf0edada';
+String _$fetchActiveUsersHash() => r'6fc399f3267bd975e7fe9adc992ea1113efe7d0f';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,36 +29,33 @@ class _SystemHash {
   }
 }
 
-/// See also [fetchProducts].
-@ProviderFor(fetchProducts)
-const fetchProductsProvider = FetchProductsFamily();
+/// See also [fetchActiveUsers].
+@ProviderFor(fetchActiveUsers)
+const fetchActiveUsersProvider = FetchActiveUsersFamily();
 
-/// See also [fetchProducts].
-class FetchProductsFamily extends Family<AsyncValue<List<Product>>> {
-  /// See also [fetchProducts].
-  const FetchProductsFamily();
+/// See also [fetchActiveUsers].
+class FetchActiveUsersFamily extends Family<AsyncValue<List<UserModel>>> {
+  /// See also [fetchActiveUsers].
+  const FetchActiveUsersFamily();
 
-  /// See also [fetchProducts].
-  FetchProductsProvider call({
+  /// See also [fetchActiveUsers].
+  FetchActiveUsersProvider call({
     int pageNo = 1,
     int limit = 10,
-    String? search,
   }) {
-    return FetchProductsProvider(
+    return FetchActiveUsersProvider(
       pageNo: pageNo,
       limit: limit,
-      search: search,
     );
   }
 
   @override
-  FetchProductsProvider getProviderOverride(
-    covariant FetchProductsProvider provider,
+  FetchActiveUsersProvider getProviderOverride(
+    covariant FetchActiveUsersProvider provider,
   ) {
     return call(
       pageNo: provider.pageNo,
       limit: provider.limit,
-      search: provider.search,
     );
   }
 
@@ -74,38 +71,36 @@ class FetchProductsFamily extends Family<AsyncValue<List<Product>>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'fetchProductsProvider';
+  String? get name => r'fetchActiveUsersProvider';
 }
 
-/// See also [fetchProducts].
-class FetchProductsProvider extends AutoDisposeFutureProvider<List<Product>> {
-  /// See also [fetchProducts].
-  FetchProductsProvider({
+/// See also [fetchActiveUsers].
+class FetchActiveUsersProvider
+    extends AutoDisposeFutureProvider<List<UserModel>> {
+  /// See also [fetchActiveUsers].
+  FetchActiveUsersProvider({
     int pageNo = 1,
     int limit = 10,
-    String? search,
   }) : this._internal(
-          (ref) => fetchProducts(
-            ref as FetchProductsRef,
+          (ref) => fetchActiveUsers(
+            ref as FetchActiveUsersRef,
             pageNo: pageNo,
             limit: limit,
-            search: search,
           ),
-          from: fetchProductsProvider,
-          name: r'fetchProductsProvider',
+          from: fetchActiveUsersProvider,
+          name: r'fetchActiveUsersProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$fetchProductsHash,
-          dependencies: FetchProductsFamily._dependencies,
+                  : _$fetchActiveUsersHash,
+          dependencies: FetchActiveUsersFamily._dependencies,
           allTransitiveDependencies:
-              FetchProductsFamily._allTransitiveDependencies,
+              FetchActiveUsersFamily._allTransitiveDependencies,
           pageNo: pageNo,
           limit: limit,
-          search: search,
         );
 
-  FetchProductsProvider._internal(
+  FetchActiveUsersProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -114,21 +109,19 @@ class FetchProductsProvider extends AutoDisposeFutureProvider<List<Product>> {
     required super.from,
     required this.pageNo,
     required this.limit,
-    required this.search,
   }) : super.internal();
 
   final int pageNo;
   final int limit;
-  final String? search;
 
   @override
   Override overrideWith(
-    FutureOr<List<Product>> Function(FetchProductsRef provider) create,
+    FutureOr<List<UserModel>> Function(FetchActiveUsersRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
-      override: FetchProductsProvider._internal(
-        (ref) => create(ref as FetchProductsRef),
+      override: FetchActiveUsersProvider._internal(
+        (ref) => create(ref as FetchActiveUsersRef),
         from: from,
         name: null,
         dependencies: null,
@@ -136,22 +129,20 @@ class FetchProductsProvider extends AutoDisposeFutureProvider<List<Product>> {
         debugGetCreateSourceHash: null,
         pageNo: pageNo,
         limit: limit,
-        search: search,
       ),
     );
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<Product>> createElement() {
-    return _FetchProductsProviderElement(this);
+  AutoDisposeFutureProviderElement<List<UserModel>> createElement() {
+    return _FetchActiveUsersProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is FetchProductsProvider &&
+    return other is FetchActiveUsersProvider &&
         other.pageNo == pageNo &&
-        other.limit == limit &&
-        other.search == search;
+        other.limit == limit;
   }
 
   @override
@@ -159,7 +150,6 @@ class FetchProductsProvider extends AutoDisposeFutureProvider<List<Product>> {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, pageNo.hashCode);
     hash = _SystemHash.combine(hash, limit.hashCode);
-    hash = _SystemHash.combine(hash, search.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -167,28 +157,23 @@ class FetchProductsProvider extends AutoDisposeFutureProvider<List<Product>> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin FetchProductsRef on AutoDisposeFutureProviderRef<List<Product>> {
+mixin FetchActiveUsersRef on AutoDisposeFutureProviderRef<List<UserModel>> {
   /// The parameter `pageNo` of this provider.
   int get pageNo;
 
   /// The parameter `limit` of this provider.
   int get limit;
-
-  /// The parameter `search` of this provider.
-  String? get search;
 }
 
-class _FetchProductsProviderElement
-    extends AutoDisposeFutureProviderElement<List<Product>>
-    with FetchProductsRef {
-  _FetchProductsProviderElement(super.provider);
+class _FetchActiveUsersProviderElement
+    extends AutoDisposeFutureProviderElement<List<UserModel>>
+    with FetchActiveUsersRef {
+  _FetchActiveUsersProviderElement(super.provider);
 
   @override
-  int get pageNo => (origin as FetchProductsProvider).pageNo;
+  int get pageNo => (origin as FetchActiveUsersProvider).pageNo;
   @override
-  int get limit => (origin as FetchProductsProvider).limit;
-  @override
-  String? get search => (origin as FetchProductsProvider).search;
+  int get limit => (origin as FetchActiveUsersProvider).limit;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

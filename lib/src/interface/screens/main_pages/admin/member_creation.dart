@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
 
-class MemberCreationPage extends StatelessWidget {
+class MemberCreationPage extends StatefulWidget {
+  @override
+  State<MemberCreationPage> createState() => _MemberCreationPageState();
+}
+
+class _MemberCreationPageState extends State<MemberCreationPage> {  TextEditingController nameController = TextEditingController();
+  TextEditingController bloodController = TextEditingController();
+  TextEditingController photoController = TextEditingController();
+  TextEditingController bioController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController adressController = TextEditingController();
+  TextEditingController companyNameController = TextEditingController();
+  TextEditingController companyDesignationController = TextEditingController();
+  TextEditingController companyEmailController = TextEditingController();
+  TextEditingController companyWebsiteController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

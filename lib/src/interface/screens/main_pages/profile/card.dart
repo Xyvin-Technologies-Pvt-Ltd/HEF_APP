@@ -120,8 +120,8 @@ class ProfileCard extends StatelessWidget {
                                                         user.image != ''
                                                     ? Container(
                                                         width:
-                                                            80, // Diameter + border width
-                                                        height: 80,
+                                                            100, // Diameter + border width
+                                                        height: 100,
                                                         decoration:
                                                             BoxDecoration(
                                                           shape:

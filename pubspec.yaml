@@ -40,7 +40,7 @@ dependencies:
   smooth_page_indicator: ^1.2.0+3
   url_launcher: ^6.3.1
   youtube_player_iframe: ^5.2.1
-  intl: ^0.19.0
+  intl: ^0.18.1
   sidebarx: ^0.17.1
   flutter_advanced_drawer: ^1.3.7
   share_plus: ^10.1.2
@@ -51,6 +51,11 @@ dependencies:
   image_cropper: ^8.0.2
   image_picker: ^1.1.2
   dropdown_button2: ^2.3.9
+  contact_add: ^0.0.3
+  minio_flutter: ^0.0.1
+  flutter_dotenv: ^5.2.1
+  image: ^4.3.0
+  dotted_border: ^2.1.0
 
 
 dev_dependencies:
@@ -72,3 +77,4 @@ flutter:
     - assets/svg/icons/
     - assets/svg/images/
     - assets/pngs/
+    - .env

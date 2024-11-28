@@ -9,6 +9,7 @@ import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:hef/src/interface/components/shimmers/promotion_shimmers.dart';
 import 'package:hef/src/interface/screens/main_pages/profile_page.dart';
 import 'package:hef/src/interface/screens/main_pages/business_page.dart';
 import 'package:hef/src/interface/screens/main_pages/chat_page.dart';
@@ -36,7 +37,7 @@ class IconResolver extends StatelessWidget {
     if (iconPath.startsWith('http') || iconPath.startsWith('https')) {
       return Image.network(
         iconPath,
-        color: color,
+        // color: color,
         height: height,
         width: width,
         errorBuilder: (context, error, stackTrace) {
@@ -78,7 +79,9 @@ class _MainPageState extends ConsumerState<MainPage> {
   List<String> _activeIcons = [];
   Future<void> _initialize({required UserModel user}) async {
     _widgetOptions = <Widget>[
-      HomePage(user: user),
+      HomePage(
+        user: user,
+      ),
       BusinessPage(),
       ProfilePage(user: user),
       NewsPage(),
@@ -111,7 +114,9 @@ class _MainPageState extends ConsumerState<MainPage> {
       return asyncUser.when(
         loading: () {
           log('im inside details main page loading');
-          return LoadingAnimation();
+          return Scaffold(
+              backgroundColor: kScaffoldColor,
+              body: buildShimmerPromotionsColumn(context: context));
         },
         error: (error, stackTrace) {
           log('im inside details main page error $error $stackTrace');
@@ -134,39 +139,58 @@ class _MainPageState extends ConsumerState<MainPage> {
                       body: Center(
                         child: _widgetOptions.elementAt(_selectedIndex),
                       ),
-                      bottomNavigationBar: ClipRRect(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(16.0),
-                          topRight: Radius.circular(16.0),
-                        ),
-                        child: BottomNavigationBar(
-                          items: List.generate(5, (index) {
-                            return BottomNavigationBarItem(
-                              backgroundColor: Colors.white,
-                              icon: IconResolver(
-                                iconPath: _inactiveIcons[index],
-                                color: _selectedIndex == index
-                                    ? Colors.blue
-                                    : Colors.grey,
-                              ),
-                              activeIcon: IconResolver(
-                                  iconPath: _activeIcons[index],
-                                  color: kPrimaryColor),
-                              label: [
-                                'Home',
-                                'Business',
-                                'Analytics',
-                                'News',
-                                'Chat'
-                              ][index],
-                            );
-                          }),
-                          currentIndex: _selectedIndex,
-                          selectedItemColor: kPrimaryColor,
-                          unselectedItemColor: kGreyDark,
-                          onTap: _onItemTapped,
-                          showUnselectedLabels: true,
-                        ),
+                      bottomNavigationBar: BottomNavigationBar(
+                        items: List.generate(5, (index) {
+                          return BottomNavigationBarItem(
+                            backgroundColor: Colors.white,
+                            icon:
+                                index == 2 // Assuming profile is the third item
+                                    ? user.image != null && user.image != ''
+                                        ? CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                              user.image ?? '',
+                                            ),
+                                            radius: 15,
+                                          )
+                                        : Image.asset(
+                                            'assets/icons/dummy_person_small.png',
+                                            scale: 1.5,
+                                          )
+                                    : IconResolver(
+                                        iconPath: _inactiveIcons[index],
+                                        color: _selectedIndex == index
+                                            ? kPrimaryColor
+                                            : Colors.grey,
+                                      ),
+                            activeIcon: index == 2
+                                ? user.image != null && user.image != ''
+                                    ? CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                          user.image ?? '',
+                                        ),
+                                        radius: 15,
+                                      )
+                                    : Image.asset(
+                                        'assets/icons/dummy_person_small.png',
+                                        scale: 1.5,
+                                      )
+                                : IconResolver(
+                                    iconPath: _activeIcons[index],
+                                    color: kPrimaryColor),
+                            label: [
+                              'Home',
+                              'Business',
+                              'Profile',
+                              'News',
+                              'Chat'
+                            ][index],
+                          );
+                        }),
+                        currentIndex: _selectedIndex,
+                        selectedItemColor: kPrimaryColor,
+                        unselectedItemColor: Colors.grey,
+                        onTap: _onItemTapped,
+                        showUnselectedLabels: true,
                       ),
                     )
                   : Scaffold(
@@ -178,7 +202,7 @@ class _MainPageState extends ConsumerState<MainPage> {
                             color: Colors.red[50],
                             borderRadius: BorderRadius.circular(15.0),
                             border: Border.all(
-                              color: Colors.redAccent,
+                              color: kRed,
                               width: 1.5,
                             ),
                             boxShadow: [

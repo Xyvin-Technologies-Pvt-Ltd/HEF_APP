@@ -10,10 +10,10 @@ class Product {
   final String? description;
   final int? moq;
   final String? units;
-  final String status;
-  final String? reason;
+  final String? status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final int? version;
 
   Product({
     this.id,
@@ -25,13 +25,12 @@ class Product {
     this.description,
     this.moq,
     this.units,
-    this.status = "pending",
-    this.reason,
+    this.status,
     this.createdAt,
     this.updatedAt,
+    this.version,
   });
 
-  /// Factory method to create a Product instance from JSON.
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json['_id'] as String?,
@@ -43,18 +42,17 @@ class Product {
       description: json['description'] as String?,
       moq: json['moq'] as int?,
       units: json['units'] as String?,
-      status: json['status'] as String? ?? "pending",
-      reason: json['reason'] as String?,
+      status: json['status'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'] as String)
           : null,
+      version: json['__v'] as int?,
     );
   }
 
-  /// Method to convert a Product instance into JSON.
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
@@ -67,42 +65,9 @@ class Product {
       'moq': moq,
       'units': units,
       'status': status,
-      'reason': reason,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      '__v': version,
     };
-  }
-
-  /// Method to create a copy of the Product with modified values.
-  Product copyWith({
-    String? id,
-    String? seller,
-    String? name,
-    String? image,
-    double? price,
-    double? offerPrice,
-    String? description,
-    int? moq,
-    String? units,
-    String? status,
-    String? reason,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return Product(
-      id: id ?? this.id,
-      seller: seller ?? this.seller,
-      name: name ?? this.name,
-      image: image ?? this.image,
-      price: price ?? this.price,
-      offerPrice: offerPrice ?? this.offerPrice,
-      description: description ?? this.description,
-      moq: moq ?? this.moq,
-      units: units ?? this.units,
-      status: status ?? this.status,
-      reason: reason ?? this.reason,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
   }
 }

@@ -10,7 +10,7 @@ import 'package:hef/src/data/models/chat_model.dart';
 import 'dart:async';
 
 import 'package:hef/src/data/notifiers/products_notifier.dart';
-import 'package:hef/src/interface/components/Cards/Cards.dart';
+import 'package:hef/src/interface/components/Cards/product_card.dart';
 import 'package:hef/src/interface/components/shimmers/product_card_shimmer.dart';
 
 class ProductView extends ConsumerStatefulWidget {

@@ -9,11 +9,11 @@ part 'products_api.g.dart';
 @riverpod
 Future<List<Product>> fetchProducts(FetchProductsRef ref,
     {int pageNo = 1, int limit = 10, String? search}) async {
-  Uri url = Uri.parse('$baseUrl/products?pageNo=$pageNo&limit=$limit');
+  Uri url = Uri.parse('$baseUrl/product?pageNo=$pageNo&limit=$limit');
 
   if (search != null && search != '') {
     url = Uri.parse(
-        '$baseUrl/products?pageNo=$pageNo&limit=$limit&search=$search');
+        '$baseUrl/product?pageNo=$pageNo&limit=$limit&search=$search');
   }
 
   print('Requesting URL: $url');
@@ -27,7 +27,7 @@ Future<List<Product>> fetchProducts(FetchProductsRef ref,
   print('hello');
   print(json.decode(response.body)['status']);
   if (response.statusCode == 200) {
-    final List<dynamic> data = json.decode(response.body)['data'];
+    final List<dynamic> data = json.decode(response.body)['data']['products'];
     print(response.body);
     List<Product> products = [];
 

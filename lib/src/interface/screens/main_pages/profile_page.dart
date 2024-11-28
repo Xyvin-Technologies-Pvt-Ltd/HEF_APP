@@ -89,6 +89,9 @@ class ProfilePage extends StatelessWidget {
                                         child: IconButton(
                                           icon: Icon(Icons.remove_red_eye),
                                           onPressed: () {
+                                            navigationService.pushNamed(
+                                                'ProfilePreview',
+                                                arguments: user);
                                             // Navigator.push(
                                             //   context,
                                             //   PageRouteBuilder(
@@ -322,7 +325,7 @@ class ProfilePage extends StatelessWidget {
                       //   width: 90,
                       //   height: 90,
                       //   decoration: BoxDecoration(
-                      //     color: Color(0xFFE30613),
+                      //     color: kPrimaryColor,
                       //     borderRadius: BorderRadius.circular(
                       //         50), // Apply circular border to the outer container
                       //   ),
@@ -331,7 +334,7 @@ class ProfilePage extends StatelessWidget {
                       //     child: Container(
                       //       decoration: BoxDecoration(
                       //         borderRadius: BorderRadius.circular(50),
-                      //         color: Color(0xFFE30613),
+                      //         color: kPrimaryColor,
                       //       ),
                       //       child: Icon(
                       //         Icons.share,

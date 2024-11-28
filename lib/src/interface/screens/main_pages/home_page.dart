@@ -14,9 +14,11 @@ import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/promotion_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Drawer/drawer.dart';
 import 'package:hef/src/interface/components/common/custom_video.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_news.dart';
+import 'package:hef/src/interface/components/custom_widgets/event_Card.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/components/shimmers/promotion_shimmers.dart';
 import 'package:shimmer/shimmer.dart';
@@ -70,6 +72,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   CarouselController controller = CarouselController();
   @override
   Widget build(BuildContext context) {
+    NavigationService navigationService = NavigationService();
     return Consumer(
       builder: (context, ref, child) {
         final asyncPromotions = ref.watch(fetchPromotionsProvider);
@@ -86,7 +89,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             backdrop: Container(
               width: double.infinity,
               height: double.infinity,
-              decoration: BoxDecoration(color: kWhite),
+              decoration: const BoxDecoration(color: kWhite),
             ),
             controller: _advancedDrawerController,
             animationCurve: Curves.easeInOut,
@@ -126,340 +129,390 @@ class _HomePageState extends ConsumerState<HomePage> {
                       .where((video) => video.link!.startsWith('http'))
                       .toList();
 
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          child: AppBar(
-                            toolbarHeight: 45.0,
-                            scrolledUnderElevation: 0,
-                            backgroundColor: kPrimaryLightColor,
-                            elevation: 0,
-                            leadingWidth: 60,
-                            leading: Padding(
-                              padding: const EdgeInsets.only(left: 10),
-                              child: InkWell(
-                                onTap: () =>
-                                    _advancedDrawerController.showDrawer(),
-                                child: SizedBox(
-                                  child: ValueListenableBuilder<
-                                      AdvancedDrawerValue>(
-                                    valueListenable: _advancedDrawerController,
-                                    builder: (_, value, __) {
-                                      return AnimatedSwitcher(
-                                          duration: Duration(milliseconds: 250),
-                                          child: Image.asset(
-                                              'assets/pngs/hef_logo.png'));
-                                    },
+                  return Stack(
+                    children: [
+                      SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              child: AppBar(
+                                toolbarHeight: 45.0,
+                                scrolledUnderElevation: 0,
+                                backgroundColor: kPrimaryLightColor,
+                                elevation: 0,
+                                leadingWidth: 60,
+                                leading: Padding(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  child: InkWell(
+                                    onTap: () =>
+                                        _advancedDrawerController.showDrawer(),
+                                    child: SizedBox(
+                                      child: ValueListenableBuilder<
+                                          AdvancedDrawerValue>(
+                                        valueListenable:
+                                            _advancedDrawerController,
+                                        builder: (_, value, __) {
+                                          return AnimatedSwitcher(
+                                              duration: const Duration(
+                                                  milliseconds: 250),
+                                              child: Image.asset(
+                                                  'assets/pngs/hef_logo.png'));
+                                        },
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            actions: [
-                              Consumer(
-                                builder: (context, ref, child) {
-                                  final asyncNotifications =
-                                      ref.watch(fetchNotificationsProvider);
-                                  return asyncNotifications.when(
-                                    data: (notifications) {
-                                      bool userExists = false;
-                                      notifications.map(
-                                        (notification) {
-                                          userExists =
-                                              notification.users?.any((user) {
+                                actions: [
+                                  Consumer(
+                                    builder: (context, ref, child) {
+                                      final asyncNotifications =
+                                          ref.watch(fetchNotificationsProvider);
+                                      return asyncNotifications.when(
+                                        data: (notifications) {
+                                          bool userExists = false;
+                                          notifications.map(
+                                            (notification) {
+                                              userExists = notification.users
+                                                      ?.any((user) {
                                                     return user.userId == id;
                                                   }) ??
                                                   false;
+                                            },
+                                          );
+                                          return IconButton(
+                                            icon: userExists
+                                                ? const Icon(
+                                                    Icons
+                                                        .notification_add_outlined,
+                                                    color: kRed)
+                                                : const Icon(Icons
+                                                    .notifications_none_outlined),
+                                            onPressed: () {
+                                              // Navigator.push(
+                                              //   context,
+                                              //   MaterialPageRoute(
+                                              //       builder: (context) => const NotificationPage()),
+                                              // );
+                                            },
+                                          );
+                                        },
+                                        loading: () => const Center(
+                                          child: Icon(Icons
+                                              .notifications_none_outlined),
+                                        ),
+                                        error: (error, stackTrace) {
+                                          return const Center(
+                                            child: Text('Something Went Wrong'),
+                                          );
                                         },
                                       );
-                                      return IconButton(
-                                        icon: userExists
-                                            ? Icon(
-                                                Icons.notification_add_outlined,
-                                                color: kRed)
-                                            : Icon(Icons
-                                                .notifications_none_outlined),
-                                        onPressed: () {
-                                          // Navigator.push(
-                                          //   context,
-                                          //   MaterialPageRoute(
-                                          //       builder: (context) => const NotificationPage()),
-                                          // );
-                                        },
-                                      );
-                                    },
-                                    loading: () => Center(
-                                      child: Icon(
-                                          Icons.notifications_none_outlined),
-                                    ),
-                                    error: (error, stackTrace) {
-                                      return Center(
-                                        child: Text('Something Went Wrong'),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Banner Carousel
-                        if (banners.isNotEmpty)
-                          Column(
-                            children: [
-                              CarouselSlider(
-                                items: banners.map((banner) {
-                                  return _buildBanners(
-                                      context: context, banner: banner);
-                                }).toList(),
-                                options: CarouselOptions(
-                                  height: 175,
-                                  scrollPhysics: banners.length > 1
-                                      ? null
-                                      : NeverScrollableScrollPhysics(),
-                                  autoPlay: banners.length > 1 ? true : false,
-                                  viewportFraction: 1,
-                                  autoPlayInterval: Duration(seconds: 3),
-                                  onPageChanged: (index, reason) {
-                                    setState(() {
-                                      _currentBannerIndex = index;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-
-                        const SizedBox(height: 16),
-
-                        // Notices Carousel
-                        if (notices.isNotEmpty)
-                          Column(
-                            children: [
-                              CarouselSlider(
-                                items: notices.map((notice) {
-                                  return customNotice(
-                                      context: context, notice: notice);
-                                }).toList(),
-                                options: CarouselOptions(
-                                  scrollPhysics: notices.length > 1
-                                      ? null
-                                      : NeverScrollableScrollPhysics(),
-                                  autoPlay: notices.length > 1 ? true : false,
-                                  viewportFraction: 1,
-                                  height: _calculateDynamicHeight(notices),
-                                  autoPlayInterval: Duration(seconds: 3),
-                                  onPageChanged: (index, reason) {
-                                    setState(() {
-                                      _currentNoticeIndex = index;
-                                    });
-                                  },
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              if (notices.length > 1)
-                                _buildDotIndicator(
-                                    _currentNoticeIndex,
-                                    notices.length,
-                                    const Color.fromARGB(255, 39, 38, 38)),
-                            ],
-                          ),
-
-                        if (posters.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 20),
-                            child: Column(
-                              children: [
-                                CarouselSlider(
-                                  items: posters.asMap().entries.map((entry) {
-                                    int index = entry.key;
-                                    Promotion poster = entry.value;
-
-                                    return KeyedSubtree(
-                                      key: ValueKey(index),
-                                      child: customPoster(
-                                          context: context, poster: poster),
-                                    );
-                                  }).toList(),
-                                  options: CarouselOptions(
-                                    height: 420,
-                                    scrollPhysics: posters.length > 1
-                                        ? null
-                                        : NeverScrollableScrollPhysics(),
-                                    autoPlay: posters.length > 1,
-                                    viewportFraction: 1,
-                                    autoPlayInterval: Duration(seconds: 3),
-                                    onPageChanged: (index, reason) {
-                                      setState(() {
-                                        _currentPosterIndex = index;
-                                      });
                                     },
                                   ),
-                                )
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 20),
 
-                        // Events Carousel
-                        // asyncEvents.when(
-                        //   data: (events) {
+                            // Banner Carousel
+                            if (banners.isNotEmpty)
+                              Column(
+                                children: [
+                                  CarouselSlider(
+                                    items: banners.map((banner) {
+                                      return _buildBanners(
+                                          context: context, banner: banner);
+                                    }).toList(),
+                                    options: CarouselOptions(
+                                      height: 175,
+                                      scrollPhysics: banners.length > 1
+                                          ? null
+                                          : const NeverScrollableScrollPhysics(),
+                                      autoPlay:
+                                          banners.length > 1 ? true : false,
+                                      viewportFraction: 1,
+                                      autoPlayInterval:
+                                          const Duration(seconds: 3),
+                                      onPageChanged: (index, reason) {
+                                        setState(() {
+                                          _currentBannerIndex = index;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
 
-                        //     return events.isNotEmpty
-                        //         ? Column(
-                        //             children: [
-                        //               Row(
-                        //                 children: [
-                        //                   Padding(
-                        //                     padding: const EdgeInsets.only(
-                        //                         left: 25, top: 10),
-                        //                     child: Text(
-                        //                       'Events',
-                        //                       style: TextStyle(
-                        //                           fontSize: 17,
-                        //                           fontWeight: FontWeight.w600),
-                        //                     ),
-                        //                   ),
-                        //                 ],
-                        //               ),
-                        //               CarouselSlider(
-                        //                 items: events.map((event) {
-                        //                   return Container(
-                        //                     width: MediaQuery.of(context)
-                        //                             .size
-                        //                             .width *
-                        //                         0.95,
-                        //                     child: eventWidget(
-                        //                       withImage: true,
-                        //                       context: context,
-                        //                       event: event,
-                        //                     ),
-                        //                   );
-                        //                 }).toList(),
-                        //                 options: CarouselOptions(
-                        //                   height: 380,
-                        //                   scrollPhysics: events.length > 1
-                        //                       ? null
-                        //                       : NeverScrollableScrollPhysics(),
-                        //                   autoPlay:
-                        //                       events.length > 1 ? true : false,
-                        //                   viewportFraction: 1,
-                        //                   autoPlayInterval: Duration(seconds: 3),
-                        //                   onPageChanged: (index, reason) {
-                        //                     setState(() {
-                        //                       _currentEventIndex = index;
-                        //                     });
-                        //                   },
-                        //                 ),
-                        //               ),
-                        //               _buildDotIndicator(_currentEventIndex,
-                        //                   events.length, Colors.red),
-                        //             ],
-                        //           )
-                        //         : SizedBox();
-                        //   },
-                        //   loading: () => Center(child: LoadingAnimation()),
-                        //   error: (error, stackTrace) => SizedBox(),
-                        // ),
+                            const SizedBox(height: 16),
 
-                        const SizedBox(height: 16),
+                            // Notices Carousel
+                            if (notices.isNotEmpty)
+                              Column(
+                                children: [
+                                  CarouselSlider(
+                                    items: notices.map((notice) {
+                                      return customNotice(
+                                          context: context, notice: notice);
+                                    }).toList(),
+                                    options: CarouselOptions(
+                                      scrollPhysics: notices.length > 1
+                                          ? null
+                                          : const NeverScrollableScrollPhysics(),
+                                      autoPlay:
+                                          notices.length > 1 ? true : false,
+                                      viewportFraction: 1,
+                                      height: _calculateDynamicHeight(notices),
+                                      autoPlayInterval:
+                                          const Duration(seconds: 3),
+                                      onPageChanged: (index, reason) {
+                                        setState(() {
+                                          _currentNoticeIndex = index;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  if (notices.length > 1)
+                                    _buildDotIndicator(
+                                        _currentNoticeIndex,
+                                        notices.length,
+                                        const Color.fromARGB(255, 39, 38, 38)),
+                                ],
+                              ),
 
-                        asyncNews.when(
-                          data: (news) {
-                            return news.isNotEmpty
-                                ? Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 25, top: 10),
-                                        child: Text(
-                                          'News',
-                                          style: TextStyle(
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
+                            if (posters.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20),
+                                child: Column(
+                                  children: [
+                                    CarouselSlider(
+                                      items:
+                                          posters.asMap().entries.map((entry) {
+                                        int index = entry.key;
+                                        Promotion poster = entry.value;
+
+                                        return KeyedSubtree(
+                                          key: ValueKey(index),
+                                          child: customPoster(
+                                              context: context, poster: poster),
+                                        );
+                                      }).toList(),
+                                      options: CarouselOptions(
+                                        height: 420,
+                                        scrollPhysics: posters.length > 1
+                                            ? null
+                                            : const NeverScrollableScrollPhysics(),
+                                        autoPlay: posters.length > 1,
+                                        viewportFraction: 1,
+                                        autoPlayInterval:
+                                            const Duration(seconds: 3),
+                                        onPageChanged: (index, reason) {
+                                          setState(() {
+                                            _currentPosterIndex = index;
+                                          });
+                                        },
                                       ),
-                                      SizedBox(height: 10),
-                                      SizedBox(
-                                        height:
-                                            150, // Fixed height for the ListView
-                                        child: ListView.builder(
-                                          controller: ScrollController(),
-                                          scrollDirection: Axis.horizontal,
-                                          itemCount: news.length,
-                                          itemBuilder: (context, index) {
-                                            final individualNews = news[index];
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8.0),
-                                              child: SizedBox(
+                                    )
+                                  ],
+                                ),
+                              ),
+
+                            // Events Carousel
+                            asyncEvents.when(
+                              data: (events) {
+                                return events.isNotEmpty
+                                    ? Column(
+                                        children: [
+                                          const Row(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 25, top: 10),
+                                                child: Text(
+                                                  'Events',
+                                                  style: TextStyle(
+                                                      fontSize: 17,
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          CarouselSlider(
+                                            items: events.map((event) {
+                                              return Container(
                                                 width: MediaQuery.of(context)
                                                         .size
                                                         .width *
-                                                    0.4,
-                                                child: newsCard(
-                                                  imageUrl:
-                                                      individualNews.media ??
-                                                          '',
-                                                  title: individualNews.title ??
-                                                      '',
+                                                    0.95,
+                                                child: eventWidget(
+                                                  withImage: true,
+                                                  context: context,
+                                                  event: event,
                                                 ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : SizedBox();
-                          },
-                          loading: () => Center(child: LoadingAnimation()),
-                          error: (error, stackTrace) => SizedBox(),
-                        ),
+                                              );
+                                            }).toList(),
+                                            options: CarouselOptions(
+                                              height: 268,
+                                              scrollPhysics: events.length > 1
+                                                  ? null
+                                                  : const NeverScrollableScrollPhysics(),
+                                              autoPlay: events.length > 1
+                                                  ? true
+                                                  : false,
+                                              viewportFraction: 1,
+                                              autoPlayInterval:
+                                                  const Duration(seconds: 3),
+                                              onPageChanged: (index, reason) {
+                                                setState(() {
+                                                  _currentEventIndex = index;
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                          // _buildDotIndicator(_currentEventIndex,
+                                          //     events.length, Colors.red),
+                                        ],
+                                      )
+                                    : const SizedBox();
+                              },
+                              loading: () =>
+                                  const Center(child: LoadingAnimation()),
+                              error: (error, stackTrace) => const SizedBox(),
+                            ),
 
-                        // Videos Carousel
-                        if (filteredVideos.isNotEmpty)
-                          Column(
-                            children: [
-                              CarouselSlider(
-                                items: filteredVideos.map((video) {
-                                  return customVideo(
-                                      context: context, video: video);
-                                }).toList(),
-                                options: CarouselOptions(
-                                  height: 225,
-                                  scrollPhysics: videos.length > 1
-                                      ? null
-                                      : NeverScrollableScrollPhysics(),
-                                  viewportFraction: 1,
-                                  onPageChanged: (index, reason) {
-                                    setState(() {
-                                      _currentVideoIndex = index;
-                                    });
-                                  },
-                                ),
+                            const SizedBox(height: 16),
+
+                            asyncNews.when(
+                              data: (news) {
+                                return news.isNotEmpty
+                                    ? Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 15, top: 10, right: 15),
+                                            child: Row(
+                                              children: [
+                                                Text('News',
+                                                    style: kHeadTitleB.copyWith(
+                                                        color: kTextHeadColor)),
+                                                const Spacer(),
+                                                InkWell(
+                                                  onTap: () => navigationService
+                                                      .pushNamed('News'),
+                                                  child: const Text('see all',
+                                                      style: kSmallTitleR),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          SizedBox(
+                                            height:
+                                                180, // Fixed height for the ListView
+                                            child: ListView.builder(
+                                              controller: ScrollController(),
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: news.length,
+                                              itemBuilder: (context, index) {
+                                                final individualNews =
+                                                    news[index];
+                                                return Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 8.0),
+                                                  child: SizedBox(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.45,
+                                                    child: newsCard(
+                                                      imageUrl: individualNews
+                                                              .media ??
+                                                          '',
+                                                      title: individualNews
+                                                              .title ??
+                                                          '',
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : const SizedBox();
+                              },
+                              loading: () =>
+                                  const Center(child: LoadingAnimation()),
+                              error: (error, stackTrace) => const SizedBox(),
+                            ),
+
+                            // Videos Carousel
+                            if (filteredVideos.isNotEmpty)
+                              Column(
+                                children: [
+                                  CarouselSlider(
+                                    items: filteredVideos.map((video) {
+                                      return customVideo(
+                                          context: context, video: video);
+                                    }).toList(),
+                                    options: CarouselOptions(
+                                      height: 225,
+                                      scrollPhysics: videos.length > 1
+                                          ? null
+                                          : const NeverScrollableScrollPhysics(),
+                                      viewportFraction: 1,
+                                      onPageChanged: (index, reason) {
+                                        setState(() {
+                                          _currentVideoIndex = index;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  if (videos.length > 1)
+                                    _buildDotIndicator(_currentVideoIndex,
+                                        filteredVideos.length, Colors.black),
+                                ],
                               ),
-                              if (videos.length > 1)
-                                _buildDotIndicator(_currentVideoIndex,
-                                    filteredVideos.length, Colors.black),
-                            ],
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        right: 30,
+                        bottom: 30,
+                        child: GestureDetector(
+                          // onTap: () => _openModalSheet(sheet: 'post'),
+                          child: Container(
+                            padding: EdgeInsets.all(13),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: kPrimaryColor,
+                            ),
+                            child: InkWell(onTap: () {
+                              
+                            },
+                              child: Icon(
+                                Icons.person_add_alt_1_outlined,
+                                color: kWhite,
+                                size: 27,
+                              ),
+                            ),
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
+                    ],
                   );
                 },
                 loading: () => Center(
                     child: buildShimmerPromotionsColumn(context: context)),
                 error: (error, stackTrace) =>
-                    Center(child: Text('NO PROMOTIONS YET')),
+                    const Center(child: Text('NO PROMOTIONS YET')),
               ),
             ),
           ),
@@ -604,8 +657,8 @@ Widget customNotice({
             color: kBlack.withOpacity(0.2),
             blurRadius: 10,
             spreadRadius: 0,
-            offset:
-                Offset(0, 5), // Horizontal (0), Vertical (5) for bottom shadow
+            offset: const Offset(
+                0, 5), // Horizontal (0), Vertical (5) for bottom shadow
           ),
         ],
         borderRadius: BorderRadius.circular(8.0),

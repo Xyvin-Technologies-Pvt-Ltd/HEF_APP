@@ -1,3 +1,7 @@
+#secret files
+.env
+*.env
+
 # Miscellaneous
 *.class
 *.log

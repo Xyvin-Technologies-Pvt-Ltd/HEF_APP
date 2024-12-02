@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
 
@@ -9,34 +10,17 @@ Padding customWebsiteVideoCard({Link? websiteVideo, VoidCallback? onRemove}) {
       left: 15,
       right: 15,
     ),
-    child: Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: const Color(0xFFF2F2F2),
-      ),
-      child: Row(
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
-            child: Align(
-              alignment: Alignment.topCenter,
-              widthFactor: 1.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: Colors.white,
-                ),
-                width: 42,
-                height: 42,
-                child: Icon(Icons.language, color: kPrimaryColor),
-              ),
+    child: Row(
+      children: [
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: kGrey),
+              borderRadius: BorderRadius.circular(10),
+              color: kWhite,
             ),
-          ),
-          Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15),
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
               child: Text(
                 '${websiteVideo!.name}',
                 overflow: TextOverflow.ellipsis,
@@ -45,28 +29,13 @@ Padding customWebsiteVideoCard({Link? websiteVideo, VoidCallback? onRemove}) {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () => onRemove!(),
-            child: Padding(
-              padding:
-                  const EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
-              child: Align(
-                alignment: Alignment.topCenter,
-                widthFactor: 1.0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: Colors.white,
-                  ),
-                  width: 42,
-                  height: 42,
-                  child: Icon(Icons.remove, color: kPrimaryColor),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 10), // Optional spacing between items
+        InkWell(
+          onTap: () => onRemove!(),
+          child: SvgPicture.asset('assets/svg/icons/delete_account.svg'),
+        ),
+      ],
     ),
   );
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:hef/src/data/api_routes/user_api/features/business.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
+import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
   String? mediaUrl;
   @override
   Widget build(BuildContext context) {
+    NavigationService navigationService = NavigationService();
     SnackbarService snackbarService = SnackbarService();
     return PopScope(
       child: Padding(
@@ -185,8 +187,9 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                         );
                         widget.textController.clear();
                         postImage = null;
-                        Navigator.pop(
-                            context); // Close the dialog after completion
+
+                        navigationService
+                            .pop(); // Close the dialog after completion
                         snackbarService.showSnackBar(
                             'Your Post Will Be Reviewed By Admin');
                       } finally {

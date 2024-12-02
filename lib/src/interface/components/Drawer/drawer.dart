@@ -66,6 +66,21 @@ Widget customDrawer({required UserModel user}) {
             height: 30,
           ),
           // Drawer Items
+
+          _buildDrawerItem(
+            icon: 'assets/svg/icons/analytics.svg',
+            label: 'Analytics',
+            onTap: () {
+              navigationService.pushNamed('AnalyticsPage');
+            },
+          ),
+          _buildDrawerItem(
+            icon: 'assets/svg/icons/levels.svg',
+            label: 'Levels',
+            onTap: () {
+              navigationService.pushNamed('States');
+            },
+          ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/requestnfc.svg',
             label: 'Request NFC',
@@ -78,6 +93,7 @@ Widget customDrawer({required UserModel user}) {
             label: 'My Subscription',
             onTap: () {},
           ),
+
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_reviews.svg',
             label: 'My Reviews',

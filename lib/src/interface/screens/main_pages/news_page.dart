@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/news_api/news_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
+import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/news_model.dart';
 import 'package:hef/src/interface/components/animations/arrow_down.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -110,13 +111,13 @@ class _NewsPageViewState extends ConsumerState<NewsPageView> {
           ],
         ),
         // Show the arrow only if the user hasn't scrolled
-        if (!_hasScrolled)
-          Positioned(
+        if (!_hasScrolled && LoggedIn != true)
+          const Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
+              padding: EdgeInsets.only(bottom: 16.0),
               child: BlinkingFloatingArrow(),
             ),
           ),

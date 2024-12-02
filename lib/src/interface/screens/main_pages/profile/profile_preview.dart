@@ -69,6 +69,11 @@ class ProfilePreview extends ConsumerWidget {
       backgroundColor: kScaffoldColor,
       body: Stack(
         children: [
+          Positioned(
+              child: Opacity(
+                  opacity: .2,
+                  child:
+                      SvgPicture.asset('assets/svg/images/previewFlower.svg'))),
           SingleChildScrollView(
             child: Column(
               children: [

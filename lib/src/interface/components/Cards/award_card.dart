@@ -1,5 +1,6 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
 
 class AwardCard extends StatelessWidget {
@@ -22,7 +23,7 @@ class AwardCard extends StatelessWidget {
             children: [
               // Upper part: Image fitted to the card
               Container(
-                height: 90, // Height of the image section
+                height: 115, // Height of the image section
                 width: double.infinity,
                 decoration: BoxDecoration(
                   image: DecorationImage(
@@ -42,18 +43,19 @@ class AwardCard extends StatelessWidget {
                   right: 10.0,
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(8),
                       color: Colors.white,
                     ),
-                    child: GestureDetector(
-                      onTap: () {
-                        onRemove!();
-                      },
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.black,
-                        size: 22,
-                      ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(7.0),
+                      child: GestureDetector(
+                          onTap: () {
+                            onRemove!();
+                          },
+                          child: SvgPicture.asset(
+                              width: 16,
+                              height: 16,
+                              'assets/svg/icons/delete_account.svg')),
                     ),
                   ),
                 ),
@@ -64,12 +66,11 @@ class AwardCard extends StatelessWidget {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(10.0),
-                  bottomRight: Radius.circular(10.0),
-                ),
-                color: const Color(0xFFF2F2F2),
-              ),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(10.0),
+                    bottomRight: Radius.circular(10.0),
+                  ),
+                  color: kWhite),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [

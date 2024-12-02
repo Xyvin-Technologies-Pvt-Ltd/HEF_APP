@@ -31,7 +31,7 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
   Future<void> _fetchUserDetails() async {
     try {
       log('Fetching user details');
-      final user = await ref.read(fetchUserDetailsProvider( id).future);
+      final user = await ref.read(fetchUserDetailsProvider(id).future);
       state = AsyncValue.data(user ?? UserModel());
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
@@ -39,29 +39,27 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
       log(stackTrace.toString());
     }
   }
+
   void updateName({
     String? name,
   }) {
-
-       state =
-        state.whenData((user) => user.copyWith(name: name));
-
+    state = state.whenData((user) => user.copyWith(name: name));
   }
+
   void updateCompany(Company? company) {
     state = state.whenData((user) => user.copyWith(
-        company: Company(
-            designation: company?.designation ?? user.company?.designation,
-            email: company?.email ?? user.company?.email,
-            name: company?.name ?? user.company?.name,
-            phone: company?.phone ?? user.company?.phone,
-            websites: company?.websites ?? user.company?.websites,
-          )));
+            company: Company(
+          designation: company?.designation ?? user.company?.designation,
+          email: company?.email ?? user.company?.email,
+          name: company?.name ?? user.company?.name,
+          phone: company?.phone ?? user.company?.phone,
+          websites: company?.websites ?? user.company?.websites,
+        )));
   }
 
   void updateEmail(String? email) {
     state = state.whenData((user) => user.copyWith(email: email));
   }
-
 
   void updateBio(String? bio) {
     state = state.whenData((user) => user.copyWith(bio: bio));
@@ -101,6 +99,7 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
 
   void updateSocialMedia(
       List<Link> socialmedias, String platform, String newUrl) {
+    log(newUrl);
     if (platform.isNotEmpty) {
       final index = socialmedias.indexWhere((item) => item.name == platform);
       log('platform:$platform');

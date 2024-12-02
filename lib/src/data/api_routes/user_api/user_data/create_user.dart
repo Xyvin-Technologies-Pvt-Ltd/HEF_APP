@@ -1,15 +1,14 @@
 import 'dart:convert';
 
 import 'package:hef/src/data/globals.dart';
+import 'package:hef/src/data/models/user_model.dart';
 
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:http/http.dart'as http;
 
 
-Future<void> uploadBusiness(
-    {required String type,
-    required String? media,
-    required String content}) async {
+Future<void> createUser(
+    {required UserModel user}) async {
   final url = Uri.parse('$baseUrl/feeds');
 
   final headers = {
@@ -19,9 +18,29 @@ Future<void> uploadBusiness(
   };
 
   final body = jsonEncode({
-    'type': type,
-    if (media != null && media != '') 'media': media,
-    'content': content,
+{
+  "name": user.name,
+  "uid": user.name,
+  "memberId": user.name,
+  "bloodgroup": user.name,
+  "role":user.name,
+  "chapter": user.name,
+  "image": user.name,
+  "email": user.name,
+  "phone":user.name,
+  "bio": user.name,
+  "status": user.name,
+  "address": user.name,
+  "businessCatogary":user.name,
+  "businessSubCatogary": user.name,
+  "company": {
+    "name": user.company?.name,
+    "designation":user.company?.designation,
+    "email": user.company?.email,
+    "websites": user.company?.websites,
+    "phone": user.company?.phone,
+  }
+}
   });
 
   try {

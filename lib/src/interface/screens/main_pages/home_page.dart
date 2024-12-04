@@ -14,6 +14,7 @@ import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/promotion_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/router/nav_router.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Drawer/drawer.dart';
 import 'package:hef/src/interface/components/common/custom_video.dart';
@@ -21,6 +22,7 @@ import 'package:hef/src/interface/components/custom_widgets/custom_news.dart';
 import 'package:hef/src/interface/components/custom_widgets/event_Card.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/components/shimmers/promotion_shimmers.dart';
+import 'package:hef/src/interface/screens/main_pages/news_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -439,6 +441,18 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                                 .width *
                                                             0.45,
                                                     child: newsCard(
+                                                      onTap: () {
+                                                        ref
+                                                            .read(
+                                                                currentNewsIndexProvider
+                                                                    .notifier)
+                                                            .updateIndex(index);
+                                                        ref
+                                                            .read(
+                                                                selectedIndexProvider
+                                                                    .notifier)
+                                                            .updateIndex(3);
+                                                      },
                                                       imageUrl: individualNews
                                                               .media ??
                                                           '',
@@ -577,9 +591,9 @@ Widget _buildBanners(
                 },
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) {
-                    return child; // Image loaded successfully
+                    return child;
                   }
-                  // While the image is loading, show shimmer effect
+
                   return Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,

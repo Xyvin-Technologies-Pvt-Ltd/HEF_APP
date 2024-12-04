@@ -8,6 +8,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
+import 'package:hef/src/data/router/nav_router.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/components/shimmers/promotion_shimmers.dart';
 import 'package:hef/src/interface/screens/main_pages/profile_page.dart';
@@ -63,17 +64,17 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class _MainPageState extends ConsumerState<MainPage> {
-  int _selectedIndex = 0;
+  // int _selectedIndex = 0;
 
   static List<Widget> _widgetOptions = <Widget>[];
 
-  void _onItemTapped(int index) {
-    HapticFeedback.selectionClick();
-    setState(() {
-      ref.read(currentNewsIndexProvider.notifier).state = 0;
-      _selectedIndex = index;
-    });
-  }
+  // void _onItemTapped(int index) {
+  //   HapticFeedback.selectionClick();
+  //   setState(() {
+  //     ref.read(currentNewsIndexProvider.notifier).state = 0;
+  //     _selectedIndex = index;
+  //   });
+  // }
 
   List<String> _inactiveIcons = [];
   List<String> _activeIcons = [];
@@ -110,6 +111,8 @@ class _MainPageState extends ConsumerState<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, child) {
+      final selectedIndex = ref.watch(selectedIndexProvider);
+
       final asyncUser = ref.watch(userProvider);
       return asyncUser.when(
         loading: () {
@@ -126,18 +129,16 @@ class _MainPageState extends ConsumerState<MainPage> {
           print(user.image);
           _initialize(user: user);
           return PopScope(
-              canPop: _selectedIndex != 0 ? false : true,
+              canPop: selectedIndex != 0 ? false : true,
               onPopInvokedWithResult: (didPop, result) {
-                if (_selectedIndex != 0) {
-                  setState(() {
-                    _selectedIndex = 0;
-                  });
+                if (selectedIndex != 0) {
+                  ref.read(selectedIndexProvider.notifier).updateIndex(0);
                 }
               },
               child: user.status == 'active'
                   ? Scaffold(
                       body: Center(
-                        child: _widgetOptions.elementAt(_selectedIndex),
+                        child: _widgetOptions.elementAt(selectedIndex),
                       ),
                       bottomNavigationBar: BottomNavigationBar(
                         items: List.generate(5, (index) {
@@ -158,7 +159,7 @@ class _MainPageState extends ConsumerState<MainPage> {
                                           )
                                     : IconResolver(
                                         iconPath: _inactiveIcons[index],
-                                        color: _selectedIndex == index
+                                        color: selectedIndex == index
                                             ? kPrimaryColor
                                             : Colors.grey,
                                       ),
@@ -186,10 +187,15 @@ class _MainPageState extends ConsumerState<MainPage> {
                             ][index],
                           );
                         }),
-                        currentIndex: _selectedIndex,
+                        currentIndex: selectedIndex,
                         selectedItemColor: kPrimaryColor,
                         unselectedItemColor: Colors.grey,
-                        onTap: _onItemTapped,
+                        onTap: (index) {
+                          HapticFeedback.selectionClick();
+                          ref
+                              .read(selectedIndexProvider.notifier)
+                              .updateIndex(index);
+                        },
                         showUnselectedLabels: true,
                       ),
                     )

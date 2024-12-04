@@ -80,17 +80,32 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
     case 'States':
       return MaterialPageRoute(builder: (context) => StatesPage());
     case 'Zones':
-      return MaterialPageRoute(builder: (context) => ZonesPage());
+      String stateId = settings?.arguments as String;
+      return MaterialPageRoute(
+          builder: (context) => ZonesPage(
+                stateId: stateId,
+              ));
     case 'Districts':
-      return MaterialPageRoute(builder: (context) => DistrictsPage());
+      String zoneId = settings?.arguments as String;
+      return MaterialPageRoute(
+          builder: (context) => DistrictsPage(
+                zoneId: zoneId,
+              ));
     case 'Chapters':
-      return MaterialPageRoute(builder: (context) => ChaptersPage());
+      String districtId = settings?.arguments as String;
+      return MaterialPageRoute(
+          builder: (context) => ChaptersPage(
+                districtId: districtId,
+              ));
+
+
     case 'LevelMembers':
       return MaterialPageRoute(builder: (context) => LevelMembers());
     case 'ProfileAnalytics':
       return MaterialPageRoute(builder: (context) => ProfileAnalyticsPage());
     case 'AnalyticsPage':
       return MaterialPageRoute(builder: (context) => AnalyticsPage());
+      
     default:
       return MaterialPageRoute(
         builder: (context) => Scaffold(

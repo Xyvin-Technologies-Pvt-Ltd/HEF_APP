@@ -11,8 +11,21 @@ import 'package:intl/intl.dart';
 
 import 'package:shimmer/shimmer.dart';
 
-// Riverpod Provider for current index tracking
-final currentNewsIndexProvider = StateProvider<int>((ref) => 0);
+class SelectedNewsIndexNotifier extends StateNotifier<int> {
+  SelectedNewsIndexNotifier() : super(0);
+
+  void updateIndex(int index) {
+    state = index;
+  }
+}
+
+final currentNewsIndexProvider =
+    StateNotifierProvider<SelectedNewsIndexNotifier, int>((ref) {
+  return SelectedNewsIndexNotifier();
+});
+
+
+// final currentNewsIndexProvider = StateProvider<int>((ref) => 0);
 
 class NewsPage extends ConsumerWidget {
   const NewsPage({super.key});
@@ -90,7 +103,9 @@ class _NewsPageViewState extends ConsumerState<NewsPageView> {
                 scrollDirection: Axis.vertical, // Make the scroll vertical
                 itemCount: widget.news.length,
                 onPageChanged: (index) {
-                  ref.read(currentNewsIndexProvider.notifier).state = index;
+                       ref
+                              .read(currentNewsIndexProvider.notifier)
+                              .updateIndex(index);
                 },
                 itemBuilder: (context, index) {
                   return ClipRect(

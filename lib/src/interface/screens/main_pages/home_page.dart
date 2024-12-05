@@ -210,11 +210,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                 },
                                               );
                                             },
-                                            loading: () => const Icon(Icons
-                                                .notifications_none_outlined),
-                                            error: (error, stackTrace) =>
-                                                const Text(
-                                                    'Something Went Wrong'),
+                                    loading: () => const Center(child: LoadingAnimation()),
+                  error: (error, stackTrace) => const SizedBox(),
+                
                                           );
                                         },
                                       ),

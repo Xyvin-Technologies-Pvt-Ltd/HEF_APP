@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hef/src/data/api_routes/review_api/review_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
@@ -12,10 +13,24 @@ import 'package:hef/src/data/services/save_contact.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/Cards/award_card.dart';
 import 'package:hef/src/interface/components/Cards/certificate_card.dart';
+import 'package:hef/src/interface/components/common/review_barchart.dart';
+import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+
+class ReviewsState extends StateNotifier<int> {
+  ReviewsState() : super(1);
+
+  void showMoreReviews(int totalReviews) {
+    state = (state + 2).clamp(0, totalReviews);
+  }
+}
+
+final reviewsProvider = StateNotifierProvider<ReviewsState, int>((ref) {
+  return ReviewsState();
+});
 
 class ProfilePreview extends ConsumerWidget {
   final UserModel user;
@@ -32,6 +47,7 @@ class ProfilePreview extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+           final reviewsToShow = ref.watch(reviewsProvider);
     PageController _videoCountController = PageController();
 
     _videoCountController.addListener(() {
@@ -317,9 +333,83 @@ class ProfilePreview extends ConsumerWidget {
                           ],
                         ),
                       ),
+
                     const SizedBox(
                       height: 50,
                     ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Consumer(
+                        builder: (context, ref, child) {
+                          final asyncReviews = ref.watch(
+                              fetchReviewsProvider(userId: user.uid ?? ''));
+                          return asyncReviews.when(
+                            data: (reviews) {
+                              return Column(
+                                children: [
+                                  ReviewBarChart(
+                                    reviews: reviews ?? [],
+                                  ),  if (reviews.isNotEmpty)
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: reviewsToShow,
+                        itemBuilder: (context, index) {        final ratingDistribution = getRatingDistribution(reviews);
+        final averageRating = getAverageRating(reviews);
+        final totalReviews =reviews.length;
+                          return ReviewsCard(
+                            review: reviews[index],
+                            ratingDistribution: ratingDistribution,
+                            averageRating: averageRating,
+                            totalReviews: totalReviews,
+                          );
+                        },
+                      ),
+                    if (reviewsToShow < reviews.length)
+                      TextButton(
+                        onPressed: () {
+                          ref
+                              .read(reviewsProvider.notifier)
+                              .showMoreReviews(reviews.length);
+                        },
+                        child: Text('View More'),
+                      ),
+                                ],
+                              );
+                            },
+                            loading: () =>
+                                const Center(child: LoadingAnimation()),
+                            error: (error, stackTrace) => const SizedBox(),
+                          );
+                        },
+                      ),
+                    ),
+                    // if (user.id != id)
+                    //   Row(
+                    //     children: [
+                    //       SizedBox(
+                    //           width: 100,
+                    //           child: customButton(
+                    //               label: 'Write a Review',
+                    //               onPressed: () {
+                    //                 showModalBottomSheet(
+                    //                   context: context,
+                    //                   isScrollControlled: true,
+                    //                   shape: const RoundedRectangleBorder(
+                    //                     borderRadius:
+                    //                         BorderRadius.vertical(
+                    //                             top: Radius.circular(20)),
+                    //                   ),
+                    //                   builder: (context) =>
+                    //                       ShowWriteReviewSheet(
+                    //                     userId: user.id!,
+                    //                   ),
+                    //                 );
+                    //               },
+                    //               fontSize: 15)),
+                    //     ],
+                    //   ),
+                  
                     // if (user.company?.designation != null ||
                     //     user.company?.email != null ||
                     //     user.company?.websites != null ||
@@ -737,100 +827,5 @@ void _launchURL(String url) async {
     await launchUrl(Uri.parse(url));
   } catch (e) {
     print(e);
-  }
-}
-
-class ReviewBarChart extends StatelessWidget {
-  final Map<int, int> ratingDistribution;
-  final double averageRating;
-  final int totalReviews;
-
-  const ReviewBarChart({
-    Key? key,
-    required this.ratingDistribution,
-    required this.averageRating,
-    required this.totalReviews,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Left side: Star icon, average rating, and total reviews
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(
-              height: 5,
-            ),
-            Row(
-              children: [
-                Container(
-                  height: 60,
-                  width: 80,
-                  color: const Color(0xFFFFFCF2),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.star, color: Color(0xFFF5B358)),
-                      const SizedBox(width: 4),
-                      Text(
-                        averageRating.toStringAsFixed(1),
-                        style: const TextStyle(
-                            color: Color(0xFFF5B358),
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '$totalReviews Reviews',
-              style: const TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
-        const SizedBox(width: 16), // Space between left and right side
-
-        // Right side: Rating bars
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ...List.generate(5, (index) {
-                int starCount = 5 - index;
-                int reviewCount = ratingDistribution[starCount] ?? 0;
-                double percentage =
-                    totalReviews > 0 ? reviewCount / totalReviews : 0;
-
-                return Row(
-                  children: [
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: LinearProgressIndicator(
-                        minHeight: 4.5,
-                        borderRadius: BorderRadius.circular(10),
-                        value: percentage,
-                        backgroundColor: Colors.grey[300],
-                        color: Colors.amber,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '$starCount',
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                );
-              }),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 }

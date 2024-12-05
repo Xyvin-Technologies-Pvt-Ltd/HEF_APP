@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
+import 'package:hef/src/data/models/analytics_model.dart';
+import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/interface/components/ModalSheets/analytics.dart';
+import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 
-class AnalyticsPage extends StatefulWidget {
+class AnalyticsPage extends ConsumerStatefulWidget {
   @override
   _AnalyticsPageState createState() => _AnalyticsPageState();
 }
 
-class _AnalyticsPageState extends State<AnalyticsPage>
+class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -43,21 +48,45 @@ class _AnalyticsPageState extends State<AnalyticsPage>
 
   @override
   Widget build(BuildContext context) {
+    final asyncSentAnalytics = ref.watch(fetchAnalyticsProvider('sent'));
+    final asyncReceivedAnalytics =
+        ref.watch(fetchAnalyticsProvider('received'));
+    final asyncHistoryAnalytics = ref.watch(fetchAnalyticsProvider(null));
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: kWhite,
-        centerTitle: true,
-        title: const Text(
-          "Analytics",
-          style: kSmallTitleM,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56.0), // Adjust height as needed
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  offset: Offset(0, 1),
+                  blurRadius: 1),
+            ],
+          ),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            centerTitle: true,
+            title: const Text(
+              "Analytics",
+              style: kSmallTitleM,
+            ),
+            elevation: 0,
+          ),
         ),
       ),
       body: Column(
         children: [
+          SizedBox(
+            height: 10,
+          ),
           Material(
-            color: Colors.white,
+            color: kWhite,
             elevation: 0.0,
             child: TabBar(
+              indicatorWeight: 3,
+              dividerColor: kWhite,
               indicatorSize: TabBarIndicatorSize.tab,
               controller: _tabController,
               labelColor: Colors.orange,
@@ -74,9 +103,21 @@ class _AnalyticsPageState extends State<AnalyticsPage>
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildReceivedTab(),
-                const Center(child: Text("Sent")),
-                const Center(child: Text("History")),
+                asyncReceivedAnalytics.when(
+                  data: (analytics) => _buildTab(analytics),
+                  loading: () => const Center(child: LoadingAnimation()),
+                  error: (error, stackTrace) => const SizedBox(),
+                ),
+                asyncSentAnalytics.when(
+                  data: (analytics) => _buildTab(analytics),
+                  loading: () => const Center(child: LoadingAnimation()),
+                  error: (error, stackTrace) => const SizedBox(),
+                ),
+                asyncHistoryAnalytics.when(
+                  data: (analytics) => _buildTab(analytics),
+                  loading: () => const Center(child: LoadingAnimation()),
+                  error: (error, stackTrace) => const SizedBox(),
+                ),
               ],
             ),
           ),
@@ -93,17 +134,21 @@ class _AnalyticsPageState extends State<AnalyticsPage>
     );
   }
 
-  Widget _buildReceivedTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemCount: 3,
-      itemBuilder: (context, index) {
-        return _buildCard();
+  Widget _buildTab(List<AnalyticsModel> analytics) {
+    return Consumer(
+      builder: (context, ref, child) {
+        return ListView.builder(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: analytics.length,
+          itemBuilder: (context, index) {
+            return _buildCard(analytics[index]);
+          },
+        );
       },
     );
   }
 
-  Widget _buildCard() {
+  Widget _buildCard(AnalyticsModel analytic) {
     return InkWell(
       onTap: () => _showReusableModalSheet(context),
       child: Container(
@@ -122,25 +167,25 @@ class _AnalyticsPageState extends State<AnalyticsPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         CircleAvatar(
                           radius: 24.0,
                           backgroundImage: NetworkImage(
-                            "https://via.placeholder.com/150", // Replace with avatar URL
+                            analytic.sender?.image ?? '',
                           ),
                         ),
                         SizedBox(
                           width: 14,
                         ),
                         Text(
-                          "Amit Mandal",
+                          analytic.sender?.name ?? '',
                           style: TextStyle(
                               fontSize: 16.0, fontWeight: FontWeight.bold),
                         ),
                         Spacer(),
                         Text(
-                          "12:30 PM · Apr 21, 2021",
+                          analytic.date ?? '',
                           style: TextStyle(fontSize: 12.0, color: Colors.grey),
                         ),
                       ],
@@ -149,8 +194,8 @@ class _AnalyticsPageState extends State<AnalyticsPage>
                     const SizedBox(height: 12.0),
                     Row(
                       children: [
-                        const Text(
-                          "Business Title",
+                        Text(
+                          analytic.title ?? '',
                           style: kBodyTitleB,
                         ),
                         const Spacer(),
@@ -165,7 +210,7 @@ class _AnalyticsPageState extends State<AnalyticsPage>
                           child: Padding(
                             padding: const EdgeInsets.all(2.0),
                             child: Text(
-                              "Pending",
+                              analytic.status ?? '',
                               style: const TextStyle(
                                 fontSize: 12.0,
                               ),

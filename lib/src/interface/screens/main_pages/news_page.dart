@@ -24,7 +24,6 @@ final currentNewsIndexProvider =
   return SelectedNewsIndexNotifier();
 });
 
-
 // final currentNewsIndexProvider = StateProvider<int>((ref) => 0);
 
 class NewsPage extends ConsumerWidget {
@@ -103,9 +102,9 @@ class _NewsPageViewState extends ConsumerState<NewsPageView> {
                 scrollDirection: Axis.vertical, // Make the scroll vertical
                 itemCount: widget.news.length,
                 onPageChanged: (index) {
-                       ref
-                              .read(currentNewsIndexProvider.notifier)
-                              .updateIndex(index);
+                  ref
+                      .read(currentNewsIndexProvider.notifier)
+                      .updateIndex(index);
                 },
                 itemBuilder: (context, index) {
                   return ClipRect(

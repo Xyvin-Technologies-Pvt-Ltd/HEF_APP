@@ -23,7 +23,7 @@ final fetchStatesProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef FetchStatesRef = AutoDisposeFutureProviderRef<List<LevelModel>>;
-String _$fetchLevelDataHash() => r'2c9ac4c7ee5c19790f5dc615420e478732318f07';
+String _$fetchLevelDataHash() => r'a2044fb020ec8b5bf98e38d19c304a819ea54f2b';
 
 /// Copied from Dart SDK
 class _SystemHash {

@@ -131,6 +131,7 @@ class _MainPageState extends ConsumerState<MainPage> {
           return PopScope(
               canPop: selectedIndex != 0 ? false : true,
               onPopInvokedWithResult: (didPop, result) {
+                log('im inside mainpage popscope');
                 if (selectedIndex != 0) {
                   ref.read(selectedIndexProvider.notifier).updateIndex(0);
                 }
@@ -185,7 +186,7 @@ class _MainPageState extends ConsumerState<MainPage> {
                               'News',
                               'Chat'
                             ][index],
-                          );
+                          );  
                         }),
                         currentIndex: selectedIndex,
                         selectedItemColor: kPrimaryColor,
@@ -195,7 +196,7 @@ class _MainPageState extends ConsumerState<MainPage> {
                           ref
                               .read(selectedIndexProvider.notifier)
                               .updateIndex(index);
-                        },
+                        }, 
                         showUnselectedLabels: true,
                       ),
                     )
@@ -230,7 +231,7 @@ class _MainPageState extends ConsumerState<MainPage> {
                               ),
                               SizedBox(height: 10),
                               Text(
-                                "Your account is Suspended",
+                                "Your account is Suspended/Inactive",
                                 style: TextStyle(
                                   color: Colors.redAccent,
                                   fontSize: 18,

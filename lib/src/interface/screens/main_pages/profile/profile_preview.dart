@@ -40,6 +40,15 @@ class ProfilePreview extends ConsumerWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                  'assets/jpgs/scaffoldBackground.jpg'), // Texture image
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(

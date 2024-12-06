@@ -65,7 +65,7 @@ Future<List<LevelModel>> fetchLevelData(FetchLevelDataRef ref, String id,String 
 
 
 @riverpod
-Future<List<UserModel>> fetchChapterMemberData(FetchLevelDataRef ref, String id,String level) async {
+Future<List<UserModel>> fetchChapterMemberData(FetchChapterMemberDataRef ref, String id,String level) async {
   final url = Uri.parse('$baseUrl/hierarchy/levels/$id/$level');
   print('Requesting URL: $url');
   final response = await http.get(

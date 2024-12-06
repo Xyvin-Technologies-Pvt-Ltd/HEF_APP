@@ -72,7 +72,8 @@ class ChaptersPage extends StatelessWidget {
                           trailing: Icon(Icons.arrow_forward_ios,
                               size: 16, color: Colors.grey),
                           onTap: () {
-                            navigationService.pushNamed('LevelMembers');
+                            navigationService.pushNamed('LevelMembers',
+                            arguments:chapters[index].id);
                           },
                         ),
                       ),

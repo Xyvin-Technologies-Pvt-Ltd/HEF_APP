@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/product_model.dart';
@@ -24,14 +25,14 @@ Future<List<ReviewModel>> fetchReviews(FetchReviewsRef ref,
   print('hello');
   print(json.decode(response.body)['status']);
   if (response.statusCode == 200) {
-    final List<dynamic> data = json.decode(response.body)['data']['products'];
-    print(response.body);
+    final List<dynamic> data = json.decode(response.body)['data'];
+    log(response.body);
     List<ReviewModel> products = [];
 
     for (var item in data) {
       products.add(ReviewModel.fromJson(item));
     }
-    print(products);
+
     return products;
   } else {
     print(json.decode(response.body)['message']);

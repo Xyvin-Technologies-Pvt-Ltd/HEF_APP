@@ -22,6 +22,8 @@ class UserModel {
   final List<Link>? certificates;
   final int? otp;
   final List<String>? blockedUsers;
+  final int? feedCount;
+  final int? productCount;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -49,6 +51,8 @@ class UserModel {
     this.certificates,
     this.otp,
     this.blockedUsers,
+    this.feedCount,
+    this.productCount,
     this.createdAt,
     this.updatedAt,
   });
@@ -94,6 +98,8 @@ class UserModel {
       blockedUsers: (json['blockedUsers'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+           feedCount: json['feedCount']!=null? json['feedCount'] as int:0,
+           productCount: json['productCount']!=null? json['productCount'] as int:0,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
@@ -128,6 +134,8 @@ class UserModel {
       'certificates': certificates?.map((e) => e.toJson()).toList(),
       'otp': otp,
       'blockedUsers': blockedUsers,
+      'feedCount':feedCount,
+      'productCount':productCount,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };

@@ -192,5 +192,157 @@ class _FetchLevelDataProviderElement
   @override
   String get level => (origin as FetchLevelDataProvider).level;
 }
+
+String _$fetchChapterMemberDataHash() =>
+    r'04d58c689c76606ea82415ba0e4a984a2116aec3';
+
+/// See also [fetchChapterMemberData].
+@ProviderFor(fetchChapterMemberData)
+const fetchChapterMemberDataProvider = FetchChapterMemberDataFamily();
+
+/// See also [fetchChapterMemberData].
+class FetchChapterMemberDataFamily extends Family<AsyncValue<List<UserModel>>> {
+  /// See also [fetchChapterMemberData].
+  const FetchChapterMemberDataFamily();
+
+  /// See also [fetchChapterMemberData].
+  FetchChapterMemberDataProvider call(
+    String id,
+    String level,
+  ) {
+    return FetchChapterMemberDataProvider(
+      id,
+      level,
+    );
+  }
+
+  @override
+  FetchChapterMemberDataProvider getProviderOverride(
+    covariant FetchChapterMemberDataProvider provider,
+  ) {
+    return call(
+      provider.id,
+      provider.level,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fetchChapterMemberDataProvider';
+}
+
+/// See also [fetchChapterMemberData].
+class FetchChapterMemberDataProvider
+    extends AutoDisposeFutureProvider<List<UserModel>> {
+  /// See also [fetchChapterMemberData].
+  FetchChapterMemberDataProvider(
+    String id,
+    String level,
+  ) : this._internal(
+          (ref) => fetchChapterMemberData(
+            ref as FetchChapterMemberDataRef,
+            id,
+            level,
+          ),
+          from: fetchChapterMemberDataProvider,
+          name: r'fetchChapterMemberDataProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$fetchChapterMemberDataHash,
+          dependencies: FetchChapterMemberDataFamily._dependencies,
+          allTransitiveDependencies:
+              FetchChapterMemberDataFamily._allTransitiveDependencies,
+          id: id,
+          level: level,
+        );
+
+  FetchChapterMemberDataProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.id,
+    required this.level,
+  }) : super.internal();
+
+  final String id;
+  final String level;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<UserModel>> Function(FetchChapterMemberDataRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FetchChapterMemberDataProvider._internal(
+        (ref) => create(ref as FetchChapterMemberDataRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        id: id,
+        level: level,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<UserModel>> createElement() {
+    return _FetchChapterMemberDataProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchChapterMemberDataProvider &&
+        other.id == id &&
+        other.level == level;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, id.hashCode);
+    hash = _SystemHash.combine(hash, level.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin FetchChapterMemberDataRef
+    on AutoDisposeFutureProviderRef<List<UserModel>> {
+  /// The parameter `id` of this provider.
+  String get id;
+
+  /// The parameter `level` of this provider.
+  String get level;
+}
+
+class _FetchChapterMemberDataProviderElement
+    extends AutoDisposeFutureProviderElement<List<UserModel>>
+    with FetchChapterMemberDataRef {
+  _FetchChapterMemberDataProviderElement(super.provider);
+
+  @override
+  String get id => (origin as FetchChapterMemberDataProvider).id;
+  @override
+  String get level => (origin as FetchChapterMemberDataProvider).level;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

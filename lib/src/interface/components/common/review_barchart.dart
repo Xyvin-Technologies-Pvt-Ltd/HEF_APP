@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/review_api/review_api.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
+import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/review_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
 
@@ -19,21 +21,19 @@ double getAverageRating(List<ReviewModel> reviews) {
 }
 
 class ReviewBarChart extends StatelessWidget {
-
   final List<ReviewModel> reviews;
   const ReviewBarChart({
-    super.key, required this.reviews,
-
+    super.key,
+    required this.reviews,
   });
 
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
-  
         final ratingDistribution = getRatingDistribution(reviews);
         final averageRating = getAverageRating(reviews);
-        final totalReviews =reviews.length;
+        final totalReviews = reviews.length;
 
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +76,6 @@ class ReviewBarChart extends StatelessWidget {
             ),
             const SizedBox(width: 16), // Space between left and right side
 
-            // Right side: Rating bars
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +116,6 @@ class ReviewBarChart extends StatelessWidget {
   }
 }
 
-
 class ReviewsCard extends StatelessWidget {
   final Map<int, int> ratingDistribution;
   final double averageRating;
@@ -145,8 +143,7 @@ class ReviewsCard extends StatelessWidget {
               review.reviewer?.image != null
                   ? CircleAvatar(
                       radius: 20,
-                      backgroundImage:
-                          NetworkImage(review.reviewer!.image!),
+                      backgroundImage: NetworkImage(review.reviewer!.image!),
                     )
                   : Image.asset(
                       'assets/icons/dummy_person_small.png',
@@ -160,23 +157,22 @@ class ReviewsCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${review.reviewer?.name ?? ''}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: Color.fromARGB(255, 42, 41, 41),
-                  ),
+                Row(
+                  children: [
+                    Text('${review.reviewer?.name ?? ''}',
+                        style: kSmallerTitleR.copyWith(
+                          color: kBlack54,
+                        )),
+                        // Spacer(),
+                        // Text(review.createdAt)
+                  ],
                 ),
                 const SizedBox(height: 5),
                 Text(
                   review.comment ?? '',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                  maxLines: null, // Allows for multiple lines
-                  overflow: TextOverflow.clip, // Prevents overflowing text
+                  style: kBodyTitleR,
+                  maxLines: null, 
+                  overflow: TextOverflow.clip, 
                 ),
               ],
             ),

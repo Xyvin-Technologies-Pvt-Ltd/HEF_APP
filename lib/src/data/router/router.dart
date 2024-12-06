@@ -97,15 +97,18 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
           builder: (context) => ChaptersPage(
                 districtId: districtId,
               ));
-
-
     case 'LevelMembers':
-      return MaterialPageRoute(builder: (context) => LevelMembers());
+      String chapterId = settings?.arguments as String;
+      return MaterialPageRoute(
+          builder: (context) => LevelMembers(
+                chapterId: chapterId,
+              ));
     case 'ProfileAnalytics':
-      return MaterialPageRoute(builder: (context) => ProfileAnalyticsPage());
-    case 'AnalyticsPage':
-      return MaterialPageRoute(builder: (context) => AnalyticsPage());
-      
+      UserModel user = settings?.arguments as UserModel;
+      return MaterialPageRoute(
+          builder: (context) => ProfileAnalyticsPage(
+                user: user,
+              ));
     default:
       return MaterialPageRoute(
         builder: (context) => Scaffold(

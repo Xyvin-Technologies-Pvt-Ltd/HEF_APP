@@ -20,8 +20,9 @@ Future<List<Business>> fetchBusiness(FetchBusinessRef ref,
 
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
+    log(data);
     final feedsJson = data['data'] as List<dynamic>? ?? [];
-
+    log(data['message']);
     return feedsJson.map((user) => Business.fromJson(user)).toList();
   } else {
     final data = json.decode(response.body);

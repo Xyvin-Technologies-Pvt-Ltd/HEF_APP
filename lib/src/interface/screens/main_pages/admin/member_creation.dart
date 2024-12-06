@@ -114,6 +114,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
             CustomDropdown(
               label: 'Business Category',
               items: ['IT', 'Finance', 'Education'],
+              value:
+                  selectedBusinessCategory, // Pass the current selected value
               onChanged: (value) {
                 setState(() {
                   selectedBusinessCategory = value;
@@ -122,7 +124,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
             ),
             CustomDropdown(
               label: 'Sub category',
-              items: ['Software', 'Hardware'],
+              items:  ['Software', 'Hardware'],
+              value: selectedSubCategory, // Pass the current selected value
               onChanged: (value) {
                 setState(() {
                   selectedSubCategory = value;
@@ -131,7 +134,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
             ),
             CustomDropdown(
               label: 'Status',
-              items: const ['active', 'inactive', 'suspended'],
+              items:  ['active', 'inactive', 'suspended'],
+              value: selectedStatus, // Pass the current selected value
               onChanged: (value) {
                 setState(() {
                   selectedStatus = value;
@@ -195,13 +199,15 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
 class CustomDropdown extends StatelessWidget {
   final String label;
   final List<String> items;
+  final String? value;
   final ValueChanged<String?> onChanged;
 
   const CustomDropdown({
     required this.label,
     this.items = const ['Option 1', 'Option 2', 'Option 3'],
-    Key? key,
+    this.value,
     required this.onChanged,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -217,6 +223,7 @@ class CustomDropdown extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
+            value: value, 
             items: items.map((item) {
               return DropdownMenuItem(
                 value: item,
@@ -226,6 +233,7 @@ class CustomDropdown extends StatelessWidget {
             onChanged: onChanged,
             decoration: InputDecoration(
               fillColor: kWhite,
+              filled: true,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(color: kGreyLight),

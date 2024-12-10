@@ -334,32 +334,36 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 5),
-                Text(widget.business.content!,
-                    style: const TextStyle(fontSize: 14)),
+                Row(
+                  children: [
+                    Text(widget.business.content!,
+                        style: const TextStyle(fontSize: 14)),
+                  ],
+                ),
                 const SizedBox(height: 16),
 
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-                  child: Row(
-                    children: [
-                      ClipOval(
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          child: Image.network(
-                            widget.user.image ?? 'https://placehold.co/600x400',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                  'assets/icons/dummy_person_small.png');
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+                //   child: Row(
+                //     children: [
+                //       ClipOval(
+                //         child: Container(
+                //           width: 30,
+                //           height: 30,
+                //           color: const Color.fromARGB(255, 255, 255, 255),
+                //           child: Image.network(
+                //             widget.user.image ?? 'https://placehold.co/600x400',
+                //             fit: BoxFit.cover,
+                //             errorBuilder: (context, error, stackTrace) {
+                //               return Image.asset(
+                //                   'assets/icons/dummy_person_small.png');
+                //             },
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 // Padding(
                 //   padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
                 //   child: Text(

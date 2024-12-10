@@ -83,7 +83,7 @@ class _AllocateMemberState extends State<AllocateMember> {
               children: [
                 // State Dropdown
                 asyncStates.when(
-                  data: (states) => LevelSelectionDropDown(
+                  data: (states) => SelectionDropDown(
                     value: selectedStateId, // Selected state ID
                     label: 'State',
                     items: states.map((state) {
@@ -107,7 +107,7 @@ class _AllocateMemberState extends State<AllocateMember> {
 
                 // Zone Dropdown
                 asyncZones.when(
-                  data: (zones) => LevelSelectionDropDown(
+                  data: (zones) => SelectionDropDown(
                     value: selectedZone,
                     label: 'Zone',
                     items: zones.map((zone) {
@@ -129,7 +129,7 @@ class _AllocateMemberState extends State<AllocateMember> {
                 ),
 
                 asyncDistricts.when(
-                  data: (districts) => LevelSelectionDropDown(
+                  data: (districts) => SelectionDropDown(
                     value: selectedDistrict,
                     label: 'District',
                     items: districts.map((district) {
@@ -150,7 +150,7 @@ class _AllocateMemberState extends State<AllocateMember> {
                 ),
 
                 asyncChapters.when(
-                  data: (chapters) => LevelSelectionDropDown(
+                  data: (chapters) => SelectionDropDown(
                     value: selectedChapter,
                     label: 'Chapter',
                     items: chapters.map((chapter) {
@@ -202,33 +202,37 @@ class _AllocateMemberState extends State<AllocateMember> {
   }
 }
 
-class LevelSelectionDropDown extends StatelessWidget {
-  final String label;
+class SelectionDropDown extends StatelessWidget {
+  final String? hintText;
+  final String? label;
   final List<DropdownMenuItem<String>> items; // Use DropdownMenuItem
   final String? value;
   final ValueChanged<String?> onChanged;
 
-  const LevelSelectionDropDown({
-    required this.label,
+  const SelectionDropDown({
+    this.label,
     required this.items,
     this.value,
     required this.onChanged,
     Key? key,
+    this.hintText,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          if (label != null)
+            Text(
+              label ?? "",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
+            hint: Text(hintText ?? ''),
             value: value,
             items: items, // Pass the DropdownMenuItem list
             onChanged: onChanged,

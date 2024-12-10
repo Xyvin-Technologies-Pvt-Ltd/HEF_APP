@@ -50,10 +50,10 @@ Future<void> createUser(
       body: body,
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print('Feed created successfully');
     } else {
-      print('Failed to create feed: ${response.statusCode}');
+      print('Failed to create user: ${response.statusCode}');
       print('Response body: ${response.body}');
     }
   } catch (e) {

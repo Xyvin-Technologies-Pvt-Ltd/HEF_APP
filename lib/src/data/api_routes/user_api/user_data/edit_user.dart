@@ -65,8 +65,7 @@ Future<Product?> uploadProduct({
       body: jsonEncode(body),
     );
 
-    if (response.statusCode == 201) {
-      print('Product uploaded successfully');
+    if (response.statusCode == 201|| response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
       final Product product = Product.fromJson(jsonResponse['data']);
       return product;

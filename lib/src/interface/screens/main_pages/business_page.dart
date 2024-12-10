@@ -20,16 +20,13 @@ class BusinessPage extends StatelessWidget {
                   PreferredSize(
                     preferredSize: Size.fromHeight(20),
                     child: Container(
-                      margin: EdgeInsets.only(
-                          top: 0), 
+                      margin: EdgeInsets.only(top: 0),
                       child: const SizedBox(
-                        height: 40,
+                        height: 50,
                         child: TabBar(
                           enableFeedback: true,
-                          isScrollable:
-                              false, 
-                          indicatorColor:
-                              kPrimaryColor, 
+                          isScrollable: false,
+                          indicatorColor: kPrimaryColor,
                           indicatorWeight: 3.0,
                           indicatorSize: TabBarIndicatorSize.tab,
                           labelColor: kPrimaryColor,

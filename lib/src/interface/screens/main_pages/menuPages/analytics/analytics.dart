@@ -5,6 +5,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
+import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/ModalSheets/analytics.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:intl/intl.dart';
@@ -34,7 +35,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       ),
       builder: (context) {
         return AnalyticsModalSheet(
-analytic: analytic,tabBarType: tabBarType,
+          analytic: analytic,
+          tabBarType: tabBarType,
         );
       },
     );
@@ -118,7 +120,10 @@ analytic: analytic,tabBarType: tabBarType,
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          NavigationService navigationService = NavigationService();
+          navigationService.pushNamed('SendAnalyticRequest');
+        },
         backgroundColor: kPrimaryColor,
         child: const Icon(
           Icons.add,
@@ -166,20 +171,20 @@ analytic: analytic,tabBarType: tabBarType,
                         CircleAvatar(
                           radius: 24.0,
                           backgroundImage: NetworkImage(
-                            analytic.sender?.image ?? '',
+                            analytic.userImage ?? '',
                           ),
                         ),
                         SizedBox(
                           width: 14,
                         ),
                         Text(
-                          analytic.sender?.name ?? '',
+                          analytic.username ?? '',
                           style: TextStyle(
                               fontSize: 16.0, fontWeight: FontWeight.bold),
                         ),
                         Spacer(),
                         Text(
-                          analytic.date ?? '',
+                          analytic.time.toString(),
                           style: TextStyle(fontSize: 12.0, color: Colors.grey),
                         ),
                       ],

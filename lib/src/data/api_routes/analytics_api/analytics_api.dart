@@ -67,10 +67,10 @@ Future<void> updateAnalyticStatus({
       body: body,
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201|| response.statusCode == 200) {
       log('$action successfully');
     } else {
-      log('Failed to create feed: ${response.statusCode}');
+      log('Failed to update analytic: ${response.statusCode}');
       log('Response body: ${response.body}');
     }
   } catch (e) {

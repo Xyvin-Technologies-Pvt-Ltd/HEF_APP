@@ -42,7 +42,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: NetworkImage(analytic.sender?.image ?? ''),
+                  backgroundImage: NetworkImage(analytic.userImage ?? ''),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -50,7 +50,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        analytic.sender?.name ?? '',
+                        analytic.username ?? '',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
@@ -68,9 +68,9 @@ class AnalyticsModalSheet extends ConsumerWidget {
             const SizedBox(height: 24),
             // Details Section
 
-            _buildDetailRow('Request Type', analytic.type ?? ''),
+            // _buildDetailRow('Request Type', analytic.type ?? ''),
             _buildDetailRow('Title', analytic.title ?? ''),
-            _buildDetailRow('Date & time', analytic.date ?? ''),
+            _buildDetailRow('Date & time', analytic.date.toString()),
             _buildDetailRow('Amount', analytic.amount ?? ''),
             _buildDetailRow(
               'Status',
@@ -94,37 +94,38 @@ class AnalyticsModalSheet extends ConsumerWidget {
             SizedBox(
               height: 20,
             ),
-            Row(
-              children: [
-                Flexible(
-                    child: customButton(
-                  sideColor: kRedDark,
-                  buttonColor: kRedDark,
-                  label: 'Reject',
-                  onPressed: () async {
-                    await updateAnalyticStatus(
-                        analyticId: analytic.id ?? '', action: 'rejected');
-                    navigationService.pop();
-                  },
-                )),
-                SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                    child: customButton(
-                  sideColor: kGreen,
-                  buttonColor: kGreen,
-                  label: 'Accept',
-                  onPressed: () async {
-                    await updateAnalyticStatus(
-                        analyticId: analytic.id ?? '', action: 'accepted');
+            if (analytic.status != 'accepted')
+              Row(
+                children: [
+                  Flexible(
+                      child: customButton(
+                    sideColor: kRedDark,
+                    buttonColor: kRedDark,
+                    label: 'Reject',
+                    onPressed: () async {
+                      await updateAnalyticStatus(
+                          analyticId: analytic.id ?? '', action: 'rejected');
+                      navigationService.pop();
+                    },
+                  )),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Flexible(
+                      child: customButton(
+                    sideColor: kGreen,
+                    buttonColor: kGreen,
+                    label: 'Accept',
+                    onPressed: () async {
+                      await updateAnalyticStatus(
+                          analyticId: analytic.id ?? '', action: 'accepted');
 
-                    ref.invalidate(fetchAnalyticsProvider);
-                    navigationService.pop();
-                  },
-                )),
-              ],
-            )
+                      ref.invalidate(fetchAnalyticsProvider);
+                      navigationService.pop();
+                    },
+                  )),
+                ],
+              )
           ],
         ),
       ),

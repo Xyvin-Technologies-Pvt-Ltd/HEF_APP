@@ -6,7 +6,7 @@ part of 'business_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchBusinessHash() => r'c3b13a67320ed70809b6deb37df8239fe0a67060';
+String _$fetchBusinessHash() => r'83a50addd22739534cc1525a3733ba80ecba80c9';
 
 /// Copied from Dart SDK
 class _SystemHash {

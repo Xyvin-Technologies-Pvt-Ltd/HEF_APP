@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:hef/src/data/models/attendance_user_model.dart';
 import 'package:hef/src/data/models/events_model.dart';
+import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:hef/src/data/globals.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -36,8 +38,6 @@ Future<List<Event>> fetchEvents(FetchEventsRef ref) async {
   }
 }
 
-
-
 @riverpod
 Future<List<Event>> fetchMyEvents(FetchMyEventsRef ref) async {
   final url = Uri.parse('$baseUrl/event/reg-events');
@@ -64,6 +64,66 @@ Future<List<Event>> fetchMyEvents(FetchMyEventsRef ref) async {
   } else {
     print(json.decode(response.body)['message']);
 
+    throw Exception(json.decode(response.body)['message']);
+  }
+}
+
+Future<void> markEventAsRSVP(String eventId) async {
+  final String url = '$baseUrl/event/single/$eventId';
+
+  try {
+    final response = await http.patch(
+      Uri.parse(url),
+      headers: {
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Success
+
+      print('RSVP marked successfully');
+    } else {
+      // Handle error
+      final dynamic data = json.decode(response.body)['message'];
+      print('Failed to mark RSVP: ${data}');
+    }
+  } catch (e) {
+    // Handle exceptions
+    print('An error occurred: $e');
+  }
+}
+
+Future<AttendanceUserModel?> markAttendanceEvent({
+  required String eventId,
+  required String userId,
+}) async {
+  SnackbarService snackbarService = SnackbarService();
+  final String url = '$baseUrl/event/attend/$eventId';
+  final Map<String, String> headers = {
+    'accept': 'application/json',
+    'Authorization': 'Bearer $token',
+    'Content-Type': 'application/json',
+  };
+  final Map<String, String> body = {
+    'userId': userId,
+  };
+
+  final response = await http.post(
+    Uri.parse(url),
+    headers: headers,
+    body: jsonEncode(body),
+  );
+
+  if (response.statusCode == 200) {
+    final dynamic data = json.decode(response.body)['data'];
+
+    print(data);
+    return AttendanceUserModel.fromJson(data);
+  } else {
+    print(json.decode(response.body)['message']);
+    snackbarService.showSnackBar(json.decode(response.body)['message']);
     throw Exception(json.decode(response.body)['message']);
   }
 }

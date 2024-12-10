@@ -14,6 +14,7 @@ const Color kGreyLight = Color(0xFFCCCCCC);
 const Color kGreyDark = Color.fromARGB(255, 118, 121, 124);
 const Color kGreyDarker = Color(0xFF585858);
 const Color kRed = Color(0xFFEB5757);
+const Color kRedDark = Color(0xFFC9300E);
 const Color kBlack = Color.fromARGB(255, 5, 5, 5);
 const Color kBlack54 = Color(0xFF8A000000);
 const Color kGreen = Color.fromARGB(255, 76, 175, 80);

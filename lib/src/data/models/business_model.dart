@@ -5,8 +5,7 @@ class Business {
   final String? link;
   final String? content;
   final String? author;
-  final List<String>? likes;
-  final List<Comment>? comments;
+
   final String? status;
   final String? reason;
   final DateTime? createdAt;
@@ -19,8 +18,6 @@ class Business {
     this.link,
     this.content,
     this.author,
-    this.likes,
-    this.comments,
     this.status,
     this.reason,
     this.createdAt,
@@ -36,10 +33,6 @@ class Business {
       link: json['link'] as String?,
       content: json['content'] as String?,
       author: json['author'] as String?,
-      likes: (json['like'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      comments: (json['comment'] as List<dynamic>?)
-          ?.map((e) => Comment.fromJson(e as Map<String, dynamic>))
-          .toList(),
       status: json['status'] as String?,
       reason: json['reason'] as String?,
       createdAt: json['createdAt'] != null
@@ -60,8 +53,6 @@ class Business {
       'link': link,
       'content': content,
       'author': author,
-      'like': likes,
-      'comment': comments?.map((e) => e.toJson()).toList(),
       'status': status,
       'reason': reason,
       'createdAt': createdAt?.toIso8601String(),

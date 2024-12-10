@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
@@ -39,5 +40,40 @@ Future<List<AnalyticsModel>> fetchAnalytics(
     print(json.decode(response.body)['message']);
 
     throw Exception(json.decode(response.body)['message']);
+  }
+}
+
+Future<void> updateAnalyticStatus({
+  required String analyticId,
+  required String? action,
+}) async {
+  final url = Uri.parse('$baseUrl/analytic/status');
+
+  final headers = {
+    'accept': '*/*',
+    'Authorization': 'Bearer $token',
+    'Content-Type': 'application/json',
+  };
+
+  final body = jsonEncode({
+    'requestId': analyticId,
+    'action': action,
+  });
+  log(body);
+  try {
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: body,
+    );
+
+    if (response.statusCode == 201) {
+      log('$action successfully');
+    } else {
+      log('Failed to create feed: ${response.statusCode}');
+      log('Response body: ${response.body}');
+    }
+  } catch (e) {
+    print('Error: $e');
   }
 }

@@ -27,8 +27,7 @@ Widget customDrawer({required UserModel user}) {
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundImage: AssetImage(
-                        user.image ?? ''), // Update this to your image
+                    backgroundImage: NetworkImage(user.image ?? ''),
                   ),
                   SizedBox(width: 16),
                   Expanded(
@@ -81,6 +80,21 @@ Widget customDrawer({required UserModel user}) {
               navigationService.pushNamed('States');
             },
           ),
+
+          // _buildDrawerItem(
+          //   icon: 'assets/svg/icons/my_products.svg',
+          //   label: 'My Products',
+          //   onTap: () {
+          //     navigationService.pushNamed('MyBusinesses');
+          //   },
+          // ),
+          _buildDrawerItem(
+            icon: 'assets/svg/icons/my_requirements.svg',
+            label: 'My Requirements',
+            onTap: () {
+              navigationService.pushNamed('MyBusinesses');
+            },
+          ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/requestnfc.svg',
             label: 'Request NFC',
@@ -111,13 +125,7 @@ Widget customDrawer({required UserModel user}) {
             label: 'My Transactions',
             onTap: () {},
           ),
-          _buildDrawerItem(
-            icon: 'assets/svg/icons/my_requirements.svg',
-            label: 'My Requirements',
-            onTap: () {
-              navigationService.pushNamed('MyBusinesses');
-            },
-          ),
+
           SizedBox(
             height: 40,
           ),

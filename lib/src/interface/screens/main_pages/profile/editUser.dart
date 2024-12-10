@@ -284,17 +284,28 @@ class _EditUserState extends ConsumerState<EditUser> {
     final Map<String, dynamic> profileData = {
       "name": user.name ?? '',
       "email": user.email,
+      "phone": user.phone,
+      if (user.image != null) "image": user.image ?? '',
       if (user.address != null) "address": user.address ?? '',
       if (user.bio != null) "bio": user.bio ?? '',
-      "company": {
-        if (user.company?.name != null) "name": user.company?.name ?? '',
-        if (user.company?.designation != null)
-          "designation": user.company?.designation ?? '',
-        if (user.company?.phone != null) "phone": user.company?.phone ?? '',
-        if (user.company?.email != null) "address": user.company?.email ?? '',
-        if (user.company?.websites != null)
-          "logo": user.company?.websites ?? '',
-      },
+      "chapter": user.chapter,
+      if (user.secondaryPhone != null)
+        "secondaryPhone": {
+          if (user.secondaryPhone?.whatsapp != null)
+            "whatsapp": user.secondaryPhone?.whatsapp ?? '',
+          if (user.secondaryPhone?.business != null)
+            "business": user.secondaryPhone?.business ?? '',
+        },
+      if (user.company != null)
+        "company": {
+          if (user.company?.name != null) "name": user.company?.name ?? '',
+          if (user.company?.designation != null)
+            "designation": user.company?.designation ?? '',
+          if (user.company?.phone != null) "phone": user.company?.phone ?? '',
+          if (user.company?.email != null) "email": user.company?.email ?? '',
+          if (user.company?.websites != null)
+            "websites": user.company?.websites ?? '',
+        },
       "social": [
         for (var i in user.social!) {"name": "${i.name}", "link": i.link}
       ],
@@ -755,6 +766,18 @@ class _EditUserState extends ConsumerState<EditUser> {
                                     MainAxisAlignment.spaceAround,
                                 children: [
                                   ContactEditor(
+                                      value:
+                                          user.secondaryPhone?.whatsapp ?? '',
+                                      icon: FontAwesomeIcons.whatsapp,
+                                      onSave: (whatsapp) {
+                                        ref
+                                            .read(userProvider.notifier)
+                                            .updateSecondaryPhone(
+                                                SecondaryPhone(
+                                                    whatsapp: whatsapp));
+                                      },
+                                      label: 'Whatsapp'),
+                                  ContactEditor(
                                       value: user.email ?? '',
                                       icon: FontAwesomeIcons.at,
                                       onSave: (email) {
@@ -763,6 +786,18 @@ class _EditUserState extends ConsumerState<EditUser> {
                                             .updateEmail(email);
                                       },
                                       label: 'Email'),
+                                  ContactEditor(
+                                      value:
+                                          user.secondaryPhone?.business ?? '',
+                                      icon: FontAwesomeIcons.b,
+                                      onSave: (business) {
+                                        ref
+                                            .read(userProvider.notifier)
+                                            .updateSecondaryPhone(
+                                                SecondaryPhone(
+                                                    business: business));
+                                      },
+                                      label: 'Whatsapp Bussiness'),
                                   ContactEditor(
                                       value: user.address ?? '',
                                       icon: FontAwesomeIcons.locationDot,
@@ -905,16 +940,29 @@ class _EditUserState extends ConsumerState<EditUser> {
                               Padding(
                                 padding: const EdgeInsets.all(20),
                                 child: CustomTextFormField(
-                                  title: 'Company Address',
+                                  title: 'Company Email',
                                   // validator: (value) {
                                   //   if (value == null || value.isEmpty) {
                                   //     return 'Please Enter Your Company Address (street, city, state, zip)';
                                   //   }
                                   //   return null;
                                   // },
-                                  labelText: 'Enter Company Address',
+                                  labelText: 'Enter Company Email',
                                   textController: companyAddressController,
-                                  maxLines: 3,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: CustomTextFormField(
+                                  title: 'Company Website',
+                                  // validator: (value) {
+                                  //   if (value == null || value.isEmpty) {
+                                  //     return 'Please Enter Your Company Address (street, city, state, zip)';
+                                  //   }
+                                  //   return null;
+                                  // },
+                                  labelText: 'Enter Company Website',
+                                  textController: companyAddressController,
                                 ),
                               ),
                               // Padding(
@@ -1383,7 +1431,9 @@ class _EditUserState extends ConsumerState<EditUser> {
                                           SnackbarService();
                                       String response =
                                           await _submitData(user: user);
-                                      ref.invalidate(userProvider);
+                                             ref
+                                            .read(userProvider.notifier)
+                                            .refreshUser();
 
                                       // Navigator.pushReplacement(
                                       //     context,
@@ -1392,7 +1442,8 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       //             MainPage()
                                       //             ));
                                       if (response.contains('success')) {
-                                        ref.invalidate(userProvider);
+                           
+
                                         snackbarService.showSnackBar(response);
                                         navigateBasedOnPreviousPage();
                                       } else {

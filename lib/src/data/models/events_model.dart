@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Event {
   final String? id;
   final String? eventName;
@@ -14,9 +12,13 @@ class Event {
   final String? link;
   final String? venue;
   final String? organiserName;
+  final List<String>? coordinator;
   final List<Speaker>? speakers;
   final String? status;
   final List<String>? rsvp;
+  final List<String>? attended;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   Event({
     this.id,
@@ -32,43 +34,57 @@ class Event {
     this.link,
     this.venue,
     this.organiserName,
+    this.coordinator,
     this.speakers,
     this.status,
     this.rsvp,
+    this.attended,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
-
       id: json['_id'] as String?,
       eventName: json['eventName'] as String?,
       description: json['description'] as String?,
       type: json['type'] as String?,
       image: json['image'] as String?,
-      startDate:
-          json['startDate'] != null ? DateTime.parse(json['startDate']) : null,
-      startTime:
-          json['startTime'] != null ? DateTime.parse(json['startTime']) : null,
-      endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : null,
-      endTime: json['endTime'] != null ? DateTime.parse(json['endTime']) : null,
+      startDate: json['startDate'] != null
+          ? DateTime.tryParse(json['startDate'])
+          : null,
+      startTime: json['startTime'] != null
+          ? DateTime.tryParse(json['startTime'])
+          : null,
+      endDate:
+          json['endDate'] != null ? DateTime.tryParse(json['endDate']) : null,
+      endTime:
+          json['endTime'] != null ? DateTime.tryParse(json['endTime']) : null,
       platform: json['platform'] as String?,
       link: json['link'] as String?,
       venue: json['venue'] as String?,
       organiserName: json['organiserName'] as String?,
-      speakers: json['speakers'] != null
-          ? (json['speakers'] as List)
-              .map((e) => Speaker.fromJson(e as Map<String, dynamic>))
-              .toList()
-          : null,
+      coordinator:  (json['coordinator'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      speakers: (json['speakers'] as List<dynamic>?)
+          ?.map((e) => Speaker.fromJson(e))
+          .toList(),
       status: json['status'] as String?,
-      rsvp:
-          json['rsvp'] != null ? List<String>.from(json['rsvp'] as List) : null,
+      rsvp: (json['rsvp'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      attended: (json['attended'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      '_id':id,
+      '_id': id,
       'eventName': eventName,
       'description': description,
       'type': type,
@@ -81,12 +97,17 @@ class Event {
       'link': link,
       'venue': venue,
       'organiserName': organiserName,
+      'coordinator': coordinator,
       'speakers': speakers?.map((e) => e.toJson()).toList(),
       'status': status,
       'rsvp': rsvp,
+      'attended': attended,
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 }
+
 
 class Speaker {
   final String? name;

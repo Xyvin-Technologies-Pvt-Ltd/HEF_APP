@@ -86,7 +86,7 @@ class _MainPageState extends ConsumerState<MainPage> {
       BusinessPage(),
       ProfilePage(user: user),
       NewsPage(),
-      ChatPage(),
+      PeoplePage(),
     ];
     _activeIcons = [
       'assets/svg/icons/active_home.svg',

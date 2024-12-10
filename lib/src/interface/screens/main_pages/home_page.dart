@@ -210,9 +210,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                 },
                                               );
                                             },
-                                    loading: () => const Center(child: LoadingAnimation()),
-                  error: (error, stackTrace) => const SizedBox(),
-                
+                                            loading: () => const Center(
+                                                child: LoadingAnimation()),
+                                            error: (error, stackTrace) =>
+                                                const SizedBox(),
                                           );
                                         },
                                       ),
@@ -348,81 +349,86 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                                 // Events Carousel
                                 asyncEvents.when(
-                                  data: (events) {
-                                    return events.isNotEmpty
-                                        ? Column(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 15, top: 10),
-                                                    child: Text('Latest Events',
-                                                        style: kSubHeadingB
-                                                            .copyWith(
-                                                                color:
-                                                                    kTextHeadColor)),
-                                                  ),
-                                                ],
-                                              ),
-                                              CarouselSlider(
-                                                items: events.map((event) {
-                                                  return Container(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.95,
-                                                    child: GestureDetector(
-                                                      onTap: () {
-                                                        navigationService
-                                                            .pushNamed(
-                                                                'ViewMoreEvent',
-                                                                arguments:
-                                                                    event);
-                                                      },
-                                                      child: eventWidget(
-                                                        withImage: true,
-                                                        context: context,
-                                                        event: event,
-                                                      ),
+                                    data: (events) {
+                                      return events.isNotEmpty
+                                          ? Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 15,
+                                                              top: 10),
+                                                      child: Text(
+                                                          'Latest Events',
+                                                          style: kSubHeadingB
+                                                              .copyWith(
+                                                                  color:
+                                                                      kTextHeadColor)),
                                                     ),
-                                                  );
-                                                }).toList(),
-                                                options: CarouselOptions(
-                                                  height: 268,
-                                                  scrollPhysics: events.length >
-                                                          1
-                                                      ? null
-                                                      : const NeverScrollableScrollPhysics(),
-                                                  autoPlay: events.length > 1
-                                                      ? true
-                                                      : false,
-                                                  viewportFraction: 1,
-                                                  autoPlayInterval:
-                                                      const Duration(
-                                                          seconds: 3),
-                                                  onPageChanged:
-                                                      (index, reason) {
-                                                    setState(() {
-                                                      _currentEventIndex =
-                                                          index;
-                                                    });
-                                                  },
+                                                  ],
                                                 ),
-                                              ),
-                                              // _buildDotIndicator(_currentEventIndex,
-                                              //     events.length, Colors.red),
-                                            ],
-                                          )
-                                        : const SizedBox();
-                                  },
-                                  loading: () =>
-                                      const Center(child: LoadingAnimation()),
-                                  error: (error, stackTrace) =>
-                                      const SizedBox(),
-                                ),
+                                                CarouselSlider(
+                                                  items: events.map((event) {
+                                                    return Container(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.95,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          navigationService
+                                                              .pushNamed(
+                                                                  'ViewMoreEvent',
+                                                                  arguments:
+                                                                      event);
+                                                        },
+                                                        child: eventWidget(
+                                                          withImage: true,
+                                                          context: context,
+                                                          event: event,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                  options: CarouselOptions(
+                                                    height: 268,
+                                                    scrollPhysics: events
+                                                                .length >
+                                                            1
+                                                        ? null
+                                                        : const NeverScrollableScrollPhysics(),
+                                                    autoPlay: events.length > 1
+                                                        ? true
+                                                        : false,
+                                                    viewportFraction: 1,
+                                                    autoPlayInterval:
+                                                        const Duration(
+                                                            seconds: 3),
+                                                    onPageChanged:
+                                                        (index, reason) {
+                                                      setState(() {
+                                                        _currentEventIndex =
+                                                            index;
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                                // _buildDotIndicator(_currentEventIndex,
+                                                //     events.length, Colors.red),
+                                              ],
+                                            )
+                                          : const SizedBox();
+                                    },
+                                    loading: () =>
+                                        const Center(child: LoadingAnimation()),
+                                    error: (error, stackTrace) {
+                                      print(error);
+                                      print(stackTrace);
+                                      return const SizedBox();
+                                    }),
 
                                 const SizedBox(height: 16),
 

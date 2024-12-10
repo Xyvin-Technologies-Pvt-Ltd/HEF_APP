@@ -36,10 +36,10 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
     super.initState();
 
     _scrollController.addListener(_onScroll);
-    _fetchInitialUsers();
+    _fetchInitialFeed();
   }
 
-  Future<void> _fetchInitialUsers() async {
+  Future<void> _fetchInitialFeed() async {
     await ref.read(businessNotifierProvider.notifier).fetchMoreFeed();
   }
 

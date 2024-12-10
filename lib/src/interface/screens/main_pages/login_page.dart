@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hef/src/data/api_routes/user_api/login/user_api.dart';
+import 'package:hef/src/data/api_routes/user_api/login/user_login_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
@@ -358,39 +358,36 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                 Text('Enter the Otp to verify',
                     style: kSmallerTitleEL.copyWith(fontSize: 20)),
                 const SizedBox(height: 5),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10),
-                  child: PinCodeTextField(
-                    appContext: context,
-                    length: 6, // Number of OTP digits
-                    obscureText: false,
-                    keyboardType: TextInputType.number, // Number-only keyboard
-                    animationType: AnimationType.fade,
-                    textStyle: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.w300,
-                      letterSpacing: 5.0,
-                    ),
-                    pinTheme: PinTheme(
-                      shape: PinCodeFieldShape.box,
-                      borderRadius: BorderRadius.circular(5),
-                      fieldHeight: 55,
-                      fieldWidth: 50, selectedColor: kPrimaryColor,
-                      activeColor: const Color.fromARGB(255, 232, 226, 226),
-                      inactiveColor: kWhite,
-                      activeFillColor: kWhite, // Box color when focused
-                      selectedFillColor: kWhite, // Box color when selected
-                      inactiveFillColor:
-                          kWhite, // Box fill color when not selected
-                    ),
-                    animationDuration: const Duration(milliseconds: 300),
-                    backgroundColor: Colors.transparent,
-                    enableActiveFill: true,
-                    controller: _otpController,
-                    onChanged: (value) {
-                      // Handle input change
-                    },
+                PinCodeTextField(
+                  appContext: context,
+                  length: 6, // Number of OTP digits
+                  obscureText: false,
+                  keyboardType: TextInputType.number, // Number-only keyboard
+                  animationType: AnimationType.fade,
+                  textStyle: const TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 5.0,
                   ),
+                  pinTheme: PinTheme(
+                    shape: PinCodeFieldShape.box,
+                    borderRadius: BorderRadius.circular(5),
+                    fieldHeight: 55,
+                    fieldWidth: 50, selectedColor: kPrimaryColor,
+                    activeColor: const Color.fromARGB(255, 232, 226, 226),
+                    inactiveColor: kWhite,
+                    activeFillColor: kWhite, // Box color when focused
+                    selectedFillColor: kWhite, // Box color when selected
+                    inactiveFillColor:
+                        kWhite, // Box fill color when not selected
+                  ),
+                  animationDuration: const Duration(milliseconds: 300),
+                  backgroundColor: Colors.transparent,
+                  enableActiveFill: true,
+                  controller: _otpController,
+                  onChanged: (value) {
+                    // Handle input change
+                  },
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

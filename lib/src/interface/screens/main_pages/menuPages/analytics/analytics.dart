@@ -7,6 +7,7 @@ import 'package:hef/src/data/models/analytics_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/interface/components/ModalSheets/analytics.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:intl/intl.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   @override
@@ -23,7 +24,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     _tabController = TabController(length: 3, vsync: this);
   }
 
-  void _showReusableModalSheet(BuildContext context) {
+  void _showReusableModalSheet(
+      AnalyticsModel analytic, String tabBarType, BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -31,16 +33,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        return const AnalyticsModalSheet(
-          avatarUrl: 'https://via.placeholder.com/150',
-          name: 'Amit Mandal',
-          title: 'Business Title',
-          dateTime: '12th July 2025, 12:20 pm',
-          amount: '₹2000',
-          status: 'Accepted',
-          statusColor: Colors.green,
-          description:
-              'Lorem ipsum dolor sit amet consectetur. Sem aliquet odio bibendum non ultrices. Quis gravida fames tempor enim.',
+        return AnalyticsModalSheet(
+analytic: analytic,tabBarType: tabBarType,
         );
       },
     );
@@ -104,17 +98,17 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
               controller: _tabController,
               children: [
                 asyncReceivedAnalytics.when(
-                  data: (analytics) => _buildTab(analytics),
+                  data: (analytics) => _buildTab(analytics, 'received'),
                   loading: () => const Center(child: LoadingAnimation()),
                   error: (error, stackTrace) => const SizedBox(),
                 ),
                 asyncSentAnalytics.when(
-                  data: (analytics) => _buildTab(analytics),
+                  data: (analytics) => _buildTab(analytics, 'sent'),
                   loading: () => const Center(child: LoadingAnimation()),
                   error: (error, stackTrace) => const SizedBox(),
                 ),
                 asyncHistoryAnalytics.when(
-                  data: (analytics) => _buildTab(analytics),
+                  data: (analytics) => _buildTab(analytics, 'history'),
                   loading: () => const Center(child: LoadingAnimation()),
                   error: (error, stackTrace) => const SizedBox(),
                 ),
@@ -134,23 +128,23 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     );
   }
 
-  Widget _buildTab(List<AnalyticsModel> analytics) {
+  Widget _buildTab(List<AnalyticsModel> analytics, String tabBarType) {
     return Consumer(
       builder: (context, ref, child) {
         return ListView.builder(
           padding: const EdgeInsets.all(16.0),
           itemCount: analytics.length,
           itemBuilder: (context, index) {
-            return _buildCard(analytics[index]);
+            return _buildCard(analytics[index], tabBarType);
           },
         );
       },
     );
   }
 
-  Widget _buildCard(AnalyticsModel analytic) {
+  Widget _buildCard(AnalyticsModel analytic, String tabBarType) {
     return InkWell(
-      onTap: () => _showReusableModalSheet(context),
+      onTap: () => _showReusableModalSheet(analytic, tabBarType, context),
       child: Container(
         decoration: BoxDecoration(
             border: Border.all(

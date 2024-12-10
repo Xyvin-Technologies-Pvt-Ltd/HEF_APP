@@ -56,6 +56,14 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
           websites: company?.websites ?? user.company?.websites,
         )));
   }
+  void updateSecondaryPhone(SecondaryPhone? secondaryPhone) {
+    state = state.whenData((user) => user.copyWith(
+            company: Company(
+          designation: secondaryPhone?.whatsapp ?? user.secondaryPhone?.whatsapp,
+          email: secondaryPhone?.business ?? user.secondaryPhone?.business,
+        
+        )));
+  }
 
   void updateEmail(String? email) {
     state = state.whenData((user) => user.copyWith(email: email));

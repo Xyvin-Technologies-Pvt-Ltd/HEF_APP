@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
-import 'package:hef/src/data/api_routes/user_api/features/admin_activities_api.dart';
+import 'package:hef/src/data/api_routes/user_api/admin/admin_activities_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
@@ -27,11 +27,13 @@ class _AllocateMemberState extends State<AllocateMember> {
   void _createUser() {
     final Map<String, dynamic> profileData = {
       "name": widget.newUser.name,
-      "bloodgroup": widget.newUser.bloodGroup,
+      "bloodgroup": widget.newUser.bloodgroup,
       "chapter": selectedChapter,
       "image": widget.newUser.image,
       "email": widget.newUser.email,
-      "phone": widget.newUser.phone,
+      "phone": widget.newUser.phone!.startsWith('91')
+          ? widget.newUser.phone
+          : '+91${widget.newUser.phone}',
       "bio": widget.newUser.bio,
       "status": widget.newUser.status,
       "address": widget.newUser.address,
@@ -46,6 +48,7 @@ class _AllocateMemberState extends State<AllocateMember> {
       }
     };
     createUser(data: profileData);
+    Navigator.popUntil(context, (route) => route.isFirst);
   }
 
   @override
@@ -131,15 +134,14 @@ class _AllocateMemberState extends State<AllocateMember> {
                     label: 'District',
                     items: districts.map((district) {
                       return DropdownMenuItem<String>(
-                        value: district.id, 
+                        value: district.id,
                         child: Text(district.name),
                       );
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        selectedDistrict =
-                            value;
-                        selectedChapter = null; 
+                        selectedDistrict = value;
+                        selectedChapter = null;
                       });
                     },
                   ),
@@ -154,12 +156,12 @@ class _AllocateMemberState extends State<AllocateMember> {
                     items: chapters.map((chapter) {
                       return DropdownMenuItem<String>(
                         value: chapter.id,
-                        child: Text(chapter.name), 
+                        child: Text(chapter.name),
                       );
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        selectedChapter = value; 
+                        selectedChapter = value;
                       });
                     },
                   ),

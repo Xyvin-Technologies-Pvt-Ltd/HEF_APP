@@ -4,7 +4,7 @@ import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/interface/screens/main_page.dart';
 import 'package:hef/src/interface/screens/main_pages/admin/allocate_member.dart';
 import 'package:hef/src/interface/screens/main_pages/admin/member_creation.dart';
-import 'package:hef/src/interface/screens/main_pages/event_page.dart/view_more_event.dart';
+import 'package:hef/src/interface/screens/main_pages/event/view_more_event.dart';
 import 'package:hef/src/interface/screens/main_pages/login_page.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/chapters.dart';
@@ -72,8 +72,12 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       return MaterialPageRoute(builder: (context) => MemberCreationPage());
     case 'MyEvents':
       return MaterialPageRoute(builder: (context) => MyEventsPage());
+    // case 'MyProducs':
+    //   return MaterialPageRoute(builder: (context) => MyPro());
     case 'MyBusinesses':
       return MaterialPageRoute(builder: (context) => MyBusinessesPage());
+    case 'AnalyticsPage':
+      return MaterialPageRoute(builder: (context) => AnalyticsPage());
 
     case 'RequestNFC':
       return MaterialPageRoute(builder: (context) => RequestNFCPage());

@@ -2,11 +2,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/events_api/events_api.dart';
-import 'package:hef/src/data/api_routes/user_api/features/event.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/events_model.dart';
 import 'package:hef/src/data/services/launch_url.dart';
+import 'package:hef/src/interface/screens/main_pages/event/qr_scanner_page.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -310,43 +310,67 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                       ),
                     ),
                   ),
+
                 const SizedBox(
-                    height: 50), // Add spacing to avoid overlap with the button
+                    height: 50), 
               ],
             ),
           ),
-          Consumer(
-            builder: (context, ref, child) {
-              return Positioned(
-                bottom: 36,
-                left: 16,
-                right: 16,
-                child: customButton(
-                  sideColor: registered ? Colors.green : kPrimaryColor,
-                  buttonColor: registered ? Colors.green : kPrimaryColor,
-                  label: widget.event.status == 'cancelled'
-                      ? 'CANCELLED'
-                      : registered
-                          ? 'REGISTERED'
-                          : 'REGISTER EVENT',
-                  onPressed: () async {
-                    if (!registered && widget.event.status != 'cancelled') {
-                      await markEventAsRSVP(widget.event.id!);
+          if (!widget.event.coordinator!.contains(id))
+            Consumer(
+              builder: (context, ref, child) {
+                return Positioned(
+                  bottom: 36,
+                  left: 16,
+                  right: 16,
+                  child: customButton(
+                    sideColor: registered ? Colors.green : kPrimaryColor,
+                    buttonColor: registered ? Colors.green : kPrimaryColor,
+                    label: widget.event.status == 'cancelled'
+                        ? 'CANCELLED'
+                        : registered
+                            ? 'REGISTERED'
+                            : 'REGISTER EVENT',
+                    onPressed: () async {
+                      if (!registered && widget.event.status != 'cancelled') {
+                        await markEventAsRSVP(widget.event.id!);
 
-                      setState(() {
-                        widget.event.rsvp?.add(id); // Add the user to RSVP
-                        registered = widget.event.rsvp?.contains(id) ?? false;
-                      });
+                        setState(() {
+                          widget.event.rsvp?.add(id); // Add the user to RSVP
+                          registered = widget.event.rsvp?.contains(id) ?? false;
+                        });
 
-                      ref.invalidate(
-                          fetchEventsProvider); // Update your global state if needed
-                    }
-                  },
-                  fontSize: 16,
+                        ref.invalidate(fetchEventsProvider);
+                      }
+                    },
+                    fontSize: 16,
+                  ),
+                );
+              },
+            ),
+          if (widget.event.coordinator!.contains(id))
+            Positioned(
+              right: 30,
+              bottom: 30,
+              child: GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => QRScannerPage( eventId: widget.event.id??'',)),
                 ),
-              );
-            },
-          ),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: kPrimaryColor,
+                  ),
+                  child: Icon(
+                    Icons.qr_code_scanner,
+                    color: Colors.white,
+                    size: 27,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

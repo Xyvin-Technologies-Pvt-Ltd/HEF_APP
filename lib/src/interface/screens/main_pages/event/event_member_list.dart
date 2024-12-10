@@ -8,9 +8,9 @@ import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 
-class LevelMembers extends StatelessWidget {
+class EventMemberList extends StatelessWidget {
   final String chapterId;
-  const LevelMembers({super.key, required this.chapterId});
+  const EventMemberList({super.key, required this.chapterId});
 
   @override
   Widget build(BuildContext context) {

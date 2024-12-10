@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
@@ -98,7 +99,7 @@ class _ShowAddCertificateSheetState extends State<ShowAddCertificateSheet> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.add,
-                                        size: 27, color: Color(0xFFE30613)),
+                                        size: 27, color: kPrimaryColor),
                                     SizedBox(height: 10),
                                     Text(
                                       'Upload Image',

@@ -168,7 +168,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                       navigationService.pushNamed('MemberAllocation',
                           arguments: UserModel(
                               name: nameController.text,
-                              bloodGroup: bloodController.text,
+                              bloodgroup: bloodController.text,
                               image: profileImageUrl,
                               bio: bioController.text,
                               email: emailController.text,

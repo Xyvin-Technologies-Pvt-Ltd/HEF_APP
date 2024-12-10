@@ -1,31 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
+import 'package:hef/src/data/models/analytics_model.dart';
+import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 
-class AnalyticsModalSheet extends StatelessWidget {
-  final String avatarUrl;
-  final String name;
-  final String title;
-  final String dateTime;
-  final String amount;
-  final String status;
-  final Color statusColor;
-  final String description;
-
+class AnalyticsModalSheet extends ConsumerWidget {
+  final AnalyticsModel analytic;
+  final String tabBarType;
   const AnalyticsModalSheet({
     Key? key,
-    required this.avatarUrl,
-    required this.name,
-    required this.title,
-    required this.dateTime,
-    required this.amount,
-    required this.status,
-    required this.statusColor,
-    required this.description,
+    required this.tabBarType,
+    required this.analytic,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    NavigationService navigationService = NavigationService();
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 25, top: 10),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,9 +29,9 @@ class AnalyticsModalSheet extends StatelessWidget {
             Center(
               child: Container(
                 height: 4,
-                width: 40,
+                width: 60,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: kBlack54,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -48,7 +42,7 @@ class AnalyticsModalSheet extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: NetworkImage(avatarUrl),
+                  backgroundImage: NetworkImage(analytic.sender?.image ?? ''),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -56,14 +50,14 @@ class AnalyticsModalSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        name,
+                        analytic.sender?.name ?? '',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
                       ),
                       Text(
-                        title,
+                        analytic.title ?? '',
                         style: const TextStyle(color: Colors.grey),
                       ),
                     ],
@@ -73,12 +67,19 @@ class AnalyticsModalSheet extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             // Details Section
-            _buildDetailRow('Date & time', dateTime),
-            _buildDetailRow('Amount', amount),
+
+            _buildDetailRow('Request Type', analytic.type ?? ''),
+            _buildDetailRow('Title', analytic.title ?? ''),
+            _buildDetailRow('Date & time', analytic.date ?? ''),
+            _buildDetailRow('Amount', analytic.amount ?? ''),
             _buildDetailRow(
               'Status',
-              status,
-              statusColor: statusColor,
+              analytic.status ?? '',
+              statusColor: analytic.status == 'accepted'
+                  ? kGreen
+                  : analytic.status == 'rejected'
+                      ? kPrimaryColor
+                      : kGrey,
             ),
             const SizedBox(height: 8),
             const Text(
@@ -87,9 +88,43 @@ class AnalyticsModalSheet extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              description,
+              analytic.description ?? '',
               style: const TextStyle(color: Colors.grey),
             ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              children: [
+                Flexible(
+                    child: customButton(
+                  sideColor: kRedDark,
+                  buttonColor: kRedDark,
+                  label: 'Reject',
+                  onPressed: () async {
+                    await updateAnalyticStatus(
+                        analyticId: analytic.id ?? '', action: 'rejected');
+                    navigationService.pop();
+                  },
+                )),
+                SizedBox(
+                  width: 20,
+                ),
+                Flexible(
+                    child: customButton(
+                  sideColor: kGreen,
+                  buttonColor: kGreen,
+                  label: 'Accept',
+                  onPressed: () async {
+                    await updateAnalyticStatus(
+                        analyticId: analytic.id ?? '', action: 'accepted');
+
+                    ref.invalidate(fetchAnalyticsProvider);
+                    navigationService.pop();
+                  },
+                )),
+              ],
+            )
           ],
         ),
       ),
@@ -101,40 +136,32 @@ class AnalyticsModalSheet extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              label,
-              style: const TextStyle(color: Colors.grey),
-            ),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.grey),
           ),
-          Expanded(
-            flex: 3,
-            child: Row(
-              children: [
-                if (statusColor != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      value,
-                      style: TextStyle(color: statusColor),
-                    ),
-                  )
-                else
-                  Text(
-                    value,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-              ],
+          Spacer(),
+          if (statusColor != null)
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: statusColor,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Text(
+                value,
+                style: TextStyle(
+                    color: analytic.status == 'pending' ? kGreyDark : kWhite),
+              ),
+            )
+          else
+            Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-          ),
         ],
       ),
     );

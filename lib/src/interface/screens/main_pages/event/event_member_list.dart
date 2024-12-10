@@ -1,103 +1,69 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
-import 'package:hef/src/data/constants/style_constants.dart';
-import 'package:hef/src/data/services/navgitor_service.dart';
-import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:hef/src/data/models/events_model.dart';
+import 'package:hef/src/interface/screens/main_pages/event/member_list/attended.dart';
+import 'package:hef/src/interface/screens/main_pages/event/member_list/registered.dart';
 
 class EventMemberList extends StatelessWidget {
-  final String chapterId;
-  const EventMemberList({super.key, required this.chapterId});
+  final Event event;
+  const EventMemberList({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
-    NavigationService navigationService = NavigationService();
-    return Consumer(
-      builder: (context, ref, child) {
-        final asyncMembers =
-            ref.watch(fetchChapterMemberDataProvider(chapterId, 'user'));
-        return Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            title: Text("Back"),
-            centerTitle: false,
+    return DefaultTabController(
+        length: 2, // Number of tabs
+
+        child: Scaffold(
             backgroundColor: Colors.white,
-            elevation: 0,
-            titleTextStyle: TextStyle(
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-            iconTheme: IconThemeData(color: Colors.black),
-          ),
-          body: asyncMembers.when(
-            data: (members) {
-              return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'State / Zone / District / Chapter ',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Members',
-                      style: kBodyTitleB.copyWith(color: kBlack54),
-                    ),
-                    SizedBox(height: 16),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: members.length,
-                        itemBuilder: (context, index) {
-                          final member = members[index];
-                          return Card(
-                            elevation: 0.1,
-                            color: kWhite,
-                            margin: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage:
-                                    NetworkImage(member.image ?? ''),
-                              ),
-                              title: Text(member.name ?? ''),
-                              subtitle: Text(member.name ?? ''),
-                              trailing: Icon(Icons.arrow_forward_ios),
-                              onTap: () {
-                                navigationService.pushNamed('ProfileAnalytics',
-                                    arguments: member);
-                              },
+            body: SafeArea(
+              child: Column(
+                children: [
+                  PreferredSize(
+                    preferredSize: Size.fromHeight(20),
+                    child: Container(
+                      margin: EdgeInsets.only(top: 0),
+                      child: const SizedBox(
+                        height: 40,
+                        child: TabBar(
+                          enableFeedback: true,
+                          isScrollable: false,
+                          indicatorColor: kPrimaryColor,
+                          indicatorWeight: 3.0,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          labelColor: kPrimaryColor,
+                          unselectedLabelColor: Colors.grey,
+                          labelStyle: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          tabs: [
+                            Tab(
+                              text: "Business",
                             ),
-                          );
-                        },
+                            Tab(
+                              text: "Products",
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              );
-            },
-            loading: () => const Center(child: LoadingAnimation()),
-            error: (error, stackTrace) => Center(child: Text('NO MEMBERS')),
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              // Handle action
-            },
-            backgroundColor: Colors.orange,
-            child: Icon(Icons.person_add, color: Colors.white),
-          ),
-        );
-      },
-    );
+                  ),
+                  // Wrap TabBar with a Container to adjust margin
+
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        AttendedPage(
+                          event: event,
+                        ),
+                        RegisteredPage(
+                          event: event,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )));
   }
 }

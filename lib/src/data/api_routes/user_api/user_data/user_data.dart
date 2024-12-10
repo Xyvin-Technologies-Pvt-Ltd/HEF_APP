@@ -22,12 +22,46 @@ Future<UserModel> fetchUserDetails(
   log(response.body);
   if (response.statusCode == 200) {
     final dynamic data = json.decode(response.body)['data'];
-    print(data['products']);
-
     return UserModel.fromJson(data);
   } else {
     print(json.decode(response.body)['message']);
 
     throw Exception(json.decode(response.body)['message']);
   }
+}
+
+Future<List<UserModel>> fetchMultipleUsers(
+    {required List<String> users}) async {
+  final List<UserModel> userList = [];
+  log('im inside multiple user ');
+  for (var userId in users) {
+    try {
+      log('im inside multiple user fetching');
+      final url = Uri.parse('$baseUrl/user/single/$userId');
+      print('Requesting URL: $url');
+
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final user = UserModel.fromJson(data['data']);
+        userList.add(user);
+        print('Fetched user: $user');
+      } else {
+        print(
+            'Failed to fetch user $userId: ${json.decode(response.body)['message']}');
+        throw Exception(json.decode(response.body)['message']);
+      }
+    } catch (e) {
+      print('Error fetching user $userId: $e');
+    }
+  }
+
+  return userList;
 }

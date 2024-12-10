@@ -47,6 +47,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
 
               final attendant = await markAttendanceEvent(
                   eventId: widget.eventId, userId: userId);
+              log('attendant:$attendant');
               // Navigate to the next page
               if (attendant != null) {
                 Navigator.push(
@@ -59,6 +60,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
                 ).then((_) {
                   // Reset navigating state when returning to this page
                   setState(() {
+                    
                     _isNavigating = false;
                   });
 
@@ -66,6 +68,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
                   scannerController.start();
                 });
               } else {
+                log('im in else condition');
                 setState(() {
                   _isNavigating = false;
                 });

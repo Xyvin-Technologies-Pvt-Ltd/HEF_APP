@@ -1,4 +1,3 @@
-
 // import 'package:flutter/material.dart';
 
 // class CertificateCard extends StatelessWidget {
@@ -89,11 +88,12 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/product_model.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:hef/src/interface/components/DropDown/dropdown_menu.dart';
+
 class ProductCard extends StatelessWidget {
   final VoidCallback? onRemove;
   final Product product;
@@ -138,7 +138,7 @@ class ProductCard extends StatelessWidget {
                       bottomLeft: Radius.circular(10.0),
                       bottomRight: Radius.circular(10.0),
                     ),
-                    color: const Color(0xFFF2F2F2),
+                    color: kWhite,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(6.0),

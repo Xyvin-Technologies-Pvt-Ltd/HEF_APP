@@ -14,7 +14,6 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     NavigationService navigationService = NavigationService();
 
-    
     return Scaffold(
       appBar: AppBar(
         elevation: 0,

@@ -4,8 +4,10 @@ import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/interface/screens/main_page.dart';
 import 'package:hef/src/interface/screens/main_pages/admin/allocate_member.dart';
 import 'package:hef/src/interface/screens/main_pages/admin/member_creation.dart';
+import 'package:hef/src/interface/screens/main_pages/event/event_member_list.dart';
 import 'package:hef/src/interface/screens/main_pages/event/view_more_event.dart';
 import 'package:hef/src/interface/screens/main_pages/login_page.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/add_product.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/chapters.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/district.dart';
@@ -15,6 +17,7 @@ import 'package:hef/src/interface/screens/main_pages/menuPages/levels/states.dar
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/zones.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_businesses.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_events.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/my_products.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/request_nfc.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/card.dart';
@@ -64,6 +67,12 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
           builder: (context) => AllocateMember(
                 newUser: newUser,
               ));
+    case 'EventMemberList':
+      Event event = settings?.arguments as Event;
+      return MaterialPageRoute(
+          builder: (context) => EventMemberList(
+                event: event,
+              ));
     case 'EditUser':
       return MaterialPageRoute(builder: (context) => EditUser());
     case 'News':
@@ -72,8 +81,10 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       return MaterialPageRoute(builder: (context) => MemberCreationPage());
     case 'MyEvents':
       return MaterialPageRoute(builder: (context) => MyEventsPage());
-    // case 'MyProducs':
-    //   return MaterialPageRoute(builder: (context) => MyPro());
+    case 'MyProducts':
+      return MaterialPageRoute(builder: (context) => MyProductPage());
+    case 'EnterProductsPage':
+      return MaterialPageRoute(builder: (context) => EnterProductsPage());
     case 'MyBusinesses':
       return MaterialPageRoute(builder: (context) => MyBusinessesPage());
     case 'AnalyticsPage':

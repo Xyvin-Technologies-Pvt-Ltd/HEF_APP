@@ -1,4 +1,3 @@
-
 class AttendanceUserModel {
   final String? username;
   final String? image;
@@ -63,5 +62,68 @@ class AttendanceUserModel {
       district: district ?? this.district,
       chapter: chapter ?? this.chapter,
     );
+  }
+}
+class AttendanceUserListModel {
+  final List<AttendanceUser>? registeredUsers;
+  final List<AttendanceUser>? attendedUsers;
+  final int uniqueUsersCount;
+
+  AttendanceUserListModel({
+    this.registeredUsers,
+    this.attendedUsers,
+    this.uniqueUsersCount = 0,
+  });
+
+  factory AttendanceUserListModel.fromJson(Map<String, dynamic> json) {
+    return AttendanceUserListModel(
+      registeredUsers: (json['registeredUsers'] as List<dynamic>?)
+          ?.map((item) => AttendanceUser.fromJson(item as Map<String, dynamic>))
+          .toList(),
+      attendedUsers: (json['attendedUsers'] as List<dynamic>?)
+          ?.map((item) => AttendanceUser.fromJson(item as Map<String, dynamic>))
+          .toList(),
+      uniqueUsersCount: json['uniqueUsersCount'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'registeredUsers': registeredUsers?.map((user) => user.toJson()).toList(),
+      'attendedUsers': attendedUsers?.map((user) => user.toJson()).toList(),
+      'uniqueUsersCount': uniqueUsersCount,
+    };
+  }
+}
+
+class AttendanceUser {
+  final String? id;
+  final String? name;
+  final String? image;
+  final String? email;
+
+  AttendanceUser({
+    this.id,
+    this.name,
+    this.image,
+    this.email,
+  });
+
+  factory AttendanceUser.fromJson(Map<String, dynamic> json) {
+    return AttendanceUser(
+      id: json['_id'] as String?,
+      name: json['name'] as String?,
+      image: json['image'] as String?,
+      email: json['email'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'image': image,
+      'email': email,
+    };
   }
 }

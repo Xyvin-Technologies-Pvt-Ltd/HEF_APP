@@ -6,6 +6,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/events_model.dart';
 import 'package:hef/src/data/services/launch_url.dart';
+import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/screens/main_pages/event/qr_scanner_page.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
@@ -30,6 +31,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
 
   @override
   Widget build(BuildContext context) {
+    NavigationService navigationService = NavigationService();
     DateTime dateTime =
         DateTime.parse(widget.event.startTime.toString()).toLocal();
     String formattedTime = DateFormat('hh:mm a').format(dateTime);
@@ -260,7 +262,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                     );
                   },
                 ),
-                const SizedBox(height: 24),
+                if (widget.event.venue != null) const SizedBox(height: 24),
                 // Venue Section
                 if (widget.event.venue != null)
                   Padding(
@@ -275,7 +277,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                       ),
                     ),
                   ),
-                const SizedBox(height: 8),
+                if (widget.event.venue != null) const SizedBox(height: 8),
                 if (widget.event.venue != null)
                   Padding(
                     padding: const EdgeInsets.only(
@@ -289,7 +291,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                       ),
                     ),
                   ),
-                const SizedBox(height: 8),
+                if (widget.event.venue != null) const SizedBox(height: 8),
                 if (widget.event.venue != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -311,8 +313,45 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                     ),
                   ),
 
-                const SizedBox(
-                    height: 50), 
+                if (widget.event.coordinator!.contains(id))
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: .1,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: kWhite,
+                          child: Icon(Icons.map_outlined, color: kPrimaryColor),
+                        ),
+                        title: Text(
+                          'Member List',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
+                        trailing: Icon(Icons.arrow_forward_ios,
+                            size: 16, color: Colors.grey),
+                        onTap: () {
+                          navigationService.pushNamed('EventMemberList',
+                              arguments: widget.event);
+                        },
+                      ),
+                    ),
+                  ),
+                SizedBox(height: 50),
               ],
             ),
           ),
@@ -355,7 +394,10 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
               child: GestureDetector(
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => QRScannerPage( eventId: widget.event.id??'',)),
+                  MaterialPageRoute(
+                      builder: (context) => QRScannerPage(
+                            eventId: widget.event.id ?? '',
+                          )),
                 ),
                 child: Container(
                   padding: EdgeInsets.all(10),

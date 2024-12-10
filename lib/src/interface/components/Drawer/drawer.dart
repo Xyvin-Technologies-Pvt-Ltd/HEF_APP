@@ -81,13 +81,13 @@ Widget customDrawer({required UserModel user}) {
             },
           ),
 
-          // _buildDrawerItem(
-          //   icon: 'assets/svg/icons/my_products.svg',
-          //   label: 'My Products',
-          //   onTap: () {
-          //     navigationService.pushNamed('MyBusinesses');
-          //   },
-          // ),
+          _buildDrawerItem(
+            icon: 'assets/svg/icons/my_products.svg',
+            label: 'My Products',
+            onTap: () {
+              navigationService.pushNamed('MyProducts');
+            },
+          ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_requirements.svg',
             label: 'My Requirements',

@@ -190,5 +190,24 @@ class _FetchProductsProviderElement
   @override
   String? get search => (origin as FetchProductsProvider).search;
 }
+
+String _$fetchMyProductsHash() => r'c4f452c8c4830123068d280d6ca08136684a2c51';
+
+/// See also [fetchMyProducts].
+@ProviderFor(fetchMyProducts)
+final fetchMyProductsProvider =
+    AutoDisposeFutureProvider<List<Product>>.internal(
+  fetchMyProducts,
+  name: r'fetchMyProductsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$fetchMyProductsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef FetchMyProductsRef = AutoDisposeFutureProviderRef<List<Product>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

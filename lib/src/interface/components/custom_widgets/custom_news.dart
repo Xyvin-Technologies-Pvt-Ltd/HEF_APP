@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -10,6 +11,7 @@ Widget newsCard({
   return GestureDetector(
     onTap: onTap,
     child: Card(
+      color: kWhite, 
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -26,14 +28,14 @@ Widget newsCard({
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return shimmerPlaceholder(); 
+                      return shimmerPlaceholder();
                     },
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
                       return shimmerPlaceholder();
                     },
                   )
-                : shimmerPlaceholder(), 
+                : shimmerPlaceholder(),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),

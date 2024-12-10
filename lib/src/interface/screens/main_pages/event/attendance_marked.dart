@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
+import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/attendance_user_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 
 class EventAttendanceSuccessPage extends StatefulWidget {
   final AttendanceUserModel user;
@@ -152,43 +154,54 @@ class _EventAttendanceSuccessPageState extends State<EventAttendanceSuccessPage>
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              "Attendance Marked Successfully!",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 24,
-                                color: Color(0xFFD1661B),
-                                fontWeight: FontWeight.bold,
+                            Container(
+                              width: 80, // Diameter + border width
+                              height: 80,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: kPrimaryColor,
+                                  width: 2.0, // Border width
+                                ),
+                              ),
+                              child: ClipOval(
+                                child: Image.network(
+                                  widget.user.image ?? '',
+                                  width:
+                                      60, // Diameter of the circle (excluding border)
+                                  height: 60,
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 10),
+                            Text('${widget.user.username}',
+                                textAlign: TextAlign.center,
+                                style: kSubHeadingR),
                             Text(
-                              "You have successfully marked your attendance for the event. Thank you for participating!",
+                              '${widget.user.email}',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 12,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              '${widget.user.state} > ${widget.user.zone} > ${widget.user.district} > ${widget.user.chapter}',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
                                 color: Colors.black87,
                               ),
                             ),
                             const SizedBox(height: 30),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: Color(0xFFD1661B),
-                                backgroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 15),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                              child: Text(
-                                "Back",
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
+                            customButton(
+                              label: 'Done',
+                              onPressed: () => Navigator.pop(context),
+                            )
                           ],
                         ),
                       ),

@@ -30,27 +30,24 @@ Future<String> editUser(Map<String, dynamic> profileData) async {
   }
 }
 
-Future<Product?> uploadProduct(
-{
- required String name,
- required String price,
-required  String offerPrice,
- required String description,
- required String moq,
-required  String productImage,
- required String productPriceType,
-}
-  
-) async {
+Future<Product?> uploadProduct({
+  required String name,
+  required String price,
+  required String offerPrice,
+  required String description,
+  required String moq,
+  required String productImage,
+  required String productPriceType,
+}) async {
   SnackbarService snackbarService = SnackbarService();
-  final url = Uri.parse('$baseUrl/products');
+  final url = Uri.parse('$baseUrl/product/user');
 
   final body = {
     'name': name,
     'price': price,
-    'offer_price': offerPrice,
+    'offerPrice': offerPrice,
     'description': description,
-    'seller_id': id,
+    'seller': id,
     'moq': moq,
     'status': 'pending',
     'units': productPriceType,
@@ -75,37 +72,34 @@ required  String productImage,
       return product;
     } else {
       final jsonResponse = json.decode(response.body);
-      snackbarService.showSnackBar( jsonResponse['message']);
+      snackbarService.showSnackBar(jsonResponse['message']);
       print('Failed to upload product: ${response.statusCode}');
       return null;
     }
   } catch (e) {
     print('Error occurred: $e');
-      snackbarService.showSnackBar( 'Something went wrong. Please try again.');
+    snackbarService.showSnackBar('Something went wrong. Please try again.');
     return null;
   }
 }
 
+Future<void> deleteProduct(String productId) async {
+  final url = Uri.parse('$baseUrl/products/$productId');
+  print('requesting url:$url');
+  final response = await http.delete(
+    url,
+    headers: {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+  );
 
+  if (response.statusCode == 200) {
+    print('product removed successfully');
+  } else {
+    final jsonResponse = json.decode(response.body);
 
-
-  Future<void> deleteProduct(String productId) async {
-    final url = Uri.parse('$baseUrl/products/$productId');
-    print('requesting url:$url');
-    final response = await http.delete(
-      url,
-      headers: {
-        'Content-type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      print('product removed successfully');
-    } else {
-      final jsonResponse = json.decode(response.body);
-
-      print(jsonResponse['message']);
-      print('Failed to delete image: ${response.statusCode}');
-    }
+    print(jsonResponse['message']);
+    print('Failed to delete image: ${response.statusCode}');
   }
+}

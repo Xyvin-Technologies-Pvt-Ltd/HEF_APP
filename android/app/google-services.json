@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "137087542709",
+    "project_id": "hef-app-f825a",
+    "storage_bucket": "hef-app-f825a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:137087542709:android:d8033fa9139543d7ffa5fc",
+        "android_client_info": {
+          "package_name": "com.skybertech.hef"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgkCUiXVNF2Yi_ToMKnawZPdtIutWeCA0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

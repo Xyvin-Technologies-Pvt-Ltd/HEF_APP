@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Widget customDrawer({required UserModel user}) {
   NavigationService navigationService = NavigationService();
@@ -20,7 +21,7 @@ Widget customDrawer({required UserModel user}) {
             height: 20,
           ),
           Container(
-            decoration: BoxDecoration(color: Color(0xFFF7F7FC)),
+            decoration: const BoxDecoration(color: Color(0xFFF7F7FC)),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
               child: Row(
@@ -111,7 +112,9 @@ Widget customDrawer({required UserModel user}) {
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_reviews.svg',
             label: 'My Reviews',
-            onTap: () {},
+            onTap: () {
+              navigationService.pushNamed('MyReviews');
+            },
           ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_events.svg',
@@ -147,7 +150,13 @@ Widget customDrawer({required UserModel user}) {
           _buildDrawerItem(
             icon: 'assets/svg/icons/logout.svg',
             label: 'Logout',
-            onTap: () {},
+            onTap: () async {
+              final SharedPreferences preferences =
+                  await SharedPreferences.getInstance();
+              preferences.remove('token');
+              preferences.remove('id');
+              navigationService.pushNamedAndRemoveUntil('PhoneNumber');
+            },
           ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/delete_account.svg',

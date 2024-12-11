@@ -19,6 +19,7 @@ import 'package:hef/src/interface/screens/main_pages/menuPages/levels/zones.dart
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_businesses.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_events.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_products.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/my_reviews.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/request_nfc.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/card.dart';
@@ -95,6 +96,8 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
 
     case 'RequestNFC':
       return MaterialPageRoute(builder: (context) => RequestNFCPage());
+    case 'MyReviews':
+      return MaterialPageRoute(builder: (context) => MyReviewsPage());
     case 'States':
       return MaterialPageRoute(builder: (context) => StatesPage());
     case 'Zones':

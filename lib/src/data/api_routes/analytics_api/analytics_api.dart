@@ -67,7 +67,7 @@ Future<void> updateAnalyticStatus({
       body: body,
     );
 
-    if (response.statusCode == 201|| response.statusCode == 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       log('$action successfully');
     } else {
       log('Failed to update analytic: ${response.statusCode}');
@@ -75,5 +75,29 @@ Future<void> updateAnalyticStatus({
     }
   } catch (e) {
     print('Error: $e');
+  }
+}
+
+Future<void> postAnalytic({Map<String, dynamic>? data}) async {
+  final url = Uri.parse('$baseUrl/analytic');
+
+  final headers = {
+    'accept': '*/*',
+    'Authorization': 'Bearer $token',
+    'Content-Type': 'application/json',
+  };
+
+  final body = jsonEncode(data);
+
+  try {
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print('Success: ${response.body}');
+    } else {
+      print('Error: ${response.statusCode} - ${response.body}');
+    }
+  } catch (e) {
+    print('Exception: $e');
   }
 }

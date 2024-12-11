@@ -69,6 +69,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool? enabled;
   final bool? isAward;
   final String? title;
+  final TextInputType textInputType;
   const CustomTextFormField({
     super.key,
     required this.labelText,
@@ -79,7 +80,7 @@ class CustomTextFormField extends StatelessWidget {
     this.onChanged,
     this.enabled,
     this.isAward,
-    this.title,
+    this.title,  this.textInputType=TextInputType.none,
   });
 
   @override
@@ -100,7 +101,7 @@ class CustomTextFormField extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            TextFormField(
+            TextFormField(keyboardType: textInputType,
               enabled: enabled,
               onChanged: (value) {
                 switch (labelText) {

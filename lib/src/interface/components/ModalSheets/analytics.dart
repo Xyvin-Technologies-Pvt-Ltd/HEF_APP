@@ -94,7 +94,19 @@ class AnalyticsModalSheet extends ConsumerWidget {
             SizedBox(
               height: 20,
             ),
-            if (analytic.status != 'accepted')
+            if (tabBarType == 'sent')
+              Flexible(
+                  child: customButton(
+                sideColor: kRedDark,
+                buttonColor: kRedDark,
+                label: 'Cancel Request',
+                onPressed: () async {
+                  await updateAnalyticStatus(
+                      analyticId: analytic.id ?? '', action: 'rejected');
+                  navigationService.pop();
+                },
+              )),
+            if (analytic.status != 'meeting_scheduled' && tabBarType != 'sent')
               Row(
                 children: [
                   Flexible(
@@ -114,11 +126,14 @@ class AnalyticsModalSheet extends ConsumerWidget {
                   Flexible(
                       child: customButton(
                     sideColor: kGreen,
-                    buttonColor: kGreen,
-                    label: 'Accept',
+                    buttonColor: analytic.status == 'pending' ? kGreen : kBlue,
+                    label: analytic.status == 'pending' ? 'Accept' : 'Schedule',
                     onPressed: () async {
                       await updateAnalyticStatus(
-                          analyticId: analytic.id ?? '', action: 'accepted');
+                          analyticId: analytic.id ?? '',
+                          action: analytic.status == 'pending'
+                              ? 'accepted'
+                              : 'meeting_scheduled');
 
                       ref.invalidate(fetchAnalyticsProvider);
                       navigationService.pop();

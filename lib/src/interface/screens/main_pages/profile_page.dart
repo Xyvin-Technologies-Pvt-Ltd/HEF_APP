@@ -330,8 +330,8 @@ class ProfilePage extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          Share.share(
-                              'https://admin.akcafconnect.com/user/${user.uid}');
+                          // Share.share(
+                          //     'https://admin.akcafconnect.com/user/${user.uid}');
                         },
                         child: SvgPicture.asset(
                             'assets/svg/icons/shareButton.svg'),

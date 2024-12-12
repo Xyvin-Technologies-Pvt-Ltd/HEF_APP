@@ -1,24 +1,24 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hef/firebase_options.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/data/router/router.dart' as router;
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
-  // initializeNotifications();
-
+  WidgetsFlutterBinding.ensureInitialized(); 
+   await dotenv.load(fileName: ".env");
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  initializeNotifications();
   runApp(ProviderScope(child: MyApp()));
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -39,4 +39,18 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+}
+
+
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+// Initialize in your main function
+void initializeNotifications() {
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+const iosInitializationSetting = DarwinInitializationSettings();
+const initSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: iosInitializationSetting);
+
+  flutterLocalNotificationsPlugin.initialize(initSettings);
 }

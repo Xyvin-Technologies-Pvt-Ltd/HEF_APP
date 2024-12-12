@@ -61,6 +61,11 @@ dependencies:
   mobile_scanner: ^6.0.2
   keyboard_avoider: ^0.2.0
   firebase_core: ^3.8.1
+  firebase_auth: ^5.3.4
+  flutter_local_notifications: ^18.0.1
+  firebase_messaging: ^15.1.6
+  flutter_upgrade_version: ^1.1.7
+  multi_select_flutter: ^4.1.3
 
 
 

@@ -177,7 +177,7 @@ class ProductCard extends StatelessWidget {
                                 Text(
                                   '₹ ${product.offerPrice}',
                                   style: const TextStyle(
-                                    color: Color(0xFF004797),
+                                    color: kPrimaryColor,
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.w600,
                                   ),

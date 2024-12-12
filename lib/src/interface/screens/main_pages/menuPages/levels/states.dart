@@ -4,6 +4,7 @@ import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/create_notification_page.dart';
 
 class StatesPage extends StatelessWidget {
   @override
@@ -89,7 +90,11 @@ class StatesPage extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              // Handle button press
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          CreateNotificationPage(level: 'state')));
             },
             backgroundColor: kPrimaryColor,
             child: Icon(Icons.notifications, color: kWhite),

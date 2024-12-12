@@ -11,6 +11,7 @@ import 'package:hef/src/interface/screens/main_pages/menuPages/add_product.dart'
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/send_analytic_req.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/chapters.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/create_notification_page.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/district.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/level_members.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/profile_analytics.dart';
@@ -34,12 +35,6 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       return MaterialPageRoute(builder: (context) => SplashScreen());
     case 'PhoneNumber':
       return MaterialPageRoute(builder: (context) => PhoneNumberScreen());
-    case 'Otp':
-      String phone = settings?.arguments as String;
-      return MaterialPageRoute(
-          builder: (context) => OTPScreen(
-                phone: phone,
-              ));
     case 'MainPage':
       return MaterialPageRoute(builder: (context) => const MainPage());
     case 'ProfileCompletion':
@@ -100,6 +95,7 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       return MaterialPageRoute(builder: (context) => MyReviewsPage());
     case 'States':
       return MaterialPageRoute(builder: (context) => StatesPage());
+
     case 'Zones':
       String stateId = settings?.arguments as String;
       return MaterialPageRoute(

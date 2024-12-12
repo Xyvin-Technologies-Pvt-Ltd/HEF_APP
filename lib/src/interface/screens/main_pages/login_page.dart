@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hef/src/data/api_routes/user_api/admin/admin_activities_api.dart';
 import 'package:hef/src/data/api_routes/user_api/login/user_login_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
@@ -180,89 +181,66 @@ class PhoneNumberScreen extends ConsumerWidget {
   }
 
   Future<void> _handleOtpGeneration(BuildContext context, WidgetRef ref) async {
-    SnackbarService scaffoldMessengerKey = SnackbarService();
-    NavigationService navigationService = NavigationService();
     final countryCode = ref.watch(countryCodeProvider);
     ref.read(loadingProvider.notifier).startLoading();
-
+    SnackbarService snackbarService = SnackbarService();
     try {
       if (countryCode == '971') {
         if (_mobileController.text.length != 9) {
-          scaffoldMessengerKey.showSnackBar('Please Enter valid mobile number');
+          snackbarService.showSnackBar('Please Enter valid mobile number');
         } else {
-          final data = await sendOtp(
-            phone: _mobileController.text,
-            countryCode: countryCode == '971'
-                ? 9710.toString()
-                : countryCode ?? 91.toString(),
-          );
-          scaffoldMessengerKey.showSnackBar(data);
-          // final data = await submitPhoneNumber(
-          //     countryCode == '971'
-          //         ? 9710.toString()
-          //         : countryCode ?? 91.toString(),
-          //     context,
-          //     _mobileController.text);
-          // final verificationId = data['verificationId'];
-          // final resendToken = data['resendToken'];
-          // if (verificationId != null && verificationId.isNotEmpty) {
-          //   log('Otp Sent successfully');
-          navigationService.pushNamedReplacement('Otp',
-              arguments: '$countryCode${_mobileController.text}');
+          final data = await submitPhoneNumber(
+              countryCode == '971'
+                  ? 9710.toString()
+                  : countryCode ?? 91.toString(),
+              context,
+              _mobileController.text);
+          final verificationId = data['verificationId'];
+          final resendToken = data['resendToken'];
+          if (verificationId != null && verificationId.isNotEmpty) {
+            log('Otp Sent successfully');
 
-          // Navigator.of(context).pushReplacement(MaterialPageRoute(
-          //   builder: (context) => OTPScreen(
-          //     phone: _mobileController.text,
-          //     verificationId: verificationId,
-          //     resendToken: resendToken ?? '',
-          //   ),
-          // ));
-          // } else {
-          //   CustomSnackbar.showSnackbar(context, 'Failed');
-          // }
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => OTPScreen(
+                phone: _mobileController.text,
+                verificationId: verificationId,
+                resendToken: resendToken ?? '',
+              ),
+            ));
+          } else {
+            snackbarService.showSnackBar('Failed');
+          }
         }
       } else if (countryCode != '971') {
         if (_mobileController.text.length != 10) {
-          scaffoldMessengerKey.showSnackBar('Please Enter valid mobile number');
+          snackbarService.showSnackBar('Please Enter valid mobile number');
         } else {
-          final data = await sendOtp(
-            phone: _mobileController.text,
-            countryCode: countryCode == '971'
-                ? 9710.toString()
-                : countryCode ?? 91.toString(),
-          );
-          scaffoldMessengerKey.showSnackBar(data);
-          navigationService.pushNamedReplacement('Otp',
-              arguments: '$countryCode${_mobileController.text}');
+          final data = await submitPhoneNumber(
+              countryCode == '971'
+                  ? 9710.toString()
+                  : countryCode ?? 971.toString(),
+              context,
+              _mobileController.text);
+          final verificationId = data['verificationId'];
+          final resendToken = data['resendToken'];
+          if (verificationId != null && verificationId.isNotEmpty) {
+            log('Otp Sent successfully');
 
-          // ApiRoutes userApi = ApiRoutes();
-
-          // final data = await userApi.submitPhoneNumber(
-          //     countryCode == '971'
-          //         ? 9710.toString()
-          //         : countryCode ?? 971.toString(),
-          //     context,
-          //     _mobileController.text);
-          // final verificationId = data['verificationId'];
-          // final resendToken = data['resendToken'];
-          // if (verificationId != null && verificationId.isNotEmpty) {
-          //   log('Otp Sent successfully');
-
-          //   Navigator.of(context).pushReplacement(MaterialPageRoute(
-          //     builder: (context) => OTPScreen(
-          //       phone: _mobileController.text,
-          //       verificationId: verificationId,
-          //       resendToken: resendToken ?? '',
-          //     ),
-          //   ));
-          // } else {
-          //   CustomSnackbar.showSnackbar(context, 'Failed');
-          // }
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => OTPScreen(
+                phone: _mobileController.text,
+                verificationId: verificationId,
+                resendToken: resendToken ?? '',
+              ),
+            ));
+          } else {
+            snackbarService.showSnackBar('Failed');
+          }
         }
       }
     } catch (e) {
       log(e.toString());
-      scaffoldMessengerKey.showSnackBar('Failed');
+      snackbarService.showSnackBar('Failed');
     } finally {
       ref.read(loadingProvider.notifier).stopLoading();
     }
@@ -270,14 +248,14 @@ class PhoneNumberScreen extends ConsumerWidget {
 }
 
 class OTPScreen extends ConsumerStatefulWidget {
-  // final String verificationId;
-  // final String resendToken;
+  final String verificationId;
+  final String resendToken;
   final String phone;
   const OTPScreen({
     required this.phone,
-    // required this.resendToken,
+    required this.resendToken,
     super.key,
-    // required this.verificationId,
+    required this.verificationId,
   });
 
   @override
@@ -451,28 +429,20 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
 
   Future<void> _handleOtpVerification(
       BuildContext context, WidgetRef ref) async {
-    NavigationService navigationService = NavigationService();
-    final countryCode = ref.watch(countryCodeProvider);
     ref.read(loadingProvider.notifier).startLoading();
 
     try {
       print(_otpController.text);
-      Map<String, dynamic> response = await verifyUser(
-        phone: '+91${_mobileController.text}',
-        otp: _otpController.text,
-      );
-      log('Token:$response');
-      // Map<String, dynamic> responseMap = await userApi.verifyOTP(
-      //     verificationId: widget.verificationId,
-      //     fcmToken: fcmToken,
-      //     smsCode: _otpController.text,
-      //     context: context);
-      String savedToken = response['token'] ?? '';
-      String savedId = response['userId'] ?? '';
-      // String savedToken = responseMap['token'];
-      // String savedId = responseMap['userId'];
-      log('savedToken: $token');
-      log('savedId: $savedId');
+
+      Map<String, dynamic> responseMap = await verifyOTP(
+          verificationId: widget.verificationId,
+          fcmToken: fcmToken,
+          smsCode: _otpController.text,
+          context: context);
+
+      String savedToken = responseMap['token'];
+      String savedId = responseMap['userId'];
+
       if (savedToken.isNotEmpty && savedId.isNotEmpty) {
         final SharedPreferences preferences =
             await SharedPreferences.getInstance();
@@ -480,15 +450,17 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
         await preferences.setString('id', savedId);
         token = savedToken;
         id = savedId;
-        log('savedToken: $token');
+        log('savedToken: $savedToken');
         log('savedId: $savedId');
-        ref.read(userProvider.notifier).refreshUser();
-        navigationService.pushNamedReplacement('ProfileCompletion');
+        ref.invalidate(userProvider);
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => ProfileCompletionScreen()));
       } else {
+        
         // CustomSnackbar.showSnackbar(context, 'Wrong OTP');
       }
     } catch (e) {
-      print(e);
+      log(e.toString());
       // CustomSnackbar.showSnackbar(context, 'Wrong OTP');
     } finally {
       ref.read(loadingProvider.notifier).stopLoading();

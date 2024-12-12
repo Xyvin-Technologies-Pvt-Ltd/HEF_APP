@@ -149,13 +149,15 @@ class ProfileCard extends StatelessWidget {
                                             ),
                                             SizedBox(width: 10),
                                             Expanded(
-                                              // Use Expanded here to take up remaining space
                                               child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(user.name ?? '',
                                                       style: kHeadTitleB),
+                                                  SizedBox(
+                                                    height: 5,
+                                                  ),
                                                   if (user.company
                                                               ?.designation !=
                                                           null &&
@@ -167,6 +169,9 @@ class ProfileCard extends StatelessWidget {
                                                                 ?.designation ??
                                                             '',
                                                         style: kSmallTitleM),
+                                                  SizedBox(
+                                                    height: 5,
+                                                  ),
                                                   Text(user.company?.name ?? '',
                                                       style: kSmallerTitleR),
                                                 ],

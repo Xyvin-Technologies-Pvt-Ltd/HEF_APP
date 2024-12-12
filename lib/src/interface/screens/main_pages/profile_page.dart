@@ -4,6 +4,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/data/services/share_qr.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -330,8 +331,7 @@ class ProfilePage extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          // Share.share(
-                          //     'https://admin.akcafconnect.com/user/${user.uid}');
+                          captureAndShareWidgetScreenshot(context);
                         },
                         child: SvgPicture.asset(
                             'assets/svg/icons/shareButton.svg'),

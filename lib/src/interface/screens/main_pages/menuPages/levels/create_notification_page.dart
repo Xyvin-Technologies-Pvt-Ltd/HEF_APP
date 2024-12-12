@@ -126,7 +126,8 @@ class _CreateNotificationPageState
                       height: 50,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
+                        color: kWhite,
+                        border: Border.all(color: kGreyLight),
                         borderRadius: BorderRadius.circular(7),
                       ),
                       child: Row(
@@ -134,7 +135,7 @@ class _CreateNotificationPageState
                         children: [
                           Text(
                             "Select ${widget.level}",
-                            style: TextStyle(color: Colors.black),
+                            style: TextStyle(color: kGreyDark),
                           ),
                           Icon(
                             Icons.arrow_drop_down,
@@ -203,9 +204,7 @@ class _CreateNotificationPageState
             ),
             const SizedBox(height: 8),
             GestureDetector(
-              onTap: () {
-                // Handle image upload
-              },
+              onTap: () {},
               child: DottedBorder(
                 color: Colors.grey,
                 strokeWidth: 1,
@@ -214,7 +213,7 @@ class _CreateNotificationPageState
                 radius: const Radius.circular(10),
                 child: Container(
                   width: double.infinity,
-                  height: 150,
+                  height: 120,
                   color: kWhite,
                   child: const Center(
                     child: Icon(
@@ -241,15 +240,18 @@ class _CreateNotificationPageState
             const SizedBox(height: 24),
 
             // Submit Button
-            customButton(
-              label: 'Send Notification',
-              onPressed: () {
-                createLevelNotification(
-                    level: widget.level,
-                    id: _selectedItemsId,
-                    subject: titleController.text,
-                    content: messageController.text);
-              },
+            Padding(
+              padding: EdgeInsets.only(bottom: 30),
+              child: customButton(
+                label: 'Send Notification',
+                onPressed: () {
+                  createLevelNotification(
+                      level: widget.level,
+                      id: _selectedItemsId,
+                      subject: titleController.text,
+                      content: messageController.text);
+                },
+              ),
             )
           ],
         ),

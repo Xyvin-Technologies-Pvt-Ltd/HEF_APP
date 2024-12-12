@@ -47,7 +47,7 @@ class DistrictsPage extends StatelessWidget {
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: kWhite,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(

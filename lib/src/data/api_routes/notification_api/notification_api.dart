@@ -58,6 +58,7 @@ Future<void> createLevelNotification({
     'id': id,
     'subject': subject,
     'content': content,
+    'type': 'in-app',
     if (media != null) 'media': media,
   });
 

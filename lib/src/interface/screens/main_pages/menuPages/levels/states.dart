@@ -5,6 +5,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/create_notification_page.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/zones.dart';
 
 class StatesPage extends StatelessWidget {
   @override
@@ -21,7 +22,7 @@ class StatesPage extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
-            title: Text("Levels"),
+            title: Text("States"),
             centerTitle: true,
             backgroundColor: Colors.white,
             elevation: 0,
@@ -69,10 +70,11 @@ class StatesPage extends StatelessWidget {
                         trailing: Icon(Icons.arrow_forward_ios,
                             size: 16, color: Colors.grey),
                         onTap: () {
-                          navigationService.pushNamed(
-                            'Zones',
-                            arguments: states[index].id,
-                          );
+                              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ZonesPage(stateId:       states[index].id,stateName:  states[index].name,
+                         )));
                         },
                       ),
                     ),

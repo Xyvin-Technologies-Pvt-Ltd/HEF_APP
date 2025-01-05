@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
+import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -165,7 +166,7 @@ Future<void> captureAndShareWidgetScreenshot(BuildContext context) async {
                   ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: LoadingAnimation()),
               error: (error, stackTrace) =>
                   const Center(child: Text('Error loading user')),
             );

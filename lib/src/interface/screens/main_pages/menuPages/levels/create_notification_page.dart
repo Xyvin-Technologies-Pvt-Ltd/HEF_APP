@@ -1,14 +1,21 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/api_routes/notification_api/notification_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/level_models/level_model.dart';
+import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:path/path.dart' as Path;
 
 class CreateNotificationPage extends ConsumerStatefulWidget {
   final String level;
@@ -31,7 +38,8 @@ class _CreateNotificationPageState
   TextEditingController linkController = TextEditingController();
   List<LevelModel> _selectedItems = [];
   List<String> _selectedItemsId = [];
-
+  File? notificationImage;
+  String? notificationImageUrl;
   void _showMultiSelect(List<LevelModel> items, BuildContext context) async {
     await showDialog(
       context: context,
@@ -71,16 +79,32 @@ class _CreateNotificationPageState
     );
   }
 
+  Future<File?> _pickFile({required String imageType}) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: [
+        'png',
+        'jpg',
+        'jpeg',
+      ],
+    );
+
+    if (result != null) {
+      notificationImage = File(result.files.single.path!);
+      return notificationImage;
+    }
+    return null;
+  }
+
   AsyncValue<List<LevelModel>>? asyncLevelValues;
   @override
   Widget build(BuildContext context) {
-    switch (widget.level) {
-      case 'state':
-        asyncLevelValues = ref.watch(fetchStatesProvider);
-        break;
-      default:
-        asyncLevelValues = ref
-            .watch(fetchLevelDataProvider(widget.levelId ?? '', widget.level));
+    log('level:${widget.levelId.toString()}');
+    if (widget.levelId == null) {
+      asyncLevelValues = ref.watch(fetchStatesProvider);
+    } else {
+      asyncLevelValues =
+          ref.watch(fetchLevelDataProvider(widget.levelId ?? '', widget.level));
     }
 
     return Scaffold(
@@ -98,8 +122,8 @@ class _CreateNotificationPageState
         elevation: 0,
         titleTextStyle: TextStyle(
           color: Colors.black,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
         ),
         iconTheme: IconThemeData(color: Colors.black),
       ),
@@ -134,7 +158,7 @@ class _CreateNotificationPageState
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Select ${widget.level}",
+                            "Select",
                             style: TextStyle(color: kGreyDark),
                           ),
                           Icon(
@@ -204,7 +228,28 @@ class _CreateNotificationPageState
             ),
             const SizedBox(height: 8),
             GestureDetector(
-              onTap: () {},
+              onTap: () async {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return const Center(
+                      child: LoadingAnimation(),
+                    );
+                  },
+                );
+
+                final pickedFile = await _pickFile(imageType: 'product');
+                if (pickedFile == null) {
+                  Navigator.pop(context);
+                }
+
+                setState(() {
+                  notificationImage = pickedFile;
+                });
+
+                Navigator.of(context).pop();
+              },
               child: DottedBorder(
                 color: Colors.grey,
                 strokeWidth: 1,
@@ -215,13 +260,50 @@ class _CreateNotificationPageState
                   width: double.infinity,
                   height: 120,
                   color: kWhite,
-                  child: const Center(
-                    child: Icon(
-                      Icons.add,
-                      size: 40,
-                      color: Colors.grey,
-                    ),
-                  ),
+                  child: Center(
+                      child: notificationImage == null
+                          ? const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.add,
+                                  size: 40,
+                                  color: Colors.grey,
+                                ),
+                                Text(
+                                  'Upload Image',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: Row(
+                                children: [
+                                  if (notificationImage != null)
+                                    Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        height: double.infinity,
+                                        width: 60,
+                                        child: Image.file(notificationImage!)),
+                                  Spacer(),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        notificationImage = null;
+                                      });
+                                    },
+                                    child: SvgPicture.asset(
+                                        'assets/svg/icons/delete_account.svg'),
+                                  ),
+                                ],
+                              ),
+                            )),
                 ),
               ),
             ),
@@ -244,12 +326,18 @@ class _CreateNotificationPageState
               padding: EdgeInsets.only(bottom: 30),
               child: customButton(
                 label: 'Send Notification',
-                onPressed: () {
+                onPressed: () async {
+                  if (notificationImage != null) {
+                    notificationImageUrl = await imageUpload(
+                        Path.basename(notificationImage!.path),
+                        notificationImage!.path);
+                  }
                   createLevelNotification(
                       level: widget.level,
                       id: _selectedItemsId,
                       subject: titleController.text,
-                      content: messageController.text);
+                      content: messageController.text,
+                      media: notificationImageUrl);
                 },
               ),
             )

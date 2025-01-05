@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/review_api/review_api.dart';
+import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/common/review_barchart.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -15,6 +17,8 @@ class ProfileAnalyticsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    NavigationService navigationService = NavigationService();
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -82,11 +86,28 @@ class ProfileAnalyticsPage extends StatelessWidget {
                     SizedBox(
                       width: 190,
                       height: 40,
-                      child: customButton(
-                          label: 'View Profile Card',
-                          onPressed: () {},
-                          buttonColor: kWhite,
-                          labelColor: kPrimaryColor),
+                      child: Consumer(
+                        builder: (context, ref, child) {
+                          final asyncUser = ref
+                              .watch(fetchUserDetailsProvider(user.uid ?? ''));
+                          return asyncUser.when(
+                            data: (userData) {
+                              return customButton(
+                                  label: 'View Profile Card',
+                                  onPressed: () {
+                                    navigationService.pushNamed('Card',
+                                        arguments: userData);
+                                  },
+                                  buttonColor: kWhite,
+                                  labelColor: kPrimaryColor);
+                            },
+                            loading: () =>
+                                const Center(child: LoadingAnimation()),
+                            error: (error, stackTrace) => const Center(
+                                child: Text('Error loading user card')),
+                          );
+                        },
+                      ),
                     )
                   ],
                 ),

@@ -13,6 +13,7 @@ import 'package:hef/src/data/services/save_contact.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/Cards/award_card.dart';
 import 'package:hef/src/interface/components/Cards/certificate_card.dart';
+import 'package:hef/src/interface/components/ModalSheets/write_review.dart';
 import 'package:hef/src/interface/components/common/review_barchart.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -47,7 +48,7 @@ class ProfilePreview extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-           final reviewsToShow = ref.watch(reviewsProvider);
+    final reviewsToShow = ref.watch(reviewsProvider);
     PageController _videoCountController = PageController();
 
     _videoCountController.addListener(() {
@@ -125,8 +126,7 @@ class ProfilePreview extends ConsumerWidget {
                                 ),
                                 child: ClipOval(
                                   child: Image.network(
-                                    user.image ??
-                                        'https://placehold.co/600x400',
+                                    user.image ?? '',
                                     width: 90,
                                     height: 90,
                                     fit: BoxFit.contain,
@@ -349,31 +349,61 @@ class ProfilePreview extends ConsumerWidget {
                                 children: [
                                   ReviewBarChart(
                                     reviews: reviews ?? [],
-                                  ),  if (reviews.isNotEmpty)
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: reviewsToShow,
-                        itemBuilder: (context, index) {        final ratingDistribution = getRatingDistribution(reviews);
-        final averageRating = getAverageRating(reviews);
-        final totalReviews =reviews.length;
-                          return ReviewsCard(
-                            review: reviews[index],
-                            ratingDistribution: ratingDistribution,
-                            averageRating: averageRating,
-                            totalReviews: totalReviews,
-                          );
-                        },
-                      ),
-                    if (reviewsToShow < reviews.length)
-                      TextButton(
-                        onPressed: () {
-                          ref
-                              .read(reviewsProvider.notifier)
-                              .showMoreReviews(reviews.length);
-                        },
-                        child: Text('View More'),
-                      ),
+                                  ),
+                                  SizedBox(
+                                    height: 20,
+                                  ),
+                                  if (user.uid != id)
+                                    customButton(
+                                        buttonColor: Colors.transparent,
+                                        sideColor: kPrimaryColor,
+                                        labelColor: kPrimaryColor,
+                                        label: 'Write a Review',
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.vertical(
+                                                      top: Radius.circular(20)),
+                                            ),
+                                            builder: (context) =>
+                                                ShowWriteReviewSheet(
+                                              userId: user.uid ?? '',
+                                            ),
+                                          );
+                                        },
+                                        fontSize: 15),
+                                  if (reviews.isNotEmpty)
+                                    ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemCount: reviewsToShow,
+                                      itemBuilder: (context, index) {
+                                        final ratingDistribution =
+                                            getRatingDistribution(reviews);
+                                        final averageRating =
+                                            getAverageRating(reviews);
+                                        final totalReviews = reviews.length;
+                                        return ReviewsCard(
+                                          review: reviews[index],
+                                          ratingDistribution:
+                                              ratingDistribution,
+                                          averageRating: averageRating,
+                                          totalReviews: totalReviews,
+                                        );
+                                      },
+                                    ),
+                                  if (reviewsToShow < reviews.length)
+                                    TextButton(
+                                      onPressed: () {
+                                        ref
+                                            .read(reviewsProvider.notifier)
+                                            .showMoreReviews(reviews.length);
+                                      },
+                                      child: Text('View More'),
+                                    ),
                                 ],
                               );
                             },
@@ -409,7 +439,7 @@ class ProfilePreview extends ConsumerWidget {
                     //               fontSize: 15)),
                     //     ],
                     //   ),
-                  
+
                     // if (user.company?.designation != null ||
                     //     user.company?.email != null ||
                     //     user.company?.websites != null ||

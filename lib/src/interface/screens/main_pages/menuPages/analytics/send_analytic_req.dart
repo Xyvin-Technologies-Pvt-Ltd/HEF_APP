@@ -553,6 +553,8 @@ class _SendAnalyticRequestPageState
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     createAnalytic();
+                    Navigator.pop(context);
+                    ref.invalidate(fetchAnalyticsProvider);
                     print('Form Submitted');
                   }
                 },

@@ -72,6 +72,8 @@ class AnalyticsModalSheet extends ConsumerWidget {
             _buildDetailRow('Title', analytic.title ?? ''),
             _buildDetailRow('Date & time', analytic.date.toString()),
             _buildDetailRow('Amount', analytic.amount ?? ''),
+            if (analytic.status == 'meeting_scheduled')
+              _buildDetailRow('Meeting Link', analytic.meetingLink ?? ''),
             _buildDetailRow(
               'Status',
               analytic.status ?? '',

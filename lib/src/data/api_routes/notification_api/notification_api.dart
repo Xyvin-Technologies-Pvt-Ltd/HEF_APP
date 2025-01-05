@@ -52,7 +52,7 @@ Future<void> createLevelNotification({
     'Content-Type': 'application/json',
     'Authorization': 'Bearer $token',
   };
-
+  log('Notification sending ids:$id');
   final body = jsonEncode({
     'level': level,
     'id': id,
@@ -61,7 +61,7 @@ Future<void> createLevelNotification({
     'type': 'in-app',
     if (media != null) 'media': media,
   });
-
+  log('Notification body:$body');
   try {
     final response = await http.post(
       url,

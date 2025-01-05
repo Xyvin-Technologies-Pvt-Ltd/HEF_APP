@@ -157,5 +157,24 @@ class _FetchUserDetailsProviderElement
   @override
   String get userId => (origin as FetchUserDetailsProvider).userId;
 }
+
+String _$getSubscriptionHash() => r'75f740722f66a12bad8ee8a4abd88700028c6ecd';
+
+/// See also [getSubscription].
+@ProviderFor(getSubscription)
+final getSubscriptionProvider =
+    AutoDisposeFutureProvider<Subscription?>.internal(
+  getSubscription,
+  name: r'getSubscriptionProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$getSubscriptionHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetSubscriptionRef = AutoDisposeFutureProviderRef<Subscription?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

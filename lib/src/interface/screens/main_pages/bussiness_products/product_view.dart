@@ -186,7 +186,7 @@ class _ProductViewState extends ConsumerState<ProductView> {
                     const SizedBox(height: 100),
                     Image.asset('assets/pngs/searchproduct.png'),
                     const SizedBox(height: 20),
-                    Text('Search requireds Products',
+                    Text('Search required Products',
                         style: kHeadTitleB.copyWith(color: kGreyDark)),
                   ],
                 )

@@ -10,6 +10,7 @@ import 'package:hef/src/interface/screens/main_pages/login_page.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/add_product.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/send_analytic_req.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/activity_page.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/chapters.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/create_notification_page.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/district.dart';
@@ -21,6 +22,7 @@ import 'package:hef/src/interface/screens/main_pages/menuPages/my_businesses.dar
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_events.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_products.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_reviews.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/my_subscription.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/request_nfc.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/card.dart';
@@ -96,35 +98,39 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
     case 'States':
       return MaterialPageRoute(builder: (context) => StatesPage());
 
-    case 'Zones':
-      String stateId = settings?.arguments as String;
-      return MaterialPageRoute(
-          builder: (context) => ZonesPage(
-                stateId: stateId,
-              ));
-    case 'Districts':
-      String zoneId = settings?.arguments as String;
-      return MaterialPageRoute(
-          builder: (context) => DistrictsPage(
-                zoneId: zoneId,
-              ));
-    case 'Chapters':
-      String districtId = settings?.arguments as String;
-      return MaterialPageRoute(
-          builder: (context) => ChaptersPage(
-                districtId: districtId,
-              ));
-    case 'LevelMembers':
-      String chapterId = settings?.arguments as String;
-      return MaterialPageRoute(
-          builder: (context) => LevelMembers(
-                chapterId: chapterId,
-              ));
+    case 'MySubscriptionPage':
+      return MaterialPageRoute(builder: (context) => MySubscriptionPage());
+
+
+    // case 'Districts':
+    //   String zoneId = settings?.arguments as String;
+    //   return MaterialPageRoute(
+    //       builder: (context) => DistrictsPage(
+    //             zoneId: zoneId,
+    //           ));
+    // case 'Chapters':
+    //   String districtId = settings?.arguments as String;
+    //   return MaterialPageRoute(
+    //       builder: (context) => ChaptersPage(
+    //             districtId: districtId,
+    //           ));
+    // case 'LevelMembers':
+    //   String chapterId = settings?.arguments as String;
+    //   return MaterialPageRoute(
+    //       builder: (context) => LevelMembers(
+    //             chapterId: chapterId,
+    //           ));
     case 'ProfileAnalytics':
       UserModel user = settings?.arguments as UserModel;
       return MaterialPageRoute(
           builder: (context) => ProfileAnalyticsPage(
                 user: user,
+              ));
+    case 'ActivityPage':
+      String chapterId = settings?.arguments as String;
+      return MaterialPageRoute(
+          builder: (context) => ActivityPage(
+                chapterId: chapterId,
               ));
     default:
       return MaterialPageRoute(

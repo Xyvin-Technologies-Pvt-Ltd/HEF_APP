@@ -65,7 +65,7 @@ Future<Product?> uploadProduct({
       body: jsonEncode(body),
     );
 
-    if (response.statusCode == 201|| response.statusCode == 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
       final Product product = Product.fromJson(jsonResponse['data']);
       return product;
@@ -100,5 +100,37 @@ Future<void> deleteProduct(String productId) async {
 
     print(jsonResponse['message']);
     print('Failed to delete image: ${response.statusCode}');
+  }
+}
+
+Future<void> postReview(
+    String userId, String content, int rating, context) async {
+  SnackbarService snackbarService = SnackbarService();
+  final url = Uri.parse('$baseUrl/review');
+  final headers = {
+    'accept': 'application/json',
+    'Authorization': 'Bearer $token',
+    'Content-Type': 'application/json',
+  };
+
+  final body = json.encode({
+    'toUser': id,
+    'comment': content,
+    'rating': rating,
+  });
+
+  try {
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print('Review posted successfully');
+      snackbarService.showSnackBar('Review posted successfully');
+    } else {
+      print('Failed to post review: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      snackbarService.showSnackBar('Failed to post review');
+    }
+  } catch (e) {
+    print('Error: $e');
   }
 }

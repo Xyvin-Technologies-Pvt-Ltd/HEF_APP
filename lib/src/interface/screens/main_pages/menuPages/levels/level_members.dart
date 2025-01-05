@@ -10,7 +10,17 @@ import 'package:hef/src/interface/components/loading_indicator/loading_indicator
 
 class LevelMembers extends StatelessWidget {
   final String chapterId;
-  const LevelMembers({super.key, required this.chapterId});
+  final String stateName;
+  final String zoneName;
+  final String districtName;
+  final String chapterName;
+  const LevelMembers(
+      {super.key,
+      required this.chapterId,
+      required this.stateName,
+      required this.zoneName,
+      required this.districtName,
+      required this.chapterName});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +37,7 @@ class LevelMembers extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
-            title: Text("Back"),
+            title: Text("Members"),
             centerTitle: false,
             backgroundColor: Colors.white,
             elevation: 0,
@@ -46,9 +56,16 @@ class LevelMembers extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'State / Zone / District / Chapter ',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '$stateName / $zoneName / $districtName /',
+                            style: TextStyle(
+                                fontSize: 14, color: Colors.grey[600]),
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 16),
                     Text(

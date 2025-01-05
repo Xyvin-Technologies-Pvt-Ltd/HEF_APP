@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:hef/src/data/models/subscription_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
@@ -64,4 +65,30 @@ Future<List<UserModel>> fetchMultipleUsers(
   }
 
   return userList;
+}
+
+@riverpod
+Future<Subscription?> getSubscription(GetSubscriptionRef ref) async {
+  final String url = '$baseUrl/subscription/single/$id';
+  log('requesting url:$url');
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final dynamic data = json.decode(response.body)['data'];
+      return Subscription.fromJson(data);
+    } else {
+      print('Failed to load data. Status code: ${response.statusCode}');
+      return null;
+    }
+  } catch (e) {
+    print('Error in loading subscription details: $e');
+    return null;
+  }
 }

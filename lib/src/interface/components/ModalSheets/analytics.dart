@@ -5,6 +5,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
+import 'package:intl/intl.dart';
 
 class AnalyticsModalSheet extends ConsumerWidget {
   final AnalyticsModel analytic;
@@ -70,19 +71,16 @@ class AnalyticsModalSheet extends ConsumerWidget {
 
             // _buildDetailRow('Request Type', analytic.type ?? ''),
             _buildDetailRow('Title', analytic.title ?? ''),
-            _buildDetailRow('Date & time', analytic.date.toString()),
+            _buildDetailRow(
+                'Date & time',
+                DateFormat("d'th' MMMM yyyy, h:mm a")
+                    .format(analytic.time!.toLocal())),
             _buildDetailRow('Amount', analytic.amount ?? ''),
             if (analytic.status == 'meeting_scheduled')
+            
               _buildDetailRow('Meeting Link', analytic.meetingLink ?? ''),
-            _buildDetailRow(
-              'Status',
-              analytic.status ?? '',
-              statusColor: analytic.status == 'accepted'
-                  ? kGreen
-                  : analytic.status == 'rejected'
-                      ? kPrimaryColor
-                      : kGrey,
-            ),
+            _buildDetailRow('Status', analytic.status ?? '',
+                statusColor: _getStatusColor(analytic.status ?? '')),
             const SizedBox(height: 8),
             const Text(
               'Description',
@@ -103,12 +101,14 @@ class AnalyticsModalSheet extends ConsumerWidget {
                 buttonColor: kRedDark,
                 label: 'Cancel Request',
                 onPressed: () async {
-                  await updateAnalyticStatus(
-                      analyticId: analytic.id ?? '', action: 'rejected');
+                  await deleteAnalytic(analyticId: analytic.id ?? '');
+                  ref.invalidate(fetchAnalyticsProvider);
                   navigationService.pop();
                 },
               )),
-            if (analytic.status != 'meeting_scheduled' && tabBarType != 'sent')
+            if (analytic.status != 'meeting_scheduled' &&
+                tabBarType != 'sent' &&
+                analytic.status != 'rejected')
               Row(
                 children: [
                   Flexible(
@@ -119,6 +119,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                     onPressed: () async {
                       await updateAnalyticStatus(
                           analyticId: analytic.id ?? '', action: 'rejected');
+                      ref.invalidate(fetchAnalyticsProvider);
                       navigationService.pop();
                     },
                   )),
@@ -171,8 +172,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
               ),
               child: Text(
                 value,
-                style: TextStyle(
-                    color: analytic.status == 'pending' ? kGreyDark : kWhite),
+                style: TextStyle(color: kWhite),
               ),
             )
           else
@@ -183,5 +183,18 @@ class AnalyticsModalSheet extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case "accepted":
+        return kGreen;
+      case "rejected":
+        return kRed;
+      case "meeting_scheduled":
+        return Color(0xFF2B74E1);
+      default:
+        return Colors.grey;
+    }
   }
 }

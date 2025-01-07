@@ -78,6 +78,37 @@ Future<void> updateAnalyticStatus({
   }
 }
 
+Future<void> deleteAnalytic({
+  required String analyticId,
+}) async {
+  final url = Uri.parse('$baseUrl/analytic/$analyticId');
+
+  final headers = {
+    'accept': '*/*',
+    'Authorization': 'Bearer $token',
+    'Content-Type': 'application/json',
+  };
+
+
+
+  try {
+    final response = await http.delete(
+      url,
+      headers: headers,
+
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+   
+    } else {
+      log('Failed to update analytic: ${response.statusCode}');
+      log('Response body: ${response.body}');
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+}
+
 Future<void> postAnalytic({Map<String, dynamic>? data}) async {
   final url = Uri.parse('$baseUrl/analytic');
 

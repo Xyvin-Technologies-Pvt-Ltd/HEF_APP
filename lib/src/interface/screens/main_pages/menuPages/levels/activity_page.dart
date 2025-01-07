@@ -165,7 +165,7 @@ class ActivityPage extends StatelessWidget {
               },
               loading: () => const Center(child: LoadingAnimation()),
               error: (error, stackTrace) =>
-                  const Center(child: Text('Something went wrong')),
+                  const Center(child: Text('No Activity Found')),
             ));
       },
     );

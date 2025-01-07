@@ -152,6 +152,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       onTap: () => _showReusableModalSheet(analytic, tabBarType, context),
       child: Container(
         decoration: BoxDecoration(
+            color: kWhite,
             border: Border.all(
               color: kGrey,
             ),
@@ -174,18 +175,26 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                             analytic.userImage ?? '',
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 14,
                         ),
-                        Text(
-                          analytic.username ?? '',
-                          style: TextStyle(
-                              fontSize: 16.0, fontWeight: FontWeight.bold),
+                        Expanded(
+                          child: Text(
+                            maxLines: 2,
+                            analytic.username ?? '',
+                            style: const TextStyle(
+                                fontSize: 16.0, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Text(
-                          analytic.time.toString(),
-                          style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                          maxLines: 2,
+                          DateFormat("h:mm a · MMM d, yyyy")
+                              .format(analytic.time!.toLocal()),
+                          style: const TextStyle(
+                              fontSize: 12.0, color: Colors.grey),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -193,24 +202,30 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                     const SizedBox(height: 12.0),
                     Row(
                       children: [
-                        Text(
-                          analytic.title ?? '',
-                          style: kBodyTitleB,
+                        Expanded(
+                          child: Text(
+                            maxLines: 4,
+                            analytic.title ?? '',
+                            style: kBodyTitleB,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
                           decoration: BoxDecoration(
-                            color: kGrey,
-                            borderRadius: BorderRadius.circular(
-                                16.0), // Adjust for rounded corners
+                            color: _getStatusColor(
+                              analytic.status ?? '',
+                            ),
+                            borderRadius: BorderRadius.circular(16.0),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(2.0),
                             child: Text(
                               analytic.status ?? '',
                               style: const TextStyle(
+                                color: kWhite,
                                 fontSize: 12.0,
                               ),
                             ),
@@ -226,5 +241,18 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         ),
       ),
     );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case "accepted":
+        return kGreen;
+      case "rejected":
+        return kRed;
+      case "meeting_scheduled":
+        return Color(0xFF2B74E1);
+      default:
+        return Colors.grey;
+    }
   }
 }

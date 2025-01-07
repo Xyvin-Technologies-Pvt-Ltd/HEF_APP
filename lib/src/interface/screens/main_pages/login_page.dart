@@ -15,6 +15,7 @@ import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_page.dart';
+import 'package:hef/src/interface/screens/main_pages/profile/editUser.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'package:flutter/material.dart';
@@ -265,7 +266,7 @@ class OTPScreen extends ConsumerStatefulWidget {
 class _OTPScreenState extends ConsumerState<OTPScreen> {
   Timer? _timer;
 
-  int _start = 20;
+  int _start = 30;
 
   bool _isButtonDisabled = true;
 
@@ -294,8 +295,8 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
 
   void resendCode() {
     startTimer();
-    // ApiRoutes userApi = ApiRoutes();
-    // userApi.resendOTP(widget.phone, widget.verificationId, widget.resendToken);
+
+    resendOTP(widget.phone, widget.verificationId, widget.resendToken);
   }
 
   @override
@@ -374,7 +375,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                       padding: const EdgeInsets.only(left: 10, right: 10),
                       child: Text(
                         _isButtonDisabled
-                            ? 'Enter OTP in $_start seconds'
+                            ? 'Resend OTP in $_start seconds'
                             : 'Enter your OTP',
                         style: TextStyle(
                             fontWeight: FontWeight.w500,
@@ -456,7 +457,6 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => ProfileCompletionScreen()));
       } else {
-        
         // CustomSnackbar.showSnackbar(context, 'Wrong OTP');
       }
     } catch (e) {
@@ -502,11 +502,11 @@ class ProfileCompletionScreen extends StatelessWidget {
                       return customButton(
                           label: 'Next',
                           onPressed: () {
-                            // Navigator.of(context).pushReplacement(
-                            //     MaterialPageRoute(
-                            //         settings: RouteSettings(
-                            //             name: 'ProfileCompletion'),
-                            //         builder: (context) => const DetailsPage()));
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    settings: RouteSettings(
+                                        name: 'ProfileCompletion'),
+                                    builder: (context) => const EditUser()));
                             ref.invalidate(userProvider);
                           },
                           fontSize: 16);

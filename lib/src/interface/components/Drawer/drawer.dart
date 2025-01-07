@@ -106,7 +106,9 @@ Widget customDrawer({required UserModel user}) {
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_subscription.svg',
             label: 'My Subscription',
-            onTap: () {        navigationService.pushNamed('MySubscriptionPage');},
+            onTap: () {
+              navigationService.pushNamed('MySubscriptionPage');
+            },
           ),
 
           _buildDrawerItem(
@@ -123,11 +125,11 @@ Widget customDrawer({required UserModel user}) {
               navigationService.pushNamed('MyEvents');
             },
           ),
-          _buildDrawerItem(
-            icon: 'assets/svg/icons/my_transactions.svg',
-            label: 'My Transactions',
-            onTap: () {},
-          ),
+          // _buildDrawerItem(
+          //   icon: 'assets/svg/icons/my_transactions.svg',
+          //   label: 'My Transactions',
+          //   onTap: () {},
+          // ),
 
           SizedBox(
             height: 40,

@@ -138,7 +138,6 @@ class ProductCard extends StatelessWidget {
                       bottomLeft: Radius.circular(10.0),
                       bottomRight: Radius.circular(10.0),
                     ),
-                    color: kWhite,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(6.0),

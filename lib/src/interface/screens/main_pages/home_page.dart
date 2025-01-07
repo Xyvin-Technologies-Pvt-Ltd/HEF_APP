@@ -23,6 +23,7 @@ import 'package:hef/src/interface/components/custom_widgets/event_Card.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/components/shimmers/promotion_shimmers.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
+import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -206,7 +207,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                     : const Icon(Icons
                                                         .notifications_none_outlined),
                                                 onPressed: () {
-                                                  // Notification page navigation logic
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const NotificationPage()),
+                                                  );
                                                 },
                                               );
                                             },
@@ -490,11 +496,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                             0.45,
                                                         child: newsCard(
                                                           onTap: () {
-                                                            ref
-                                                                .read(currentNewsIndexProvider
-                                                                    .notifier)
-                                                                .updateIndex(
-                                                                    index);
+                                              
                                                             ref
                                                                 .read(selectedIndexProvider
                                                                     .notifier)

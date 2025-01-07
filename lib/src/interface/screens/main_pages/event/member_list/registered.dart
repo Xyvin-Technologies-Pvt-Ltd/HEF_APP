@@ -9,6 +9,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/events_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 
 class RegisteredPage extends StatelessWidget {
@@ -71,9 +72,38 @@ class RegisteredPage extends StatelessWidget {
                               title: Text(member?.name ?? ''),
                               subtitle: Text(member?.email ?? ''),
                               trailing: Icon(Icons.arrow_forward_ios),
-                              onTap: () {
-                                navigationService.pushNamed('ProfileAnalytics',
-                                    arguments: member);
+                              onTap: () async {
+                                // Show a loading dialog
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) {
+                                    return const Center(
+                                        child: LoadingAnimation());
+                                  },
+                                );
+
+                                try {
+                                  // Fetch user details
+                                  final user = await ref.read(
+                                      fetchUserDetailsProvider(member?.id ?? '')
+                                          .future);
+
+                                  // Close the loading dialog
+                                  Navigator.of(context).pop();
+
+                                  // Navigate to ProfileAnalytics
+                                  navigationService.pushNamed(
+                                      'ProfileAnalytics',
+                                      arguments: user);
+                                } catch (error) {
+                                  // Close the loading dialog
+                                  Navigator.of(context).pop();
+                                  SnackbarService snackbarService =
+                                      SnackbarService();
+                                  snackbarService.showSnackBar(
+                                      'Something went wrong please try again later');
+                                }
                               },
                             ),
                           );

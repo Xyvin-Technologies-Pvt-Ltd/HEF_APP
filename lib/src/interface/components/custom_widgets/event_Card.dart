@@ -84,12 +84,12 @@ Widget eventWidget({
                         children: [
                           if (event.status == 'completed')
                             SvgPicture.asset(
-                              'assets/icons/completed.svg',
+                              'assets/svg/icons/completed.svg',
                               color: Colors.white,
                             ),
                           if (event.status == 'live')
                             SvgPicture.asset(
-                              'assets/icons/live.svg',
+                              'assets/svg/icons/live.svg',
                               color: Colors.white,
                             ),
                           if (event.status == 'upcoming')

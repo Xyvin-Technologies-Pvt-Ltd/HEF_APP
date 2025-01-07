@@ -312,7 +312,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                       ),
                     ),
                   ),
-
+                SizedBox(height: 20),
                 if (widget.event.coordinator!.contains(id))
                   Padding(
                     padding:
@@ -387,7 +387,8 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                 );
               },
             ),
-          if (widget.event.coordinator!.contains(id))
+          if (widget.event.coordinator!.contains(id) &&
+              widget.event.type != 'online')
             Positioned(
               right: 30,
               bottom: 30,

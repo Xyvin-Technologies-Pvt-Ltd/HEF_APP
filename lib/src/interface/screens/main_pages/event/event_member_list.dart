@@ -38,10 +38,10 @@ class EventMemberList extends StatelessWidget {
                           ),
                           tabs: [
                             Tab(
-                              text: "Business",
+                              text: "Attended",
                             ),
                             Tab(
-                              text: "Products",
+                              text: "Registered",
                             ),
                           ],
                         ),

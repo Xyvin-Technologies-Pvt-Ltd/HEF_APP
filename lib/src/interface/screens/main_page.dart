@@ -68,13 +68,14 @@ class _MainPageState extends ConsumerState<MainPage> {
 
   static List<Widget> _widgetOptions = <Widget>[];
 
-  // void _onItemTapped(int index) {
-  //   HapticFeedback.selectionClick();
-  //   setState(() {
-  //     ref.read(currentNewsIndexProvider.notifier).state = 0;
-  //     _selectedIndex = index;
-  //   });
-  // }
+  void _onItemTapped(int index) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      ref.read(currentNewsIndexProvider.notifier).state = 0;
+      // _selectedIndex = index;
+      ref.read(selectedIndexProvider.notifier).updateIndex(index);
+    });
+  }
 
   List<String> _inactiveIcons = [];
   List<String> _activeIcons = [];
@@ -186,17 +187,15 @@ class _MainPageState extends ConsumerState<MainPage> {
                               'News',
                               'Chat'
                             ][index],
-                          );  
+                          );
                         }),
                         currentIndex: selectedIndex,
                         selectedItemColor: kPrimaryColor,
                         unselectedItemColor: Colors.grey,
                         onTap: (index) {
                           HapticFeedback.selectionClick();
-                          ref
-                              .read(selectedIndexProvider.notifier)
-                              .updateIndex(index);
-                        }, 
+                          _onItemTapped(index);
+                        },
                         showUnselectedLabels: true,
                       ),
                     )

@@ -186,7 +186,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       const Spacer(),
                                       // Actions section
                                       Consumer(
-                                        builder: (context, ref, child) {
+                                        builder: 
+                                        (context, ref, child) {
                                           final asyncNotifications = ref.watch(
                                               fetchNotificationsProvider);
                                           return asyncNotifications.when(

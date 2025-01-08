@@ -15,7 +15,7 @@ class OwnMessageCard extends StatelessWidget {
 
   final String message;
   final String time;
-  final ChatFeed? feed;
+  final ChatBusiness? feed;
    final String status;
   @override
   Widget build(BuildContext context) {
@@ -44,11 +44,11 @@ class OwnMessageCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (feed?.media != null)
+                if (feed?.image != null)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: Image.network(
-                      feed!.media!,
+                      feed!.image!,
                       height: 160, // Adjusted height to fit better
                       width: double.infinity,
                       fit: BoxFit.cover,

@@ -5,12 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
+import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 
 import 'dart:async';
 
 import 'package:hef/src/data/notifiers/products_notifier.dart';
 import 'package:hef/src/interface/components/Cards/product_card.dart';
+import 'package:hef/src/interface/components/ModalSheets/product_details.dart';
 import 'package:hef/src/interface/components/shimmers/product_card_shimmer.dart';
 
 class ProductView extends ConsumerStatefulWidget {
@@ -156,11 +158,11 @@ class _ProductViewState extends ConsumerState<ProductView> {
                                 id: productOwner.uid,
                                 image: productOwner.image);
                             return GestureDetector(
-                              // onTap: () => _showProductDetails(
-                              //     receiver: receiver,
-                              //     sender: Participant(id: id),
-                              //     context: context,
-                              //     product: products[index]),
+                              onTap: () => showProductDetails(
+                                  receiver: receiver,
+                                  sender: Participant(id: id),
+                                  context: context,
+                                  product: products[index]),
                               child: ProductCard(
                                 isOthersProduct: true,
                                 product: products[index],

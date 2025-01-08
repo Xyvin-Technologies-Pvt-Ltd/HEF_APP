@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:hef/src/data/globals.dart';
 
 Future<String> createUser({Map<String, dynamic>? data}) async {
+  SnackbarService snackbarService = SnackbarService();
   final url = Uri.parse('$baseUrl/user/member');
   log(data.toString());
   final response = await http.post(url,
@@ -18,10 +20,11 @@ Future<String> createUser({Map<String, dynamic>? data}) async {
   if (response.statusCode == 200) {
     print('Member created successfully');
     print(json.decode(response.body)['data']);
+    snackbarService.showSnackBar(json.decode(response.body)['message']);
     return json.decode(response.body)['message'];
   } else {
     print(json.decode(response.body)['message']);
-
+    snackbarService.showSnackBar(json.decode(response.body)['message']);
     print('Failed to create member Status code: ${response.statusCode}');
     return json.decode(response.body)['message'];
     // throw Exception('Failed to update profile');

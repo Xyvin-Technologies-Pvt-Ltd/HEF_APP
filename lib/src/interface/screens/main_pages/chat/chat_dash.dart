@@ -1,7 +1,6 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
@@ -52,10 +51,9 @@ class _ChatDashState extends ConsumerState<ChatDash> {
                                 loadingBuilder:
                                     (context, child, loadingProgress) {
                                   if (loadingProgress == null) {
-                                    // If the image is fully loaded, show the image
                                     return child;
                                   }
-                                  // While the image is loading, show shimmer effect
+
                                   return Container(
                                     child: Shimmer.fromColors(
                                       baseColor: Colors.grey[300]!,
@@ -73,14 +71,13 @@ class _ChatDashState extends ConsumerState<ChatDash> {
                                 receiver?.image ?? '',
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                      'assets/icons/dummy_person_small.png');
+                                  return SvgPicture.asset(
+                                      'assets/svg/icons/dummy_person_small.svg');
                                 },
                               ),
                             ),
                           ),
-                          title: Text(
-                              '${receiver?.name?? ''}'),
+                          title: Text('${receiver?.name ?? ''}'),
                           subtitle: Text(
                             chats[index].lastMessage?.content != null
                                 ? (chats[index].lastMessage!.content!.length >
@@ -139,14 +136,14 @@ class _ChatDashState extends ConsumerState<ChatDash> {
                     );
                   },
                 );
-              } 
-              else {
+              } else {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Center(child: Image.asset('assets/pngs/nochat.png')),
+                      child:
+                          Center(child: Image.asset('assets/pngs/nochat.png')),
                     ),
                     Text('No chat yet!')
                   ],

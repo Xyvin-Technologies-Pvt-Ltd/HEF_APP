@@ -93,6 +93,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
               textEditingController: companyNameController,
             ),
             MemberCreationTextfield(
+              textInputType: TextInputType.number,
               label: 'Company Phone',
               hintText: 'Number',
               textEditingController: companyPhoneController,
@@ -124,7 +125,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
             ),
             CustomDropdown(
               label: 'Sub category',
-              items:  ['Software', 'Hardware'],
+              items: ['Software', 'Hardware'],
               value: selectedSubCategory, // Pass the current selected value
               onChanged: (value) {
                 setState(() {
@@ -134,7 +135,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
             ),
             CustomDropdown(
               label: 'Status',
-              items:  ['active', 'inactive', 'suspended'],
+              items: ['active', 'inactive', 'suspended'],
               value: selectedStatus, // Pass the current selected value
               onChanged: (value) {
                 setState(() {
@@ -223,7 +224,7 @@ class CustomDropdown extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            value: value, 
+            value: value,
             items: items.map((item) {
               return DropdownMenuItem(
                 value: item,

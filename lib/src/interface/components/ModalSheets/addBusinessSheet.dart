@@ -66,19 +66,19 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                     ),
                   ],
                 ),
-                AddbusinessTypeDropDown(
-                  onValueChanged: (value) {
-                    setState(() {
-                      selectedType = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a type';
-                    }
-                    return null;
-                  },
-                ),
+                // AddbusinessTypeDropDown(
+                //   onValueChanged: (value) {
+                //     setState(() {
+                //       selectedType = value;
+                //     });
+                //   },
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Please select a type';
+                //     }
+                //     return null;
+                //   },
+                // ),
                 const SizedBox(height: 20),
                 FormField<File>(
                   initialValue: postImage,
@@ -183,7 +183,6 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                         }
 
                         await uploadBusiness(
-                          type: selectedType ?? '',
                           media: mediaUrl,
                           content: widget.textController.text,
                         );

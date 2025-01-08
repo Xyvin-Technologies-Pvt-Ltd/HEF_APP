@@ -13,19 +13,20 @@ class ModalSheetTextFormField extends StatelessWidget {
   final int maxLines;
   final String? Function(String?)? validator;
   final bool isAward;
-
+  final TextInputType textInputType;
   const ModalSheetTextFormField({
     required this.textController,
     required this.label,
     this.maxLines = 1,
     this.validator,
     super.key,
-    this.isAward = false,
+    this.isAward = false,  this.textInputType=TextInputType.text,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      keyboardType: textInputType,
       maxLength: isAward ? 15 : null,
       controller: textController,
       maxLines: maxLines,
@@ -80,7 +81,8 @@ class CustomTextFormField extends StatelessWidget {
     this.onChanged,
     this.enabled,
     this.isAward,
-    this.title,  this.textInputType=TextInputType.name,
+    this.title,
+    this.textInputType = TextInputType.name,
   });
 
   @override
@@ -101,7 +103,8 @@ class CustomTextFormField extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            TextFormField(keyboardType: textInputType,
+            TextFormField(
+              keyboardType: textInputType,
               enabled: enabled,
               onChanged: (value) {
                 switch (labelText) {
@@ -110,79 +113,82 @@ class CustomTextFormField extends StatelessWidget {
                           name: textController!.text,
                         );
                     break;
-            
+
                   case 'Enter Personal Address':
                     ref
                         .read(userProvider.notifier)
                         .updateAddress(textController!.text);
                     break;
-            
+
                   case 'Enter Designation':
                     ref.read(userProvider.notifier).updateCompany(
                         Company(designation: textController!.text));
                     break;
-            
+
                   case 'Bio':
                     ref
                         .read(userProvider.notifier)
                         .updateBio(textController!.text);
                     break;
-            
+
                   case 'Enter Company Name':
                     ref
                         .read(userProvider.notifier)
                         .updateCompany(Company(name: textController!.text));
                     break;
-            
+
                   case 'Enter Company Email':
                     ref
                         .read(userProvider.notifier)
                         .updateCompany(Company(email: textController!.text));
                     break;
-            
+
                   case 'Enter Company Phone':
-                    ref.read(userProvider.notifier).updateCompany(
-                        Company(phone: textController!.text));
+                    ref
+                        .read(userProvider.notifier)
+                        .updateCompany(Company(phone: textController!.text));
                     break;
-            
+
                   case 'Enter Company Email':
-                    ref.read(userProvider.notifier).updateCompany(
-                        Company(email: textController!.text));
+                    ref
+                        .read(userProvider.notifier)
+                        .updateCompany(Company(email: textController!.text));
                     break;
-            
+
                   case 'Enter Company Website':
-                    ref.read(userProvider.notifier).updateCompany(
-                        Company(websites: textController!.text));
+                    ref
+                        .read(userProvider.notifier)
+                        .updateCompany(Company(websites: textController!.text));
                     break;
-            
+
                   case 'Enter Instagram':
                     ref.read(userProvider.notifier).updateSocialMedia(
                         [...?ref.read(userProvider).value?.social],
                         'instagram',
                         textController!.text);
                     break;
-            
+
                   case 'Enter Linkedin':
                     ref.read(userProvider.notifier).updateSocialMedia(
                         [...?ref.read(userProvider).value?.social],
                         'linkedin',
                         textController!.text);
                     break;
-            
+
                   case 'Enter Twitter':
                     ref.read(userProvider.notifier).updateSocialMedia(
                         [...?ref.read(userProvider).value?.social],
                         'twitter',
                         textController!.text);
                     break;
-            
+
                   case 'Enter Facebook':
                     ref.read(userProvider.notifier).updateSocialMedia(
                         [...?ref.read(userProvider).value?.social],
                         'facebook',
                         textController!.text);
                     break;
-            
+
                   default:
                 }
               },

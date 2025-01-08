@@ -111,102 +111,106 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
       builder: (context, ref, child) {
         final asyncProducts = ref.watch(fetchMyProductsProvider);
         return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            title: Text(
-              "My Products",
-              style: TextStyle(fontSize: 17),
-            ),
             backgroundColor: Colors.white,
-            scrolledUnderElevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            appBar: AppBar(
+              title: Text(
+                "My Products",
+                style: TextStyle(fontSize: 17),
+              ),
+              backgroundColor: Colors.white,
+              scrolledUnderElevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
-          ),
-          body: asyncProducts.when(
-            loading: () => const Center(child: LoadingAnimation()),
-            error: (error, stackTrace) {
-              return Center(
-                child: LoadingAnimation(),
-              );
-            },
-            data: (products) {
-              return Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _InfoCard(
-                              title: 'Products',
-                              count: products.length.toString(),
-                            ),
-                            // const _InfoCard(title: 'Messages', count: '30'),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const SizedBox(height: 16),
-                        Expanded(
-                          child: GridView.builder(
-                            shrinkWrap:
-                                true, // Let GridView take up only as much space as it needs
-                            // Disable GridView's internal scrolling
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              mainAxisExtent: 212,
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 0.0,
-                              mainAxisSpacing: 20.0,
-                            ),
-                            itemCount: products.length,
-                            itemBuilder: (context, index) {
-                              return ProductCard(
-                                  product: products[index],
-                                  onRemove: () =>
-                                      _removeProduct(products[index].id ?? ''));
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+            body: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
-                  Positioned(
-                    bottom: 36,
-                    right: 16,
-                    child: FloatingActionButton.extended(
-                      onPressed: () {
-                        _openModalSheet(sheet: 'product');
-                      },
-                      label: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const Text(
-                          'Add Product',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      icon: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 27,
-                      ),
-                      backgroundColor:  kPrimaryColor,
-                    ),
+                  child: Consumer(
+                    builder: (context, ref, child) {
+                      return asyncProducts.when(
+                        data: (products) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  _InfoCard(
+                                    title: 'Products',
+                                    count: products.length.toString(),
+                                  ),
+                                  // const _InfoCard(title: 'Messages', count: '30'),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              const SizedBox(height: 16),
+                              Expanded(
+                                child: GridView.builder(
+                                  shrinkWrap:
+                                      true, // Let GridView take up only as much space as it needs
+                                  // Disable GridView's internal scrolling
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    mainAxisExtent: 212,
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 0.0,
+                                    mainAxisSpacing: 20.0,
+                                  ),
+                                  itemCount: products.length,
+                                  itemBuilder: (context, index) {
+                                    return ProductCard(
+                                        product: products[index],
+                                        onRemove: () => _removeProduct(
+                                            products[index].id ?? ''));
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                        loading: () => const Center(child: LoadingAnimation()),
+                        error: (error, stackTrace) {
+                          return Center(
+                            child: Text('No Products'),
+                          );
+                        },
+                      );
+                    },
                   ),
-                ],
-              );
-            },
-          ),
-        );
+                ),
+                Positioned(
+                  bottom: 36,
+                  right: 16,
+                  child: FloatingActionButton.extended(
+                    onPressed: () {
+                      _openModalSheet(sheet: 'product');
+                    },
+                    label: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: const Text(
+                        'Add Product',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    icon: const Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 27,
+                    ),
+                    backgroundColor: kPrimaryColor,
+                  ),
+                ),
+              ],
+            ));
       },
     );
   }

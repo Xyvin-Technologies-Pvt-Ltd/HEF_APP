@@ -62,7 +62,7 @@ Future<List<Business>> fetchMyBusinesses(FetchMyBusinessesRef ref) async {
 }
 
 Future<void> uploadBusiness(
-    {required String type,
+    {
     required String? media,
     required String content}) async {
   final url = Uri.parse('$baseUrl/feeds');
@@ -74,7 +74,7 @@ Future<void> uploadBusiness(
   };
 
   final body = jsonEncode({
-    'type': type,
+    
     if (media != null && media != '') 'media': media,
     'content': content,
   });

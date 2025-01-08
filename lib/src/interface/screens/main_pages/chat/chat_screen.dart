@@ -278,7 +278,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                     //     reportType: 'chat');
                                   },
                                   child: ReplyCard(
-                                    feed: message.feed,
+                                    business: message.feed,
                                     message: message.content ?? '',
                                     time: DateFormat('h:mm a').format(
                                       DateTime.parse(

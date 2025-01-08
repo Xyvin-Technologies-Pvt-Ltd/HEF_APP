@@ -24,7 +24,7 @@ class _AllocateMemberState extends State<AllocateMember> {
   String? selectedDistrict;
   String? selectedChapter;
 
-  void _createUser() {
+  Future<void> _createUser() async {
     final Map<String, dynamic> profileData = {
       "name": widget.newUser.name,
       "bloodgroup": widget.newUser.bloodgroup,
@@ -47,8 +47,10 @@ class _AllocateMemberState extends State<AllocateMember> {
         "phone": widget.newUser.company?.phone ?? '',
       }
     };
-    createUser(data: profileData);
-    Navigator.popUntil(context, (route) => route.isFirst);
+    String response = await createUser(data: profileData);
+    if (response.contains('success')) {
+      Navigator.popUntil(context, (route) => route.isFirst);
+    }
   }
 
   @override

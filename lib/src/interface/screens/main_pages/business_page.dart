@@ -47,7 +47,7 @@ class BusinessPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Wrap TabBar with a Container to adjust margin
+              
 
                   Expanded(
                     child: TabBarView(

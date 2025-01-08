@@ -338,6 +338,7 @@ class _CreateNotificationPageState
                       subject: titleController.text,
                       content: messageController.text,
                       media: notificationImageUrl);
+                  Navigator.pop(context);
                 },
               ),
             )

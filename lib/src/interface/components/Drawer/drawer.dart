@@ -66,21 +66,22 @@ Widget customDrawer({required UserModel user}) {
             height: 30,
           ),
           // Drawer Items
-
-          _buildDrawerItem(
-            icon: 'assets/svg/icons/analytics.svg',
-            label: 'Analytics',
-            onTap: () {
-              navigationService.pushNamed('AnalyticsPage');
-            },
-          ),
-          _buildDrawerItem(
-            icon: 'assets/svg/icons/levels.svg',
-            label: 'Levels',
-            onTap: () {
-              navigationService.pushNamed('States');
-            },
-          ),
+          if (user.role != 'member')
+            _buildDrawerItem(
+              icon: 'assets/svg/icons/analytics.svg',
+              label: 'Analytics',
+              onTap: () {
+                navigationService.pushNamed('AnalyticsPage');
+              },
+            ),
+          if (user.role != 'member')
+            _buildDrawerItem(
+              icon: 'assets/svg/icons/levels.svg',
+              label: 'Levels',
+              onTap: () {
+                navigationService.pushNamed('States');
+              },
+            ),
 
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_products.svg',
@@ -91,7 +92,7 @@ Widget customDrawer({required UserModel user}) {
           ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_requirements.svg',
-            label: 'My Requirements',
+            label: 'My Businesses',
             onTap: () {
               navigationService.pushNamed('MyBusinesses');
             },

@@ -299,6 +299,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                     ),
                     const SizedBox(height: 10),
                     ModalSheetTextFormField(
+                      textInputType: TextInputType.number,
                       textController: productMoqController,
                       label: 'Add MOQ',
                       validator: (value) {
@@ -313,6 +314,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                       children: [
                         Flexible(
                           child: ModalSheetTextFormField(
+                            textInputType: TextInputType.number,
                             textController: productActualPriceController,
                             label: 'Actual price',
                             validator: (value) {
@@ -326,6 +328,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                         const SizedBox(width: 10),
                         Flexible(
                           child: ModalSheetTextFormField(
+                            textInputType: TextInputType.number,
                             textController: productOfferPriceController,
                             label: 'Offer price',
                             validator: (value) {

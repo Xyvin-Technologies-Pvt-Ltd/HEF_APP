@@ -15,6 +15,7 @@ import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/notifiers/business_notifier.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/interface/components/ModalSheets/addBusinessSheet.dart';
+import 'package:hef/src/interface/components/ModalSheets/business_details.dart';
 import 'package:hef/src/interface/components/custom_widgets/user_tile.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -58,7 +59,6 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      // Crop the image to 4:5 aspect ratio
       final croppedImage = await ImageCropper().cropImage(
         sourcePath: image.path,
         aspectRatio: CropAspectRatio(ratioX: 4, ratioY: 5),
@@ -103,22 +103,22 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
         });
   }
 
-  String selectedFilter = 'All';
+  // String selectedFilter = 'All';
 
-  List<Business> filterFeeds(List<Business> feeds) {
-    if (selectedFilter == 'All') {
-      return feeds;
-    } else {
-      return feeds.where((feed) => feed.type == selectedFilter).toList();
-    }
-  }
+  // List<Business> filterFeeds(List<Business> feeds) {
+  //   if (selectedFilter == 'All') {
+  //     return feeds;
+  //   } else {
+  //     return feeds.where((feed) => feed.type == selectedFilter).toList();
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     final feeds = ref.watch(businessNotifierProvider);
     final isLoading = ref.read(businessNotifierProvider.notifier).isLoading;
 
-    List<Business> filteredFeeds = filterFeeds(feeds);
+    // List<Business> filteredFeeds = filterFeeds(feeds);
 
     return RefreshIndicator(
       backgroundColor: Colors.white,
@@ -130,43 +130,42 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
           children: [
             Column(
               children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        _buildChoiceChip('All'),
-                        _buildChoiceChip('Information'),
-                        _buildChoiceChip('Job'),
-                        _buildChoiceChip('Funding'),
-                        _buildChoiceChip('Requirement'),
-                      ],
-                    ),
-                  ),
-                ),
+                // SingleChildScrollView(
+                //   scrollDirection: Axis.horizontal,
+                //   child: Padding(
+                //     padding: const EdgeInsets.all(8.0),
+                //     child: Row(
+                //       children: [
+                //         _buildChoiceChip('All'),
+                //         _buildChoiceChip('Information'),
+                //         _buildChoiceChip('Job'),
+                //         _buildChoiceChip('Funding'),
+                //         _buildChoiceChip('Requirement'),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 // Feed list
                 Expanded(
-                  child: filteredFeeds.isEmpty
+                  child: feeds.isEmpty
                       ? const Center(child: Text('No FEEDS'))
                       : ListView.builder(
                           padding: const EdgeInsets.all(16.0),
-                          itemCount:
-                              filteredFeeds.length + 2, // +2 for Ad and spacer
+                          itemCount: feeds.length + 2, // +2 for Ad and spacer
                           itemBuilder: (context, index) {
-                            if (index == filteredFeeds.length) {
+                            if (index == feeds.length) {
                               return isLoading
                                   ? const ReusableFeedPostSkeleton()
                                   : const SizedBox.shrink();
                             }
 
-                            if (index == filteredFeeds.length + 1) {
+                            if (index == feeds.length + 1) {
                               // SizedBox to add space at the bottom
                               return const SizedBox(
                                   height: 80); // Adjust height as needed
                             }
 
-                            final feed = filteredFeeds[index];
+                            final feed = feeds[index];
                             if (feed.status == 'published') {
                               return _buildPost(
                                 withImage: feed.media != null &&
@@ -219,29 +218,29 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
     );
   }
 
-  // Method to build individual Choice Chips
-  Widget _buildChoiceChip(String label) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: ChoiceChip(
-        label: Text(label),
-        selected: selectedFilter == label,
-        onSelected: (selected) {
-          setState(() {
-            selectedFilter = label;
-          });
-        },
-        backgroundColor: Colors.white, // Light green background color
-        selectedColor: const Color(0xFFD3EDCA), // When selected
+  // // Method to build individual Choice Chips
+  // Widget _buildChoiceChip(String label) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 4.0),
+  //     child: ChoiceChip(
+  //       label: Text(label),
+  //       selected: selectedFilter == label,
+  //       onSelected: (selected) {
+  //         setState(() {
+  //           selectedFilter = label;
+  //         });
+  //       },
+  //       backgroundColor: Colors.white, // Light green background color
+  //       selectedColor: const Color(0xFFD3EDCA), // When selected
 
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Color.fromARGB(255, 214, 210, 210)),
-          borderRadius: BorderRadius.circular(20.0), // Circular border
-        ),
-        showCheckmark: false, // Remove tick icon
-      ),
-    );
-  }
+  //       shape: RoundedRectangleBorder(
+  //         side: const BorderSide(color: Color.fromARGB(255, 214, 210, 210)),
+  //         borderRadius: BorderRadius.circular(20.0), // Circular border
+  //       ),
+  //       showCheckmark: false, // Remove tick icon
+  //     ),
+  //   );
+  // }
 
   Widget _buildPost({bool withImage = false, required Business business}) {
     return Consumer(
@@ -264,10 +263,19 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
                     id: user.uid, image: user.image, name: user.name);
                 log('sender:${sender.id}\n${sender.image}\n${sender.name}');
 
-                return ReusableBusinessPost(
-                  withImage: business.media != null ? true : false,
-                  business: business,
-                  user: postOwner,
+                return GestureDetector(
+                  onTap: () => showBusinessModalSheet(
+                      business: business,
+                      buttonText: 'Message',
+                      context: context,
+                      onButtonPressed: () {},
+                      receiver: receiver,
+                      sender: sender),
+                  child: ReusableBusinessPost(
+                    withImage: business.media != null ? true : false,
+                    business: business,
+                    user: postOwner,
+                  ),
                 );
               },
               loading: () => const ReusableFeedPostSkeleton(),
@@ -305,7 +313,7 @@ class ReusableBusinessPost extends ConsumerStatefulWidget {
 }
 
 class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
-  TextEditingController commentController = TextEditingController();
+  bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -334,43 +342,39 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 5),
-                Row(
-                  children: [
-                    Text(widget.business.content!,
-                        style: const TextStyle(fontSize: 14)),
-                  ],
+                AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 200),
+                  crossFadeState: _isExpanded
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  firstChild: Text(
+                    widget.business.content!,
+                    style: const TextStyle(fontSize: 14),
+                    maxLines: 3, // Limit to 3 lines when collapsed
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  secondChild: Text(
+                    widget.business.content!,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isExpanded = !_isExpanded;
+                    });
+                  },
+                  child: Text(
+                    _isExpanded ? 'Show less' : 'Read more',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
-
-                // Padding(
-                //   padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-                //   child: Row(
-                //     children: [
-                //       ClipOval(
-                //         child: Container(
-                //           width: 30,
-                //           height: 30,
-                //           color: const Color.fromARGB(255, 255, 255, 255),
-                //           child: Image.network(
-                //             widget.user.image ?? 'https://placehold.co/600x400',
-                //             fit: BoxFit.cover,
-                //             errorBuilder: (context, error, stackTrace) {
-                //               return Image.asset(
-                //                   'assets/icons/dummy_person_small.png');
-                //             },
-                //           ),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                // Padding(
-                //   padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-                //   child: Text(
-                //     '${timeAgo(widget.business.createdAt!)}',
-                //     style: const TextStyle(fontSize: 13),
-                //   ),
-                // ),
               ],
             ),
           ),

@@ -96,20 +96,23 @@ class SocketIoClient {
   }
 }
 
-Future<void> sendChatMessage(
+Future<String> sendChatMessage(
     {required String userId,
-    required String content,
-    String? feedId,
-    bool isGroup = false}) async {
+    String? content,
+    String? productId,
+    String? businessId}) async {
   final url = Uri.parse('$baseUrl/chat/send-message/$userId');
   final headers = {
     'accept': '*/*',
     'Authorization': 'Bearer $token',
     'Content-Type': 'application/json',
   };
-  final body =
-      jsonEncode({'content': content, 'isGroup': isGroup, 'feed': feedId});
-
+  final body = jsonEncode({
+    if (content != null) 'content': content,
+    if (productId != null) 'product': productId,
+    if (businessId != null) 'requirement': businessId
+  });
+  log('sending body $body');
   try {
     final response = await http.post(
       url,
@@ -119,14 +122,20 @@ Future<void> sendChatMessage(
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       // Successfully sent the message
+      final jsonResponse = json.decode(response.body);
       print('Message sent: ${response.body}');
+      log('Message: ${jsonResponse['data']['_id']}');
+      return jsonResponse['data']['_id'];
     } else {
-      // Handle errors here
-      print(json.decode(response.body)['message']);
+      final jsonResponse = json.decode(response.body);
+
+      print(jsonResponse['message']);
       print('Failed to send message: ${response.statusCode}');
+      return '';
     }
   } catch (e) {
     print('Error occurred: $e');
+    return '';
   }
 }
 

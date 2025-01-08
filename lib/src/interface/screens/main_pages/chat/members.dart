@@ -1,8 +1,7 @@
 import 'dart:developer';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/globals.dart';
@@ -143,11 +142,10 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                       },
                                       user.image ?? '',
                                       fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return Image.asset(
-                                            'assets/icons/dummy_person_small.png');
-                                      },
+                                      errorBuilder: (context, error, stackTrace) {
+                                  return SvgPicture.asset(
+                                      'assets/svg/icons/dummy_person_small.svg');
+                                },
                                     ),
                                   ),
                                 ),

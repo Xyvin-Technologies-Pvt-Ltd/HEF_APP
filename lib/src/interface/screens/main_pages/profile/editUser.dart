@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
+import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
@@ -1431,9 +1432,9 @@ class _EditUserState extends ConsumerState<EditUser> {
                                           SnackbarService();
                                       String response =
                                           await _submitData(user: user);
-                                             ref
-                                            .read(userProvider.notifier)
-                                            .refreshUser();
+                                      ref
+                                          .read(userProvider.notifier)
+                                          .refreshUser();
 
                                       // Navigator.pushReplacement(
                                       //     context,
@@ -1442,9 +1443,9 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       //             MainPage()
                                       //             ));
                                       if (response.contains('success')) {
-                           
-
                                         snackbarService.showSnackBar(response);
+                                        ref.invalidate(
+                                            fetchUserDetailsProvider);
                                         navigateBasedOnPreviousPage();
                                       } else {
                                         snackbarService.showSnackBar(response);

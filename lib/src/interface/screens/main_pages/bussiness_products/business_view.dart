@@ -314,6 +314,30 @@ class ReusableBusinessPost extends ConsumerStatefulWidget {
 
 class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
   bool _isExpanded = false;
+  bool _isContentOverflowing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkContentOverflow();
+    });
+  }
+
+  void _checkContentOverflow() {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: widget.business.content,
+        style: const TextStyle(fontSize: 14),
+      ),
+      maxLines: 3,
+      textDirection: TextDirection.ltr,
+    )..layout(
+        maxWidth: MediaQuery.of(context).size.width - 64); // Padding + margins
+    setState(() {
+      _isContentOverflowing = textPainter.didExceedMaxLines;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -358,22 +382,23 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
                     style: const TextStyle(fontSize: 14),
                   ),
                 ),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _isExpanded = !_isExpanded;
-                    });
-                  },
-                  child: Text(
-                    _isExpanded ? 'Show less' : 'Read more',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                if (_isContentOverflowing) const SizedBox(height: 8),
+                if (_isContentOverflowing)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isExpanded = !_isExpanded;
+                      });
+                    },
+                    child: Text(
+                      _isExpanded ? 'Show less' : 'Read more',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
                 const SizedBox(height: 16),
               ],
             ),

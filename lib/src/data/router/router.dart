@@ -28,6 +28,7 @@ import 'package:hef/src/interface/screens/main_pages/news_page.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/card.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/editUser.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/profile_preview.dart';
+import 'package:hef/src/interface/screens/main_pages/profile/profile_preview_withUserId.dart';
 
 import 'package:hef/src/interface/screens/splash_screen.dart';
 
@@ -53,6 +54,12 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       return MaterialPageRoute(
           builder: (context) => ProfilePreview(
                 user: user,
+              ));
+    case 'ProfilePreviewUsingID':
+      String userId = settings?.arguments as String;
+      return MaterialPageRoute(
+          builder: (context) => ProfilePreviewUsingId(
+                userId: userId,
               ));
     case 'ViewMoreEvent':
       Event event = settings?.arguments as Event;

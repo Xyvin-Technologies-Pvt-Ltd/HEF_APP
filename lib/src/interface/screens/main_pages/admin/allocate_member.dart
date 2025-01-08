@@ -24,34 +24,34 @@ class _AllocateMemberState extends State<AllocateMember> {
   String? selectedDistrict;
   String? selectedChapter;
 
-  Future<void> _createUser() async {
-    final Map<String, dynamic> profileData = {
-      "name": widget.newUser.name,
-      "bloodgroup": widget.newUser.bloodgroup,
-      "chapter": selectedChapter,
-      "image": widget.newUser.image,
-      "email": widget.newUser.email,
-      "phone": widget.newUser.phone!.startsWith('91')
-          ? widget.newUser.phone
-          : '+91${widget.newUser.phone}',
-      "bio": widget.newUser.bio,
-      "status": widget.newUser.status,
-      "address": widget.newUser.address,
-      "businessCatogary": widget.newUser.businessCategory,
-      "businessSubCatogary": widget.newUser.businessSubCategory,
-      "company": {
-        "name": widget.newUser.company?.name ?? '',
-        "designation": widget.newUser.company?.designation ?? '',
-        "email": widget.newUser.company?.email ?? '',
-        "websites": widget.newUser.company?.websites ?? '',
-        "phone": widget.newUser.company?.phone ?? '',
-      }
-    };
-    String response = await createUser(data: profileData);
-    if (response.contains('success')) {
-      Navigator.popUntil(context, (route) => route.isFirst);
+Future<void> _createUser() async {
+  final Map<String, dynamic> profileData = {
+    "name": widget.newUser.name,
+    "bloodgroup": widget.newUser.bloodgroup,
+    "chapter": selectedChapter,
+    "image": widget.newUser.image,
+    "email": widget.newUser.email,
+    "phone": widget.newUser.phone!.startsWith('+91') 
+        ? widget.newUser.phone
+        : '+91${widget.newUser.phone}',
+    "bio": widget.newUser.bio,
+    "status": widget.newUser.status,
+    "address": widget.newUser.address,
+    "businessCatogary": widget.newUser.businessCategory,
+    "businessSubCatogary": widget.newUser.businessSubCategory,
+    "company": {
+      "name": widget.newUser.company?.name ?? '',
+      "designation": widget.newUser.company?.designation ?? '',
+      "email": widget.newUser.company?.email ?? '',
+      "websites": widget.newUser.company?.websites ?? '',
+      "phone": widget.newUser.company?.phone ?? '',
     }
+  };
+  String response = await createUser(data: profileData);
+  if (response.contains('success')) {
+    Navigator.popUntil(context, (route) => route.isFirst);
   }
+}
 
   @override
   Widget build(BuildContext context) {

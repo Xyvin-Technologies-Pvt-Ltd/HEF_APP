@@ -252,7 +252,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                   index]; // Reverse the index to get the latest message first
                               if (message.from == widget.sender.id) {
                                 return OwnMessageCard(
-                                  feed: message.feed,
+                                  requirement: message.feed,
                                   status: message.status!,
                                   message: message.content ?? '',
                                   time: DateFormat('h:mm a').format(

@@ -100,631 +100,618 @@ class ProfilePreviewUsingId extends ConsumerWidget {
             ),
             backgroundColor: kScaffoldColor,
             body: asyncUser.when(
-                data: (user) {
-                  return Stack(
-                    children: [
-                      Positioned(
-                          child: Opacity(
-                              opacity: .2,
-                              child: SvgPicture.asset(
-                                  'assets/svg/images/previewFlower.svg'))),
-                      SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 170,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 10, right: 10, bottom: 10),
-                              child: Column(children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    user.image != null && user.image != ''
-                                        ? Container(
-                                            width: 100,
-                                            height: 100,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: kPrimaryColor,
-                                                width: 3.0,
-                                              ),
+              data: (user) {
+                return Stack(
+                  children: [
+                    Positioned(
+                        child: Opacity(
+                            opacity: .2,
+                            child: SvgPicture.asset(
+                                'assets/svg/images/previewFlower.svg'))),
+                    SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 170,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 10, right: 10, bottom: 10),
+                            child: Column(children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  user.image != null && user.image != ''
+                                      ? Container(
+                                          width: 100,
+                                          height: 100,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: kPrimaryColor,
+                                              width: 3.0,
                                             ),
-                                            child: ClipOval(
-                                              child: Image.network(
-                                                user.image ??
-                                                    'https://placehold.co/600x400',
-                                                width: 90,
-                                                height: 90,
-                                                fit: BoxFit.contain,
-                                              ),
-                                            ),
-                                          )
-                                        : Image.asset(
-                                            'assets/icons/dummy_person.png'),
-                                    const SizedBox(height: 10),
-                                    Text('${user.name ?? ''}',
-                                        style: kHeadTitleSB),
-                                    const SizedBox(height: 5),
-                                    if (user.company != null)
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          // Column(
-                                          //   children: [
-                                          //     if (user.company?.designation != null ||
-                                          //         user.company?.name != null)
-                                          //       ClipRRect(
-                                          //           borderRadius: BorderRadius.circular(9),
-                                          //           child: user.company?.logo != null &&
-                                          //                   user.company?.logo != ''
-                                          //               ? Image.network(
-                                          //                   errorBuilder: (context, error,
-                                          //                       stackTrace) {
-                                          //                     return Image.asset(
-                                          //                         'assets/icons/dummy_company.png');
-                                          //                   },
-                                          //                   user.company!.logo!,
-                                          //                   height: 33,
-                                          //                   width: 40,
-                                          //                   fit: BoxFit.contain,
-                                          //                 )
-                                          //               : Image.asset(
-                                          //                   'assets/icons/dummy_company.png'))
-                                          //   ],
-                                          // ),
-                                          const SizedBox(width: 10),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              if (user.company?.designation !=
-                                                      null &&
-                                                  user.company?.designation !=
-                                                      '')
-                                                Text(
-                                                  user.company?.designation ??
-                                                      '',
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                    color: Color.fromARGB(
-                                                        255, 42, 41, 41),
-                                                  ),
-                                                ),
-                                              if (user.company?.name != null &&
-                                                  user.company?.name != '')
-                                                Text(
-                                                  user.company?.name ?? '',
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                            ],
                                           ),
-                                        ],
-                                      ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 60,
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 6),
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: const Color.fromARGB(
-                                              255, 234, 226, 226))),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
-                                        child: Image.asset(
-                                          'assets/pngs/hef_logo.png',
-                                          fit: BoxFit.contain,
+                                          child: ClipOval(
+                                            child: Image.network(
+                                              user.image ??
+                                                  'https://placehold.co/600x400',
+                                              width: 90,
+                                              height: 90,
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        )
+                                      : Image.asset(
+                                          'assets/icons/dummy_person.png'),
+                                  const SizedBox(height: 10),
+                                  Text('${user.name ?? ''}',
+                                      style: kHeadTitleSB),
+                                  const SizedBox(height: 5),
+                                  if (user.company != null)
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        // Column(
+                                        //   children: [
+                                        //     if (user.company?.designation != null ||
+                                        //         user.company?.name != null)
+                                        //       ClipRRect(
+                                        //           borderRadius: BorderRadius.circular(9),
+                                        //           child: user.company?.logo != null &&
+                                        //                   user.company?.logo != ''
+                                        //               ? Image.network(
+                                        //                   errorBuilder: (context, error,
+                                        //                       stackTrace) {
+                                        //                     return Image.asset(
+                                        //                         'assets/icons/dummy_company.png');
+                                        //                   },
+                                        //                   user.company!.logo!,
+                                        //                   height: 33,
+                                        //                   width: 40,
+                                        //                   fit: BoxFit.contain,
+                                        //                 )
+                                        //               : Image.asset(
+                                        //                   'assets/icons/dummy_company.png'))
+                                        //   ],
+                                        // ),
+                                        const SizedBox(width: 10),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            if (user.company?.designation !=
+                                                    null &&
+                                                user.company?.designation != '')
+                                              Text(
+                                                user.company?.designation ?? '',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 16,
+                                                  color: Color.fromARGB(
+                                                      255, 42, 41, 41),
+                                                ),
+                                              ),
+                                            if (user.company?.name != null &&
+                                                user.company?.name != '')
+                                              Text(
+                                                user.company?.name ?? '',
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                          ],
                                         ),
-                                      ),
-                                      Text(
-                                        'Member ID: ${user.memberId}',
-                                        style: const TextStyle(
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Container(
-                                //   padding: const EdgeInsets.only(left: 10, right: 10),
-                                //   decoration: BoxDecoration(
-                                //       color: Colors.white,
-                                //       borderRadius: BorderRadius.circular(10),
-                                //       border: Border.all(
-                                //           color: const Color.fromARGB(255, 234, 226, 226))),
-                                //   child: Padding(
-                                //     padding: const EdgeInsets.all(8.0),
-                                //     child: Row(
-                                //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                //       children: [
-                                //         Flexible(
-                                //             child: Text(
-                                //                 'College: ${user.college?.collegeName ?? ''}'))
-                                //       ],
-                                //     ),
-                                //   ),
-                                // ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                // const Row(
-                                //   children: [
-                                //     Padding(
-                                //       padding: EdgeInsets.only(left: 10),
-                                //       child: Text(
-                                //         'Personal',
-                                //         style: TextStyle(
-                                //             fontSize: 17, fontWeight: FontWeight.w600),
-                                //       ),
-                                //     ),
-                                //   ],
-                                // ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Column(
+                                      ],
+                                    ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 60,
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                        color: const Color.fromARGB(
+                                            255, 234, 226, 226))),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.only(left: 10),
+                                      child: Image.asset(
+                                        'assets/pngs/hef_logo.png',
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Member ID: ${user.memberId}',
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Container(
+                              //   padding: const EdgeInsets.only(left: 10, right: 10),
+                              //   decoration: BoxDecoration(
+                              //       color: Colors.white,
+                              //       borderRadius: BorderRadius.circular(10),
+                              //       border: Border.all(
+                              //           color: const Color.fromARGB(255, 234, 226, 226))),
+                              //   child: Padding(
+                              //     padding: const EdgeInsets.all(8.0),
+                              //     child: Row(
+                              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              //       children: [
+                              //         Flexible(
+                              //             child: Text(
+                              //                 'College: ${user.college?.collegeName ?? ''}'))
+                              //       ],
+                              //     ),
+                              //   ),
+                              // ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              // const Row(
+                              //   children: [
+                              //     Padding(
+                              //       padding: EdgeInsets.only(left: 10),
+                              //       child: Text(
+                              //         'Personal',
+                              //         style: TextStyle(
+                              //             fontSize: 17, fontWeight: FontWeight.w600),
+                              //       ),
+                              //     ),
+                              //   ],
+                              // ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        const Icon(Icons.phone,
+                                            color: kPrimaryColor),
+                                        const SizedBox(width: 10),
+                                        Text(user.phone.toString()),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  if (user.email != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 10),
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
                                         children: [
-                                          const Icon(Icons.phone,
+                                          const Icon(Icons.email,
                                               color: kPrimaryColor),
                                           const SizedBox(width: 10),
-                                          Text(user.phone.toString()),
+                                          Text(user.email ?? ''),
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(height: 10),
-                                    if (user.email != null)
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.email,
-                                                color: kPrimaryColor),
-                                            const SizedBox(width: 10),
-                                            Text(user.email ?? ''),
-                                          ],
-                                        ),
+                                  const SizedBox(height: 10),
+                                  if (user.address != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 10),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.location_on,
+                                              color: kPrimaryColor),
+                                          const SizedBox(width: 10),
+                                          if (user.address != null)
+                                            Expanded(
+                                              child: Text(
+                                                user.address!,
+                                              ),
+                                            )
+                                        ],
                                       ),
-                                    const SizedBox(height: 10),
-                                    if (user.address != null)
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.location_on,
-                                                color: kPrimaryColor),
-                                            const SizedBox(width: 10),
-                                            if (user.address != null)
-                                              Expanded(
-                                                child: Text(
-                                                  user.address!,
-                                                ),
-                                              )
-                                          ],
-                                        ),
+                                    ),
+                                  const SizedBox(height: 10),
+                                ],
+                              ),
+                              const SizedBox(height: 60),
+                              if (user.bio != null &&
+                                  user.bio != '' &&
+                                  user.bio != 'null')
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Image.asset(
+                                        'assets/pngs/qoutes.png',
+                                        color: kPrimaryColor,
                                       ),
-                                    const SizedBox(height: 10),
+                                    ),
                                   ],
                                 ),
-                                const SizedBox(height: 60),
-                                if (user.bio != null &&
-                                    user.bio != '' &&
-                                    user.bio != 'null')
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
+                              if (user.bio != null &&
+                                  user.bio != '' &&
+                                  user.bio != 'null')
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Image.asset(
-                                          'assets/pngs/qoutes.png',
-                                          color: kPrimaryColor,
-                                        ),
+                                      Flexible(child: Text('''${user.bio}''')),
+                                    ],
+                                  ),
+                                ),
+
+                              const SizedBox(
+                                height: 50,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Consumer(
+                                  builder: (context, ref, child) {
+                                    final asyncReviews = ref.watch(
+                                        fetchReviewsProvider(
+                                            userId: user.uid ?? ''));
+                                    return asyncReviews.when(
+                                      data: (reviews) {
+                                        return Column(
+                                          children: [
+                                            ReviewBarChart(
+                                              reviews: reviews ?? [],
+                                            ),
+                                            if (reviews.isNotEmpty)
+                                              ListView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                itemCount: reviewsToShow,
+                                                itemBuilder: (context, index) {
+                                                  final ratingDistribution =
+                                                      getRatingDistribution(
+                                                          reviews);
+                                                  final averageRating =
+                                                      getAverageRating(reviews);
+                                                  final totalReviews =
+                                                      reviews.length;
+                                                  return ReviewsCard(
+                                                    review: reviews[index],
+                                                    ratingDistribution:
+                                                        ratingDistribution,
+                                                    averageRating:
+                                                        averageRating,
+                                                    totalReviews: totalReviews,
+                                                  );
+                                                },
+                                              ),
+                                            if (reviewsToShow < reviews.length)
+                                              TextButton(
+                                                onPressed: () {
+                                                  ref
+                                                      .read(reviewsProvider
+                                                          .notifier)
+                                                      .showMoreReviews(
+                                                          reviews.length);
+                                                },
+                                                child: Text('View More'),
+                                              ),
+                                          ],
+                                        );
+                                      },
+                                      loading: () => const Center(
+                                          child: LoadingAnimation()),
+                                      error: (error, stackTrace) =>
+                                          const SizedBox(),
+                                    );
+                                  },
+                                ),
+                              ),
+                              // if (user.id != id)
+                              //   Row(
+                              //     children: [
+                              //       SizedBox(
+                              //           width: 100,
+                              //           child: customButton(
+                              //               label: 'Write a Review',
+                              //               onPressed: () {
+                              //                 showModalBottomSheet(
+                              //                   context: context,
+                              //                   isScrollControlled: true,
+                              //                   shape: const RoundedRectangleBorder(
+                              //                     borderRadius:
+                              //                         BorderRadius.vertical(
+                              //                             top: Radius.circular(20)),
+                              //                   ),
+                              //                   builder: (context) =>
+                              //                       ShowWriteReviewSheet(
+                              //                     userId: user.id!,
+                              //                   ),
+                              //                 );
+                              //               },
+                              //               fontSize: 15)),
+                              //     ],
+                              //   ),
+
+                              // if (user.company?.designation != null ||
+                              //     user.company?.email != null ||
+                              //     user.company?.websites != null ||
+                              //     user.company?.phone != null ||
+                              //     user.company?.designation != '' ||
+                              //     user.company?.email != '' ||
+                              //     user.company?.websites != '' ||
+                              //     user.company?.phone != '' ||
+                              //     user.company != null)
+                              //   const Row(
+                              //     children: [
+                              //       Padding(
+                              //         padding: EdgeInsets.only(left: 10),
+                              //         child: Text(
+                              //           'Company',
+                              //           style: TextStyle(
+                              //               fontSize: 17, fontWeight: FontWeight.w600),
+                              //         ),
+                              //       ),
+                              //     ],
+                              //   ),
+                              // SizedBox(
+                              //   height: 10,
+                              // ),
+                              // Column(
+                              //   children: [
+                              //     if (user.company?.phone != null)
+                              //       Padding(
+                              //         padding: const EdgeInsets.only(left: 10),
+                              //         child: Row(
+                              //           mainAxisAlignment: MainAxisAlignment.start,
+                              //           children: [
+                              //             const Icon(Icons.phone, color: kPrimaryColor),
+                              //             const SizedBox(width: 10),
+                              //             Text(user.company?.phone ?? ''),
+                              //           ],
+                              //         ),
+                              //       ),
+                              //     // const SizedBox(height: 10),
+                              //     // if (user.company?.address != null)
+                              //     //   Padding(
+                              //     //     padding: const EdgeInsets.only(left: 10),
+                              //     //     child: Row(
+                              //     //       children: [
+                              //     //         const Icon(Icons.location_on,
+                              //     //             color: kPrimaryColor),
+                              //     //         const SizedBox(width: 10),
+                              //     //         if (user.company?.address != null)
+                              //     //           Expanded(
+                              //     //             child: Text(user.company?.address ?? ''),
+                              //     //           )
+                              //     //       ],
+                              //     //     ),
+                              //     //   ),
+                              //     const SizedBox(height: 30),
+                              //   ],
+                              // ),
+                              if (user.social?.isNotEmpty == true)
+                                const Row(
+                                  children: [
+                                    Text(
+                                      'Social Media',
+                                      style: TextStyle(
+                                        color: Color(0xFF2C2829),
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (user.social?.isNotEmpty == true)
+                                for (int index = 0;
+                                    index < user.social!.length;
+                                    index++)
+                                  customSocialPreview(index,
+                                      social: user.social![index]),
+                              if (user.websites?.isNotEmpty == true)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 50),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'Websites & Links',
+                                        style: TextStyle(
+                                            color: Color(0xFF2C2829),
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w500),
                                       ),
                                     ],
                                   ),
-                                if (user.bio != null &&
-                                    user.bio != '' &&
-                                    user.bio != 'null')
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      children: [
-                                        Flexible(
-                                            child: Text('''${user.bio}''')),
-                                      ],
-                                    ),
-                                  ),
-
-                                const SizedBox(
-                                  height: 50,
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Consumer(
-                                    builder: (context, ref, child) {
-                                      final asyncReviews = ref.watch(
-                                          fetchReviewsProvider(
-                                              userId: user.uid ?? ''));
-                                      return asyncReviews.when(
-                                        data: (reviews) {
-                                          return Column(
-                                            children: [
-                                              ReviewBarChart(
-                                                reviews: reviews ?? [],
-                                              ),
-                                              if (reviews.isNotEmpty)
-                                                ListView.builder(
-                                                  shrinkWrap: true,
-                                                  physics:
-                                                      NeverScrollableScrollPhysics(),
-                                                  itemCount: reviewsToShow,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    final ratingDistribution =
-                                                        getRatingDistribution(
-                                                            reviews);
-                                                    final averageRating =
-                                                        getAverageRating(
-                                                            reviews);
-                                                    final totalReviews =
-                                                        reviews.length;
-                                                    return ReviewsCard(
-                                                      review: reviews[index],
-                                                      ratingDistribution:
-                                                          ratingDistribution,
-                                                      averageRating:
-                                                          averageRating,
-                                                      totalReviews:
-                                                          totalReviews,
-                                                    );
-                                                  },
-                                                ),
-                                              if (reviewsToShow <
-                                                  reviews.length)
-                                                TextButton(
-                                                  onPressed: () {
-                                                    ref
-                                                        .read(reviewsProvider
-                                                            .notifier)
-                                                        .showMoreReviews(
-                                                            reviews.length);
-                                                  },
-                                                  child: Text('View More'),
-                                                ),
-                                            ],
-                                          );
+                              if (user.websites?.isNotEmpty == true)
+                                for (int index = 0;
+                                    index < user.websites!.length;
+                                    index++)
+                                  customWebsitePreview(index,
+                                      website: user.websites![index]),
+                              const SizedBox(
+                                height: 30,
+                              ),
+                              if (user.videos?.isNotEmpty == true)
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      width: 500,
+                                      height: 260,
+                                      child: PageView.builder(
+                                        controller: _videoCountController,
+                                        itemCount: user.videos!.length,
+                                        physics: const PageScrollPhysics(),
+                                        itemBuilder: (context, index) {
+                                          return profileVideo(
+                                              context: context,
+                                              video: user.videos![index]);
                                         },
-                                        loading: () => const Center(
-                                            child: LoadingAnimation()),
-                                        error: (error, stackTrace) =>
-                                            const SizedBox(),
-                                      );
-                                    },
-                                  ),
+                                      ),
+                                    ),
+                                    ValueListenableBuilder<int>(
+                                      valueListenable: _currentVideo,
+                                      builder: (context, value, child) {
+                                        return SmoothPageIndicator(
+                                          controller: _videoCountController,
+                                          count: user.videos!.length,
+                                          effect: const ExpandingDotsEffect(
+                                            dotHeight: 8,
+                                            dotWidth: 6,
+                                            activeDotColor: Colors.black,
+                                            dotColor: Colors.grey,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                // if (user.id != id)
-                                //   Row(
-                                //     children: [
-                                //       SizedBox(
-                                //           width: 100,
-                                //           child: customButton(
-                                //               label: 'Write a Review',
-                                //               onPressed: () {
-                                //                 showModalBottomSheet(
-                                //                   context: context,
-                                //                   isScrollControlled: true,
-                                //                   shape: const RoundedRectangleBorder(
-                                //                     borderRadius:
-                                //                         BorderRadius.vertical(
-                                //                             top: Radius.circular(20)),
-                                //                   ),
-                                //                   builder: (context) =>
-                                //                       ShowWriteReviewSheet(
-                                //                     userId: user.id!,
-                                //                   ),
-                                //                 );
-                                //               },
-                                //               fontSize: 15)),
-                                //     ],
-                                //   ),
-
-                                // if (user.company?.designation != null ||
-                                //     user.company?.email != null ||
-                                //     user.company?.websites != null ||
-                                //     user.company?.phone != null ||
-                                //     user.company?.designation != '' ||
-                                //     user.company?.email != '' ||
-                                //     user.company?.websites != '' ||
-                                //     user.company?.phone != '' ||
-                                //     user.company != null)
-                                //   const Row(
-                                //     children: [
-                                //       Padding(
-                                //         padding: EdgeInsets.only(left: 10),
-                                //         child: Text(
-                                //           'Company',
-                                //           style: TextStyle(
-                                //               fontSize: 17, fontWeight: FontWeight.w600),
-                                //         ),
-                                //       ),
-                                //     ],
-                                //   ),
-                                // SizedBox(
-                                //   height: 10,
-                                // ),
-                                // Column(
-                                //   children: [
-                                //     if (user.company?.phone != null)
-                                //       Padding(
-                                //         padding: const EdgeInsets.only(left: 10),
-                                //         child: Row(
-                                //           mainAxisAlignment: MainAxisAlignment.start,
-                                //           children: [
-                                //             const Icon(Icons.phone, color: kPrimaryColor),
-                                //             const SizedBox(width: 10),
-                                //             Text(user.company?.phone ?? ''),
-                                //           ],
-                                //         ),
-                                //       ),
-                                //     // const SizedBox(height: 10),
-                                //     // if (user.company?.address != null)
-                                //     //   Padding(
-                                //     //     padding: const EdgeInsets.only(left: 10),
-                                //     //     child: Row(
-                                //     //       children: [
-                                //     //         const Icon(Icons.location_on,
-                                //     //             color: kPrimaryColor),
-                                //     //         const SizedBox(width: 10),
-                                //     //         if (user.company?.address != null)
-                                //     //           Expanded(
-                                //     //             child: Text(user.company?.address ?? ''),
-                                //     //           )
-                                //     //       ],
-                                //     //     ),
-                                //     //   ),
-                                //     const SizedBox(height: 30),
-                                //   ],
-                                // ),
-                                if (user.social?.isNotEmpty == true)
-                                  const Row(
-                                    children: [
-                                      Text(
-                                        'Social Media',
-                                        style: TextStyle(
+                              const SizedBox(
+                                height: 40,
+                              ),
+                              if (user.certificates?.isNotEmpty == true)
+                                const Row(
+                                  children: [
+                                    Text(
+                                      'Certificates',
+                                      style: TextStyle(
                                           color: Color(0xFF2C2829),
                                           fontSize: 17,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                if (user.social?.isNotEmpty == true)
-                                  for (int index = 0;
-                                      index < user.social!.length;
-                                      index++)
-                                    customSocialPreview(index,
-                                        social: user.social![index]),
-                                if (user.websites?.isNotEmpty == true)
-                                  const Padding(
-                                    padding: EdgeInsets.only(top: 50),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          'Websites & Links',
-                                          style: TextStyle(
-                                              color: Color(0xFF2C2829),
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                if (user.websites?.isNotEmpty == true)
-                                  for (int index = 0;
-                                      index < user.websites!.length;
-                                      index++)
-                                    customWebsitePreview(index,
-                                        website: user.websites![index]),
-                                const SizedBox(
-                                  height: 30,
-                                ),
-                                if (user.videos?.isNotEmpty == true)
-                                  Column(
-                                    children: [
-                                      SizedBox(
-                                        width: 500,
-                                        height: 260,
-                                        child: PageView.builder(
-                                          controller: _videoCountController,
-                                          itemCount: user.videos!.length,
-                                          physics: const PageScrollPhysics(),
-                                          itemBuilder: (context, index) {
-                                            return profileVideo(
-                                                context: context,
-                                                video: user.videos![index]);
-                                          },
-                                        ),
-                                      ),
-                                      ValueListenableBuilder<int>(
-                                        valueListenable: _currentVideo,
-                                        builder: (context, value, child) {
-                                          return SmoothPageIndicator(
-                                            controller: _videoCountController,
-                                            count: user.videos!.length,
-                                            effect: const ExpandingDotsEffect(
-                                              dotHeight: 8,
-                                              dotWidth: 6,
-                                              activeDotColor: Colors.black,
-                                              dotColor: Colors.grey,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                const SizedBox(
-                                  height: 40,
-                                ),
-                                if (user.certificates?.isNotEmpty == true)
-                                  const Row(
-                                    children: [
-                                      Text(
-                                        'Certificates',
-                                        style: TextStyle(
-                                            color: Color(0xFF2C2829),
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  ),
-                                if (user.certificates?.isNotEmpty == true)
-                                  ListView.builder(
-                                    shrinkWrap:
-                                        true, // Let ListView take up only as much space as it needs
-                                    physics:
-                                        const NeverScrollableScrollPhysics(), // Disable ListView's internal scrolling
-                                    itemCount: user.certificates!.length,
-                                    itemBuilder: (context, index) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical:
-                                                4.0), // Space between items
-                                        child: CertificateCard(
-                                          certificate:
-                                              user.certificates![index],
-                                          onRemove: null,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                if (user.awards?.isNotEmpty == true)
-                                  const Row(
-                                    children: [
-                                      Text(
-                                        'Awards',
-                                        style: TextStyle(
-                                            color: Color(0xFF2C2829),
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  ),
-                                if (user.awards?.isNotEmpty == true)
-                                  GridView.builder(
-                                    shrinkWrap:
-                                        true, // Let GridView take up only as much space as it needs
-                                    physics:
-                                        const NeverScrollableScrollPhysics(), // Disable GridView's internal scrolling
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2, // Number of columns
-                                      crossAxisSpacing:
-                                          8.0, // Space between columns
-                                      mainAxisSpacing:
-                                          20.0, // Space between rows
-                                    ),
-                                    itemCount: user.awards!.length,
-                                    itemBuilder: (context, index) {
-                                      return AwardCard(
-                                        award: user.awards![index],
-                                        onRemove: null,
-                                      );
-                                    },
-                                  ),
-                              ]),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (user.uid != id)
-                        Positioned(
-                            bottom: 40,
-                            left: 15,
-                            right: 15,
-                            child: SizedBox(
-                                height: 50,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Flexible(
-                                      child: customButton(
-                                          buttonHeight: 60,
-                                          fontSize: 16,
-                                          label: 'SAY HI',
-                                          onPressed: () {
-                                            // final Participant receiver = Participant(
-                                            //   id: user.uid,
-                                            //   image: user.image ?? '',
-                                            //   name: user.name,
-                                            // );
-                                            // final Participant sender = Participant(id: id);
-                                            // Navigator.of(context).push(MaterialPageRoute(
-                                            //     builder: (context) => IndividualPage(
-                                            //           receiver: receiver,
-                                            //           sender: sender,
-                                            //         )));
-                                          }),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    Flexible(
-                                      child: customButton(
-                                          sideColor: const Color.fromARGB(
-                                              255, 219, 217, 217),
-                                          labelColor: const Color(0xFF2C2829),
-                                          buttonColor: const Color.fromARGB(
-                                              255, 222, 218, 218),
-                                          buttonHeight: 60,
-                                          fontSize: 13,
-                                          label: 'SAVE CONTACT',
-                                          onPressed: () {
-                                            if (user.phone != null) {
-                                              saveContact(
-                                                  firstName:
-                                                      '${user.name ?? ''}',
-                                                  number: user.phone ?? '',
-                                                  email: user.email ?? '',
-                                                  context: context);
-                                            }
-                                          }),
+                                          fontWeight: FontWeight.w500),
                                     ),
                                   ],
-                                ))),
-                    ],
-                  );
-                },
-                  loading: () => ProfileShimmer(),
-      error: (error, stackTrace) {
-        return Center(
-          child: LoadingAnimation(),
-        );
-      },));
+                                ),
+                              if (user.certificates?.isNotEmpty == true)
+                                ListView.builder(
+                                  shrinkWrap:
+                                      true, // Let ListView take up only as much space as it needs
+                                  physics:
+                                      const NeverScrollableScrollPhysics(), // Disable ListView's internal scrolling
+                                  itemCount: user.certificates!.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4.0), // Space between items
+                                      child: CertificateCard(
+                                        certificate: user.certificates![index],
+                                        onRemove: null,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              if (user.awards?.isNotEmpty == true)
+                                const Row(
+                                  children: [
+                                    Text(
+                                      'Awards',
+                                      style: TextStyle(
+                                          color: Color(0xFF2C2829),
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                              if (user.awards?.isNotEmpty == true)
+                                GridView.builder(
+                                  shrinkWrap:
+                                      true, // Let GridView take up only as much space as it needs
+                                  physics:
+                                      const NeverScrollableScrollPhysics(), // Disable GridView's internal scrolling
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2, // Number of columns
+                                    crossAxisSpacing:
+                                        8.0, // Space between columns
+                                    mainAxisSpacing: 20.0, // Space between rows
+                                  ),
+                                  itemCount: user.awards!.length,
+                                  itemBuilder: (context, index) {
+                                    return AwardCard(
+                                      award: user.awards![index],
+                                      onRemove: null,
+                                    );
+                                  },
+                                ),
+                            ]),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (user.uid != id)
+                      Positioned(
+                          bottom: 40,
+                          left: 15,
+                          right: 15,
+                          child: SizedBox(
+                              height: 50,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Flexible(
+                                    child: customButton(
+                                        buttonHeight: 60,
+                                        fontSize: 16,
+                                        label: 'SAY HI',
+                                        onPressed: () {
+                                          // final Participant receiver = Participant(
+                                          //   id: user.uid,
+                                          //   image: user.image ?? '',
+                                          //   name: user.name,
+                                          // );
+                                          // final Participant sender = Participant(id: id);
+                                          // Navigator.of(context).push(MaterialPageRoute(
+                                          //     builder: (context) => IndividualPage(
+                                          //           receiver: receiver,
+                                          //           sender: sender,
+                                          //         )));
+                                        }),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Flexible(
+                                    child: customButton(
+                                        sideColor: const Color.fromARGB(
+                                            255, 219, 217, 217),
+                                        labelColor: const Color(0xFF2C2829),
+                                        buttonColor: const Color.fromARGB(
+                                            255, 222, 218, 218),
+                                        buttonHeight: 60,
+                                        fontSize: 13,
+                                        label: 'SAVE CONTACT',
+                                        onPressed: () {
+                                          if (user.phone != null) {
+                                            saveContact(
+                                                firstName: '${user.name ?? ''}',
+                                                number: user.phone ?? '',
+                                                email: user.email ?? '',
+                                                context: context);
+                                          }
+                                        }),
+                                  ),
+                                ],
+                              ))),
+                  ],
+                );
+              },
+              loading: () => ProfileShimmer(),
+              error: (error, stackTrace) {
+                return Center(
+                  child: LoadingAnimation(),
+                );
+              },
+            ));
       },
     );
   }

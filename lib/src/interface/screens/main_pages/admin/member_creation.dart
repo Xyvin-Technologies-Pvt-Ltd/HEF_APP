@@ -18,6 +18,9 @@ class MemberCreationPage extends StatefulWidget {
 }
 
 class _MemberCreationPageState extends State<MemberCreationPage> {
+  final _formKey = GlobalKey<FormState>(); // Add a GlobalKey for the form
+
+  // Controllers remain the same
   TextEditingController nameController = TextEditingController();
   TextEditingController bloodController = TextEditingController();
   TextEditingController photoController = TextEditingController();
@@ -34,6 +37,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
   String? selectedBusinessCategory;
   String? selectedSubCategory;
   String? selectedStatus;
+
   @override
   Widget build(BuildContext context) {
     NavigationService navigationService = NavigationService();
@@ -52,145 +56,188 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            MemberCreationTextfield(
+        child: Form(
+          key: _formKey, // Wrap in a Form widget
+          child: ListView(
+            children: [
+              MemberCreationTextfield(
                 textEditingController: nameController,
                 label: 'Full Name',
-                hintText: 'Enter full name'),
-            MemberCreationTextfield(
+                hintText: 'Enter full name',
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              MemberCreationTextfield(
                 textEditingController: bloodController,
                 label: 'Blood Group',
-                hintText: 'Blood Group'),
-            UploadPhotoWidget(
-              onPhotoChanged: (File? photo) {
-                setState(() {
-                  _profileImage = photo;
-                });
-              },
-            ),
-            MemberCreationTextfield(
+                hintText: 'Blood Group',
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              UploadPhotoWidget(
+                onPhotoChanged: (File? photo) {
+                  setState(() {
+                    _profileImage = photo;
+                  });
+                },
+              ),
+              MemberCreationTextfield(
                 textEditingController: bioController,
                 label: 'Bio',
                 hintText: 'Add description',
-                maxLines: 5),
-            MemberCreationTextfield(
+                maxLines: 5,
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              MemberCreationTextfield(
                 textEditingController: emailController,
                 label: 'Email ID',
-                hintText: 'Email ID'),
-            MemberCreationTextfield(
+                hintText: 'Email ID',
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              MemberCreationTextfield(
                 textInputType: TextInputType.numberWithOptions(),
                 textEditingController: phoneController,
                 label: 'Phone Number',
-                hintText: 'Phone'),
-            MemberCreationTextfield(
+                hintText: 'Phone',
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              MemberCreationTextfield(
                 textEditingController: adressController,
                 label: 'Personal Address',
-                hintText: 'Personal Address'),
-            MemberCreationTextfield(
-              label: 'Company Name',
-              hintText: 'Name',
-              textEditingController: companyNameController,
-            ),
-            MemberCreationTextfield(
-              textInputType: TextInputType.number,
-              label: 'Company Phone',
-              hintText: 'Number',
-              textEditingController: companyPhoneController,
-            ),
-            MemberCreationTextfield(
+                hintText: 'Personal Address',
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              MemberCreationTextfield(
+                label: 'Company Name',
+                hintText: 'Name',
+                textEditingController: companyNameController,
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              MemberCreationTextfield(
+                textInputType: TextInputType.number,
+                label: 'Company Phone',
+                hintText: 'Number',
+                textEditingController: companyPhoneController,
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              MemberCreationTextfield(
                 textEditingController: companyDesignationController,
                 label: 'Designation',
-                hintText: 'Designation'),
-            MemberCreationTextfield(
-              label: 'Company Email',
-              hintText: 'email',
-              textEditingController: companyEmailController,
-            ),
-            MemberCreationTextfield(
-              label: 'Website',
-              hintText: 'Link',
-              textEditingController: companyWebsiteController,
-            ),
-            CustomDropdown(
-              label: 'Business Category',
-              items: ['IT', 'Finance', 'Education'],
-              value:
-                  selectedBusinessCategory, // Pass the current selected value
-              onChanged: (value) {
-                setState(() {
-                  selectedBusinessCategory = value;
-                });
-              },
-            ),
-            CustomDropdown(
-              label: 'Sub category',
-              items: ['Software', 'Hardware'],
-              value: selectedSubCategory, // Pass the current selected value
-              onChanged: (value) {
-                setState(() {
-                  selectedSubCategory = value;
-                });
-              },
-            ),
-            CustomDropdown(
-              label: 'Status',
-              items: ['active', 'inactive', 'suspended'],
-              value: selectedStatus, // Pass the current selected value
-              onChanged: (value) {
-                setState(() {
-                  selectedStatus = value;
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Flexible(
-                  child: customButton(
-                    labelColor: kPrimaryColor,
-                    buttonColor: Colors.transparent,
-                    label: 'Cancel',
-                    onPressed: () {
-                      navigationService.pop();
-                    },
+                hintText: 'Designation',
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              MemberCreationTextfield(
+                label: 'Company Email',
+                hintText: 'email',
+                textEditingController: companyEmailController,
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              MemberCreationTextfield(
+                label: 'Website',
+                hintText: 'Link',
+                textEditingController: companyWebsiteController,
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+              CustomDropdown(
+                label: 'Business Category',
+                items: ['IT', 'Finance', 'Education'],
+                value: selectedBusinessCategory,
+                onChanged: (value) {
+                  setState(() {
+                    selectedBusinessCategory = value;
+                  });
+                },
+              ),
+              CustomDropdown(
+                label: 'Sub category',
+                items: ['Software', 'Hardware'],
+                value: selectedSubCategory,
+                onChanged: (value) {
+                  setState(() {
+                    selectedSubCategory = value;
+                  });
+                },
+              ),
+              CustomDropdown(
+                label: 'Status',
+                items: ['active', 'inactive', 'suspended'],
+                value: selectedStatus,
+                onChanged: (value) {
+                  setState(() {
+                    selectedStatus = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Flexible(
+                    child: customButton(
+                      labelColor: kPrimaryColor,
+                      buttonColor: Colors.transparent,
+                      label: 'Cancel',
+                      onPressed: () {
+                        navigationService.pop();
+                      },
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: 30,
-                ),
-                Flexible(
-                  child: customButton(
-                    label: 'Save',
-                    onPressed: () async {
-                      String profileImageUrl = await imageUpload(
-                          Path.basename(_profileImage!.path),
-                          _profileImage!.path);
-                      navigationService.pushNamed('MemberAllocation',
-                          arguments: UserModel(
-                              name: nameController.text,
-                              bloodgroup: bloodController.text,
-                              image: profileImageUrl,
-                              bio: bioController.text,
-                              email: emailController.text,
-                              phone: phoneController.text,
-                              address: adressController.text,
-                              company: Company(
-                                  name: companyNameController.text,
-                                  designation:
-                                      companyDesignationController.text,
-                                  email: companyEmailController.text,
-                                  phone: companyPhoneController.text,
-                                  websites: companyWebsiteController.text),
-                              businessCategory: selectedBusinessCategory,
-                              businessSubCategory: selectedSubCategory,
-                              status: selectedStatus));
-                    },
+                  const SizedBox(width: 30),
+                  Flexible(
+                    child: customButton(
+                      label: 'Save',
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate() &&
+                            _profileImage != null &&
+                            selectedBusinessCategory != null &&
+                            selectedSubCategory != null &&
+                            selectedStatus != null) {
+                          String profileImageUrl = await imageUpload(
+                              Path.basename(_profileImage!.path),
+                              _profileImage!.path);
+                          navigationService.pushNamed('MemberAllocation',
+                              arguments: UserModel(
+                                  name: nameController.text,
+                                  bloodgroup: bloodController.text,
+                                  image: profileImageUrl,
+                                  bio: bioController.text,
+                                  email: emailController.text,
+                                  phone: phoneController.text,
+                                  address: adressController.text,
+                                  company: Company(
+                                      name: companyNameController.text,
+                                      designation:
+                                          companyDesignationController.text,
+                                      email: companyEmailController.text,
+                                      phone: companyPhoneController.text,
+                                      websites: companyWebsiteController.text),
+                                  businessCategory: selectedBusinessCategory,
+                                  businessSubCategory: selectedSubCategory,
+                                  status: selectedStatus));
+                        } else {
+                          // Show error for missing fields
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please fill all fields'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

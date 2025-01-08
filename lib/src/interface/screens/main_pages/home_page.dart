@@ -556,23 +556,26 @@ class _HomePageState extends ConsumerState<HomePage> {
                               ],
                             ),
                           ),
-                          Positioned(
-                            right: 30,
-                            bottom: 30,
-                            child: Container(
-                              padding: const EdgeInsets.all(13),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: kPrimaryColor,
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  navigationService.pushNamed('MemberCreation');
-                                },
-                                child: const Icon(
-                                  Icons.person_add_alt_1_outlined,
-                                  color: kWhite,
-                                  size: 27,
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Align(
+                              alignment: Alignment.bottomRight,
+                              child: Container(
+                                padding: const EdgeInsets.all(13),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: kPrimaryColor,
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    navigationService
+                                        .pushNamed('MemberCreation');
+                                  },
+                                  child: const Icon(
+                                    Icons.person_add_alt_1_outlined,
+                                    color: kWhite,
+                                    size: 27,
+                                  ),
                                 ),
                               ),
                             ),

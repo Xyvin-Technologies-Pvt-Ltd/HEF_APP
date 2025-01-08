@@ -33,7 +33,7 @@ class SocketIoClient {
   Stream<MessageModel> get messageStream => _controller.stream;
 
   void connect(String senderId, WidgetRef ref) {
-    final uri = 'wss://akcafconnect.com/api/v1/chat?userId=$senderId';
+    final uri = 'wss://api.hefconnect.in/api/v1/chat?userId=$senderId';
 
     // Initialize socket.io client
     _socket = IO.io(
@@ -110,7 +110,7 @@ Future<String> sendChatMessage(
   final body = jsonEncode({
     if (content != null) 'content': content,
     if (productId != null) 'product': productId,
-    if (businessId != null) 'requirement': businessId
+    if (businessId != null) 'feed': businessId
   });
   log('sending body $body');
   try {

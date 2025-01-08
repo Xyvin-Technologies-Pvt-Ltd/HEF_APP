@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
@@ -64,7 +65,19 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class _MainPageState extends ConsumerState<MainPage> {
-  // int _selectedIndex = 0;
+  late final webSocketClient;
+
+  @override
+  void initState() {
+    super.initState();
+    webSocketClient = ref.read(socketIoClientProvider);
+    webSocketClient.connect(id, ref);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   static List<Widget> _widgetOptions = <Widget>[];
 

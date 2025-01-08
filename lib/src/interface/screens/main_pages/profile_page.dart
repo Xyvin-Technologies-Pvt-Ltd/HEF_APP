@@ -99,8 +99,8 @@ class ProfilePage extends StatelessWidget {
                                             icon: Icon(Icons.remove_red_eye),
                                             onPressed: () {
                                               navigationService.pushNamed(
-                                                  'ProfilePreview',
-                                                  arguments: user);
+                                                  'ProfilePreviewUsingID',
+                                                  arguments: user.uid);
                                               // Navigator.push(
                                               //   context,
                                               //   PageRouteBuilder(

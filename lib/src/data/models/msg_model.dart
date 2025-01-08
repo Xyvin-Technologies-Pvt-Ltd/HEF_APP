@@ -63,7 +63,7 @@ class ChatBusiness {
   factory ChatBusiness.fromJson(Map<String, dynamic> json) {
     return ChatBusiness(
       id: json['_id'],
-      image: json['image'],
+      image: json['media'],
       content: json['content'],
     );
   }

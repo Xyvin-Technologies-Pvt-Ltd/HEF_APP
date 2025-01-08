@@ -8,12 +8,16 @@ class MemberCreationTextfield extends StatelessWidget {
   final int maxLines;
   final TextEditingController textEditingController;
   final TextInputType textInputType;
+  final String? Function(String?)? validator; // Add validator
+
   const MemberCreationTextfield({
     required this.label,
     required this.hintText,
     this.maxLines = 1,
     super.key,
-    required this.textEditingController,  this.textInputType=TextInputType.text,
+    required this.textEditingController,
+    this.textInputType = TextInputType.text,
+    this.validator,
   });
 
   @override
@@ -48,7 +52,7 @@ class MemberCreationTextfield extends StatelessWidget {
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: kGreyLight),
+                  borderSide: BorderSide(color: Colors.red),
                 ),
                 disabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -56,6 +60,7 @@ class MemberCreationTextfield extends StatelessWidget {
                 ),
               ),
               maxLines: maxLines,
+              validator: validator, // Apply validator
             ),
           ),
         ],
@@ -63,3 +68,4 @@ class MemberCreationTextfield extends StatelessWidget {
     );
   }
 }
+

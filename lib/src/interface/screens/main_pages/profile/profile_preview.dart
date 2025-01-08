@@ -16,6 +16,7 @@ import 'package:hef/src/interface/components/Cards/certificate_card.dart';
 import 'package:hef/src/interface/components/ModalSheets/write_review.dart';
 import 'package:hef/src/interface/components/common/review_barchart.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:hef/src/interface/screens/main_pages/chat/chat_screen.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -200,10 +201,12 @@ class ProfilePreview extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                              color: const Color.fromARGB(255, 234, 226, 226))),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color.fromARGB(255, 234, 226, 226),
+                        ),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -214,10 +217,15 @@ class ProfilePreview extends ConsumerWidget {
                               fit: BoxFit.contain,
                             ),
                           ),
-                          Text(
-                            'Member ID: ${user.memberId}',
-                            style: const TextStyle(
-                              color: Colors.grey,
+                          Expanded(
+                            // Added Expanded widget to make the text expandable
+                            child: Text(
+                              'Member ID: ${user.memberId}',
+                              overflow: TextOverflow
+                                  .ellipsis, // Optional: handles overflow
+                              style: const TextStyle(
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
                         ],
@@ -657,17 +665,17 @@ class ProfilePreview extends ConsumerWidget {
                               fontSize: 16,
                               label: 'SAY HI',
                               onPressed: () {
-                                // final Participant receiver = Participant(
-                                //   id: user.uid,
-                                //   image: user.image ?? '',
-                                //   name: user.name,
-                                // );
-                                // final Participant sender = Participant(id: id);
-                                // Navigator.of(context).push(MaterialPageRoute(
-                                //     builder: (context) => IndividualPage(
-                                //           receiver: receiver,
-                                //           sender: sender,
-                                //         )));
+                                final Participant receiver = Participant(
+                                  id: user.uid,
+                                  image: user.image ?? '',
+                                  name: user.name,
+                                );
+                                final Participant sender = Participant(id: id);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => IndividualPage(
+                                          receiver: receiver,
+                                          sender: sender,
+                                        )));
                               }),
                         ),
                         const SizedBox(

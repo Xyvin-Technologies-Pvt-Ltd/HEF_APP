@@ -523,7 +523,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   error: (error, stackTrace) =>
                                       const SizedBox(),
                                 ),
-
+                                SizedBox(
+                                  height: 20,
+                                ),
                                 // Videos Carousel
                                 if (filteredVideos.isNotEmpty)
                                   Column(
@@ -553,6 +555,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                             Colors.black),
                                     ],
                                   ),
+                                SizedBox(
+                                  height: 20,
+                                ),
                               ],
                             ),
                           ),

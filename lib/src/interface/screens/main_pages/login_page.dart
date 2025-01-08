@@ -453,7 +453,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
         id = savedId;
         log('savedToken: $savedToken');
         log('savedId: $savedId');
-        ref.invalidate(userProvider);
+        ref.read(userProvider.notifier).refreshUser();
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => ProfileCompletionScreen()));
       } else {
@@ -507,7 +507,6 @@ class ProfileCompletionScreen extends StatelessWidget {
                                     settings: RouteSettings(
                                         name: 'ProfileCompletion'),
                                     builder: (context) => const EditUser()));
-                            ref.invalidate(userProvider);
                           },
                           fontSize: 16);
                     },

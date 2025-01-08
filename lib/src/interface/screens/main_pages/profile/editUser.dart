@@ -1444,8 +1444,8 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       //             ));
                                       if (response.contains('success')) {
                                         snackbarService.showSnackBar(response);
-                                        ref.invalidate(
-                                            fetchUserDetailsProvider);
+                                        ref.read(
+                                            userProvider.notifier).refreshUser();
                                         navigateBasedOnPreviousPage();
                                       } else {
                                         snackbarService.showSnackBar(response);

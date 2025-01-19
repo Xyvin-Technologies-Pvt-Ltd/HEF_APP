@@ -200,8 +200,7 @@ class ProfilePage extends StatelessWidget {
                                                       Text(
                                                           user.company?.name ??
                                                               '',
-                                                          style:
-                                                              kSmallerTitleR),
+                                                          style: kSmallTitleR),
                                                     ],
                                                   ),
                                                 ),

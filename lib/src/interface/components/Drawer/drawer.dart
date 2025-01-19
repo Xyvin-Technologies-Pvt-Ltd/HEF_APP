@@ -66,7 +66,7 @@ Widget customDrawer({required UserModel user}) {
             height: 30,
           ),
           // Drawer Items
-          if (user.role != 'member')
+          if (user.isAdmin??false)
             _buildDrawerItem(
               icon: 'assets/svg/icons/analytics.svg',
               label: 'Analytics',
@@ -74,7 +74,7 @@ Widget customDrawer({required UserModel user}) {
                 navigationService.pushNamed('AnalyticsPage');
               },
             ),
-          if (user.role != 'member')
+          if (user.isAdmin??false)
             _buildDrawerItem(
               icon: 'assets/svg/icons/levels.svg',
               label: 'Levels',

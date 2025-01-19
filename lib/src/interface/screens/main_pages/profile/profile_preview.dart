@@ -68,17 +68,18 @@ class ProfilePreview extends ConsumerWidget {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(
-              size: 20,
-              Icons.edit,
-              color: kPrimaryColor,
-            ),
-            onPressed: () {
-              NavigationService navigationService = NavigationService();
-              navigationService.pushNamed('EditUser');
-            },
-          )
+          if (id == user.uid)
+            IconButton(
+              icon: const Icon(
+                size: 20,
+                Icons.edit,
+                color: kPrimaryColor,
+              ),
+              onPressed: () {
+                NavigationService navigationService = NavigationService();
+                navigationService.pushNamed('EditUser');
+              },
+            )
         ],
         centerTitle: true,
         elevation: 0,

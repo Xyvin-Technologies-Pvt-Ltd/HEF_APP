@@ -33,7 +33,7 @@ class SocketIoClient {
   Stream<MessageModel> get messageStream => _controller.stream;
 
   void connect(String senderId, WidgetRef ref) {
-    final uri = 'wss://api.hefconnect.in/api/v1/chat?userId=$senderId';
+    final uri = 'ws://api.hefconnect.in/api/v1/chat?userId=$senderId';
 
     // Initialize socket.io client
     _socket = IO.io(

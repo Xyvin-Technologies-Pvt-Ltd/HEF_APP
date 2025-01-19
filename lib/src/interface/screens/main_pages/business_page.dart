@@ -37,18 +37,16 @@ class BusinessPage extends StatelessWidget {
                           ),
                           tabs: [
                             Tab(
-                              text: "Business",
+                              text: "Business Posts",
                             ),
                             Tab(
-                              text: "Products",
+                              text: "Ecommerce",
                             ),
                           ],
                         ),
                       ),
                     ),
                   ),
-              
-
                   Expanded(
                     child: TabBarView(
                       children: [

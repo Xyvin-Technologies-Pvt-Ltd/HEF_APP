@@ -29,13 +29,108 @@ class Link {
   }
 }
 
+class ChapterModel {
+  final String? id;
+  final String? name;
+  final DistrictModel? district;
+
+  ChapterModel({this.id, this.name, this.district});
+
+  factory ChapterModel.fromJson(Map<String, dynamic> json) {
+    return ChapterModel(
+      id: json['_id'] as String?,
+      name: json['name'] as String?,
+      district: json['districtId'] != null
+          ? DistrictModel.fromJson(json['districtId'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'districtId': district?.toJson(),
+    };
+  }
+}
+
+class DistrictModel {
+  final String? id;
+  final String? name;
+  final ZoneModel? zone;
+
+  DistrictModel({this.id, this.name, this.zone});
+
+  factory DistrictModel.fromJson(Map<String, dynamic> json) {
+    return DistrictModel(
+      id: json['_id'] as String?,
+      name: json['name'] as String?,
+      zone: json['zoneId'] != null ? ZoneModel.fromJson(json['zoneId']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'zoneId': zone?.toJson(),
+    };
+  }
+}
+
+class ZoneModel {
+  final String? id;
+  final String? name;
+  final StateModel? state;
+
+  ZoneModel({this.id, this.name, this.state});
+
+  factory ZoneModel.fromJson(Map<String, dynamic> json) {
+    return ZoneModel(
+      id: json['_id'] as String?,
+      name: json['name'] as String?,
+      state: json['stateId'] != null ? StateModel.fromJson(json['stateId']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'stateId': state?.toJson(),
+    };
+  }
+}
+
+class StateModel {
+  final String? id;
+  final String? name;
+
+  StateModel({this.id, this.name});
+
+  factory StateModel.fromJson(Map<String, dynamic> json) {
+    return StateModel(
+      id: json['_id'] as String?,
+      name: json['name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+    };
+  }
+}
+
 class UserModel {
   final String? name;
   final String? uid;
   final String? memberId;
   final String? bloodgroup;
   final String? role;
-  final String? chapter;
+  final ChapterModel? chapter; // Updated to nested structure
   final String? image;
   final String? email;
   final String? phone;
@@ -54,10 +149,12 @@ class UserModel {
   final List<Link>? certificates;
   final int? otp;
   final List<String>? blockedUsers;
-    final int? feedCount;
+  final int? feedCount;
   final int? productCount;
   final String? subscription;
   final String? fcm;
+  final DateTime? createdAt;
+  final String? level; 
 
   UserModel({
     this.name,
@@ -84,10 +181,12 @@ class UserModel {
     this.certificates,
     this.otp,
     this.blockedUsers,
-        this.feedCount,
+    this.feedCount,
     this.productCount,
     this.subscription,
     this.fcm,
+    this.createdAt,
+    this.level,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -97,7 +196,9 @@ class UserModel {
       memberId: json['memberId'] as String?,
       bloodgroup: json['bloodgroup'] as String?,
       role: json['role'] as String?,
-      chapter: json['chapter'] as String?,
+      chapter: json['chapter'] != null
+          ? ChapterModel.fromJson(json['chapter'])
+          : null,
       image: json['image'] as String?,
       email: json['email'] as String?,
       phone: json['phone'] as String?,
@@ -107,8 +208,9 @@ class UserModel {
       bio: json['bio'] as String?,
       status: json['status'] as String?,
       address: json['address'] as String?,
-      company:
-          json['company'] != null ? Company.fromJson(json['company']) : null,
+      company: json['company'] != null
+          ? Company.fromJson(json['company'])
+          : null,
       businessCategory: json['businessCategory'] as String?,
       businessSubCategory: json['businessSubCategory'] as String?,
       file: (json['file'] as List<dynamic>?)?.map((e) => e as String).toList(),
@@ -131,10 +233,15 @@ class UserModel {
       blockedUsers: (json['blockedUsers'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-                     feedCount: json['feedCount']!=null? json['feedCount'] as int:0,
-           productCount: json['productCount']!=null? json['productCount'] as int:0,
+      feedCount: json['feedCount'] != null ? json['feedCount'] as int : 0,
+      productCount:
+          json['productCount'] != null ? json['productCount'] as int : 0,
       subscription: json['subscription'] as String?,
       fcm: json['fcm'] as String?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+      level: json['level'] as String?, // Parse the new level field
     );
   }
 
@@ -145,7 +252,7 @@ class UserModel {
       'memberId': memberId,
       'bloodgroup': bloodgroup,
       'role': role,
-      'chapter': chapter,
+      'chapter': chapter?.toJson(),
       'image': image,
       'email': email,
       'phone': phone,
@@ -164,10 +271,12 @@ class UserModel {
       'certificates': certificates?.map((e) => e.toJson()).toList(),
       'otp': otp,
       'blockedUsers': blockedUsers,
-            'feedCount':feedCount,
-      'productCount':productCount,
+      'feedCount': feedCount,
+      'productCount': productCount,
       'subscription': subscription,
       'fcm': fcm,
+      'createdAt': createdAt?.toIso8601String(),
+      'level': level, // Add level to the JSON
     };
   }
 
@@ -177,7 +286,7 @@ class UserModel {
     String? memberId,
     String? bloodgroup,
     String? role,
-    String? chapter,
+    ChapterModel? chapter,
     String? image,
     String? email,
     String? phone,
@@ -198,6 +307,7 @@ class UserModel {
     List<String>? blockedUsers,
     String? subscription,
     String? fcm,
+    DateTime? createdAt
   }) {
     return UserModel(
       name: name ?? this.name,
@@ -226,6 +336,7 @@ class UserModel {
       blockedUsers: blockedUsers ?? this.blockedUsers,
       subscription: subscription ?? this.subscription,
       fcm: fcm ?? this.fcm,
+      createdAt: createdAt??this.createdAt
     );
   }
 }

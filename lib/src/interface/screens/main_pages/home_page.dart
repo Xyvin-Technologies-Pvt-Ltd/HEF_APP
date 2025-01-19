@@ -234,15 +234,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       style: kLargeTitleB.copyWith(
                                           color: kTextHeadColor)),
                                 ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: 15, top: 10),
-                                  child: Text(
-                                    '${widget.user.name ?? ''} - (${widget.user.role?.toUpperCase() ?? ''})',
-                                    style: kBodyTitleR.copyWith(
-                                        color: kTextHeadColor),
-                                  ),
-                                ),
+                                // Padding(
+                                //   padding: const EdgeInsets.only(
+                                //       left: 15, top: 10, bottom: 10),
+                                //   child: Text(
+                                //     '${widget.user.name ?? ''} - (${widget.user.role?.toUpperCase() ?? ''})',
+                                //     style: kBodyTitleR.copyWith(
+                                //         color: kTextHeadColor),
+                                //   ),
+                                // ),
                                 // Banner Carousel
                                 if (banners.isNotEmpty)
                                   Column(

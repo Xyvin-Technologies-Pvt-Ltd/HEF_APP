@@ -16,6 +16,7 @@ import 'package:hef/src/interface/components/Cards/certificate_card.dart';
 import 'package:hef/src/interface/components/common/review_barchart.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/components/shimmers/preview_shimmer.dart';
+import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
@@ -47,6 +48,23 @@ class ProfilePreviewUsingId extends ConsumerWidget {
   ];
 
   final ValueNotifier<int> _currentVideo = ValueNotifier<int>(0);
+  Map<String, String> extractLevelDetails(String input) {
+    final regex =
+        RegExp(r"^(.*?) State (.*?) Zone (.*?) District (.*?) Chapter$");
+
+    final match = regex.firstMatch(input);
+
+    if (match != null) {
+      return {
+        "stateName": match.group(1)?.trim() ?? "",
+        "zoneName": match.group(2)?.trim() ?? "",
+        "districtName": match.group(3)?.trim() ?? "",
+        "chapterName": match.group(4)?.trim() ?? "",
+      };
+    } else {
+      throw ArgumentError("Input string does not match the expected format.");
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -101,6 +119,11 @@ class ProfilePreviewUsingId extends ConsumerWidget {
             backgroundColor: kScaffoldColor,
             body: asyncUser.when(
               data: (user) {
+                String joinedDate =
+                    DateFormat('dd/MM/yyyy').format(user.createdAt!);
+                Map<String, String> levelData =
+                    extractLevelDetails(user.level ?? '');
+                log(levelData.toString());
                 return Stack(
                   children: [
                     Positioned(
@@ -179,7 +202,7 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                         const SizedBox(width: 10),
                                         Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment.center,
                                           children: [
                                             if (user.company?.designation !=
                                                     null &&
@@ -198,10 +221,63 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                               Text(
                                                 user.company?.name ?? '',
                                                 style: const TextStyle(
-                                                  fontSize: 14,
+                                                  fontSize: 15,
                                                   color: Colors.grey,
                                                 ),
                                               ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  '${levelData['stateName']} > ' ??
+                                                      '',
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${levelData['zoneName']} > ' ??
+                                                      '',
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${levelData['districtName']} > ' ??
+                                                      '',
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${levelData['chapterName']} > ' ??
+                                                      '',
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'Joined Date: $joinedDate',
+                                                  style: TextStyle(
+                                                    fontSize: 17,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '',
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ],
                                         ),
                                       ],

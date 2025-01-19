@@ -72,7 +72,7 @@ class ActivityPage extends StatelessWidget {
                                   children: [
                                     Text(
                                       activity.type == 'Business'
-                                          ? 'Seller'
+                                          ? 'Business Seller'
                                           : "Host",
                                       style: TextStyle(
                                         color: Colors.green,
@@ -98,7 +98,7 @@ class ActivityPage extends StatelessWidget {
                                   children: [
                                     Text(
                                       activity.type == 'Business'
-                                          ? 'Buyer'
+                                          ? 'Business Buyer'
                                           : "Guest",
                                       style: TextStyle(
                                         color: kBlue,

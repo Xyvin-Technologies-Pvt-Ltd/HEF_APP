@@ -257,6 +257,17 @@ class _SendAnalyticRequestPageState
                   style: TextStyle(fontWeight: FontWeight.bold)),
               CustomTextFormField(
                   textController: titleController, labelText: 'Title'),
+              if (selectedRequestType == 'Business')
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10.0),
+                    const Text('Amount',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    CustomTextFormField(
+                        textController: amountController, labelText: 'Amount'),
+                  ],
+                ),
               const SizedBox(height: 10.0),
               const Text('Description',
                   style: TextStyle(fontWeight: FontWeight.bold)),

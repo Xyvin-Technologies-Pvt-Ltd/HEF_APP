@@ -129,8 +129,8 @@ class UserModel {
   final String? uid;
   final String? memberId;
   final String? bloodgroup;
-  final String? role;
-  final ChapterModel? chapter; // Updated to nested structure
+  final bool? isAdmin;
+  final ChapterModel? chapter; 
   final String? image;
   final String? email;
   final String? phone;
@@ -161,7 +161,7 @@ class UserModel {
     this.uid,
     this.memberId,
     this.bloodgroup,
-    this.role,
+    this.isAdmin,
     this.chapter,
     this.image,
     this.email,
@@ -195,7 +195,7 @@ class UserModel {
       uid: json['_id'] as String?,
       memberId: json['memberId'] as String?,
       bloodgroup: json['bloodgroup'] as String?,
-      role: json['role'] as String?,
+      isAdmin: json['isAdmin'] as bool?,
       chapter: json['chapter'] != null
           ? ChapterModel.fromJson(json['chapter'])
           : null,
@@ -251,7 +251,7 @@ class UserModel {
       'uid': uid,
       'memberId': memberId,
       'bloodgroup': bloodgroup,
-      'role': role,
+      'role': isAdmin,
       'chapter': chapter?.toJson(),
       'image': image,
       'email': email,
@@ -285,7 +285,7 @@ class UserModel {
     String? uid,
     String? memberId,
     String? bloodgroup,
-    String? role,
+    bool? isAdmin,
     ChapterModel? chapter,
     String? image,
     String? email,
@@ -314,7 +314,7 @@ class UserModel {
       uid: uid ?? this.uid,
       memberId: memberId ?? this.memberId,
       bloodgroup: bloodgroup ?? this.bloodgroup,
-      role: role ?? this.role,
+      isAdmin: isAdmin ?? this.isAdmin,
       chapter: chapter ?? this.chapter,
       image: image ?? this.image,
       email: email ?? this.email,

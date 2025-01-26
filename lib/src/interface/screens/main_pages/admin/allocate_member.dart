@@ -39,13 +39,13 @@ Future<void> _createUser() async {
     "address": widget.newUser.address,
     "businessCatogary": widget.newUser.businessCategory,
     "businessSubCatogary": widget.newUser.businessSubCategory,
-    "company": {
-      "name": widget.newUser.company?.name ?? '',
-      "designation": widget.newUser.company?.designation ?? '',
-      "email": widget.newUser.company?.email ?? '',
-      "websites": widget.newUser.company?.websites ?? '',
-      "phone": widget.newUser.company?.phone ?? '',
-    }
+    "company":[ {
+      "name": widget.newUser.company?[0].name ?? '',
+      "designation": widget.newUser.company?[0].designation ?? '',
+      "email": widget.newUser.company?[0].email ?? '',
+      "websites": widget.newUser.company?[0].websites ?? '',
+      "phone": widget.newUser.company?[0].phone ?? '',
+    }]
   };
   String response = await createUser(data: profileData);
   if (response.contains('success')) {

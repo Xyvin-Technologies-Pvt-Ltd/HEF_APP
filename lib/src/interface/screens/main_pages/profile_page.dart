@@ -185,22 +185,81 @@ class ProfilePage extends StatelessWidget {
                                                     children: [
                                                       Text(user.name ?? '',
                                                           style: kHeadTitleB),
-                                                      if (user.company
-                                                                  ?.designation !=
-                                                              null &&
-                                                          user.company
-                                                                  ?.designation !=
-                                                              '')
-                                                        Text(
-                                                            user.company
-                                                                    ?.designation ??
-                                                                '',
-                                                            style:
-                                                                kSmallTitleM),
-                                                      Text(
-                                                          user.company?.name ??
-                                                              '',
-                                                          style: kSmallTitleR),
+                                                      for (Company i
+                                                          in user.company ?? [])
+                                                        if ((i?.name != null &&
+                                                                i?.name !=
+                                                                    '') ||
+                                                            (i?.designation !=
+                                                                    null &&
+                                                                i?.designation !=
+                                                                    ''))
+                                                          RichText(
+                                                            text: TextSpan(
+                                                              children: [
+                                                                if (i.name !=
+                                                                        null &&
+                                                                    i.name !=
+                                                                        '')
+                                                                  TextSpan(
+                                                                    text:
+                                                                        i.name,
+                                                                    style:
+                                                                        const TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontSize:
+                                                                          16,
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          42,
+                                                                          41,
+                                                                          41),
+                                                                    ),
+                                                                  ),
+                                                                if (i.name !=
+                                                                        null &&
+                                                                    i.name !=
+                                                                        '' &&
+                                                                    i.designation !=
+                                                                        null &&
+                                                                    i.designation !=
+                                                                        '')
+                                                                  const TextSpan(
+                                                                    text: ' - ',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .normal,
+                                                                      fontSize:
+                                                                          15,
+                                                                      color: Colors
+                                                                          .grey,
+                                                                    ),
+                                                                  ),
+                                                                if (i.designation !=
+                                                                        null &&
+                                                                    i.designation !=
+                                                                        '')
+                                                                  TextSpan(
+                                                                    text: i
+                                                                        .designation,
+                                                                    style:
+                                                                        const TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .normal,
+                                                                      fontSize:
+                                                                          15,
+                                                                      color: Colors
+                                                                          .grey,
+                                                                    ),
+                                                                  ),
+                                                              ],
+                                                            ),
+                                                          ),
                                                     ],
                                                   ),
                                                 ),

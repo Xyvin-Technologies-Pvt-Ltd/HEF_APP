@@ -34,11 +34,11 @@ Future<void> createUser(
   "businessCatogary":user.name,
   "businessSubCatogary": user.name,
   "company": {
-    "name": user.company?.name,
-    "designation":user.company?.designation,
-    "email": user.company?.email,
-    "websites": user.company?.websites,
-    "phone": user.company?.phone,
+    "name": user.company?[0].name,
+    "designation":user.company?[0].designation,
+    "email": user.company?[0].email,
+    "websites": user.company?[0].websites,
+    "phone": user.company?[0].phone,
   }
 }
   });

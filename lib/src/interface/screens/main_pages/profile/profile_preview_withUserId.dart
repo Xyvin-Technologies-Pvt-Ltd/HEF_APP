@@ -171,117 +171,96 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                   Text('${user.name ?? ''}',
                                       style: kHeadTitleSB),
                                   const SizedBox(height: 5),
-                                  if (user.company != null)
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                  const SizedBox(width: 10),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0),
+                                    child: Column(
                                       children: [
-                                        // Column(
-                                        //   children: [
-                                        //     if (user.company?.designation != null ||
-                                        //         user.company?.name != null)
-                                        //       ClipRRect(
-                                        //           borderRadius: BorderRadius.circular(9),
-                                        //           child: user.company?.logo != null &&
-                                        //                   user.company?.logo != ''
-                                        //               ? Image.network(
-                                        //                   errorBuilder: (context, error,
-                                        //                       stackTrace) {
-                                        //                     return Image.asset(
-                                        //                         'assets/icons/dummy_company.png');
-                                        //                   },
-                                        //                   user.company!.logo!,
-                                        //                   height: 33,
-                                        //                   width: 40,
-                                        //                   fit: BoxFit.contain,
-                                        //                 )
-                                        //               : Image.asset(
-                                        //                   'assets/icons/dummy_company.png'))
-                                        //   ],
-                                        // ),
-                                        const SizedBox(width: 10),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
+                                        for (Company i in user.company!)
+                                          if ((i.name?.isNotEmpty ?? false) ||
+                                              (i.designation?.isNotEmpty ??
+                                                  false))
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 4.0),
+                                              child: RichText(
+                                                textAlign: TextAlign.center,
+                                                text: TextSpan(
+                                                  children: [
+                                                    if (i.name?.isNotEmpty ??
+                                                        false)
+                                                      TextSpan(
+                                                        text: i.name,
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 16,
+                                                          color: Color.fromARGB(
+                                                              255, 42, 41, 41),
+                                                        ),
+                                                      ),
+                                                    if (i.name != null &&
+                                                        i.designation != null)
+                                                      const TextSpan(
+                                                        text: ' - ',
+                                                        style: TextStyle(
+                                                          fontSize: 15,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                    if (i.designation
+                                                            ?.isNotEmpty ??
+                                                        false)
+                                                      TextSpan(
+                                                        text: i.designation,
+                                                        style: const TextStyle(
+                                                          fontSize: 15,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                        const SizedBox(height: 10),
+                                        Wrap(
+                                          alignment: WrapAlignment.center,
                                           children: [
-                                            if (user.company?.designation !=
-                                                    null &&
-                                                user.company?.designation != '')
-                                              Text(
-                                                user.company?.designation ?? '',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
-                                                  color: Color.fromARGB(
-                                                      255, 42, 41, 41),
-                                                ),
-                                              ),
-                                            if (user.company?.name != null &&
-                                                user.company?.name != '')
-                                              Text(
-                                                user.company?.name ?? '',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  '${levelData['stateName']} > ' ??
-                                                      '',
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '${levelData['zoneName']} > ' ??
-                                                      '',
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '${levelData['districtName']} > ' ??
-                                                      '',
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '${levelData['chapterName']} > ' ??
-                                                      '',
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                              ],
+                                            Text(
+                                              '${levelData['stateName']} > ',
+                                              style:
+                                                  const TextStyle(fontSize: 16),
                                             ),
-                                            SizedBox(
-                                              height: 5,
+                                            Text(
+                                              '${levelData['zoneName']} > ',
+                                              style:
+                                                  const TextStyle(fontSize: 16),
                                             ),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  'Joined Date: $joinedDate',
-                                                  style: TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '',
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                              ],
+                                            Text(
+                                              '${levelData['districtName']} > ',
+                                              style:
+                                                  const TextStyle(fontSize: 16),
+                                            ),
+                                            Text(
+                                              '${levelData['chapterName']} > ',
+                                              style:
+                                                  const TextStyle(fontSize: 16),
                                             ),
                                           ],
                                         ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          'Joined Date: $joinedDate',
+                                          style: const TextStyle(
+                                            fontSize: 17,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
                                       ],
                                     ),
+                                  ),
                                 ],
                               ),
                               SizedBox(

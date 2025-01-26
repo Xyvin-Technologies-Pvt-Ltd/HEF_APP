@@ -16,6 +16,7 @@ import 'package:hef/src/data/notifiers/business_notifier.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/interface/components/ModalSheets/addBusinessSheet.dart';
 import 'package:hef/src/interface/components/ModalSheets/business_details.dart';
+import 'package:hef/src/interface/components/animations/widget_animations.dart';
 import 'package:hef/src/interface/components/custom_widgets/user_tile.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -451,66 +452,53 @@ class ReusableFeedPostSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 16.0),
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(color: Color.fromARGB(255, 213, 208, 208)),
-        borderRadius: BorderRadius.circular(6.0),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image Skeleton
-            _buildShimmerContainer(height: 200.0, width: double.infinity),
-            const SizedBox(height: 16),
-            // Content Text Skeleton
-            _buildShimmerContainer(height: 14, width: double.infinity),
-            const SizedBox(height: 16),
-            // User Info Skeleton
-            Row(
-              children: [
-                // User Avatar
-                ClipOval(
-                  child: _buildShimmerContainer(height: 30, width: 30),
-                ),
-                const SizedBox(width: 8),
-                // User Info (Name, Company)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildShimmerContainer(height: 12, width: 100),
-                    const SizedBox(height: 4),
-                    _buildShimmerContainer(height: 12, width: 60),
-                  ],
-                ),
-                const Spacer(),
-                // Post Date Skeleton
-                _buildShimmerContainer(height: 12, width: 80),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Action Buttons Skeleton
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    _buildShimmerCircle(height: 30, width: 30),
-                    const SizedBox(width: 8),
-                    _buildShimmerCircle(height: 30, width: 30),
-                    const SizedBox(width: 8),
-                    _buildShimmerCircle(height: 30, width: 30),
-                  ],
-                ),
-                // Likes Count Skeleton
-                _buildShimmerContainer(height: 14, width: 60),
-              ],
-            ),
-          ],
+    return FadeInTransition(
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOut,
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        margin: const EdgeInsets.only(bottom: 16.0),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Color.fromARGB(255, 213, 208, 208)),
+          borderRadius: BorderRadius.circular(6.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  // User Avatar
+                  ClipOval(
+                    child: _buildShimmerContainer(height: 30, width: 30),
+                  ),
+                  const SizedBox(width: 8),
+                  // User Info (Name, Company)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildShimmerContainer(height: 12, width: 100),
+                      const SizedBox(height: 4),
+                      _buildShimmerContainer(height: 12, width: 60),
+                    ],
+                  ),
+                  const Spacer(),
+                  // Post Date Skeleton
+                  _buildShimmerContainer(height: 12, width: 80),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              SizedBox(
+                height: 20,
+              ),
+              // Image Skeleton
+              _buildShimmerContainer(height: 300.0, width: double.infinity),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );

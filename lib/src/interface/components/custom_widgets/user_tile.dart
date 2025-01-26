@@ -41,9 +41,9 @@ Widget buildUserInfo(UserModel user, Business feed) {
                     overflow:
                         TextOverflow.ellipsis, // Ensures text doesn't overflow
                   ),
-                  if (user.company?.name != null)
+                  if (user.company?[0].name != null)
                     Text(
-                      user.company!.name!,
+                      user.company![0].name!,
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
                       overflow: TextOverflow
                           .ellipsis, // Allows company name to wrap or be truncated

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProfileShimmer extends StatelessWidget {
@@ -7,6 +8,7 @@ class ProfileShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kScaffoldColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -115,7 +117,8 @@ class ProfileShimmer extends StatelessWidget {
     );
   }
 
-  Widget _buildShimmerLine({double width = double.infinity, double height = 16}) {
+  Widget _buildShimmerLine(
+      {double width = double.infinity, double height = 16}) {
     return Shimmer.fromColors(
       baseColor: Colors.grey.shade300,
       highlightColor: Colors.grey.shade100,
@@ -127,7 +130,8 @@ class ProfileShimmer extends StatelessWidget {
     );
   }
 
-  Widget _buildShimmerContainer({double width = double.infinity, double height = 16}) {
+  Widget _buildShimmerContainer(
+      {double width = double.infinity, double height = 16}) {
     return Shimmer.fromColors(
       baseColor: Colors.grey.shade300,
       highlightColor: Colors.grey.shade100,

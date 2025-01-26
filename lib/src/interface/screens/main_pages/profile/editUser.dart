@@ -56,6 +56,46 @@ class _EditUserState extends ConsumerState<EditUser> {
   //     StateProvider<bool>((ref) => false);
   // final isBrochureDetailsVisibleProvider = StateProvider<bool>((ref) => false);
 
+  List<Map<String, TextEditingController>> companyDetailsControllers = [];
+  @override
+  void initState() {
+    super.initState();
+    // Add the first set of empty controllers
+    _addNewCompanyDetails();
+  }
+
+  bool _isInitialized = false;
+
+  void _initializeCompanyDetails(List<Company>? companies) {
+    if (!_isInitialized && companies != null) {
+      setState(() {
+        companyDetailsControllers = companies.map((company) {
+          return {
+            'designation':
+                TextEditingController(text: company.designation ?? ''),
+            'name': TextEditingController(text: company.name ?? ''),
+            'phone': TextEditingController(text: company.phone ?? ''),
+            'email': TextEditingController(text: company.email ?? ''),
+            'website': TextEditingController(text: company.websites ?? ''),
+          };
+        }).toList();
+        _isInitialized = true; // Prevent reinitialization
+      });
+    }
+  }
+
+  void _addNewCompanyDetails() {
+    setState(() {
+      companyDetailsControllers.add({
+        'designation': TextEditingController(),
+        'name': TextEditingController(),
+        'phone': TextEditingController(),
+        'email': TextEditingController(),
+        'website': TextEditingController(),
+      });
+    });
+  }
+
   final TextEditingController nameController = TextEditingController();
 
   final TextEditingController landlineController = TextEditingController();
@@ -289,7 +329,7 @@ class _EditUserState extends ConsumerState<EditUser> {
       if (user.image != null) "image": user.image ?? '',
       if (user.address != null) "address": user.address ?? '',
       if (user.bio != null) "bio": user.bio ?? '',
-      "chapter": user.chapter,
+      "chapter": user.chapter?.id ?? '',
       if (user.secondaryPhone != null)
         "secondaryPhone": {
           if (user.secondaryPhone?.whatsapp != null)
@@ -298,15 +338,16 @@ class _EditUserState extends ConsumerState<EditUser> {
             "business": user.secondaryPhone?.business ?? '',
         },
       if (user.company != null)
-        "company": {
-          if (user.company?.name != null) "name": user.company?.name ?? '',
-          if (user.company?.designation != null)
-            "designation": user.company?.designation ?? '',
-          if (user.company?.phone != null) "phone": user.company?.phone ?? '',
-          if (user.company?.email != null) "email": user.company?.email ?? '',
-          if (user.company?.websites != null)
-            "websites": user.company?.websites ?? '',
-        },
+        "company": user.company!.map((company) {
+          return {
+            if (company.name != null) "name": company.name ?? '',
+            if (company.designation != null)
+              "designation": company.designation ?? '',
+            if (company.phone != null) "phone": company.phone ?? '',
+            if (company.email != null) "email": company.email ?? '',
+            if (company.websites != null) "websites": company.websites ?? '',
+          };
+        }).toList(),
       "social": [
         for (var i in user.social!) {"name": "${i.name}", "link": i.link}
       ],
@@ -393,147 +434,77 @@ class _EditUserState extends ConsumerState<EditUser> {
     );
   }
 
+  void navigateBasedOnPreviousPage() {
+    final previousPage = ModalRoute.of(context)?.settings.name;
+    log('previousPage: $previousPage');
+    if (previousPage == 'ProfileCompletion') {
+      navigationService.pushNamedReplacement('MainPage');
+    } else {
+      navigationService.pop();
+      ref.read(userProvider.notifier).refreshUser();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncUser = ref.watch(userProvider);
-    void navigateBasedOnPreviousPage() {
-      final previousPage = ModalRoute.of(context)?.settings.name;
-      log('previousPage: $previousPage');
-      if (previousPage == 'ProfileCompletion') {
-        navigationService.pushNamedReplacement('MainPage');
-      } else {
-        navigationService.pop();
-        ref.read(userProvider.notifier).refreshUser();
-      }
-    }
-    // final isSocialDetailsVisible = ref.watch(isSocialDetailsVisibleProvider);
-    // final isWebsiteDetailsVisible = ref.watch(isWebsiteDetailsVisibleProvider);
-    // final isVideoDetailsVisible = ref.watch(isVideoDetailsVisibleProvider);
-    // final isAwardsDetailsVisible = ref.watch(isAwardsDetailsVisibleProvider);
 
-    // final isCertificateDetailsVisible =
-    //     ref.watch(isCertificateDetailsVisibleProvider);
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+          backgroundColor: kScaffoldColor,
+          body: asyncUser.when(
+            loading: () {
+              return const EditUserShimmer();
+            },
+            error: (error, stackTrace) {
+              return Center(
+                child: Text('Error loading User: $error '),
+              );
+            },
+            data: (user) {
+              _initializeCompanyDetails(user.company);
+              log(user.company.toString());
+              if (nameController.text.isEmpty) {
+                nameController.text = user.name ?? '';
+              }
+              if (bioController.text.isEmpty) {
+                bioController.text = user.bio ?? '';
+              }
 
-    return SafeArea(
-      child: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Scaffold(
-            backgroundColor: kScaffoldColor,
-            body: asyncUser.when(
-              loading: () {
-                return const EditUserShimmer();
-              },
-              error: (error, stackTrace) {
-                return Center(
-                  child: Text('Error loading User: $error '),
-                );
-              },
-              data: (user) {
-                if (nameController.text.isEmpty) {
-                  nameController.text = user.name ?? '';
+              if (personalPhoneController.text.isEmpty) {
+                personalPhoneController.text = user.phone ?? '';
+              }
+              if (emailController.text.isEmpty) {
+                emailController.text = user.email ?? '';
+              }
+              if (addressController.text.isEmpty) {
+                addressController.text = user.address ?? '';
+              }
+              for (Link social in user.social ?? []) {
+                if (social.name == 'instagram' && igController.text.isEmpty) {
+                  igController.text = social.link ?? '';
+                } else if (social.name == 'linkedin' &&
+                    linkedinController.text.isEmpty) {
+                  linkedinController.text = social.link ?? '';
+                } else if (social.name == 'twitter' &&
+                    twtitterController.text.isEmpty) {
+                  twtitterController.text = social.link ?? '';
+                } else if (social.name == 'facebook' &&
+                    facebookController.text.isEmpty) {
+                  facebookController.text = social.link ?? '';
                 }
+              }
 
-                if (designationController.text.isEmpty) {
-                  designationController.text = user.company?.designation ?? '';
-                }
-                if (bioController.text.isEmpty) {
-                  bioController.text = user.bio ?? '';
-                }
-                if (companyPhoneController.text.isEmpty) {
-                  companyPhoneController.text = user.company?.phone ?? '';
-                }
-                if (companyNameController.text.isEmpty) {
-                  companyNameController.text = user.company?.name ?? '';
-                }
-                if (companyAddressController.text.isEmpty) {
-                  companyAddressController.text = user.company?.email ?? '';
-                }
-                if (companyWebsiteController.text.isEmpty) {
-                  companyWebsiteController.text = user.company?.websites ?? '';
-                }
-                if (personalPhoneController.text.isEmpty) {
-                  personalPhoneController.text = user.phone ?? '';
-                }
-                if (emailController.text.isEmpty) {
-                  emailController.text = user.email ?? '';
-                }
-                if (addressController.text.isEmpty) {
-                  addressController.text = user.address ?? '';
-                }
-
-                // List<TextEditingController> socialLinkControllers = [
-                //   igController,
-                //   linkedinController,
-                //   twtitterController,
-                //   facebookController
-                // ];
-                for (Link social in user.social ?? []) {
-                  if (social.name == 'instagram' && igController.text.isEmpty) {
-                    igController.text = social.link ?? '';
-                  } else if (social.name == 'linkedin' &&
-                      linkedinController.text.isEmpty) {
-                    linkedinController.text = social.link ?? '';
-                  } else if (social.name == 'twitter' &&
-                      twtitterController.text.isEmpty) {
-                    twtitterController.text = social.link ?? '';
-                  } else if (social.name == 'facebook' &&
-                      facebookController.text.isEmpty) {
-                    facebookController.text = social.link ?? '';
+              return PopScope(
+                onPopInvoked: (didPop) {
+                  if (didPop) {
+                    ref.read(userProvider.notifier).refreshUser();
                   }
-                }
-
-                // for (int i = 0; i < socialLinkControllers.length; i++) {
-                //   if (i < user.social!.length) {
-                //     socialLinkControllers[i].text = user.social![i].link ?? '';
-                //     log('social : ${socialLinkControllers[i].text}');
-                //   }
-                // else {
-                //   socialLinkControllers[i].clear();
-                // }
-                // }
-
-                // List<TextEditingController> websiteLinkControllers = [
-                //   websiteLinkController
-                // ];
-                // List<TextEditingController> websiteNameControllers = [
-                //   websiteNameController
-                // ];
-
-                // for (int i = 0; i < websiteLinkControllers.length; i++) {
-                //   if (i < user.websites!.length) {
-                //     websiteLinkControllers[i].text = user.websites![i].link ?? '';
-                //     websiteNameControllers[i].text = user.websites![i].name ?? '';
-                //   } else {
-                //     websiteLinkControllers[i].clear();
-                //     websiteNameControllers[i].clear();
-                //   }
-                // }
-
-                // List<TextEditingController> videoLinkControllers = [
-                //   videoLinkController
-                // ];
-                // List<TextEditingController> videoNameControllers = [
-                //   videoNameController
-                // ];
-
-                // for (int i = 0; i < videoLinkControllers.length; i++) {
-                //   if (i < user.videos!.length) {
-                //     videoLinkControllers[i].text = user.videos![i].link ?? '';
-                //     videoNameControllers[i].text = user.videos![i].name ?? '';
-                //   } else {
-                //     videoLinkControllers[i].clear();
-                //     videoNameControllers[i].clear();
-                //   }
-                // }
-
-                return PopScope(
-                  onPopInvoked: (didPop) {
-                    if (didPop) {
-                      ref.read(userProvider.notifier).refreshUser();
-                    }
-                  },
+                },
+                child: SafeArea(
                   child: Stack(
                     children: [
                       SingleChildScrollView(
@@ -896,76 +867,82 @@ class _EditUserState extends ConsumerState<EditUser> {
                                 ],
                               ),
 
+                              ...companyDetailsControllers
+                                  .asMap()
+                                  .entries
+                                  .map((entry) {
+                                int index = entry.key;
+                                var controllers = entry.value;
+                                return Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Company ${index + 1}',
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      CustomTextFormField(
+                                        companyIndex: index,
+                                        title: 'Designation',
+                                        labelText: 'Enter Designation',
+                                        textController:
+                                            controllers['designation']!,
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      CustomTextFormField(
+                                        companyIndex: index,
+                                        title: 'Company ${index + 1} Name',
+                                        labelText: 'Enter Company Name',
+                                        textController: controllers['name']!,
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      CustomTextFormField(
+                                        companyIndex: index,
+                                        title: 'Company ${index + 1} Phone',
+                                        labelText: 'Enter Company Phone',
+                                        textController: controllers['phone']!,
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      CustomTextFormField(
+                                        companyIndex: index,
+                                        title: 'Company ${index + 1} Email',
+                                        labelText: 'Enter Company Email',
+                                        textController: controllers['email']!,
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      CustomTextFormField(
+                                        companyIndex: index,
+                                        title: 'Company ${index + 1} Website',
+                                        labelText: 'Enter Company Website',
+                                        textController: controllers['website']!,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
                               Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 20, left: 20, right: 20, bottom: 10),
-                                child: CustomTextFormField(
-                                    title: 'Designation',
-                                    // validator: (value) {
-                                    //   if (value == null || value.isEmpty) {
-                                    //     return 'Please Enter Your Company Designation';
-                                    //   }
-                                    //   return null;
-                                    // },
-                                    labelText: 'Enter Designation',
-                                    textController: designationController),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 10, left: 20, right: 20, bottom: 10),
-                                child: CustomTextFormField(
-                                    title: 'Company Name',
-                                    // validator: (value) {
-                                    //   if (value == null || value.isEmpty) {
-                                    //     return 'Please Enter Company Name';
-                                    //   }
-                                    //   return null;
-                                    // },
-                                    labelText: 'Enter Company Name',
-                                    textController: companyNameController),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: CustomTextFormField(
-                                  title: 'Company Phone',
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please Enter Your Company Phone';
-                                  //   }
-                                  //   return null;
-                                  // },
-                                  labelText: 'Enter Company Phone',
-                                  textController: companyPhoneController,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: CustomTextFormField(
-                                  title: 'Company Email',
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please Enter Your Company Address (street, city, state, zip)';
-                                  //   }
-                                  //   return null;
-                                  // },
-                                  labelText: 'Enter Company Email',
-                                  textController: companyAddressController,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: CustomTextFormField(
-                                  title: 'Company Website',
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please Enter Your Company Address (street, city, state, zip)';
-                                  //   }
-                                  //   return null;
-                                  // },
-                                  labelText: 'Enter Company Website',
-                                  textController: companyAddressController,
-                                ),
-                              ),
+                                padding: const EdgeInsets.all(20.0),
+                                child: customButton(
+                                    label: 'Add More',
+                                    onPressed: _addNewCompanyDetails,
+                                    sideColor: kPrimaryColor,
+                                    labelColor: kPrimaryColor,
+                                    buttonColor: Colors.transparent),
+                              )
+
                               // Padding(
                               //   padding:
                               //       const EdgeInsets.only(left: 20, right: 20),
@@ -1065,6 +1042,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                               // //       ],
                               // //     ),
                               // //   ),
+                              ,
                               const Padding(
                                 padding: EdgeInsets.all(20),
                                 child: Row(
@@ -1256,16 +1234,16 @@ class _EditUserState extends ConsumerState<EditUser> {
                               Padding(
                                 padding: const EdgeInsets.all(10.0),
                                 child: GridView.builder(
-                                  shrinkWrap: true,
+                                  shrinkWrap:
+                                      true, // Let GridView take up only as much space as it needs
                                   physics:
-                                      const NeverScrollableScrollPhysics(), // Disable internal scrolling
+                                      const NeverScrollableScrollPhysics(), // Disable GridView's internal scrolling
                                   gridDelegate:
                                       const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2, // Two items per row
+                                    crossAxisCount: 2, // Number of columns
                                     crossAxisSpacing:
                                         8.0, // Space between columns
-                                    mainAxisSpacing: 10.0, // Space between rows
-                                    childAspectRatio: 1.0, // Square-like items
+                                    mainAxisSpacing: 8.0, // Space between rows
                                   ),
                                   itemCount: user.awards!.length +
                                       1, // Add one for the "Add award" button
@@ -1432,9 +1410,9 @@ class _EditUserState extends ConsumerState<EditUser> {
                                           SnackbarService();
                                       String response =
                                           await _submitData(user: user);
-                                      ref
-                                          .read(userProvider.notifier)
-                                          .refreshUser();
+                                      // ref
+                                      //     .read(userProvider.notifier)
+                                      //     .refreshUser();
 
                                       // Navigator.pushReplacement(
                                       //     context,
@@ -1444,8 +1422,8 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       //             ));
                                       if (response.contains('success')) {
                                         snackbarService.showSnackBar(response);
-                                        ref.read(
-                                            userProvider.notifier).refreshUser();
+                                        ref.invalidate(
+                                            fetchUserDetailsProvider);
                                         navigateBasedOnPreviousPage();
                                       } else {
                                         snackbarService.showSnackBar(response);
@@ -1454,10 +1432,10 @@ class _EditUserState extends ConsumerState<EditUser> {
                                   }))),
                     ],
                   ),
-                );
-              },
-            )),
-      ),
+                ),
+              );
+            },
+          )),
     );
   }
 

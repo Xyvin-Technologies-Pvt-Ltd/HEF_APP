@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
+import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
@@ -89,18 +90,24 @@ Future<void> captureAndShareWidgetScreenshot(BuildContext context) async {
                                               SizedBox(
                                                 height: 5,
                                               ),
-                                              if (user.company?.designation !=
-                                                      null &&
-                                                  user.company?.designation !=
-                                                      '')
+                                         for (Company i
+                                                      in user.company ?? [])
+                                                    if (i?.designation !=
+                                                            null &&
+                                                        i?.designation != '')
                                                 Text(
-                                                    user.company?.designation ??
+                                                    i?.designation ??
                                                         '',
                                                     style: kSmallTitleM),
                                               SizedBox(
                                                 height: 5,
                                               ),
-                                              Text(user.company?.name ?? '',
+                                               for (Company i
+                                                      in user.company ?? [])
+                                                    if (i?.designation !=
+                                                            null &&
+                                                        i?.designation != '')
+                                              Text(i.name ?? '',
                                                   style: kSmallerTitleR),
                                             ],
                                           ),

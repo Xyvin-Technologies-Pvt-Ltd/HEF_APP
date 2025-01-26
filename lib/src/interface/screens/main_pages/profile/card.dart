@@ -158,21 +158,21 @@ class ProfileCard extends StatelessWidget {
                                                   SizedBox(
                                                     height: 5,
                                                   ),
-                                                  if (user.company
-                                                              ?.designation !=
-                                                          null &&
-                                                      user.company
-                                                              ?.designation !=
-                                                          '')
-                                                    Text(
-                                                        user.company
-                                                                ?.designation ??
-                                                            '',
-                                                        style: kSmallTitleM),
+                                                  for (Company i
+                                                      in user.company ?? [])
+                                                    if (i?.designation !=
+                                                            null &&
+                                                        i?.designation != '')
+                                                      Text(i?.designation ?? '',
+                                                          style: kSmallTitleM),
                                                   SizedBox(
                                                     height: 5,
-                                                  ),
-                                                  Text(user.company?.name ?? '',
+                                                  ),        for (Company i
+                                                      in user.company ?? [])
+                                                    if (i?.name !=
+                                                            null &&
+                                                        i?.name != '')
+                                                  Text(i.name ?? '',
                                                       style: kSmallerTitleR),
                                                 ],
                                               ),

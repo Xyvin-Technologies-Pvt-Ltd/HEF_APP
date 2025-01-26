@@ -83,7 +83,7 @@ Future<Product?> uploadProduct({
 }
 
 Future<void> deleteProduct(String productId) async {
-  final url = Uri.parse('$baseUrl/products/$productId');
+  final url = Uri.parse('$baseUrl/product/user/$productId');
   print('requesting url:$url');
   final response = await http.delete(
     url,

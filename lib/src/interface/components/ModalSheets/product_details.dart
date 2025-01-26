@@ -217,7 +217,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     '${user.name ?? ''}'),
-                                Text('${user.company?.name ?? ''}'),
+                                Text('${user.company?[0].name ?? ''}'),
                               ],
                             ),
                           ),

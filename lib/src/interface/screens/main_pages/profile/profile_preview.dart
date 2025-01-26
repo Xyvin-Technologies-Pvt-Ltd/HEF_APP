@@ -170,25 +170,64 @@ class ProfilePreview extends ConsumerWidget {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (user.company?.designation != null &&
-                                      user.company?.designation != '')
-                                    Text(
-                                      user.company?.designation ?? '',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                        color: Color.fromARGB(255, 42, 41, 41),
-                                      ),
-                                    ),
-                                  if (user.company?.name != null &&
-                                      user.company?.name != '')
-                                    Text(
-                                      user.company?.name ?? '',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
+                                   for (Company i
+                                                in user.company ?? [])
+                                              if ((i?.name != null &&
+                                                      i?.name != '') ||
+                                                  (i?.designation != null &&
+                                                      i?.designation != ''))
+                                                RichText(
+                                                  text: TextSpan(
+                                                    children: [
+                                                      if (i.name != null &&
+                                                          i.name != '')
+                                                        TextSpan(
+                                                          text: i.name,
+                                                          style:
+                                                              const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 16,
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    42,
+                                                                    41,
+                                                                    41),
+                                                          ),
+                                                        ),
+                                                      if (i.name != null &&
+                                                          i.name != '' &&
+                                                          i.designation !=
+                                                              null &&
+                                                          i.designation != '')
+                                                        const TextSpan(
+                                                          text: ' - ',
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                            fontSize: 15,
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
+                                                      if (i.designation !=
+                                                              null &&
+                                                          i.designation != '')
+                                                        TextSpan(
+                                                          text: i.designation,
+                                                          style:
+                                                              const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                            fontSize: 15,
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
                                 ],
                               ),
                             ],

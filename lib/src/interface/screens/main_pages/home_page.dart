@@ -69,7 +69,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   double _estimateTextHeight(String text, double fontSize) {
     final double screenWidth = MediaQuery.sizeOf(context).width;
     final int numLines = (text.length / (screenWidth / fontSize)).ceil();
-    return numLines * fontSize * 1.2 + 15;
+    return numLines * fontSize * 1.2 + 20;
   }
 
   CarouselController controller = CarouselController();

@@ -88,7 +88,7 @@ class BusinessDetailsModalSheet extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('${user?.name ?? ''}'),
-                              Text('${user.company?.name ?? ''}'),
+                              Text('${user.company?[0].name ?? ''}'),
                             ],
                           ),
                           const Spacer(),

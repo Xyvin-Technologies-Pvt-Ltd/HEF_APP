@@ -113,18 +113,18 @@ Future<Map<String, dynamic>> verifyUserDB(
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> responseBody = jsonDecode(response.body);
-    log(responseBody.toString());
+    log(responseBody.toString(),name: 'LOGIN SUCCESS');
     snackbarService.showSnackBar(responseBody['message']);
     return responseBody['data'];
   } else if (response.statusCode == 400) {
     final Map<String, dynamic> responseBody = jsonDecode(response.body);
-    log(responseBody.toString());
+    log(responseBody.toString(), name: ' LOGIN FAILED STATUS CODE 400');
     snackbarService.showSnackBar(responseBody['message']);
     return {};
   } else {
     final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
-    log(responseBody.toString());
+    log(responseBody.toString(),name: 'LOGIN FAILED');
     snackbarService.showSnackBar(responseBody['message']);
     return {};
   }

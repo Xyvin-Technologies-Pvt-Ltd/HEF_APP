@@ -20,7 +20,8 @@ class ModalSheetTextFormField extends StatelessWidget {
     this.maxLines = 1,
     this.validator,
     super.key,
-    this.isAward = false,  this.textInputType=TextInputType.text,
+    this.isAward = false,
+    this.textInputType = TextInputType.text,
   });
 
   @override
@@ -64,7 +65,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool readOnly;
   final int maxLines;
   final TextEditingController? textController;
-
+  final int? companyIndex;
   final FormFieldValidator<String>? validator;
   final VoidCallback? onChanged;
   final bool? enabled;
@@ -83,6 +84,7 @@ class CustomTextFormField extends StatelessWidget {
     this.isAward,
     this.title,
     this.textInputType = TextInputType.name,
+    this.companyIndex,
   });
 
   @override
@@ -107,6 +109,7 @@ class CustomTextFormField extends StatelessWidget {
               keyboardType: textInputType,
               enabled: enabled,
               onChanged: (value) {
+                log(companyIndex.toString());
                 switch (labelText) {
                   case 'Enter your Name':
                     ref.read(userProvider.notifier).updateName(
@@ -122,7 +125,9 @@ class CustomTextFormField extends StatelessWidget {
 
                   case 'Enter Designation':
                     ref.read(userProvider.notifier).updateCompany(
-                        Company(designation: textController!.text));
+                          Company(designation: textController!.text),
+                          companyIndex!,
+                        );
                     break;
 
                   case 'Bio':
@@ -132,33 +137,31 @@ class CustomTextFormField extends StatelessWidget {
                     break;
 
                   case 'Enter Company Name':
-                    ref
-                        .read(userProvider.notifier)
-                        .updateCompany(Company(name: textController!.text));
+                    ref.read(userProvider.notifier).updateCompany(
+                          Company(name: textController!.text),
+                          companyIndex!,
+                        );
                     break;
 
                   case 'Enter Company Email':
-                    ref
-                        .read(userProvider.notifier)
-                        .updateCompany(Company(email: textController!.text));
+                    ref.read(userProvider.notifier).updateCompany(
+                          Company(email: textController!.text),
+                          companyIndex!,
+                        );
                     break;
 
                   case 'Enter Company Phone':
-                    ref
-                        .read(userProvider.notifier)
-                        .updateCompany(Company(phone: textController!.text));
-                    break;
-
-                  case 'Enter Company Email':
-                    ref
-                        .read(userProvider.notifier)
-                        .updateCompany(Company(email: textController!.text));
+                    ref.read(userProvider.notifier).updateCompany(
+                          Company(phone: textController!.text),
+                          companyIndex!,
+                        );
                     break;
 
                   case 'Enter Company Website':
-                    ref
-                        .read(userProvider.notifier)
-                        .updateCompany(Company(websites: textController!.text));
+                    ref.read(userProvider.notifier).updateCompany(
+                          Company(websites: textController!.text),
+                          companyIndex!,
+                        );
                     break;
 
                   case 'Enter Instagram':

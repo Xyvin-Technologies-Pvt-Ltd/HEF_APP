@@ -150,9 +150,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                   ),
                                 ),
                                 title: Text('${user.name ?? ''}'),
-                                subtitle: user.company?.designation != null
-                                    ? Text(user.company?.designation ?? '')
-                                    : null,
+                                // subtitle: user.company?.designation != null
+                                //     ? Text(user.company?.designation ?? '')
+                                //     : null,
                                 trailing: IconButton(
                                   icon: Icon(
                                     FontAwesomeIcons.message,

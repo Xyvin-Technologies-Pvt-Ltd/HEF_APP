@@ -46,23 +46,33 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
     state = state.whenData((user) => user.copyWith(name: name));
   }
 
-  void updateCompany(Company? company) {
-    state = state.whenData((user) => user.copyWith(
-            company: Company(
-          designation: company?.designation ?? user.company?.designation,
-          email: company?.email ?? user.company?.email,
-          name: company?.name ?? user.company?.name,
-          phone: company?.phone ?? user.company?.phone,
-          websites: company?.websites ?? user.company?.websites,
-        )));
+  void updateCompany(Company updatedCompany, int index) {
+    state = state.whenData((user) {
+      final updatedCompanyList = [...?user.company];
+
+      if (index >= 0 && index < updatedCompanyList.length) {
+        log(updatedCompany.name ?? '');
+        updatedCompanyList[index] = updatedCompanyList[index].copyWith(
+          designation: updatedCompany.designation ??
+              updatedCompanyList[index].designation,
+          email: updatedCompany.email ?? updatedCompanyList[index].email,
+          name: updatedCompany.name ?? updatedCompanyList[index].name,
+          phone: updatedCompany.phone ?? updatedCompanyList[index].phone,
+          websites:
+              updatedCompany.websites ?? updatedCompanyList[index].websites,
+        );
+      } else if (index == updatedCompanyList.length) {
+        // Add a new company
+        updatedCompanyList.add(updatedCompany);
+      }
+
+      return user.copyWith(company: updatedCompanyList);
+    });
   }
+
   void updateSecondaryPhone(SecondaryPhone? secondaryPhone) {
-    state = state.whenData((user) => user.copyWith(
-            company: Company(
-          designation: secondaryPhone?.whatsapp ?? user.secondaryPhone?.whatsapp,
-          email: secondaryPhone?.business ?? user.secondaryPhone?.business,
-        
-        )));
+    state =
+        state.whenData((user) => user.copyWith(secondaryPhone: secondaryPhone));
   }
 
   void updateEmail(String? email) {

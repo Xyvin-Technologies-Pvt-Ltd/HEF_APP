@@ -96,6 +96,7 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
 
   void _removeProduct(String productId) async {
     deleteProduct(productId ?? '');
+    ref.invalidate(fetchMyProductsProvider);
   }
 
   void _openModalSheet({required String sheet}) {

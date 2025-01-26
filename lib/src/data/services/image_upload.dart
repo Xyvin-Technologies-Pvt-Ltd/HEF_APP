@@ -39,8 +39,8 @@ Future<String> imageUpload(String imageName, String imagePath) async {
 
   // Upload the image to Minio
   await Minio.shared
-      .fPutObject('akcaf-s3-bucket', basename(imageName), imageFile.path);
+      .fPutObject('bucket-hef', basename(imageName), imageFile.path);
   final imageUrl =
-      "https://akcaf-s3-bucket.s3.ap-south-1.amazonaws.com/${basename(imagePath)}";
+      "https://bucket-hef.s3.ap-south-1.amazonaws.com/${basename(imagePath)}";
   return imageUrl;
 }

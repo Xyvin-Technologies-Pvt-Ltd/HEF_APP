@@ -212,13 +212,13 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                   email: emailController.text,
                                   phone: phoneController.text,
                                   address: adressController.text,
-                                  company: Company(
+                                  company: [Company(
                                       name: companyNameController.text,
                                       designation:
                                           companyDesignationController.text,
                                       email: companyEmailController.text,
                                       phone: companyPhoneController.text,
-                                      websites: companyWebsiteController.text),
+                                      websites: companyWebsiteController.text),],
                                   businessCategory: selectedBusinessCategory,
                                   businessSubCategory: selectedSubCategory,
                                   status: selectedStatus));

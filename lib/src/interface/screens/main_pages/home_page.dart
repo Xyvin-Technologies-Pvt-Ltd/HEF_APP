@@ -73,6 +73,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   CarouselController controller = CarouselController();
+
   @override
   Widget build(BuildContext context) {
     NavigationService navigationService = NavigationService();
@@ -88,7 +89,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             // ref.invalidate(fetchEventsProvider);
           },
           child: AdvancedDrawer(
-            drawer: customDrawer(user: widget.user,context: context),
+            drawer: customDrawer(user: widget.user, context: context),
             backdrop: Container(
               width: double.infinity,
               height: double.infinity,
@@ -234,15 +235,16 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       style: kLargeTitleB.copyWith(
                                           color: kTextHeadColor)),
                                 ),
-                                // Padding(
-                                //   padding: const EdgeInsets.only(
-                                //       left: 15, top: 10, bottom: 10),
-                                //   child: Text(
-                                //     '${widget.user.name ?? ''} - (${widget.user.role?.toUpperCase() ?? ''})',
-                                //     style: kBodyTitleR.copyWith(
-                                //         color: kTextHeadColor),
-                                //   ),
-                                // ),
+                                if (widget.user.adminType != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 15, top: 10, bottom: 10),
+                                    child: Text(
+                                      '${widget.user.name ?? ''} - (${widget.user.adminType?.toUpperCase() ?? ''})',
+                                      style: kBodyTitleR.copyWith(
+                                          color: kTextHeadColor),
+                                    ),
+                                  ),
                                 // Banner Carousel
                                 if (banners.isNotEmpty)
                                   Column(

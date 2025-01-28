@@ -353,21 +353,25 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
       ),
       child: Column(
         children: [
-        Padding(
-  padding: const EdgeInsets.all(15),
-  child: ConstrainedBox(
-    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
-    child: Row(
-      children: [
-        buildUserInfo(widget.user, widget.business,context),
-        BlockReportDropdown(
-          isBlocked: false,
-          feed: widget.business,
-        ),
-      ],
-    ),
-  ),
-),
+          Padding(
+            padding: const EdgeInsets.all(15),
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: buildUserInfo(widget.user, widget.business, context),
+                  ),
+                  BlockReportDropdown(
+                    isBlocked: false,
+                    feed: widget.business,
+                  ),
+                ],
+              ),
+            ),
+          ),
           if (widget.withImage)
             Padding(
               padding: const EdgeInsets.only(left: 10, right: 10),
@@ -421,40 +425,39 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
     );
   }
 
-Widget _buildPostImage(String imageUrl) {
-  return AspectRatio(
-    aspectRatio: 4 / 5,
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.grey[200],
-        ),
-        child: Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) {
-              return child;
-            }
-            return Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  color: Colors.grey[300],
+  Widget _buildPostImage(String imageUrl) {
+    return AspectRatio(
+      aspectRatio: 4 / 5,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey[200],
+          ),
+          child: Image.network(
+            imageUrl,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+              return Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    color: Colors.grey[300],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }
 
 class ReusableFeedPostSkeleton extends StatelessWidget {

@@ -92,6 +92,7 @@ import 'package:flutter/material.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/product_model.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:hef/src/interface/components/DropDown/block_repor_dropDown.dart';
 import 'package:hef/src/interface/components/DropDown/dropdown_menu.dart';
 
 class ProductCard extends StatelessWidget {
@@ -213,23 +214,23 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
               ),
-            // if (isOthersProduct ?? false)
-            //   Positioned(
-            //     top: 4.0,
-            //     right: 10.0,
-            //     child: Container(
-            //       decoration: BoxDecoration(
-            //         borderRadius: BorderRadius.circular(20),
-            //         color: Colors.white,
-            //       ),
-            //       child: Padding(
-            //           padding: const EdgeInsets.all(4.0),
-            //           child: CustomDropDown(
-            //             product: product,
-            //             isBlocked: false,
-            //           )),
-            //     ),
-            //   ),
+            if (isOthersProduct ?? false)
+              Positioned(
+                top: 4.0,
+                right: 10.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                  ),
+                  child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: BlockReportDropdown(
+                        product: product,
+                        isBlocked: false,
+                      )),
+                ),
+              ),
           ],
         ),
       ),

@@ -1,18 +1,18 @@
 import 'dart:developer';
 
-
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/models/business_model.dart';
 import 'package:hef/src/data/models/msg_model.dart';
+import 'package:hef/src/data/models/product_model.dart';
 import 'package:hef/src/data/notifiers/business_notifier.dart';
 import 'package:hef/src/interface/components/Dialogs/blockPersonDialog.dart';
 import 'package:hef/src/interface/components/Dialogs/report_dialog.dart';
 
 class BlockReportDropdown extends ConsumerWidget {
   final Business? feed;
-
+  final Product? product;
   final MessageModel? msg;
   final String? userId;
   final VoidCallback? onBlockStatusChanged;
@@ -25,11 +25,11 @@ class BlockReportDropdown extends ConsumerWidget {
     super.key,
     this.feed,
     this.isBlocked,
+    this.product,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-  
     return DropdownButtonHideUnderline(
       child: DropdownButton2(
         customButton: const Icon(Icons.more_vert), // Trigger icon
@@ -58,7 +58,7 @@ class BlockReportDropdown extends ConsumerWidget {
           if (value == 'report') {
             String reportType = '';
             if (feed != null) {
-              reportType = 'Feeds';
+              reportType = 'Post';
               showReportPersonDialog(
                   reportedItemId: feed?.id ?? '',
                   context: context,
@@ -69,6 +69,15 @@ class BlockReportDropdown extends ConsumerWidget {
               reportType = 'User';
               showReportPersonDialog(
                   reportedItemId: userId ?? '',
+                  context: context,
+                  userId: userId ?? '',
+                  onReportStatusChanged: () {},
+                  reportType: reportType);
+            } else if (product != null) {
+              log(product.toString());
+              reportType = 'Product';
+              showReportPersonDialog(
+                  reportedItemId: product?.id ?? '',
                   context: context,
                   userId: userId ?? '',
                   onReportStatusChanged: () {},

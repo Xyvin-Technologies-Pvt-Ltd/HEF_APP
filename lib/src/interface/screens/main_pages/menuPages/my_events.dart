@@ -204,25 +204,26 @@ class MyEventsPage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      launchUrl(Uri.parse(event.link ?? ''));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kPrimaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            4), // Adjust the value to make the edge less circular
+                if (event.link != null && event.link!='')
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        launchUrl(Uri.parse(event.link ?? ''));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kPrimaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              4), // Adjust the value to make the edge less circular
+                        ),
+                        minimumSize: const Size(
+                            150, 40), // Adjust the width of the button
                       ),
-                      minimumSize:
-                          const Size(150, 40), // Adjust the width of the button
+                      child: const Text('JOIN',
+                          style: TextStyle(color: Colors.white)),
                     ),
-                    child: const Text('JOIN',
-                        style: TextStyle(color: Colors.white)),
                   ),
-                ),
               ],
             ),
           ),

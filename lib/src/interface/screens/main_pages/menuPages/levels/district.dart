@@ -10,12 +10,12 @@ import '../../../../../data/services/navgitor_service.dart';
 
 class DistrictsPage extends StatelessWidget {
   final String zoneId;
-  final String stateName;
+
   final String zoneName;
   const DistrictsPage(
       {super.key,
       required this.zoneId,
-      required this.stateName,
+
       required this.zoneName});
 
   @override
@@ -52,7 +52,7 @@ class DistrictsPage extends StatelessWidget {
                     child: Row(
                       children: [
                         Text(
-                          '$stateName / $zoneName /',
+                          '$zoneName /',
                           style:
                               TextStyle(fontSize: 14, color: Colors.grey[600]),
                         ),
@@ -102,8 +102,8 @@ class DistrictsPage extends StatelessWidget {
                                         builder: (context) => ChaptersPage(
                                               districtName:
                                                   districts[index].name,
-                                              stateName: stateName,
-                                              zoneName: zoneName,
+                                     
+                                        
                                               districtId: districts[index].id,
                                             )));
                               },

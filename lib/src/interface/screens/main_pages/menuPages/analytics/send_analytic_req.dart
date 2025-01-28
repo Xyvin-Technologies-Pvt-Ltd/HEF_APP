@@ -45,7 +45,7 @@ class _SendAnalyticRequestPageState
   bool isChecked = false;
   bool isReferral = false;
 
-  void createAnalytic() {
+  Future<void> createAnalytic() async {
     final Map<String, dynamic> analytictData = {
       "type": selectedRequestType,
       "member": selectedMember,
@@ -62,7 +62,7 @@ class _SendAnalyticRequestPageState
         "meetingLink": "https://zoom.us/j/123456789",
       if (locationController.text != '') "location": "Conference Room A"
     };
-    postAnalytic(data: analytictData);
+    await postAnalytic(data: analytictData);
   }
 
   void onChecked() {
@@ -535,22 +535,25 @@ class _SendAnalyticRequestPageState
                       error: (error, stackTrace) => const SizedBox(),
                     ),
                     asyncReferralMembers.when(
-                      data: (members) => SelectionDropDown(
-                        hintText: 'Choose Member',
-                        value: selectedRefferalMember,
-                        label: null,
-                        items: members.map((member) {
-                          return DropdownMenuItem<String>(
-                            value: member.id,
-                            child: Text(member.name),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedRefferalMember = value;
-                          });
-                        },
-                      ),
+                      data: (members) {
+                        return SelectionDropDown(
+                          hintText: 'Choose Member',
+                          value: selectedRefferalMember,
+                          label: null,
+                          items: members.map((member) {
+                            members.removeWhere((member) => member.id == id);
+                            return DropdownMenuItem<String>(
+                              value: member.id,
+                              child: Text(member.name),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedRefferalMember = value;
+                            });
+                          },
+                        );
+                      },
                       loading: () => const Center(child: LoadingAnimation()),
                       error: (error, stackTrace) => const SizedBox(),
                     ),
@@ -561,9 +564,9 @@ class _SendAnalyticRequestPageState
               const SizedBox(height: 20.0),
               customButton(
                 label: 'Send Request',
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    createAnalytic();
+                    await createAnalytic();
                     Navigator.pop(context);
                     ref.invalidate(fetchAnalyticsProvider);
                     print('Form Submitted');

@@ -94,7 +94,7 @@ class ZonesPage extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => DistrictsPage(
-                                              stateName: stateName,
+                                      
                                               zoneName: zones[index].name,
                                               zoneId: zones[index].id,
                                             )));

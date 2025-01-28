@@ -127,7 +127,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                             showReportPersonDialog(
                               context: context,
                               onReportStatusChanged: () {},
-                              reportType: 'user',
+                              reportType: 'User',
                               reportedItemId: widget.receiver.id ?? '',
                             );
                           } else if (value == 'block') {
@@ -255,34 +255,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                     );
                   },
                 ),
-                // actions: [
-                //   IconButton(
-                //       icon: const Icon(Icons.report_gmailerrorred),
-                //       onPressed: () {
-                //         showReportPersonDialog(
-                //             context: context,
-                //             onReportStatusChanged: () {},
-                //             reportType: 'user',
-                //             reportedItemId: widget.receiver.id ?? '');
-                //       }),
-                //   IconButton(
-                //       icon: const Icon(Icons.block),
-                //       onPressed: () {
-                //         showBlockPersonDialog(
-                //             context: context,
-                //             userId: widget.receiver.id ?? '',
-                //             onBlockStatusChanged: () {
-                //               Future.delayed(Duration(seconds: 1));
-                //               setState(() {
-                //                 if (isBlocked) {
-                //                   isBlocked = false;
-                //                 } else {
-                //                   isBlocked = true;
-                //                 }
-                //               });
-                //             });
-                //       }),
-                // ],
+              
               )),
           body: Container(
             decoration: const BoxDecoration(
@@ -323,19 +296,13 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                               } else {
                                 return GestureDetector(
                                   onLongPress: () {
-                                    // showReportPersonDialog(
-                                    //     reportedItemId: message.id ?? '',
-                                    //     context: context,
-                                    //     onReportStatusChanged: () {
-                                    //       setState(() {
-                                    //         if (isBlocked) {
-                                    //           isBlocked = false;
-                                    //         } else {
-                                    //           isBlocked = true;
-                                    //         }
-                                    //       });
-                                    //     },
-                                    //     reportType: 'chat');
+                                    showReportPersonDialog(
+                                        reportedItemId: message.id ?? '',
+                                        context: context,
+                                        onReportStatusChanged: () {
+                                     
+                                        },
+                                        reportType: 'Message');
                                   },
                                   child: ReplyCard(
                                     business: message.feed,

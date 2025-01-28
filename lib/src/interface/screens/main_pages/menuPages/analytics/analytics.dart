@@ -48,6 +48,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     final asyncReceivedAnalytics =
         ref.watch(fetchAnalyticsProvider('received'));
     final asyncHistoryAnalytics = ref.watch(fetchAnalyticsProvider(null));
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56.0), // Adjust height as needed
@@ -56,9 +57,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  offset: Offset(0, 1),
-                  blurRadius: 1),
+                color: Colors.black.withOpacity(0.1),
+                offset: Offset(0, 1),
+                blurRadius: 1,
+              ),
             ],
           ),
           child: AppBar(
@@ -74,17 +76,15 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       ),
       body: Column(
         children: [
-          SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           Material(
             color: kWhite,
             elevation: 0.0,
             child: TabBar(
+              controller: _tabController,
               indicatorWeight: 3,
               dividerColor: kWhite,
               indicatorSize: TabBarIndicatorSize.tab,
-              controller: _tabController,
               labelColor: Colors.orange,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.orange,
@@ -99,21 +99,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
             child: TabBarView(
               controller: _tabController,
               children: [
-                asyncReceivedAnalytics.when(
-                  data: (analytics) => _buildTab(analytics, 'received'),
-                  loading: () => const Center(child: LoadingAnimation()),
-                  error: (error, stackTrace) => const SizedBox(),
-                ),
-                asyncSentAnalytics.when(
-                  data: (analytics) => _buildTab(analytics, 'sent'),
-                  loading: () => const Center(child: LoadingAnimation()),
-                  error: (error, stackTrace) => const SizedBox(),
-                ),
-                asyncHistoryAnalytics.when(
-                  data: (analytics) => _buildTab(analytics, 'history'),
-                  loading: () => const Center(child: LoadingAnimation()),
-                  error: (error, stackTrace) => const SizedBox(),
-                ),
+                _buildRefreshableAnalyticsTab(
+                    asyncReceivedAnalytics, 'received'),
+                _buildRefreshableAnalyticsTab(asyncSentAnalytics, 'sent'),
+                _buildRefreshableAnalyticsTab(asyncHistoryAnalytics, 'history'),
               ],
             ),
           ),
@@ -133,17 +122,29 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     );
   }
 
-  Widget _buildTab(List<AnalyticsModel> analytics, String tabBarType) {
-    return Consumer(
-      builder: (context, ref, child) {
-        return ListView.builder(
-          padding: const EdgeInsets.all(16.0),
-          itemCount: analytics.length,
-          itemBuilder: (context, index) {
-            return _buildCard(analytics[index], tabBarType);
-          },
-        );
+  Widget _buildRefreshableAnalyticsTab(
+      AsyncValue<List<AnalyticsModel>> asyncAnalytics, String tabBarType) {
+    return RefreshIndicator(
+      backgroundColor: kWhite,
+      color: kPrimaryColor,
+      onRefresh: () async {
+        ref.invalidate(fetchAnalyticsProvider);
       },
+      child: asyncAnalytics.when(
+        data: (analytics) => analytics.isEmpty
+            ? const Center(child: Text("No data available"))
+            : ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16.0),
+                itemCount: analytics.length,
+                itemBuilder: (context, index) {
+                  return _buildCard(analytics[index], tabBarType);
+                },
+              ),
+        loading: () => const Center(child: LoadingAnimation()),
+        error: (error, stackTrace) =>
+            const Center(child: Text("Error loading data")),
+      ),
     );
   }
 

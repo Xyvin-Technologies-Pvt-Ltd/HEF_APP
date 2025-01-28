@@ -24,34 +24,36 @@ class _AllocateMemberState extends State<AllocateMember> {
   String? selectedDistrict;
   String? selectedChapter;
 
-Future<void> _createUser() async {
-  final Map<String, dynamic> profileData = {
-    "name": widget.newUser.name,
-    "bloodgroup": widget.newUser.bloodgroup,
-    "chapter": selectedChapter,
-    "image": widget.newUser.image,
-    "email": widget.newUser.email,
-    "phone": widget.newUser.phone!.startsWith('+91') 
-        ? widget.newUser.phone
-        : '+91${widget.newUser.phone}',
-    "bio": widget.newUser.bio,
-    "status": widget.newUser.status,
-    "address": widget.newUser.address,
-    "businessCatogary": widget.newUser.businessCategory,
-    "businessSubCatogary": widget.newUser.businessSubCategory,
-    "company":[ {
-      "name": widget.newUser.company?[0].name ?? '',
-      "designation": widget.newUser.company?[0].designation ?? '',
-      "email": widget.newUser.company?[0].email ?? '',
-      "websites": widget.newUser.company?[0].websites ?? '',
-      "phone": widget.newUser.company?[0].phone ?? '',
-    }]
-  };
-  String response = await createUser(data: profileData);
-  if (response.contains('success')) {
-    Navigator.popUntil(context, (route) => route.isFirst);
+  Future<void> _createUser() async {
+    final Map<String, dynamic> profileData = {
+      "name": widget.newUser.name,
+      "bloodgroup": widget.newUser.bloodgroup,
+      "chapter": selectedChapter,
+      "image": widget.newUser.image,
+      "email": widget.newUser.email,
+      "phone": widget.newUser.phone!.startsWith('+91')
+          ? widget.newUser.phone
+          : '+91${widget.newUser.phone}',
+      "bio": widget.newUser.bio,
+      "status": widget.newUser.status,
+      "address": widget.newUser.address,
+      "businessCatogary": widget.newUser.businessCategory,
+      "businessSubCatogary": widget.newUser.businessSubCategory,
+      "company": [
+        {
+          "name": widget.newUser.company?[0].name ?? '',
+          "designation": widget.newUser.company?[0].designation ?? '',
+          "email": widget.newUser.company?[0].email ?? '',
+          "websites": widget.newUser.company?[0].websites ?? '',
+          "phone": widget.newUser.company?[0].phone ?? '',
+        }
+      ]
+    };
+    String response = await createUser(data: profileData);
+    if (response.contains('success')) {
+      Navigator.popUntil(context, (route) => route.isFirst);
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -204,10 +206,10 @@ Future<void> _createUser() async {
   }
 }
 
-class SelectionDropDown extends StatelessWidget {
+class SelectionDropDown extends StatefulWidget {
   final String? hintText;
   final String? label;
-  final List<DropdownMenuItem<String>> items; // Use DropdownMenuItem
+  final List<DropdownMenuItem<String>> items;
   final String? value;
   final ValueChanged<String?> onChanged;
 
@@ -221,50 +223,101 @@ class SelectionDropDown extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _SelectionDropDownState createState() => _SelectionDropDownState();
+}
+
+class _SelectionDropDownState extends State<SelectionDropDown>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize animation controller
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    // Define fade animation
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+
+    // Define slide animation
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.5),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    // Start the animation
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (label != null)
-            Text(
-              label ?? "",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            hint: Text(hintText ?? ''),
-            value: value,
-            items: items, // Pass the DropdownMenuItem list
-            onChanged: onChanged,
-            decoration: InputDecoration(
-              fillColor: kWhite,
-              filled: true,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: kGreyLight),
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.label != null)
+                Text(
+                  widget.label ?? "",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                hint: Text(widget.hintText ?? ''),
+                value: widget.value,
+                items: widget.items,
+                onChanged: widget.onChanged,
+                decoration: InputDecoration(
+                  fillColor: Colors.white,
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: kGreyLight),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: kGreyLight),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: kGreyLight),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                ),
+                iconSize: 16,
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: kGreyLight),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: kGreyLight),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.red),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.red),
-              ),
-            ),
-            iconSize: 16,
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -9,15 +9,13 @@ import 'package:hef/src/interface/screens/main_pages/menuPages/levels/level_memb
 
 class ChaptersPage extends StatelessWidget {
   final String districtId;
-  final String stateName;
-  final String zoneName;
+
   final String districtName;
 
   const ChaptersPage({
     super.key,
     required this.districtId,
-    required this.stateName,
-    required this.zoneName,
+
     required this.districtName,
   });
 
@@ -57,7 +55,7 @@ class ChaptersPage extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            '$stateName / $zoneName / $districtName /',
+                            '$districtName /',
                             style: TextStyle(
                                 fontSize: 14, color: Colors.grey[600]),
                           ),
@@ -141,10 +139,8 @@ class ChaptersPage extends StatelessWidget {
                                                           chapterId:
                                                               chapters[index]
                                                                   .id,
-                                                          stateName: stateName,
-                                                          zoneName: zoneName,
-                                                          districtName:
-                                                              districtName,
+                                    
+                                                  
                                                           chapterName:
                                                               chapters[index]
                                                                   .name,

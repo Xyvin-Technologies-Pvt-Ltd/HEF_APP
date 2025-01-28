@@ -10,16 +10,12 @@ import 'package:hef/src/interface/components/loading_indicator/loading_indicator
 
 class LevelMembers extends StatelessWidget {
   final String chapterId;
-  final String stateName;
-  final String zoneName;
-  final String districtName;
+
   final String chapterName;
   const LevelMembers(
       {super.key,
       required this.chapterId,
-      required this.stateName,
-      required this.zoneName,
-      required this.districtName,
+
       required this.chapterName});
 
   @override
@@ -60,7 +56,7 @@ class LevelMembers extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            '$stateName / $zoneName / $districtName /',
+                            '$chapterName /',
                             style: TextStyle(
                                 fontSize: 14, color: Colors.grey[600]),
                           ),

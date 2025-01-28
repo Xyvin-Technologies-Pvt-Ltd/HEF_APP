@@ -9,9 +9,8 @@ Future<void> saveQr({
   required ScreenshotController screenshotController,
 }) async {
         SnackbarService snackbarService = SnackbarService();
-  var status = await Permission.photos.request();
-  if (status.isGranted) {
-    // Capture the screenshot
+
+
     screenshotController.capture().then((Uint8List? image) async {
 
       log('capture  image$image');
@@ -29,7 +28,5 @@ Future<void> saveQr({
       print(onError);
  snackbarService.showSnackBar('Error Saving to gallery!');
     });
-  } else {
-   snackbarService.showSnackBar('Permission not granted!');
-  }
+ 
 }

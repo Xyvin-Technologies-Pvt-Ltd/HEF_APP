@@ -155,6 +155,9 @@ class UserModel {
   final String? fcm;
   final DateTime? createdAt;
   final String? level; 
+  final String? levelId; 
+  final String? levelName; 
+  final String? adminType; 
 
   UserModel({
     this.name,
@@ -188,6 +191,9 @@ class UserModel {
     this.fcm,
     this.createdAt,
     this.level,
+    this.levelName,
+    this.adminType,
+    this.levelId,
   });
 factory UserModel.fromJson(Map<String, dynamic> json) {
   return UserModel(
@@ -248,7 +254,10 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
     createdAt: json['createdAt'] != null
         ? DateTime.tryParse(json['createdAt'] as String)
         : null,
-    level: json['level'] as String? ?? '', // Parse the new level field
+    level: json['level'] as String? ?? '', 
+    levelName: json['levelName'] as String? ?? '', 
+    levelId: json['levelId'] as String? ?? '', 
+    adminType: json['adminType'] as String? ?? '', 
   );
 }
 
@@ -283,7 +292,10 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
       'subscription': subscription,
       'fcm': fcm,
       'createdAt': createdAt?.toIso8601String(),
-      'level': level, // Add level to the JSON
+      'level': level, 
+      'levelName': levelName, 
+      'adminType': adminType, 
+      'levelId': levelId, 
     };
   }
 
@@ -315,7 +327,11 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
     List<UserModel>? blockedUsers,
     String? subscription,
     String? fcm,
-    DateTime? createdAt
+    DateTime? createdAt,
+    String? level,
+    String? levelName,
+    String? levelId,
+    String? adminType
   }) {
     return UserModel(
       name: name ?? this.name,
@@ -344,7 +360,11 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
       blockedUsers: blockedUsers ?? this.blockedUsers,
       subscription: subscription ?? this.subscription,
       fcm: fcm ?? this.fcm,
-      createdAt: createdAt??this.createdAt
+      createdAt: createdAt??this.createdAt,
+      level: level??this.level,
+      levelName: levelName??this.levelName,
+      levelId: levelId??this.levelId,
+      adminType: level??this.adminType
     );
   }
 }

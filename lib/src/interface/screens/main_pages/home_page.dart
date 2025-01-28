@@ -88,7 +88,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             // ref.invalidate(fetchEventsProvider);
           },
           child: AdvancedDrawer(
-            drawer: customDrawer(user: widget.user),
+            drawer: customDrawer(user: widget.user,context: context),
             backdrop: Container(
               width: double.infinity,
               height: double.infinity,
@@ -561,30 +561,31 @@ class _HomePageState extends ConsumerState<HomePage> {
                               ],
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Align(
-                              alignment: Alignment.bottomRight,
-                              child: Container(
-                                padding: const EdgeInsets.all(13),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: kPrimaryColor,
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    navigationService
-                                        .pushNamed('MemberCreation');
-                                  },
-                                  child: const Icon(
-                                    Icons.person_add_alt_1_outlined,
-                                    color: kWhite,
-                                    size: 27,
+                          if (widget.user.isAdmin ?? false)
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: Container(
+                                  padding: const EdgeInsets.all(13),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: kPrimaryColor,
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      navigationService
+                                          .pushNamed('MemberCreation');
+                                    },
+                                    child: const Icon(
+                                      Icons.person_add_alt_1_outlined,
+                                      color: kWhite,
+                                      size: 27,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),

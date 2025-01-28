@@ -3,9 +3,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/district.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/zones.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Widget customDrawer({required UserModel user}) {
+Widget customDrawer({required UserModel user, required BuildContext context}) {
   NavigationService navigationService = NavigationService();
   return SafeArea(
     child: SingleChildScrollView(
@@ -66,20 +68,58 @@ Widget customDrawer({required UserModel user}) {
             height: 30,
           ),
           // Drawer Items
-          if (user.isAdmin??false)
-            _buildDrawerItem(
-              icon: 'assets/svg/icons/analytics.svg',
-              label: 'Analytics',
-              onTap: () {
-                navigationService.pushNamed('AnalyticsPage');
-              },
-            ),
-          if (user.isAdmin??false)
+
+          _buildDrawerItem(
+            icon: 'assets/svg/icons/analytics.svg',
+            label: 'Analytics',
+            onTap: () {
+              navigationService.pushNamed('AnalyticsPage');
+            },
+          ),
+          if (user.isAdmin ?? false)
             _buildDrawerItem(
               icon: 'assets/svg/icons/levels.svg',
               label: 'Levels',
               onTap: () {
-                navigationService.pushNamed('States');
+                switch (user.adminType) {
+                  case 'State Admin':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ZonesPage(
+                                  stateId: user.levelId ?? '',
+                                  stateName: user.levelName ?? '',
+                                )));
+                    break;
+                  case 'Zone Admin':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DistrictsPage(
+                                  zoneId: user.levelId ?? '',
+                                  zoneName: user.levelName ?? '',
+                                )));
+                    break;
+                  case 'District Admin':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ZonesPage(
+                                  stateId: user.levelId ?? '',
+                                  stateName: user.levelName ?? '',
+                                )));
+                    break;
+                  case 'Chapter Admin':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ZonesPage(
+                                  stateId: user.levelId ?? '',
+                                  stateName: user.levelName ?? '',
+                                )));
+                    break;
+                  default:
+                }
               },
             ),
 

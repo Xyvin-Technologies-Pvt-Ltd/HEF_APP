@@ -109,7 +109,8 @@ class _NewsPageViewState extends ConsumerState<NewsPageView> {
             // Navigation Buttons Section
 
             Padding(
-              padding: const EdgeInsets.only(left: 15, right: 15, bottom: 10),
+              padding: const EdgeInsets.only(
+                  left: 15, right: 15, bottom: 10, top: 10),
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 500),
                 opacity: (1 - (_currentPage - _currentPage.round()).abs())
@@ -389,7 +390,11 @@ class _AnimatedNewsContentState extends State<AnimatedNewsContent>
                               color: Color(0xFF4F4F4F),
                               fontSize: 16,
                             ),
-                            child: Text(widget.newsItem.content ?? ''),
+                            child: Text(
+                              strutStyle: StrutStyle(height: 1.5),
+                              widget.newsItem.content ?? '',
+                              style: kBodyTitleR,
+                            ),
                           ),
                         ],
                       ),

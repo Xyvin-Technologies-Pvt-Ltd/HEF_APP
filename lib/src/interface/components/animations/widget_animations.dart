@@ -160,3 +160,118 @@ class _FadeInTransitionState extends State<FadeInTransition>
     );
   }
 }
+
+
+class AnimatedEntrance extends StatefulWidget {
+  final Widget child;
+  final Duration duration;
+  final Duration delay;
+  final bool fadeIn;
+  final bool slideIn;
+  final bool scaleIn;
+  final Offset slideOffset;
+  final double initialScale;
+  final Curve curve;
+
+  const AnimatedEntrance({
+    super.key,
+    required this.child,
+    this.duration = const Duration(milliseconds: 600),
+    this.delay = Duration.zero,
+    this.fadeIn = true,
+    this.slideIn = true,
+    this.scaleIn = true,
+    this.slideOffset = const Offset(0.0, 0.25),
+    this.initialScale = 0.95,
+    this.curve = Curves.easeOut,
+  });
+
+  @override
+  State<AnimatedEntrance> createState() => _AnimatedEntranceState();
+}
+
+class _AnimatedEntranceState extends State<AnimatedEntrance>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<Offset> _slideAnimation;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: widget.duration,
+      vsync: this,
+    );
+
+    final curved = CurvedAnimation(
+      parent: _controller,
+      curve: widget.curve,
+    );
+
+    // Fade animation
+    _fadeAnimation = Tween<double>(
+      begin: widget.fadeIn ? 0.0 : 1.0,
+      end: 1.0,
+    ).animate(curved);
+
+    // Slide animation
+    _slideAnimation = Tween<Offset>(
+      begin: widget.slideIn ? widget.slideOffset : Offset.zero,
+      end: Offset.zero,
+    ).animate(curved);
+
+    // Scale animation
+    _scaleAnimation = Tween<double>(
+      begin: widget.scaleIn ? widget.initialScale : 1.0,
+      end: 1.0,
+    ).animate(curved);
+
+    // Add delay if specified
+    Future.delayed(widget.delay, () {
+      if (mounted) {
+        _controller.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        Widget current = widget.child;
+
+        if (widget.fadeIn) {
+          current = FadeTransition(
+            opacity: _fadeAnimation,
+            child: current,
+          );
+        }
+
+        if (widget.slideIn) {
+          current = SlideTransition(
+            position: _slideAnimation,
+            child: current,
+          );
+        }
+
+        if (widget.scaleIn) {
+          current = Transform.scale(
+            scale: _scaleAnimation.value,
+            child: current,
+          );
+        }
+
+        return current;
+      },
+    );
+  }
+}

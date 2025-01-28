@@ -1,5 +1,6 @@
 class AnalyticsModel {
   final String? id;
+  final String? user_id;  // Added user_id variable
   final String? username;
   final String? userImage;
   final String? title;
@@ -15,6 +16,7 @@ class AnalyticsModel {
 
   AnalyticsModel({
     this.id,
+    this.user_id,  // Added to constructor
     this.username,
     this.userImage,
     this.title,
@@ -32,6 +34,7 @@ class AnalyticsModel {
   factory AnalyticsModel.fromJson(Map<String, dynamic> json) {
     return AnalyticsModel(
       id: json['_id'] as String?,
+      user_id: json['user_id'] as String?,  // Added to fromJson
       username: json['username'] as String?,
       userImage: json['user_image'] as String?,
       title: json['title'] as String?,
@@ -50,6 +53,7 @@ class AnalyticsModel {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
+      'user_id': user_id,  // Added to toJson
       'username': username,
       'user_image': userImage,
       'title': title,
@@ -67,6 +71,7 @@ class AnalyticsModel {
 
   AnalyticsModel copyWith({
     String? id,
+    String? user_id,  // Added to copyWith
     String? username,
     String? userImage,
     String? title,
@@ -82,6 +87,7 @@ class AnalyticsModel {
   }) {
     return AnalyticsModel(
       id: id ?? this.id,
+      user_id: user_id ?? this.user_id,  // Added to copyWith return
       username: username ?? this.username,
       userImage: userImage ?? this.userImage,
       title: title ?? this.title,

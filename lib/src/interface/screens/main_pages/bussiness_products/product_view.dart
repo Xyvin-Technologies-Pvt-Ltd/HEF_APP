@@ -175,7 +175,7 @@ class _ProductViewState extends ConsumerState<ProductView> {
                             return const SizedBox();
                           },
                           loading: () {
-                            return const ProductCardShimmer();
+                            return SizedBox.shrink();
                           },
                         );
                       },

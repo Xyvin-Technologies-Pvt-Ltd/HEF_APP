@@ -58,7 +58,7 @@ class BlockReportDropdown extends ConsumerWidget {
           if (value == 'report') {
             String reportType = '';
             if (feed != null) {
-              reportType = 'Post';
+              reportType = 'Feeds';
               showReportPersonDialog(
                   reportedItemId: feed?.id ?? '',
                   context: context,

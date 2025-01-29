@@ -393,13 +393,13 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
               right: 30,
               bottom: 30,
               child: GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => QRScannerPage(
-                            eventId: widget.event.id ?? '',
-                          )),
-                ),
+                // onTap: () => Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => QRScannerPage(
+                //             eventId: widget.event.id ?? '',
+                //           )),
+                // ),
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(

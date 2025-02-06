@@ -355,7 +355,9 @@ class ProfilePage extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Image.asset('assets/pngs/hef_logo.png'),
+                               Image.asset(
+                                                      scale: 5,
+                                                      'assets/pngs/splash_logo.png'),
                                   Spacer(),
                                   RichText(
                                     text: TextSpan(

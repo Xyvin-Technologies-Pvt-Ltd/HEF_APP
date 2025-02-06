@@ -17,7 +17,9 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
           // Drawer Header
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Image.asset('assets/pngs/hef_logo.png'),
+            child: Image.asset(
+                                                      scale: 5,
+                                                      'assets/pngs/splash_logo.png'),
           ),
           SizedBox(
             height: 20,

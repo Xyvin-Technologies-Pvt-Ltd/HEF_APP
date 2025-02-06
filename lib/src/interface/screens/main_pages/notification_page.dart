@@ -79,11 +79,12 @@ class NotificationPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNotificationCard(
-      {required bool readed,
-      required String subject,
-      required String content,
-      required DateTime dateTime}) {
+  Widget _buildNotificationCard({
+    required bool readed,
+    required String subject,
+    required String content,
+    required DateTime dateTime,
+  }) {
     String time = timeAgo(dateTime);
     return Padding(
       padding: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
@@ -96,14 +97,23 @@ class NotificationPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!readed) Icon(Icons.circle, color: Colors.blue, size: 12),
+                  if (!readed)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Icon(Icons.circle, color: Colors.blue, size: 12),
+                    ),
                   SizedBox(width: 8),
-                  Text(
-                    subject,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    // Allows subject text to take full space
+                    child: Text(
+                      subject,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      softWrap: true,
                     ),
                   ),
                 ],
@@ -112,6 +122,7 @@ class NotificationPage extends StatelessWidget {
               Text(
                 content,
                 style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                softWrap: true, // Allows text to wrap
               ),
               SizedBox(height: 8),
               Text(

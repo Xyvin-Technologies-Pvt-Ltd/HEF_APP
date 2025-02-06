@@ -177,7 +177,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                   duration: const Duration(
                                                       milliseconds: 250),
                                                   child: Image.asset(
-                                                      'assets/pngs/hef_logo.png'),
+                                                      scale: 5,
+                                                      'assets/pngs/splash_logo.png'),
                                                 );
                                               },
                                             ),

@@ -253,9 +253,8 @@ class ProfilePreview extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.only(left: 10),
                             child: Image.asset(
-                              'assets/pngs/hef_logo.png',
-                              fit: BoxFit.contain,
-                            ),
+                                                      scale: 5,
+                                                      'assets/pngs/splash_logo.png'),
                           ),
                           Expanded(
                             // Added Expanded widget to make the text expandable

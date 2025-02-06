@@ -524,9 +524,8 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       width: 100,
                                       height: 100,
                                       child: Image.asset(
-                                        'assets/pngs/hef_logo.png',
-                                        fit: BoxFit.contain,
-                                      ),
+                                          scale: 5,
+                                          'assets/pngs/splash_logo.png'),
                                     ),
                                   ),
                                   actions: [

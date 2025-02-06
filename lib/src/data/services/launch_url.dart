@@ -15,6 +15,8 @@ void launchURL(String url) async {
     print(e);
   }
 }
+
+
 Future<void> openGoogleMaps(String location) async {
   final Uri googleMapsUrl =
       Uri.parse("https://www.google.com/maps/search/?api=1&query=$location");

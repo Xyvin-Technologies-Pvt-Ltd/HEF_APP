@@ -129,10 +129,9 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                 child: SizedBox(
                   width: 100,
                   height: 100,
-                  child: Image.asset(
-                    'assets/pngs/hef_logo.png',
-                    fit: BoxFit.contain,
-                  ),
+                  child:Image.asset(
+                                                      scale: 5,
+                                                      'assets/pngs/splash_logo.png'),
                 ),
               ),
               bottom: PreferredSize(

@@ -50,6 +50,7 @@ class _SendAnalyticRequestPageState
       "type": selectedRequestType,
       "member": selectedMember,
       "sender": id,
+      "amount":amountController.text,
       "title": titleController.text,
       "description": descriptionController.text,
       if (selectedRefferalMember != null) "referral": selectedRefferalMember,
@@ -59,7 +60,7 @@ class _SendAnalyticRequestPageState
       if (dateController.text != '') "date": "2024-12-01",
       if (timeController.text != '') "time": "14:00",
       if (linkController.text != '')
-        "meetingLink": "https://zoom.us/j/123456789",
+        "meetingLink": linkController.text,
       if (locationController.text != '') "location": "Conference Room A"
     };
     await postAnalytic(data: analytictData);
@@ -232,11 +233,14 @@ class _SendAnalyticRequestPageState
                 error: (error, stackTrace) => const SizedBox(),
               ),
               asyncMembers.when(
-                data: (members) => SelectionDropDown(
+                data: (members) {
+                            final filteredMembers =
+                            members.where((member) => member.id != id).toList();
+                  return SelectionDropDown(
                   hintText: 'Choose Member',
                   value: selectedMember,
                   label: null,
-                  items: members.map((member) {
+                  items: filteredMembers.map((member) {
                     return DropdownMenuItem<String>(
                       value: member.id,
                       child: Text(member.name),
@@ -247,7 +251,8 @@ class _SendAnalyticRequestPageState
                       selectedMember = value;
                     });
                   },
-                ),
+                );
+                }  ,
                 loading: () => const Center(child: LoadingAnimation()),
                 error: (error, stackTrace) => const SizedBox(),
               ),
@@ -534,29 +539,31 @@ class _SendAnalyticRequestPageState
                       loading: () => const Center(child: LoadingAnimation()),
                       error: (error, stackTrace) => const SizedBox(),
                     ),
-                    asyncReferralMembers.when(
-                      data: (members) {
-                        return SelectionDropDown(
-                          hintText: 'Choose Member',
-                          value: selectedRefferalMember,
-                          label: null,
-                          items: members.map((member) {
-                            members.removeWhere((member) => member.id == id);
-                            return DropdownMenuItem<String>(
-                              value: member.id,
-                              child: Text(member.name),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedRefferalMember = value;
-                            });
-                          },
-                        );
-                      },
-                      loading: () => const Center(child: LoadingAnimation()),
-                      error: (error, stackTrace) => const SizedBox(),
-                    ),
+ asyncReferralMembers.when(
+  data: (members) {
+    // Create a new list excluding the member with the matching id
+    final filteredMembers = members.where((member) => member.id != id).toList();
+
+    return SelectionDropDown(
+      hintText: 'Choose Member',
+      value: selectedRefferalMember,
+      label: null,
+      items: filteredMembers.map((member) {
+        return DropdownMenuItem<String>(
+          value: member.id,
+          child: Text(member.name),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          selectedRefferalMember = value;
+        });
+      },
+    );
+  },
+  loading: () => const Center(child: LoadingAnimation()),
+  error: (error, stackTrace) => const SizedBox(),
+),
 
                     const SizedBox(height: 10.0),
                   ],

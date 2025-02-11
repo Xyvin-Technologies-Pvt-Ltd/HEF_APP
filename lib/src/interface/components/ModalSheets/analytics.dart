@@ -4,6 +4,7 @@ import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
+import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:intl/intl.dart';
@@ -77,8 +78,14 @@ class AnalyticsModalSheet extends ConsumerWidget {
                 DateFormat("d'th' MMMM yyyy, h:mm a")
                     .format(analytic.time!.toLocal())),
             _buildDetailRow('Amount', analytic.amount ?? ''),
-            if (analytic.status == 'meeting_scheduled')
-              _buildDetailRow('Meeting Link', analytic.meetingLink ?? ''),
+            if (analytic.status == 'meeting_scheduled' &&
+                analytic.meetingLink != null)
+              InkWell(
+                  onTap: () {
+                    launchURL(analytic.meetingLink ?? '');
+                  },
+                  child: _buildDetailRow(
+                      'Meeting Link', analytic.meetingLink ?? '')),
             _buildDetailRow('Status', analytic.status ?? '',
                 statusColor: _getStatusColor(analytic.status ?? '')),
             const SizedBox(height: 8),

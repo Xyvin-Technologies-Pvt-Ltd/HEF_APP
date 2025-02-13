@@ -153,25 +153,7 @@ class _EditUserState extends ConsumerState<EditUser> {
 
   String productUrl = '';
 
-  Future<void> _pickImage(ImageSource source, String imageType) async {
-    PermissionStatus status;
 
-    if (source == ImageSource.camera) {
-      status = await Permission.camera.request();
-    } else if (source == ImageSource.gallery) {
-      status = await Permission.photos.request();
-    } else {
-      return;
-    }
-
-    if (status.isGranted) {
-      _pickFile(imageType: imageType);
-    } else if (status.isPermanentlyDenied) {
-      _showPermissionDeniedDialog(true);
-    } else {
-      _showPermissionDeniedDialog(false);
-    }
-  }
 
   Future<File?> _pickFile({required String imageType}) async {
     final ImagePicker _picker = ImagePicker();
@@ -1438,26 +1420,5 @@ class _EditUserState extends ConsumerState<EditUser> {
     );
   }
 
-  Widget _buildImagePickerOptions(BuildContext context, String imageType) {
-    return Wrap(
-      children: [
-        ListTile(
-          leading: const Icon(Icons.photo_library),
-          title: const Text('Choose from Gallery'),
-          onTap: () {
-            navigationService.pop();
-            _pickImage(ImageSource.gallery, imageType);
-          },
-        ),
-        ListTile(
-          leading: const Icon(Icons.camera_alt),
-          title: const Text('Take a Photo'),
-          onTap: () {
-            navigationService.pop();
-            _pickImage(ImageSource.camera, imageType);
-          },
-        ),
-      ],
-    );
-  }
+
 }

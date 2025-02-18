@@ -158,12 +158,12 @@ class _FetchUserDetailsProviderElement
   String get userId => (origin as FetchUserDetailsProvider).userId;
 }
 
-String _$getSubscriptionHash() => r'75f740722f66a12bad8ee8a4abd88700028c6ecd';
+String _$getSubscriptionHash() => r'a6bd58493a8e870104bef8a8ea305f6cdce87ea2';
 
 /// See also [getSubscription].
 @ProviderFor(getSubscription)
 final getSubscriptionProvider =
-    AutoDisposeFutureProvider<Subscription?>.internal(
+    AutoDisposeFutureProvider<List<Subscription>>.internal(
   getSubscription,
   name: r'getSubscriptionProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -175,6 +175,25 @@ final getSubscriptionProvider =
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef GetSubscriptionRef = AutoDisposeFutureProviderRef<Subscription?>;
+typedef GetSubscriptionRef = AutoDisposeFutureProviderRef<List<Subscription>>;
+String _$getPaymentYearsHash() => r'abec4d0ef9e7f47dfd355471fd0db5c6f439630b';
+
+/// See also [getPaymentYears].
+@ProviderFor(getPaymentYears)
+final getPaymentYearsProvider =
+    AutoDisposeFutureProvider<List<PaymentYearModel>>.internal(
+  getPaymentYears,
+  name: r'getPaymentYearsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$getPaymentYearsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetPaymentYearsRef
+    = AutoDisposeFutureProviderRef<List<PaymentYearModel>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

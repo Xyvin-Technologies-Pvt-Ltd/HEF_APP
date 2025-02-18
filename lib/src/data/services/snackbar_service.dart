@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+
 import 'package:hef/src/data/constants/color_constants.dart';
 
 class SnackbarService {
@@ -9,7 +10,7 @@ class SnackbarService {
 
   ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBar(
       String message) {
-       final snackBar = SnackBar(
+    final snackBar = SnackBar(
       content: Row(
         children: [
           Icon(Icons.info_outline, color: Colors.white),
@@ -33,6 +34,7 @@ class SnackbarService {
         },
       ),
     );
+   
     log(scaffoldMessengerKey.currentState!.mounted.toString());
     return scaffoldMessengerKey.currentState!.showSnackBar(snackBar);
   }

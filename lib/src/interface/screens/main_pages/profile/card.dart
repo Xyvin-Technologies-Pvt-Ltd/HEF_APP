@@ -160,20 +160,73 @@ class ProfileCard extends StatelessWidget {
                                                   ),
                                                   for (Company i
                                                       in user.company ?? [])
-                                                    if (i?.designation !=
-                                                            null &&
-                                                        i?.designation != '')
-                                                      Text(i?.designation ?? '',
-                                                          style: kSmallTitleM),
-                                                  SizedBox(
-                                                    height: 5,
-                                                  ),        for (Company i
-                                                      in user.company ?? [])
-                                                    if (i?.name !=
-                                                            null &&
-                                                        i?.name != '')
-                                                  Text(i.name ?? '',
-                                                      style: kSmallerTitleR),
+                                                    if ((i?.name != null &&
+                                                            i?.name != '') ||
+                                                        (i?.designation !=
+                                                                null &&
+                                                            i?.designation !=
+                                                                ''))
+                                                      RichText(
+                                                        text: TextSpan(
+                                                          children: [
+                                                            if (i.name !=
+                                                                    null &&
+                                                                i.name != '')
+                                                              TextSpan(
+                                                                text: i.name,
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 16,
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          42,
+                                                                          41,
+                                                                          41),
+                                                                ),
+                                                              ),
+                                                            if (i.name !=
+                                                                    null &&
+                                                                i.name != '' &&
+                                                                i.designation !=
+                                                                    null &&
+                                                                i.designation !=
+                                                                    '')
+                                                              const TextSpan(
+                                                                text: ' - ',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize: 15,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
+                                                              ),
+                                                            if (i.designation !=
+                                                                    null &&
+                                                                i.designation !=
+                                                                    '')
+                                                              TextSpan(
+                                                                text: i
+                                                                    .designation,
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize: 15,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
+                                                              ),
+                                                          ],
+                                                        ),
+                                                      ),
                                                 ],
                                               ),
                                             ),

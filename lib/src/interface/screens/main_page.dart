@@ -140,6 +140,7 @@ class _MainPageState extends ConsumerState<MainPage> {
           return PhoneNumberScreen();
         },
         data: (user) {
+          subscriptionType = user.subscription ?? 'free';
           print(user.image);
           _initialize(user: user);
           return PopScope(

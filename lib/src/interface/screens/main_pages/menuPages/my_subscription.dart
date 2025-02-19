@@ -3,16 +3,70 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
-import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/subscription_model.dart';
+import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/preimum_plan.dart';
 import 'package:intl/intl.dart';
 
-class MySubscriptionPage extends StatelessWidget {
+
+class MySubscriptionPage extends StatefulWidget {
+  @override
+  State<MySubscriptionPage> createState() => _MySubscriptionPageState();
+}
+
+class _MySubscriptionPageState extends State<MySubscriptionPage> {
+  TextEditingController remarksController = TextEditingController();
+
+  File? _paymentImage;
+
+
+
+  // void _openModalSheet({required String sheet, required subscriptionType}) {
+  //   showModalBottomSheet(
+  //       isScrollControlled: true,
+  //       context: context,
+  //       builder: (context) {
+  //         return ShowPaymentUploadSheet(
+  //           subscriptionType: subscriptionType,
+  //           pickImage: _pickFile,
+  //           textController: remarksController,
+  //           imageType: 'payment',
+  //           paymentImage: _paymentImage,
+  //         );
+  //       });
+  // }
+
+  Future<File?> _pickFile({required String imageType}) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['png', 'jpg', 'jpeg'],
+    );
+
+    if (result != null) {
+      // Check if the file size is more than or equal to 1 MB (1 MB = 1024 * 1024 bytes)
+      // if (result.files.single.size >= 1024 * 1024) {
+      //   CustomSnackbar.showSnackbar(context, 'File size cannot exceed 1MB');
+
+      //   return null; // Exit the function if the file is too large
+      // }
+
+      // Set the selected file if it's within the size limit
+      setState(() {
+        _paymentImage = File(result.files.single.path!);
+      });
+      return _paymentImage;
+    }
+    return null;
+  }
+
+  Subscription? membershipSubscription;
+  Subscription? appSubscription;
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
+   
         final asyncSubscriptions = ref.watch(getSubscriptionProvider);
         return Scaffold(
             appBar: AppBar(
@@ -31,23 +85,57 @@ class MySubscriptionPage extends StatelessWidget {
             ),
             backgroundColor: Colors.white,
             body: asyncSubscriptions.when(
-                data: (subscription) {
-                  String membershipFormattedRenewalDate =
-                      subscription?.createdAt == null ||
-                              subscription?.createdAt == ''
-                          ? ''
-                          : DateFormat('dd MMMM yyyy')
-                              .format(subscription!.createdAt!);
-                  String membershipFormatteNextRenewalDate =
-                      subscription?.expiryDate == null ||
-                              subscription?.expiryDate == ''
-                          ? ''
-                          : DateFormat('dd MMMM yyyy')
-                              .format(subscription!.expiryDate!);
+                data: (subscriptions) {
+                  if (subscriptions.isNotEmpty) {
+                    membershipSubscription = subscriptions.firstWhere(
+                      (subscription) => subscription.category == "membership",
+                      orElse: () => Subscription(),
+                    );
 
+                    appSubscription = subscriptions.firstWhere(
+                      (subscription) => subscription.category == "app",
+                      orElse: () => Subscription(),
+                    );
+                  }
+                  String membershipFormattedRenewalDate =
+                      membershipSubscription?.lastRenewDate == null ||
+                              membershipSubscription?.lastRenewDate == ''
+                          ? ''
+                          : DateFormat('dd MMMM yyyy')
+                              .format(membershipSubscription!.lastRenewDate!);
+                  String membershipFormatteNextRenewalDate =
+                      membershipSubscription?.expiryDate == null ||
+                              membershipSubscription?.expiryDate == ''
+                          ? ''
+                          : DateFormat('dd MMMM yyyy')
+                              .format(membershipSubscription!.expiryDate!);
+                  String appFormattedRenewalDate =
+                      appSubscription?.lastRenewDate == null ||
+                              appSubscription?.lastRenewDate == ''
+                          ? ''
+                          : DateFormat('dd MMMM yyyy')
+                              .format(appSubscription!.lastRenewDate!);
+                  String appFormatteNextRenewalDate =
+                      appSubscription?.expiryDate == null ||
+                              appSubscription?.expiryDate == ''
+                          ? ''
+                          : DateFormat('dd MMMM yyyy')
+                              .format(appSubscription!.expiryDate!);
                   return SingleChildScrollView(
                     child: Column(
                       children: [
+                        const Padding(
+                          padding:
+                              EdgeInsets.only(left: 25, right: 25, top: 20),
+                          child: Row(
+                            children: [
+                              Text(
+                                'MEMBERSHIP SUBSCRIPTION',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        ),
                         Center(
                           child: Padding(
                             padding: const EdgeInsets.only(
@@ -68,6 +156,37 @@ class MySubscriptionPage extends StatelessWidget {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  // Icon Image Section
+                                  Image.asset('assets/pngs/basic.png'),
+                                  const SizedBox(height: 10),
+
+                                  // Plan Title
+                                  const Text(
+                                    'Membership Fee',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 5),
+
+                                  // Price Section
+                                  const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        style: TextStyle(
+                                            fontSize: 26,
+                                            fontWeight: FontWeight.w600),
+                                        '₹1050  ',
+                                      ),
+                                      Text(
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600),
+                                        'per year',
+                                      ),
+                                    ],
+                                  ),
+
                                   const SizedBox(height: 10),
                                   Container(
                                     decoration: BoxDecoration(
@@ -87,10 +206,12 @@ class MySubscriptionPage extends StatelessWidget {
                                             children: [
                                               const Text(
                                                 'Membership status:',
-                                                style: TextStyle(fontSize: 14),
+                                                style: TextStyle(fontSize: 13),
                                               ),
                                               const Spacer(),
-                                              if (subscription != null)
+                                              if (membershipSubscription
+                                                      ?.status !=
+                                                  null)
                                                 Container(
                                                   padding: const EdgeInsets
                                                       .symmetric(
@@ -106,7 +227,9 @@ class MySubscriptionPage extends StatelessWidget {
                                                             16),
                                                   ),
                                                   child: Text(
-                                                    subscription?.status ?? '',
+                                                    membershipSubscription
+                                                            ?.status ??
+                                                        '',
                                                     style: const TextStyle(
                                                       fontSize: 12,
                                                       color: Colors.green,
@@ -117,28 +240,25 @@ class MySubscriptionPage extends StatelessWidget {
                                                 ),
                                             ],
                                           ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
                                           Row(
                                             children: [
                                               const Text(
                                                 'Last renewed on:',
-                                                style: TextStyle(fontSize: 14),
+                                                style: TextStyle(fontSize: 13),
                                               ),
                                               const Spacer(),
                                               Text(
                                                 membershipFormattedRenewalDate,
                                                 style: const TextStyle(
                                                   decorationColor:
-                                                      kPrimaryColor,
+                                                      Color(0xFF004797),
                                                   decoration: TextDecoration
                                                       .underline, // Adds underline
                                                   fontStyle: FontStyle
                                                       .italic, // Makes text italic
-                                                  fontSize: 14,
+                                                  fontSize: 12,
                                                   fontWeight: FontWeight.w600,
-                                                  color: kPrimaryColor,
+                                                  color: Color(0xFF004797),
                                                 ),
                                               ),
                                             ],
@@ -150,21 +270,21 @@ class MySubscriptionPage extends StatelessWidget {
                                             children: [
                                               const Text(
                                                 'Next renewal on:',
-                                                style: TextStyle(fontSize: 14),
+                                                style: TextStyle(fontSize: 13),
                                               ),
                                               const Spacer(),
                                               Text(
                                                 membershipFormatteNextRenewalDate,
                                                 style: const TextStyle(
                                                   decorationColor:
-                                                      kPrimaryColor,
+                                                      Color(0xFF004797),
                                                   decoration: TextDecoration
                                                       .underline, // Adds underline
                                                   fontStyle: FontStyle
                                                       .italic, // Makes text italic
-                                                  fontSize: 14,
+                                                  fontSize: 12,
                                                   fontWeight: FontWeight.w600,
-                                                  color: kPrimaryColor,
+                                                  color: Color(0xFF004797),
                                                 ),
                                               ),
                                             ],
@@ -179,7 +299,7 @@ class MySubscriptionPage extends StatelessWidget {
                                     padding: const EdgeInsets.all(12.0),
                                     decoration: BoxDecoration(
                                       color: const Color.fromARGB(
-                                          255, 255, 231, 192),
+                                          255, 233, 246, 255),
                                       borderRadius: BorderRadius.circular(2),
                                     ),
                                     child: Column(
@@ -196,30 +316,294 @@ class MySubscriptionPage extends StatelessWidget {
                                   const SizedBox(height: 15),
 
                                   // Action Button
-                                  // SizedBox(
-                                  //     width: double.infinity,
-                                  //     child: customButton(
-                                  //         sideColor:
-                                  //             subscription.membership?.status ==
-                                  //                     'accepted'
-                                  //                 ? Colors.green
-                                  //                 : Colors.red,
-                                  //         buttonColor:
-                                  //             subscription.membership?.status ==
-                                  //                     'accepted'
-                                  //                 ? Colors.green
-                                  //                 : Colors.red,
-                                  //         label: subscription.membership?.status
-                                  //                 ?.toUpperCase() ??
-                                  //             'SUBSCRIBE',
-                                  //         onPressed: () {
-                                  //           if (subscription.membership?.status !=
-                                  //               'accepted') {
-                                  //             _openModalSheet(
-                                  //                 sheet: 'payment',
-                                  //                 subscriptionType: 'membership');
-                                  //           }
-                                  //         })),
+                                  SizedBox(
+                                      width: double.infinity,
+                                      child: customButton(
+                                          sideColor:
+                                              membershipSubscription?.status ==
+                                                      'accepted'
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                          buttonColor:
+                                              membershipSubscription?.status ==
+                                                      'accepted'
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                          label: membershipSubscription?.status
+                                                  ?.toUpperCase() ??
+                                              'SUBSCRIBE',
+                                          onPressed: () {
+                                            if (membershipSubscription
+                                                        ?.status !=
+                                                    'accepted' ||
+                                                membershipSubscription
+                                                        ?.status ==
+                                                    null)
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const PremiumPlanPage(
+                                                      subcriptionType:
+                                                          'membership',
+                                                    ),
+                                                  ));
+                                            // if (membershipSubscription
+                                            //         ?.status !=
+                                            //     'accepted') {
+                                            //   // _openModalSheet(
+                                            //   //     sheet: 'payment',
+                                            //   //     subscriptionType:
+                                            //   //         'membership');
+                                            // }
+                                          })),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Padding(
+                          padding:
+                              EdgeInsets.only(left: 25, right: 25, top: 20),
+                          child: Row(
+                            children: [
+                              Text(
+                                'UPGRADE APP SUBSCRIPTION',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 25, right: 25, top: 20),
+                          child: Center(
+                            child: Container(
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  const BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Icon Image Section
+                                  Image.asset(
+                                    'assets/pngs/premium.png',
+                                    height: 80,
+                                  ),
+                                  const SizedBox(height: 10),
+
+                                  // Plan Title
+                                  const Text(
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 17),
+                                    'App’s Premium Fee',
+                                  ),
+                                  const SizedBox(height: 5),
+
+                                  // Price Section
+                                  const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 26),
+                                        '₹1000 ',
+                                      ),
+                                      Text(
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15),
+                                        'per year',
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border.all(
+                                          color: const Color.fromARGB(
+                                              255, 218, 206, 206)),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              const Text(
+                                                'App Subscription status:',
+                                                style: TextStyle(fontSize: 13),
+                                              ),
+                                              const Spacer(),
+                                              if (appSubscription != null)
+                                                Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 5),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    border: Border.all(
+                                                      color: Colors.green,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
+                                                  ),
+                                                  child: appSubscription
+                                                              ?.status !=
+                                                          null
+                                                      ? Text(
+                                                          appSubscription
+                                                                      ?.status ==
+                                                                  'active'
+                                                              ? 'Premium'
+                                                              : 'Free',
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.green,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        )
+                                                      : const Text(
+                                                          'Free',
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.green,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              const Text(
+                                                'Last renewed on:',
+                                                style: TextStyle(fontSize: 13),
+                                              ),
+                                              const Spacer(),
+                                              Text(
+                                                appFormattedRenewalDate,
+                                                style: const TextStyle(
+                                                  decorationColor:
+                                                      Color(0xFF004797),
+                                                  decoration: TextDecoration
+                                                      .underline, // Adds underline
+                                                  fontStyle: FontStyle
+                                                      .italic, // Makes text italic
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Color(0xFF004797),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Row(
+                                            children: [
+                                              const Text(
+                                                'Next renewal on:',
+                                                style: TextStyle(fontSize: 13),
+                                              ),
+                                              const Spacer(),
+                                              Text(
+                                                appFormatteNextRenewalDate,
+                                                style: const TextStyle(
+                                                  decorationColor:
+                                                      Color(0xFF004797),
+                                                  decoration: TextDecoration
+                                                      .underline, // Adds underline
+                                                  fontStyle: FontStyle
+                                                      .italic, // Makes text italic
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Color(0xFF004797),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  // Features List
+                                  Container(
+                                    padding: const EdgeInsets.all(12.0),
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromARGB(
+                                          255, 255, 231, 192),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        _buildPremiumCard(
+                                            'Self-manage products and services'),
+                                        _buildPremiumCard(
+                                            'Post requirements (admin approval needed)'),
+                                        _buildPremiumCard(
+                                            'Search and send enquiries to suppliers'),
+                                        _buildPremiumCard(
+                                            'Receive product and service enquiries'),
+                                        _buildPremiumCard(
+                                            'Premium profile features'),
+                                        // _buildPremiumCard(
+                                        //     'Provide feedback to KSSIA office'),
+                                        // _buildPremiumCard('Chat with everyone'),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 15),
+                                  SizedBox(
+                                      width: double.infinity,
+                                      child: customButton(
+                                          buttonHeight: 40,
+                                          sideColor: const Color(0xFFF76412),
+                                          buttonColor: const Color(0xFFF76412),
+                                          label: appSubscription?.status?.toUpperCase() ?? 'SUBSCRIBE',
+                                          onPressed: () {
+                                            if (appSubscription?.status ==
+                                                    'free' ||
+                                                appSubscription?.status == null) {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const PremiumPlanPage(
+                                                      subcriptionType: 'app',
+                                                    ),
+                                                  ));
+                                            }
+                                            // if (appSubscription?.status !=
+                                            //     'active') {
+                                            //   _openModalSheet(
+                                            //       sheet: 'payment',
+                                            //       subscriptionType: 'app');
+                                            // }
+                                          })),
                                 ],
                               ),
                             ),
@@ -246,7 +630,24 @@ class MySubscriptionPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
-          const Icon(Icons.check_circle, color: kPrimaryColor, size: 18),
+          const Icon(Icons.check_circle, color: Color(0xFF004797), size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              feature,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumCard(String feature) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle, color: Colors.orange, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

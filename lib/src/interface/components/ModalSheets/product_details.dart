@@ -8,6 +8,7 @@ import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/product_model.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
+import 'package:hef/src/interface/components/Dialogs/upgrade_dialog.dart';
 import 'package:hef/src/interface/components/common/review_barchart.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/chat_screen.dart';
@@ -378,6 +379,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                     child: customButton(
                         label: 'Get Quote',
                         onPressed: () async {
+                             if (subscriptionType != 'free') {
                           await sendChatMessage(
                               productId: widget.product.id,
                               userId: widget.product.seller!,
@@ -389,6 +391,12 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                     receiver: widget.receiver,
                                     sender: widget.sender,
                                   )));
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const UpgradeDialog(),
+                          );
+                        }
                         },
                         fontSize: 16),
                   ),

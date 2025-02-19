@@ -9,11 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
+import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/business_model.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/notifiers/business_notifier.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
+import 'package:hef/src/interface/components/Dialogs/upgrade_dialog.dart';
 import 'package:hef/src/interface/components/DropDown/block_repor_dropDown.dart';
 import 'package:hef/src/interface/components/ModalSheets/addBusinessSheet.dart';
 import 'package:hef/src/interface/components/ModalSheets/business_details.dart';
@@ -186,7 +188,16 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
               right: 30,
               bottom: 30,
               child: GestureDetector(
-                onTap: () => _openModalSheet(),
+                onTap: () {
+                  if (subscriptionType != 'free') {
+                    _openModalSheet();
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const UpgradeDialog(),
+                    );
+                  }
+                },
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(

@@ -17,9 +17,7 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
           // Drawer Header
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Image.asset(
-                                                      scale: 5,
-                                                      'assets/pngs/splash_logo.png'),
+            child: Image.asset(scale: 5, 'assets/pngs/splash_logo.png'),
           ),
           SizedBox(
             height: 20,
@@ -146,7 +144,7 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
               navigationService.pushNamed('RequestNFC');
             },
           ),
-          if(user.phone!="+919645398555")
+
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_subscription.svg',
             label: 'My Subscription',

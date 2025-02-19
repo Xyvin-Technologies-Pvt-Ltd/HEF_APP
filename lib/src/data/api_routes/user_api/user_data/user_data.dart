@@ -73,7 +73,7 @@ Future<List<UserModel>> fetchMultipleUsers(
 
 @riverpod
 Future<List<Subscription>> getSubscription(GetSubscriptionRef ref) async {
-  final String url = '$baseUrl/payments/user/$id';
+  final String url = '$baseUrl/payment/user/$id';
   log('requesting url:$url');
   try {
     final response = await http.get(
@@ -209,7 +209,7 @@ Future<void> unBlockUser(String userId) async {
 
 @riverpod
 Future<List<PaymentYearModel>> getPaymentYears(Ref ref) async {
-  final url = Uri.parse('$baseUrl/payments/parent-subscription');
+  final url = Uri.parse('$baseUrl/payment/parent-subscription');
   print('Requesting URL: $url');
   final response = await http.get(
     url,
@@ -244,7 +244,7 @@ Future<String?> uploadPayment({
   required String parentSub,
 }) async {
   SnackbarService snackbarService = SnackbarService();
-  final url = Uri.parse('$baseUrl/payments/user');
+  final url = Uri.parse('$baseUrl/payment/user');
 
   final body = {
     'category': catergory,

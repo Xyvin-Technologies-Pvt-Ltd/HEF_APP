@@ -1,4 +1,3 @@
-
 import 'dart:developer';
 import 'dart:io';
 import 'package:path/path.dart';
@@ -29,7 +28,6 @@ class ShowPaymentUploadSheet extends StatefulWidget {
 }
 
 class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
-
   String? selectedYearId; // Variable to store the selected academic year ID
   TextEditingController amountController = TextEditingController();
   @override
@@ -143,6 +141,7 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
           ),
           const SizedBox(height: 10),
           TextField(
+            keyboardType: TextInputType.numberWithOptions(),
             controller: amountController,
             maxLines: 1,
             decoration: InputDecoration(
@@ -188,11 +187,11 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
                 return;
               }
               final String paymentImageUrl = await imageUpload(
-                   basename(widget. paymentImage!.path),
-                          widget.  paymentImage!.path,);
+                basename(widget.paymentImage!.path),
+                widget.paymentImage!.path,
+              );
               // Attempt to upload the payment details
               String? success = await uploadPayment(
-                
                   parentSub: selectedYearId ?? '',
                   catergory: widget.subscriptionType,
                   amount: amountController.text,

@@ -583,11 +583,11 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                           buttonHeight: 40,
                                           sideColor: const Color(0xFFF76412),
                                           buttonColor: const Color(0xFFF76412),
-                                          label: appSubscription?.status ?? '',
+                                          label: appSubscription?.status?.toUpperCase() ?? 'SUBSCRIBE',
                                           onPressed: () {
                                             if (appSubscription?.status ==
                                                     'free' ||
-                                                appSubscription?.status == null)
+                                                appSubscription?.status == null) {
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
@@ -596,6 +596,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                       subcriptionType: 'app',
                                                     ),
                                                   ));
+                                            }
                                             // if (appSubscription?.status !=
                                             //     'active') {
                                             //   _openModalSheet(

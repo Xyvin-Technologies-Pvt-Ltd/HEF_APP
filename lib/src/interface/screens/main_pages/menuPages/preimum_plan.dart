@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/services/save_qr.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
@@ -117,13 +118,13 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF004797),
-                      Color(0xFF004797),
-                      Color.fromRGBO(66, 104, 147, 0.93),
+                      kPrimaryColor,
+                      kPrimaryColor.withOpacity(.8),
+                      kPrimaryLightColor,
                     ],
                     stops: [0.0, 0.7, 1.0],
                   ),
@@ -149,7 +150,7 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                     Row(
                       children: [
                         const Text(
-                          'Bank details: Canara Bank Main Branch',
+                          'Bank Name: SOUTH INDIAN BANK',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.white,
@@ -174,7 +175,7 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                     Row(
                       children: [
                         const Text(
-                          'A/c no.: 0720101071990',
+                          'Branch: CHEBUKKAVU BRANCH',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.white,
@@ -183,7 +184,7 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                         IconButton(
                           onPressed: () {
                             setState(() {
-                              textToCopy = '0720101071990';
+                              textToCopy = 'Canara Bank Main Branch';
                             });
                             Clipboard.setData(ClipboardData(text: textToCopy));
                             snackbarService
@@ -199,7 +200,7 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                     Row(
                       children: [
                         const Text(
-                          'A/c name: KSSIA',
+                          'A/c no.: 0834073000000169',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.white,
@@ -208,10 +209,10 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                         IconButton(
                           onPressed: () {
                             setState(() {
-                              textToCopy = 'KSSIA';
+                              textToCopy = '0834073000000169';
                             });
                             Clipboard.setData(ClipboardData(text: textToCopy));
-                             snackbarService
+                            snackbarService
                                 .showSnackBar('Text copied to clipboard');
                           },
                           icon: const Icon(
@@ -224,7 +225,7 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                     Row(
                       children: [
                         const Text(
-                          'IFS code: CNRB0000720',
+                          'A/c name: Hindu Economic Forum',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.white,
@@ -233,10 +234,35 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                         IconButton(
                           onPressed: () {
                             setState(() {
-                              textToCopy = 'CNRB0000720';
+                              textToCopy = 'Hindu Economic Forum';
                             });
                             Clipboard.setData(ClipboardData(text: textToCopy));
-                           snackbarService
+                            snackbarService
+                                .showSnackBar('Text copied to clipboard');
+                          },
+                          icon: const Icon(
+                            Icons.copy,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          'IFS code: SIBL0000834',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              textToCopy = 'SIBL0000834';
+                            });
+                            Clipboard.setData(ClipboardData(text: textToCopy));
+                            snackbarService
                                 .showSnackBar('Text copied to clipboard');
                           },
                           icon: const Icon(
@@ -278,7 +304,7 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                             16.0), // Same radius as the border
                         child: Screenshot(
                             controller: screenshotController,
-                            child: Image.asset('assets/payment_qr.png')),
+                            child: Image.asset('assets/pngs/bank_details.png')),
                       ),
                     ),
                     const SizedBox(height: 16.0),
@@ -288,8 +314,8 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                           label: 'Download QR Code',
                           onPressed: () {
                             saveQr(
-                                screenshotController: screenshotController,
-                                );
+                              screenshotController: screenshotController,
+                            );
                           },
                           sideColor: const Color(0xFFF2F2F7),
                           buttonColor: const Color(0xFFF2F2F7),

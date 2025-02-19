@@ -13,10 +13,7 @@ class LevelMembers extends StatelessWidget {
 
   final String chapterName;
   const LevelMembers(
-      {super.key,
-      required this.chapterId,
-
-      required this.chapterName});
+      {super.key, required this.chapterId, required this.chapterName});
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +101,7 @@ class LevelMembers extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              // Handle action
+              navigationService.pushNamed('MemberCreation');
             },
             backgroundColor: Colors.orange,
             child: Icon(Icons.person_add, color: Colors.white),

@@ -355,7 +355,8 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
               ],
             ),
           ),
-          if (!widget.event.coordinator!.contains(id))
+          if (!widget.event.coordinator!.contains(id) &&
+              widget.event.status != "completed")
             Consumer(
               builder: (context, ref, child) {
                 return Positioned(

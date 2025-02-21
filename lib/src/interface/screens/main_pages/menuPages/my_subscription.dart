@@ -10,7 +10,6 @@ import 'package:hef/src/interface/screens/main_pages/menuPages/preimum_plan.dart
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 
-
 class MySubscriptionPage extends StatefulWidget {
   @override
   State<MySubscriptionPage> createState() => _MySubscriptionPageState();
@@ -20,8 +19,6 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
   TextEditingController remarksController = TextEditingController();
 
   File? _paymentImage;
-
-
 
   // void _openModalSheet({required String sheet, required subscriptionType}) {
   //   showModalBottomSheet(
@@ -61,15 +58,19 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
     return null;
   }
 
-String? getRenewalYear(String? period) {
-  final parts = period!.split('-');
-  return parts.isNotEmpty ? parts[0] : null;
-}
+  String? getRenewalYear(String? period) {
+    if (period != null) {
+      final parts = period!.split('-');
+      return parts.isNotEmpty ? parts[0] : null;
+    } else {
+      return '';
+    }
+  }
 
-String? getExpiryYear(String? period) {
-  final parts = period!.split('-');
-  return parts.length > 1 ? parts[1] : null;
-}
+  String? getExpiryYear(String? period) {
+    final parts = period!.split('-');
+    return parts.length > 1 ? parts[1] : null;
+  }
 
   Subscription? membershipSubscription;
   Subscription? appSubscription;
@@ -77,7 +78,6 @@ String? getExpiryYear(String? period) {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
-   
         final asyncSubscriptions = ref.watch(getSubscriptionProvider);
         return Scaffold(
             appBar: AppBar(
@@ -108,7 +108,7 @@ String? getExpiryYear(String? period) {
                       orElse: () => Subscription(),
                     );
                   }
-         
+
                   return SingleChildScrollView(
                     child: Column(
                       children: [
@@ -228,6 +228,9 @@ String? getExpiryYear(String? period) {
                                                 ),
                                             ],
                                           ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
                                           Row(
                                             children: [
                                               const Text(
@@ -236,7 +239,11 @@ String? getExpiryYear(String? period) {
                                               ),
                                               const Spacer(),
                                               Text(
-                                                getRenewalYear(membershipSubscription?.parentSub?.academicYear)??'',
+                                                getRenewalYear(
+                                                        membershipSubscription
+                                                            ?.parentSub
+                                                            ?.academicYear) ??
+                                                    '',
                                                 style: const TextStyle(
                                                   decorationColor:
                                                       Color(0xFF004797),
@@ -262,7 +269,11 @@ String? getExpiryYear(String? period) {
                                               ),
                                               const Spacer(),
                                               Text(
-                                                                     getExpiryYear(membershipSubscription?.parentSub?.academicYear)??'',
+                                                getExpiryYear(
+                                                        membershipSubscription
+                                                            ?.parentSub
+                                                            ?.academicYear) ??
+                                                    '',
                                                 style: const TextStyle(
                                                   decorationColor:
                                                       Color(0xFF004797),
@@ -482,55 +493,72 @@ String? getExpiryYear(String? period) {
                                                 ),
                                             ],
                                           ),
-                                          Row(
-                                            children: [
-                                              const Text(
-                                                'Last renewed on:',
-                                                style: TextStyle(fontSize: 13),
-                                              ),
-                                              const Spacer(),
-                                              Text(
-                                                                       getRenewalYear(appSubscription?.parentSub?.academicYear)??'',
-                                                style: const TextStyle(
-                                                  decorationColor:
-                                                      Color(0xFF004797),
-                                                  decoration: TextDecoration
-                                                      .underline, // Adds underline
-                                                  fontStyle: FontStyle
-                                                      .italic, // Makes text italic
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF004797),
+                                          if (appSubscription
+                                                  ?.parentSub?.academicYear !=
+                                              null)
+                                            Row(
+                                              children: [
+                                                const Text(
+                                                  'Last renewed on:',
+                                                  style:
+                                                      TextStyle(fontSize: 13),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Row(
-                                            children: [
-                                              const Text(
-                                                'Next renewal on:',
-                                                style: TextStyle(fontSize: 13),
-                                              ),
-                                              const Spacer(),
-                                              Text(
-                                                                    getRenewalYear(appSubscription?.parentSub?.academicYear)??'',
-                                                style: const TextStyle(
-                                                  decorationColor:
-                                                      Color(0xFF004797),
-                                                  decoration: TextDecoration
-                                                      .underline, // Adds underline
-                                                  fontStyle: FontStyle
-                                                      .italic, // Makes text italic
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF004797),
+                                                const Spacer(),
+                                                Text(
+                                                  getRenewalYear(appSubscription
+                                                          ?.parentSub
+                                                          ?.academicYear) ??
+                                                      '',
+                                                  style: const TextStyle(
+                                                    decorationColor:
+                                                        Color(0xFF004797),
+                                                    decoration: TextDecoration
+                                                        .underline, // Adds underline
+                                                    fontStyle: FontStyle
+                                                        .italic, // Makes text italic
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Color(0xFF004797),
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          )
+                                              ],
+                                            ),
+                                          if (appSubscription
+                                                  ?.parentSub?.academicYear !=
+                                              null)
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                          if (appSubscription
+                                                  ?.parentSub?.academicYear !=
+                                              null)
+                                            Row(
+                                              children: [
+                                                const Text(
+                                                  'Next renewal on:',
+                                                  style:
+                                                      TextStyle(fontSize: 13),
+                                                ),
+                                                const Spacer(),
+                                                Text(
+                                                  getRenewalYear(appSubscription
+                                                          ?.parentSub
+                                                          ?.academicYear) ??
+                                                      '',
+                                                  style: const TextStyle(
+                                                    decorationColor:
+                                                        Color(0xFF004797),
+                                                    decoration: TextDecoration
+                                                        .underline, // Adds underline
+                                                    fontStyle: FontStyle
+                                                        .italic, // Makes text italic
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Color(0xFF004797),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
                                         ],
                                       ),
                                     ),
@@ -571,11 +599,14 @@ String? getExpiryYear(String? period) {
                                           buttonHeight: 40,
                                           sideColor: const Color(0xFFF76412),
                                           buttonColor: const Color(0xFFF76412),
-                                          label: appSubscription?.status?.toUpperCase() ?? 'SUBSCRIBE',
+                                          label: appSubscription?.status
+                                                  ?.toUpperCase() ??
+                                              'SUBSCRIBE',
                                           onPressed: () {
                                             if (appSubscription?.status ==
                                                     'free' ||
-                                                appSubscription?.status == null) {
+                                                appSubscription?.status ==
+                                                    null) {
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(

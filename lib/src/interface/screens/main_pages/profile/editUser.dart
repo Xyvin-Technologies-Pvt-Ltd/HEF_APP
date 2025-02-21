@@ -164,9 +164,7 @@ class _EditUserState extends ConsumerState<EditUser> {
       if (imageType == 'profile') {
         setState(() {
           _profileImageFile = File(image.path);
-          imageUpload(
-                  _profileImageFile!.path)
-              .then((url) {
+          imageUpload(_profileImageFile!.path).then((url) {
             String profileUrl = url;
             _profileImageSource = ImageSource.gallery;
             ref.read(userProvider.notifier).updateProfilePicture(profileUrl);
@@ -199,9 +197,7 @@ class _EditUserState extends ConsumerState<EditUser> {
   // }
 
   Future<void> _addNewAward() async {
-    await imageUpload(
- _awardImageFIle!.path)
-        .then((url) {
+    await imageUpload(_awardImageFIle!.path).then((url) {
       final String awardUrl = url;
       final newAward = Award(
         name: awardNameController.text,
@@ -257,9 +253,7 @@ class _EditUserState extends ConsumerState<EditUser> {
   }
 
   Future<void> _addNewCertificate() async {
-    await imageUpload(
-            _certificateImageFIle!.path)
-        .then((url) {
+    await imageUpload(_certificateImageFIle!.path).then((url) {
       final String certificateUrl = url;
       final newCertificate =
           Link(name: certificateNameController.text, link: certificateUrl);
@@ -426,6 +420,15 @@ class _EditUserState extends ConsumerState<EditUser> {
       navigationService.pop();
       ref.read(userProvider.notifier).refreshUser();
     }
+  }
+
+  void _removeCompanyDetails(int index) {
+    setState(() {
+      if (companyDetailsControllers.length > 1) {
+        // Ensure at least one company remains
+        companyDetailsControllers.removeAt(index);
+      }
+    });
   }
 
   @override
@@ -861,10 +864,25 @@ class _EditUserState extends ConsumerState<EditUser> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text('Company ${index + 1}',
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold)),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('Company ${index + 1}',
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold)),
+                                          if (companyDetailsControllers.length >
+                                              1) // Only show delete if more than one company
+
+                                            InkWell(
+                                                onTap: () =>
+                                                    _removeCompanyDetails(
+                                                        index),
+                                                child: SvgPicture.asset(
+                                                    'assets/svg/icons/delete_account.svg')),
+                                        ],
+                                      ),
                                       SizedBox(
                                         height: 10,
                                       ),
@@ -1024,6 +1042,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                               // //       ],
                               // //     ),
                               // //   ),
+                              // ),
                               ,
                               const Padding(
                                 padding: EdgeInsets.all(20),

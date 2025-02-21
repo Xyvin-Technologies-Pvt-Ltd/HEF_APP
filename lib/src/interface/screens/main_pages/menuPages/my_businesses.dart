@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,30 +40,35 @@ class MyBusinessesPage extends StatelessWidget {
                 );
               },
               data: (myPosts) {
-                print(myPosts);
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: myPosts.length,
-                          itemBuilder: (context, index) {
-                            return _buildPostCard(
-                                context,
-                                myPosts[index].status ?? '',
-                                myPosts[index].content ?? '',
-                                '3 messages',
-                                myPosts[index].createdAt!,
-                                myPosts[index].id!,
-                                imageUrl: myPosts[index].media);
-                          },
+                if (myPosts.isNotEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: myPosts.length,
+                            itemBuilder: (context, index) {
+                              return _buildPostCard(
+                                  context,
+                                  myPosts[index].status ?? '',
+                                  myPosts[index].content ?? '',
+                                  '3 messages',
+                                  myPosts[index].createdAt!,
+                                  myPosts[index].id!,
+                                  imageUrl: myPosts[index].media);
+                            },
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                    ],
-                  ),
-                );
+                        SizedBox(height: 16),
+                      ],
+                    ),
+                  );
+                } else {
+                  Center(
+                    child: Text('No Business Posts Added'),
+                  );
+                }
               },
             ));
       },
@@ -201,8 +205,7 @@ class MyBusinessesPage extends StatelessWidget {
                         style: TextButton.styleFrom(
                             backgroundColor: Color(0xFFEB5757)),
                         onPressed: () {
-                  
-                          deletePost( requirementId, context);
+                          deletePost(requirementId, context);
                           ref.invalidate(fetchMyBusinessesProvider);
                           Navigator.of(context).pop();
                         },

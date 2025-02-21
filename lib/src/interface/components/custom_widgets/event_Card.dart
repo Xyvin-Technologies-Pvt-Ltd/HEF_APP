@@ -40,7 +40,7 @@ Widget eventWidget({
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: CachedNetworkImage(
-                        imageUrl: event.image!,
+                        imageUrl: event.image ?? '',
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Shimmer.fromColors(
                           baseColor: Colors.grey[300]!,

@@ -10,15 +10,20 @@ import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/data/router/router.dart' as router;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
+import 'package:firebase_app_check/firebase_app_check.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+   await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity, //Change to PlayIntegrityProvider for release
+    appleProvider: AppleProvider.debug, //May need to change for different iOS versions
+  );
   initializeNotifications();
   runApp(ProviderScope(child: MyApp()));
+  
 }
 
 class MyApp extends StatelessWidget {

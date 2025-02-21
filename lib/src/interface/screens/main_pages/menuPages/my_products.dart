@@ -64,7 +64,7 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
 
   Future<void> _addNewProduct({required List<String> selectedTags}) async {
     productUrl = await imageUpload(
-      basename(_productImageFIle!.path),
+
       _productImageFIle!.path,
     );
     log('product price type:${productPriceType.text}');

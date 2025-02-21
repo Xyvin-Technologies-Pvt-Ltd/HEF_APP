@@ -1,46 +1,50 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:minio_flutter/io.dart';
-import 'package:minio_flutter/minio.dart';
+import 'dart:convert';
+import 'dart:developer';
 
-import 'package:path/path.dart';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:hef/src/data/globals.dart';
 import 'package:image/image.dart' as img;
 
-Future<String> imageUpload(String imageName, String imagePath) async {
-  // Initialize Minio
-  Minio.init(
-    endPoint: 's3.amazonaws.com',
-    accessKey: dotenv.env['AWS_ACCESS_KEY_ID']!,
-    secretKey: dotenv.env['AWS_SECRET_ACCESS_KEY']!,
-    region: 'ap-south-1',
-  );
+import 'package:http/http.dart' as http;
 
-  // Load the image as bytes
+Future<String> imageUpload(String imagePath) async {
   File imageFile = File(imagePath);
   Uint8List imageBytes = await imageFile.readAsBytes();
   print("Original image size: ${imageBytes.lengthInBytes / 1024} KB");
 
-  // Check if the image is larger than 1 MB (1 MB = 1024 * 1024 bytes)
+  // Check if the image is larger than 1 MB
   if (imageBytes.lengthInBytes > 1024 * 1024) {
     img.Image? image = img.decodeImage(imageBytes);
     if (image != null) {
-      // Compress the image by resizing or reducing quality
-      img.Image resizedImage = img.copyResize(image,
-          width: (image.width * 0.5).toInt()); // Resize to 50%
-      imageBytes = Uint8List.fromList(
-          img.encodeJpg(resizedImage, quality: 80)); // Adjust quality as needed
+      img.Image resizedImage =
+          img.copyResize(image, width: (image.width * 0.5).toInt());
+      imageBytes = Uint8List.fromList(img.encodeJpg(resizedImage, quality: 80));
       print("Compressed image size: ${imageBytes.lengthInBytes / 1024} KB");
 
-      // Save the compressed image temporarily for upload
+      // Save compressed image
       imageFile = await File(imagePath).writeAsBytes(imageBytes);
     }
   }
 
-  // Upload the image to Minio
-  await Minio.shared
-      .fPutObject('bucket-hef', basename(imageName), imageFile.path);
-  final imageUrl =
-      "https://bucket-hef.s3.ap-south-1.amazonaws.com/${basename(imagePath)}";
-  return imageUrl;
+  var request = http.MultipartRequest(
+    'POST',
+   Uri.parse('$baseUrl/upload'),
+  );
+  request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+  var response = await request.send();
+
+  if (response.statusCode == 200) {
+    var responseBody = await response.stream.bytesToString();
+    return extractImageUrl(responseBody);
+  } else {
+    throw Exception('Failed to upload image');
+  }
+}
+
+String extractImageUrl(String responseBody) {
+  final responseJson = jsonDecode(responseBody);
+  log(name: "image upload response", responseJson.toString());
+  return responseJson['data'];
 }

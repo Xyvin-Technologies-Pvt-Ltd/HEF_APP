@@ -201,7 +201,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                             selectedSubCategory != null &&
                             selectedStatus != null) {
                           String profileImageUrl = await imageUpload(
-                              Path.basename(_profileImage!.path),
+        
                               _profileImage!.path);
                           navigationService.pushNamed('MemberAllocation',
                               arguments: UserModel(

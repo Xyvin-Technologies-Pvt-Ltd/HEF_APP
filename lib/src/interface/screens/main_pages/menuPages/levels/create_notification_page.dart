@@ -329,7 +329,7 @@ class _CreateNotificationPageState
                 onPressed: () async {
                   if (notificationImage != null) {
                     notificationImageUrl = await imageUpload(
-                        Path.basename(notificationImage!.path),
+
                         notificationImage!.path);
                   }
                   createLevelNotification(

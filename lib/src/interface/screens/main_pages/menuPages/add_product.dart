@@ -68,7 +68,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
 
   Future<void> _addNewProduct() async {
     productUrl = await imageUpload(
-      basename(_productImageFIle!.path),
+
       _productImageFIle!.path,
     );
     log('product price type:${productPriceType.text}');

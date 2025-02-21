@@ -187,7 +187,6 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
                 return;
               }
               final String paymentImageUrl = await imageUpload(
-                basename(widget.paymentImage!.path),
                 widget.paymentImage!.path,
               );
               // Attempt to upload the payment details

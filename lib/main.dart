@@ -10,15 +10,17 @@ import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/data/router/router.dart' as router;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); 
-   await dotenv.load(fileName: ".env");
+  WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   initializeNotifications();
   runApp(ProviderScope(child: MyApp()));
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -41,7 +43,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -49,8 +50,9 @@ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 void initializeNotifications() {
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-const iosInitializationSetting = DarwinInitializationSettings();
-const initSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: iosInitializationSetting);
+  const iosInitializationSetting = DarwinInitializationSettings();
+  const initSettings = InitializationSettings(
+      android: initializationSettingsAndroid, iOS: iosInitializationSetting);
 
   flutterLocalNotificationsPlugin.initialize(initSettings);
 }

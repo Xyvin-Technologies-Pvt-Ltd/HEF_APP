@@ -45,12 +45,15 @@ class _SendAnalyticRequestPageState
   bool isChecked = false;
   bool isReferral = false;
 
+  // Add new meeting type dropdown value
+  String? selectedMeetingType;
+
   Future<void> createAnalytic() async {
     final Map<String, dynamic> analytictData = {
       "type": selectedRequestType,
       "member": selectedMember,
       "sender": id,
-      "amount":amountController.text,
+      if (amountController.text != '') "amount": amountController.text,
       "title": titleController.text,
       "description": descriptionController.text,
       if (selectedRefferalMember != null) "referral": selectedRefferalMember,
@@ -59,9 +62,10 @@ class _SendAnalyticRequestPageState
       if (amountController.text != '') "amount": amountController.text,
       if (dateController.text != '') "date": "2024-12-01",
       if (timeController.text != '') "time": "14:00",
-      if (linkController.text != '')
+      if (selectedMeetingType == 'Online' && linkController.text != '')
         "meetingLink": linkController.text,
-      if (locationController.text != '') "location": "Conference Room A"
+      if (selectedMeetingType == 'Offline' && locationController.text != '')
+        "location": locationController.text,
     };
     await postAnalytic(data: analytictData);
   }
@@ -234,25 +238,25 @@ class _SendAnalyticRequestPageState
               ),
               asyncMembers.when(
                 data: (members) {
-                            final filteredMembers =
-                            members.where((member) => member.id != id).toList();
+                  final filteredMembers =
+                      members.where((member) => member.id != id).toList();
                   return SelectionDropDown(
-                  hintText: 'Choose Member',
-                  value: selectedMember,
-                  label: null,
-                  items: filteredMembers.map((member) {
-                    return DropdownMenuItem<String>(
-                      value: member.id,
-                      child: Text(member.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedMember = value;
-                    });
-                  },
-                );
-                }  ,
+                    hintText: 'Choose Member',
+                    value: selectedMember,
+                    label: null,
+                    items: filteredMembers.map((member) {
+                      return DropdownMenuItem<String>(
+                        value: member.id,
+                        child: Text(member.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedMember = value;
+                      });
+                    },
+                  );
+                },
                 loading: () => const Center(child: LoadingAnimation()),
                 error: (error, stackTrace) => const SizedBox(),
               ),
@@ -281,11 +285,35 @@ class _SendAnalyticRequestPageState
                 labelText: 'Description',
                 maxLines: 3,
               ),
-              const SizedBox(height: 10.0),
+              const SizedBox(height: 20.0),
               if (selectedRequestType == 'One v One Meeting')
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Text('Meeting Type',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    SelectionDropDown(
+                      hintText: 'Choose Meeting Type',
+                      value: selectedMeetingType,
+                      items: ['Online', 'Offline']
+                          .map((type) => DropdownMenuItem(
+                                value: type,
+                                child: Text(type),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedMeetingType = value;
+                          // Clear the fields when switching types
+                          if (value == 'Online') {
+                            locationController.clear();
+                          } else {
+                            linkController.clear();
+                          }
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 10.0),
                     const Text('Date',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10.0),
@@ -395,20 +423,23 @@ class _SendAnalyticRequestPageState
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10.0),
-                    const Text('Meeting Link',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10.0),
-                    CustomTextFormField(
-                        textController: linkController,
-                        labelText: 'Meeting Link'),
-                    const SizedBox(height: 10.0),
-                    const Text('Location',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10.0),
-                    CustomTextFormField(
-                        textController: locationController,
-                        labelText: 'Loaction'),
+                    const SizedBox(height: 20.0),
+                    if (selectedMeetingType == 'Online') ...[
+                      const Text('Meeting Link',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10.0),
+                      CustomTextFormField(
+                          textController: linkController,
+                          labelText: 'Meeting Link'),
+                    ],
+                    if (selectedMeetingType == 'Offline') ...[
+                      const Text('Location',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10.0),
+                      CustomTextFormField(
+                          textController: locationController,
+                          labelText: 'Location'),
+                    ],
                   ],
                 ),
               if (selectedRequestType == 'Business')
@@ -539,31 +570,32 @@ class _SendAnalyticRequestPageState
                       loading: () => const Center(child: LoadingAnimation()),
                       error: (error, stackTrace) => const SizedBox(),
                     ),
- asyncReferralMembers.when(
-  data: (members) {
-    // Create a new list excluding the member with the matching id
-    final filteredMembers = members.where((member) => member.id != id).toList();
+                    asyncReferralMembers.when(
+                      data: (members) {
+                        // Create a new list excluding the member with the matching id
+                        final filteredMembers =
+                            members.where((member) => member.id != id).toList();
 
-    return SelectionDropDown(
-      hintText: 'Choose Member',
-      value: selectedRefferalMember,
-      label: null,
-      items: filteredMembers.map((member) {
-        return DropdownMenuItem<String>(
-          value: member.id,
-          child: Text(member.name),
-        );
-      }).toList(),
-      onChanged: (value) {
-        setState(() {
-          selectedRefferalMember = value;
-        });
-      },
-    );
-  },
-  loading: () => const Center(child: LoadingAnimation()),
-  error: (error, stackTrace) => const SizedBox(),
-),
+                        return SelectionDropDown(
+                          hintText: 'Choose Member',
+                          value: selectedRefferalMember,
+                          label: null,
+                          items: filteredMembers.map((member) {
+                            return DropdownMenuItem<String>(
+                              value: member.id,
+                              child: Text(member.name),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedRefferalMember = value;
+                            });
+                          },
+                        );
+                      },
+                      loading: () => const Center(child: LoadingAnimation()),
+                      error: (error, stackTrace) => const SizedBox(),
+                    ),
 
                     const SizedBox(height: 10.0),
                   ],

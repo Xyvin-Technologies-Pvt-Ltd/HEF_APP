@@ -28,7 +28,7 @@ Future<List<Product>> fetchProducts(Ref ref,
   print('hello');
   print(json.decode(response.body)['status']);
   if (response.statusCode == 200) {
-    final List<dynamic> data = json.decode(response.body)['data']['products'];
+    final List<dynamic> data = json.decode(response.body)['data'];
     print(response.body);
     List<Product> products = [];
 

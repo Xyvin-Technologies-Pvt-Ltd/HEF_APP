@@ -115,6 +115,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
               )),
             if (analytic.status != 'meeting_scheduled' &&
                 tabBarType != 'sent' &&
+                tabBarType != 'history' &&
                 analytic.status != 'rejected' &&
                 analytic.status != 'meeting_scheduled' &&
                 analytic.user_id != id)

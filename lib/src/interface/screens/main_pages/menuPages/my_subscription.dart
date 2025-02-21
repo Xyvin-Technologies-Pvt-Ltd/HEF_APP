@@ -7,6 +7,7 @@ import 'package:hef/src/data/models/subscription_model.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/preimum_plan.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 
 
@@ -60,6 +61,16 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
     return null;
   }
 
+String? getRenewalYear(String? period) {
+  final parts = period!.split('-');
+  return parts.isNotEmpty ? parts[0] : null;
+}
+
+String? getExpiryYear(String? period) {
+  final parts = period!.split('-');
+  return parts.length > 1 ? parts[1] : null;
+}
+
   Subscription? membershipSubscription;
   Subscription? appSubscription;
   @override
@@ -97,30 +108,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                       orElse: () => Subscription(),
                     );
                   }
-                  String membershipFormattedRenewalDate =
-                      membershipSubscription?.lastRenewDate == null ||
-                              membershipSubscription?.lastRenewDate == ''
-                          ? ''
-                          : DateFormat('dd MMMM yyyy')
-                              .format(membershipSubscription!.lastRenewDate!);
-                  String membershipFormatteNextRenewalDate =
-                      membershipSubscription?.expiryDate == null ||
-                              membershipSubscription?.expiryDate == ''
-                          ? ''
-                          : DateFormat('dd MMMM yyyy')
-                              .format(membershipSubscription!.expiryDate!);
-                  String appFormattedRenewalDate =
-                      appSubscription?.lastRenewDate == null ||
-                              appSubscription?.lastRenewDate == ''
-                          ? ''
-                          : DateFormat('dd MMMM yyyy')
-                              .format(appSubscription!.lastRenewDate!);
-                  String appFormatteNextRenewalDate =
-                      appSubscription?.expiryDate == null ||
-                              appSubscription?.expiryDate == ''
-                          ? ''
-                          : DateFormat('dd MMMM yyyy')
-                              .format(appSubscription!.expiryDate!);
+         
                   return SingleChildScrollView(
                     child: Column(
                       children: [
@@ -248,7 +236,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                               ),
                                               const Spacer(),
                                               Text(
-                                                membershipFormattedRenewalDate,
+                                                getRenewalYear(membershipSubscription?.parentSub?.academicYear)??'',
                                                 style: const TextStyle(
                                                   decorationColor:
                                                       Color(0xFF004797),
@@ -274,7 +262,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                               ),
                                               const Spacer(),
                                               Text(
-                                                membershipFormatteNextRenewalDate,
+                                                                     getExpiryYear(membershipSubscription?.parentSub?.academicYear)??'',
                                                 style: const TextStyle(
                                                   decorationColor:
                                                       Color(0xFF004797),
@@ -502,7 +490,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                               ),
                                               const Spacer(),
                                               Text(
-                                                appFormattedRenewalDate,
+                                                                       getRenewalYear(appSubscription?.parentSub?.academicYear)??'',
                                                 style: const TextStyle(
                                                   decorationColor:
                                                       Color(0xFF004797),
@@ -528,7 +516,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                               ),
                                               const Spacer(),
                                               Text(
-                                                appFormatteNextRenewalDate,
+                                                                    getRenewalYear(appSubscription?.parentSub?.academicYear)??'',
                                                 style: const TextStyle(
                                                   decorationColor:
                                                       Color(0xFF004797),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 
@@ -47,8 +48,7 @@ class _BlockPersonDialogState extends ConsumerState<BlockPersonDialog> {
           );
         },
         data: (user) {
-          bool isBlocked = 
-          user.blockedUsers
+          bool isBlocked = user.blockedUsers
                   ?.any((blockedUser) => blockedUser.uid == widget.userId) ??
               false;
           return Dialog(
@@ -104,7 +104,7 @@ class _BlockPersonDialogState extends ConsumerState<BlockPersonDialog> {
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(
-                                    color: Color(0xFF004797),
+                                    color: kPrimaryColor,
                                     width: 2.0,
                                   ),
                                 ),
@@ -155,7 +155,7 @@ class _BlockPersonDialogState extends ConsumerState<BlockPersonDialog> {
           child: const Text(
             'Cancel',
             style: TextStyle(
-              color: Color(0xFF004797),
+              color: kPrimaryColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -170,8 +170,7 @@ class _BlockPersonDialogState extends ConsumerState<BlockPersonDialog> {
               builder: (BuildContext context) {
                 return Center(
                   child: CircularProgressIndicator(
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(Color(0xFF004797)),
+                    valueColor: AlwaysStoppedAnimation<Color>(kPrimaryColor),
                   ),
                 );
               },
@@ -189,13 +188,13 @@ class _BlockPersonDialogState extends ConsumerState<BlockPersonDialog> {
             Navigator.of(context).pop();
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF004797),
+            backgroundColor: kPrimaryColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
             padding:
                 const EdgeInsets.symmetric(horizontal: 24.0, vertical: 14.0),
-            shadowColor: const Color(0xFF004797),
+            shadowColor: kPrimaryColor,
             elevation: 6,
           ),
           child: Text(
@@ -212,8 +211,6 @@ class _BlockPersonDialogState extends ConsumerState<BlockPersonDialog> {
   }
 
   Future<void> _toggleBlockStatus(BuildContext context, bool isBlocked) async {
-
-
     if (isBlocked) {
       await unBlockUser(widget.userId);
     } else {

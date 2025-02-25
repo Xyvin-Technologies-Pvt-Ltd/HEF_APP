@@ -316,13 +316,19 @@ class _EditUserState extends ConsumerState<EditUser> {
         },
       if (user.company != null)
         "company": user.company!.map((company) {
+          final name = company.name?.trim();
+          final designation = company.designation?.trim();
+          final phone = company.phone?.trim();
+          final email = company.email?.trim();
+          final websites = company.websites?.trim();
+
           return {
-            if (company.name != null) "name": company.name ?? '',
-            if (company.designation != null)
-              "designation": company.designation ?? '',
-            if (company.phone != null) "phone": company.phone ?? '',
-            if (company.email != null) "email": company.email ?? '',
-            if (company.websites != null) "websites": company.websites ?? '',
+            if (name != null && name.isNotEmpty) "name": name,
+            if (designation != null && designation.isNotEmpty)
+              "designation": designation,
+            if (phone != null && phone.isNotEmpty) "phone": phone,
+            if (email != null && email.isNotEmpty) "email": email,
+            if (websites != null && websites.isNotEmpty) "websites": websites,
           };
         }).toList(),
       "social": [

@@ -83,7 +83,7 @@ class CustomTextFormField extends StatelessWidget {
     this.enabled,
     this.isAward,
     this.title,
-    this.textInputType = TextInputType.name,
+    this.textInputType = TextInputType. text,
     this.companyIndex,
   });
 

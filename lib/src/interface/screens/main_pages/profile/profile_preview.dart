@@ -644,7 +644,7 @@ class ProfilePreview extends ConsumerWidget {
                           return Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 4.0), // Space between items
-                            child: CertificateCard(
+                            child: CertificateCard(onEdit: null,
                               certificate: user.certificates![index],
                               onRemove: null,
                             ),
@@ -677,7 +677,7 @@ class ProfilePreview extends ConsumerWidget {
                         ),
                         itemCount: user.awards!.length,
                         itemBuilder: (context, index) {
-                          return AwardCard(
+                          return AwardCard(onEdit: null,
                             award: user.awards![index],
                             onRemove: null,
                           );

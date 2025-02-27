@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
-import 'package:hef/src/interface/components/DropDown/dropdown_menu.dart';
+import 'package:hef/src/interface/components/DropDown/remove_edit_dropdown.dart';
 
 class AwardCard extends StatelessWidget {
   final VoidCallback? onRemove;
+  final VoidCallback? onEdit;
 
   final Award award;
 
-  const AwardCard({
-    required this.onRemove,
-    required this.award,
-    super.key,
-  });
+  const AwardCard(
+      {required this.onRemove,
+      required this.award,
+      super.key,
+      required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +36,7 @@ class AwardCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: NetworkImage(
-                          award.image!), // Replace with your image path
+                          award.image??''), // Replace with your image path
                       fit: BoxFit.cover,
                     ),
                     borderRadius: BorderRadius.only(
@@ -57,9 +56,9 @@ class AwardCard extends StatelessWidget {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(4.0),
-                          child: DropDownMenu(
+                          child: RemoveEditDropdown(
                             onRemove: onRemove!,
-                            // onEdit: onEdit!,
+                            onEdit: onEdit!,
                           ),
                         )),
                   ),
@@ -70,7 +69,7 @@ class AwardCard extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: kWhite,
+                  color: const Color(0xFFF2F2F2),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),

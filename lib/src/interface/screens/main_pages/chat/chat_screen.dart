@@ -119,65 +119,66 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
         Scaffold(
           appBar: PreferredSize(
               preferredSize: const Size.fromHeight(60),
-              child: AppBar(   actions: [
-                      PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_vert), // The three-dot icon
-                        onSelected: (value) {
-                          if (value == 'report') {
-                            showReportPersonDialog(
-                              context: context,
-                              onReportStatusChanged: () {},
-                              reportType: 'User',
-                              reportedItemId: widget.receiver.id ?? '',
-                            );
-                          } else if (value == 'block') {
-                            showBlockPersonDialog(
-                              context: context,
-                              userId: widget.receiver.id ?? '',
-                              onBlockStatusChanged: () {
-                                Future.delayed(const Duration(seconds: 1), () {
-                                  setState(() {
-                                    isBlocked = !isBlocked;
-                                  });
-                                });
-                              },
-                            );
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'report',
-                            child: Row(
-                              children: [
-                                Icon(Icons.report, color: Color(0xFF004797)),
-                                SizedBox(width: 8),
-                                Text('Report'),
-                              ],
-                            ),
-                          ),
-                          // Divider for visual separation
-                          const PopupMenuDivider(height: 1),
-                          PopupMenuItem(
-                            value: 'block',
-                            child: Row(
-                              children: [
-                                Icon(Icons.block),
-                                SizedBox(width: 8),
-                                isBlocked ? Text('Unblock') : Text('Block'),
-                              ],
-                            ),
-                          ),
-                        ],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              12), // Border radius for the menu
+              child: AppBar(
+                actions: [
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert), // The three-dot icon
+                    onSelected: (value) {
+                      if (value == 'report') {
+                        showReportPersonDialog(
+                          context: context,
+                          onReportStatusChanged: () {},
+                          reportType: 'User',
+                          reportedItemId: widget.receiver.id ?? '',
+                        );
+                      } else if (value == 'block') {
+                        showBlockPersonDialog(
+                          context: context,
+                          userId: widget.receiver.id ?? '',
+                          onBlockStatusChanged: () {
+                            Future.delayed(const Duration(seconds: 1), () {
+                              setState(() {
+                                isBlocked = !isBlocked;
+                              });
+                            });
+                          },
+                        );
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'report',
+                        child: Row(
+                          children: [
+                            Icon(Icons.report, color: kPrimaryColor),
+                            SizedBox(width: 8),
+                            Text('Report'),
+                          ],
                         ),
-                        color: Colors
-                            .white, // Optional: set background color for the menu
-                        offset: const Offset(
-                            0, 40), // Optional: adjust the position of the menu
-                      )
+                      ),
+                      // Divider for visual separation
+                      const PopupMenuDivider(height: 1),
+                      PopupMenuItem(
+                        value: 'block',
+                        child: Row(
+                          children: [
+                            Icon(Icons.block),
+                            SizedBox(width: 8),
+                            isBlocked ? Text('Unblock') : Text('Block'),
+                          ],
+                        ),
+                      ),
                     ],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          12), // Border radius for the menu
+                    ),
+                    color: Colors
+                        .white, // Optional: set background color for the menu
+                    offset: const Offset(
+                        0, 40), // Optional: adjust the position of the menu
+                  )
+                ],
                 elevation: 1,
                 shadowColor: Colors.white,
                 backgroundColor: Colors.white,
@@ -255,7 +256,6 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                     );
                   },
                 ),
-              
               )),
           body: Container(
             decoration: const BoxDecoration(
@@ -299,9 +299,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                     showReportPersonDialog(
                                         reportedItemId: message.id ?? '',
                                         context: context,
-                                        onReportStatusChanged: () {
-                                     
-                                        },
+                                        onReportStatusChanged: () {},
                                         reportType: 'Message');
                                   },
                                   child: ReplyCard(

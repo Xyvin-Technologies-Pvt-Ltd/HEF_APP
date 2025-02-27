@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,7 +82,7 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add, size: 27, color: Color(0xFF004797)),
+                          Icon(Icons.add, size: 27, color: kPrimaryColor),
                           SizedBox(height: 10),
                           Text(
                             'Upload Image',

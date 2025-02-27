@@ -50,20 +50,36 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
     state = state.whenData((user) {
       final updatedCompanyList = [...?user.company];
 
-      if (index >= 0 && index < updatedCompanyList.length) {
-        log(updatedCompany.name ?? '');
-        updatedCompanyList[index] = updatedCompanyList[index].copyWith(
-          designation: updatedCompany.designation ??
-              updatedCompanyList[index].designation,
-          email: updatedCompany.email ?? updatedCompanyList[index].email,
-          name: updatedCompany.name ?? updatedCompanyList[index].name,
-          phone: updatedCompany.phone ?? updatedCompanyList[index].phone,
-          websites:
-              updatedCompany.websites ?? updatedCompanyList[index].websites,
-        );
-      } else if (index == updatedCompanyList.length) {
-        // Add a new company
-        updatedCompanyList.add(updatedCompany);
+      // Check if any field has a valid non-empty value
+      bool hasValidData = [
+            updatedCompany.name,
+            updatedCompany.designation,
+            updatedCompany.email,
+            updatedCompany.phone
+          ].any((field) => field?.trim().isNotEmpty ?? false) ||
+          (updatedCompany.websites?.isNotEmpty ?? false);
+
+      if (!hasValidData) {
+        // Remove company if all fields are empty
+        if (index >= 0 && index < updatedCompanyList.length) {
+          updatedCompanyList.removeAt(index);
+        }
+      } else {
+        if (index >= 0 && index < updatedCompanyList.length) {
+          log(updatedCompany.name ?? '');
+          updatedCompanyList[index] = updatedCompanyList[index].copyWith(
+            designation: updatedCompany.designation ??
+                updatedCompanyList[index].designation,
+            email: updatedCompany.email ?? updatedCompanyList[index].email,
+            name: updatedCompany.name ?? updatedCompanyList[index].name,
+            phone: updatedCompany.phone ?? updatedCompanyList[index].phone,
+            websites:
+                updatedCompany.websites ?? updatedCompanyList[index].websites,
+          );
+        } else if (index == updatedCompanyList.length) {
+          // Add a new company
+          updatedCompanyList.add(updatedCompany);
+        }
       }
 
       return user.copyWith(company: updatedCompanyList);
@@ -194,7 +210,43 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
       return user.copyWith(certificates: updatedCertificate);
     });
   }
+    void editAward(Award oldAward, Award updatedAward) {
+  state = state.whenData((user) {
+    final updatedAwards = user.awards!.map((award) {
+      return award == oldAward ? updatedAward : award;
+    }).toList();
+
+    return user.copyWith(awards: updatedAwards);
+  });
 }
+
+  void editWebsite(Link oldWebsite, Link newWebsite) {
+    state = AsyncValue.data(state.value!.copyWith(
+      websites: state.value!.websites!.map((w) => 
+        w == oldWebsite ? newWebsite : w
+      ).toList()
+    ));
+  }
+
+  void editVideo(Link oldVideo, Link newVideo) {
+    state = AsyncValue.data(state.value!.copyWith(
+      videos: state.value!.videos!.map((v) =>
+        v == oldVideo ? newVideo : v  
+      ).toList()
+    ));
+  }
+
+
+
+  void editCertificate(Link oldCertificate, Link newCertificate) {
+    state = AsyncValue.data(state.value!.copyWith(
+      certificates: state.value!.certificates!.map((c) => 
+        c == oldCertificate ? newCertificate : c
+      ).toList()
+    ));
+  }
+}
+
 
 final userProvider =
     StateNotifierProvider<UserNotifier, AsyncValue<UserModel>>((ref) {

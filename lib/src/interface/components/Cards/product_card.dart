@@ -96,7 +96,6 @@ import 'package:hef/src/interface/components/DropDown/block_repor_dropDown.dart'
 import 'package:hef/src/interface/components/DropDown/dropdown_menu.dart';
 import 'package:hef/src/interface/components/animations/widget_animations.dart';
 
-
 class ProductCard extends StatelessWidget {
   // final VoidCallback? onEdit;
   final VoidCallback? onRemove;
@@ -189,7 +188,7 @@ class ProductCard extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    color: Color(0xFF004797),
+                                    color: kPrimaryColor,
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.w600,
                                   ),

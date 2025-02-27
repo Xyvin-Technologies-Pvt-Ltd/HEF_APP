@@ -14,9 +14,8 @@ void showWebsiteSheet({
   required TextEditingController textController1,
   required TextEditingController textController2,
 }) {
-  SnackbarService snackbarService = SnackbarService();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  NavigationService navigationService = NavigationService();
+
   showModalBottomSheet(
     isScrollControlled: true,
     context: context,
@@ -78,9 +77,10 @@ void showWebsiteSheet({
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             addWebsite();
-                            snackbarService.showSnackBar('Saved');
-
-                            navigationService.pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Saved')),
+                            );
+                            Navigator.pop(context);
                           }
                         },
                         fontSize: 16,
@@ -121,7 +121,6 @@ void showWebsiteSheet({
     },
   );
 }
-
 void showVideoLinkSheet({
   required VoidCallback addVideo,
   required String title,
@@ -131,8 +130,7 @@ void showVideoLinkSheet({
   required TextEditingController textController2,
 }) {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  SnackbarService snackbarService = SnackbarService();
-  NavigationService navigationService = NavigationService();
+
   showModalBottomSheet(
     isScrollControlled: true,
     context: context,
@@ -143,15 +141,15 @@ void showVideoLinkSheet({
       return Form(
         key: _formKey,
         child: Stack(
-          clipBehavior:
-              Clip.none, // Allow content to overflow outside the stack
+          clipBehavior: Clip.none,
           children: [
             Padding(
               padding: EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 20,
-                  bottom: MediaQuery.of(context).viewInsets.bottom),
+                left: 16,
+                right: 16,
+                top: 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -165,32 +163,20 @@ void showVideoLinkSheet({
                   ),
                   const SizedBox(height: 20),
                   ModalSheetTextFormField(
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'This is a required field';
-                    //   }
-                    //   return null;
-                    // },
                     label: 'Add name',
                     textController: textController1,
                   ),
                   const SizedBox(height: 10),
-                  fieldName == 'Add Youtube Link'
-                      ? ModalSheetTextFormField(
-                          validator: (value) => validateYouTubeUrl(value),
-                          label: fieldName,
-                          textController: textController2,
-                        )
-                      : ModalSheetTextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'This is a required field';
-                            }
-                            return null;
-                          },
-                          label: fieldName,
-                          textController: textController2,
-                        ),
+                  ModalSheetTextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This is a required field';
+                      }
+                      return null;
+                    },
+                    label: fieldName,
+                    textController: textController2,
+                  ),
                   const SizedBox(height: 10),
                   Consumer(
                     builder: (context, ref, child) {
@@ -199,8 +185,10 @@ void showVideoLinkSheet({
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             addVideo();
-                            snackbarService.showSnackBar('Saved');
-                            navigationService.pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Saved')),
+                            );
+                            Navigator.pop(context);
                           }
                         },
                         fontSize: 16,
@@ -215,7 +203,6 @@ void showVideoLinkSheet({
               right: 5,
               top: -50,
               child: Container(
-                padding: const EdgeInsets.all(0),
                 width: 40,
                 height: 40,
                 decoration: const BoxDecoration(

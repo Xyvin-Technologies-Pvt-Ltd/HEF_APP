@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/subscription_model.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -246,14 +247,14 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                     '',
                                                 style: const TextStyle(
                                                   decorationColor:
-                                                      Color(0xFF004797),
+                                                      kPrimaryColor,
                                                   decoration: TextDecoration
                                                       .underline, // Adds underline
                                                   fontStyle: FontStyle
                                                       .italic, // Makes text italic
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF004797),
+                                                  color: kPrimaryColor,
                                                 ),
                                               ),
                                             ],
@@ -276,14 +277,14 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                     '',
                                                 style: const TextStyle(
                                                   decorationColor:
-                                                      Color(0xFF004797),
+                                                      kPrimaryColor,
                                                   decoration: TextDecoration
                                                       .underline, // Adds underline
                                                   fontStyle: FontStyle
                                                       .italic, // Makes text italic
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF004797),
+                                                  color: kPrimaryColor,
                                                 ),
                                               ),
                                             ],
@@ -511,14 +512,14 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                       '',
                                                   style: const TextStyle(
                                                     decorationColor:
-                                                        Color(0xFF004797),
+                                                        kPrimaryColor,
                                                     decoration: TextDecoration
                                                         .underline, // Adds underline
                                                     fontStyle: FontStyle
                                                         .italic, // Makes text italic
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
-                                                    color: Color(0xFF004797),
+                                                    color: kPrimaryColor,
                                                   ),
                                                 ),
                                               ],
@@ -547,14 +548,14 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                       '',
                                                   style: const TextStyle(
                                                     decorationColor:
-                                                        Color(0xFF004797),
+                                                        kPrimaryColor,
                                                     decoration: TextDecoration
                                                         .underline, // Adds underline
                                                     fontStyle: FontStyle
                                                         .italic, // Makes text italic
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
-                                                    color: Color(0xFF004797),
+                                                    color: kPrimaryColor,
                                                   ),
                                                 ),
                                               ],
@@ -649,7 +650,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
-          const Icon(Icons.check_circle, color: Color(0xFF004797), size: 18),
+          const Icon(Icons.check_circle, color: kPrimaryColor, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

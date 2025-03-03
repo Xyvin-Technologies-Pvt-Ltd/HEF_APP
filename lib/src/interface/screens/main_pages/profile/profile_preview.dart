@@ -135,7 +135,7 @@ class ProfilePreview extends ConsumerWidget {
                                   ),
                                 ),
                               )
-                            : Image.asset('assets/icons/dummy_person.png'),
+                            : Image.asset('assets/pngs/dummy_person_large.png'),
                         const SizedBox(height: 10),
                         Text('${user.name ?? ''}', style: kHeadTitleSB),
                         const SizedBox(height: 5),
@@ -170,64 +170,48 @@ class ProfilePreview extends ConsumerWidget {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                   for (Company i
-                                                in user.company ?? [])
-                                              if ((i?.name != null &&
-                                                      i?.name != '') ||
-                                                  (i?.designation != null &&
-                                                      i?.designation != ''))
-                                                RichText(
-                                                  text: TextSpan(
-                                                    children: [
-                                                      if (i.name != null &&
-                                                          i.name != '')
-                                                        TextSpan(
-                                                          text: i.name,
-                                                          style:
-                                                              const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 16,
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    42,
-                                                                    41,
-                                                                    41),
-                                                          ),
-                                                        ),
-                                                      if (i.name != null &&
-                                                          i.name != '' &&
-                                                          i.designation !=
-                                                              null &&
-                                                          i.designation != '')
-                                                        const TextSpan(
-                                                          text: ' - ',
-                                                          style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .normal,
-                                                            fontSize: 15,
-                                                            color: Colors.grey,
-                                                          ),
-                                                        ),
-                                                      if (i.designation !=
-                                                              null &&
-                                                          i.designation != '')
-                                                        TextSpan(
-                                                          text: i.designation,
-                                                          style:
-                                                              const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .normal,
-                                                            fontSize: 15,
-                                                            color: Colors.grey,
-                                                          ),
-                                                        ),
-                                                    ],
-                                                  ),
+                                  for (Company i in user.company ?? [])
+                                    if ((i?.name != null && i?.name != '') ||
+                                        (i?.designation != null &&
+                                            i?.designation != ''))
+                                      RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            if (i.name != null && i.name != '')
+                                              TextSpan(
+                                                text: i.name,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Color.fromARGB(
+                                                      255, 42, 41, 41),
                                                 ),
+                                              ),
+                                            if (i.name != null &&
+                                                i.name != '' &&
+                                                i.designation != null &&
+                                                i.designation != '')
+                                              const TextSpan(
+                                                text: ' - ',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 15,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            if (i.designation != null &&
+                                                i.designation != '')
+                                              TextSpan(
+                                                text: i.designation,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 15,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
                                 ],
                               ),
                             ],
@@ -253,8 +237,7 @@ class ProfilePreview extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.only(left: 10),
                             child: Image.asset(
-                                                      scale: 5,
-                                                      'assets/pngs/splash_logo.png'),
+                                scale: 5, 'assets/pngs/splash_logo.png'),
                           ),
                           Expanded(
                             // Added Expanded widget to make the text expandable
@@ -644,7 +627,8 @@ class ProfilePreview extends ConsumerWidget {
                           return Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 4.0), // Space between items
-                            child: CertificateCard(onEdit: null,
+                            child: CertificateCard(
+                              onEdit: null,
                               certificate: user.certificates![index],
                               onRemove: null,
                             ),
@@ -677,7 +661,8 @@ class ProfilePreview extends ConsumerWidget {
                         ),
                         itemCount: user.awards!.length,
                         itemBuilder: (context, index) {
-                          return AwardCard(onEdit: null,
+                          return AwardCard(
+                            onEdit: null,
                             award: user.awards![index],
                             onRemove: null,
                           );

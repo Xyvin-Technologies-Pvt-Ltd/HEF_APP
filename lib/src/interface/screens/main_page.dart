@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
+import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
@@ -14,12 +15,14 @@ import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/components/shimmers/promotion_shimmers.dart';
+import 'package:hef/src/interface/screens/main_pages/admin/allocate_member.dart';
 import 'package:hef/src/interface/screens/main_pages/profile_page.dart';
 import 'package:hef/src/interface/screens/main_pages/business_page.dart';
 import 'package:hef/src/interface/screens/main_pages/chat_page.dart';
 import 'package:hef/src/interface/screens/main_pages/home_page.dart';
 import 'package:hef/src/interface/screens/main_pages/login_page.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
+import 'package:hef/src/interface/screens/no_chapter_condition_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class IconResolver extends StatelessWidget {
@@ -128,60 +131,63 @@ class _MainPageState extends ConsumerState<MainPage> {
     final selectedIndex = ref.watch(selectedIndexProvider);
     switch (status.toLowerCase()) {
       case 'active':
-        return Scaffold(
-          body: Center(
-            child: _widgetOptions.elementAt(selectedIndex),
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            items: List.generate(5, (index) {
-              return BottomNavigationBarItem(
-                backgroundColor: Colors.white,
-                icon: index == 2 // Assuming profile is the third item
-                    ? user.image != null && user.image != ''
-                        ? CircleAvatar(
-                            backgroundImage: NetworkImage(
-                              user.image ?? '',
-                            ),
-                            radius: 15,
-                          )
-                        : Image.asset(
-                            'assets/icons/dummy_person_small.png',
-                            scale: 1.5,
-                          )
-                    : IconResolver(
-                        iconPath: _inactiveIcons[index],
-                        color: selectedIndex == index
-                            ? kPrimaryColor
-                            : Colors.grey,
-                      ),
-                activeIcon: index == 2
-                    ? user.image != null && user.image != ''
-                        ? CircleAvatar(
-                            backgroundImage: NetworkImage(
-                              user.image ?? '',
-                            ),
-                            radius: 15,
-                          )
-                        : Image.asset(
-                            'assets/icons/dummy_person_small.png',
-                            scale: 1.5,
-                          )
-                    : IconResolver(
-                        iconPath: _activeIcons[index], color: kPrimaryColor),
-                label: ['Home', 'Business', 'Profile', 'News', 'Chat'][index],
-              );
-            }),
-            currentIndex: selectedIndex,
-            selectedItemColor: kPrimaryColor,
-            unselectedItemColor: Colors.grey,
-            onTap: (index) {
-              HapticFeedback.selectionClick();
-              _onItemTapped(index);
-            },
-            showUnselectedLabels: true,
-          ),
-        );
-
+        if (user.chapter != null && user.chapter != '') {
+          return Scaffold(
+            body: Center(
+              child: _widgetOptions.elementAt(selectedIndex),
+            ),
+            bottomNavigationBar: BottomNavigationBar(
+              items: List.generate(5, (index) {
+                return BottomNavigationBarItem(
+                  backgroundColor: Colors.white,
+                  icon: index == 2 // Assuming profile is the third item
+                      ? user.image != null && user.image != ''
+                          ? CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                user.image ?? '',
+                              ),
+                              radius: 15,
+                            )
+                          : Image.asset(
+                              'assets/pngs/dummy_person_small.png',
+                              scale: 1,
+                            )
+                      : IconResolver(
+                          iconPath: _inactiveIcons[index],
+                          color: selectedIndex == index
+                              ? kPrimaryColor
+                              : Colors.grey,
+                        ),
+                  activeIcon: index == 2
+                      ? user.image != null && user.image != ''
+                          ? CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                user.image ?? '',
+                              ),
+                              radius: 15,
+                            )
+                          : Image.asset(
+                              'assets/pngs/dummy_person_small.png',
+                              scale: 1.5,
+                            )
+                      : IconResolver(
+                          iconPath: _activeIcons[index], color: kPrimaryColor),
+                  label: ['Home', 'Business', 'Profile', 'News', 'Chat'][index],
+                );
+              }),
+              currentIndex: selectedIndex,
+              selectedItemColor: kPrimaryColor,
+              unselectedItemColor: Colors.grey,
+              onTap: (index) {
+                HapticFeedback.selectionClick();
+                _onItemTapped(index);
+              },
+              showUnselectedLabels: true,
+            ),
+          );
+        } else {
+          return NoChapterConditionPage(user: user);
+        }
       case 'inactive':
         return Scaffold(
           body: Center(
@@ -430,7 +436,7 @@ class _MainPageState extends ConsumerState<MainPage> {
         );
 
       default:
-       WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -444,7 +450,6 @@ class _MainPageState extends ConsumerState<MainPage> {
             child: LoadingAnimation(),
           ),
         );
-
     }
   }
 

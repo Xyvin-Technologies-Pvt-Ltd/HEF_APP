@@ -236,16 +236,27 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       style: kLargeTitleB.copyWith(
                                           color: kTextHeadColor)),
                                 ),
-                                if (widget.user.adminType != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 15, top: 10, bottom: 10),
-                                    child: Text(
-                                      '${widget.user.name ?? ''} - (${widget.user.adminType?.toUpperCase() ?? ''})',
-                                      style: kBodyTitleR.copyWith(
-                                          color: kTextHeadColor),
-                                    ),
+
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15, top: 10, bottom: 10),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '${widget.user.name ?? ''}',
+                                        style: kBodyTitleR.copyWith(
+                                            color: kTextHeadColor),
+                                      ),
+                                      if (widget.user.adminType != null &&
+                                          widget.user.adminType != "")
+                                        Text(
+                                          ' - (${widget.user.adminType?.toUpperCase() ?? ''})',
+                                          style: kBodyTitleR.copyWith(
+                                              color: kTextHeadColor),
+                                        ),
+                                    ],
                                   ),
+                                ),
                                 // Banner Carousel
                                 if (banners.isNotEmpty)
                                   Column(

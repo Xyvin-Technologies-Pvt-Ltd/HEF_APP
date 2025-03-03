@@ -208,7 +208,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
-                                'assets/icons/dummy_person_small.png');
+                                'assets/pngs/dummy_person_small.png');
                           },
                         ),
                       ),

@@ -76,7 +76,7 @@ Future<void> captureAndShareWidgetScreenshot(BuildContext context) async {
                                                     ),
                                                   )
                                                 : Image.asset(
-                                                    'assets/icons/dummy_person.png'),
+                                                    'assets/pngs/dummy_person_large.png'),
                                           ],
                                         ),
                                         SizedBox(width: 10),
@@ -90,25 +90,21 @@ Future<void> captureAndShareWidgetScreenshot(BuildContext context) async {
                                               SizedBox(
                                                 height: 5,
                                               ),
-                                         for (Company i
-                                                      in user.company ?? [])
-                                                    if (i?.designation !=
-                                                            null &&
-                                                        i?.designation != '')
-                                                Text(
-                                                    i?.designation ??
-                                                        '',
-                                                    style: kSmallTitleM),
+                                              for (Company i
+                                                  in user.company ?? [])
+                                                if (i?.designation != null &&
+                                                    i?.designation != '')
+                                                  Text(i?.designation ?? '',
+                                                      style: kSmallTitleM),
                                               SizedBox(
                                                 height: 5,
                                               ),
-                                               for (Company i
-                                                      in user.company ?? [])
-                                                    if (i?.designation !=
-                                                            null &&
-                                                        i?.designation != '')
-                                              Text(i.name ?? '',
-                                                  style: kSmallerTitleR),
+                                              for (Company i
+                                                  in user.company ?? [])
+                                                if (i?.designation != null &&
+                                                    i?.designation != '')
+                                                  Text(i.name ?? '',
+                                                      style: kSmallerTitleR),
                                             ],
                                           ),
                                         ),

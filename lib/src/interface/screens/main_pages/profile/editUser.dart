@@ -566,7 +566,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                                         error, stackTrace) {
                                                       return Image.asset(
                                                           scale: .7,
-                                                          'assets/icons/dummy_person.png');
+                                                          'assets/pngs/dummy_person_large.png');
                                                     },
                                                     user.image ??
                                                         '', // Replace with your image URL

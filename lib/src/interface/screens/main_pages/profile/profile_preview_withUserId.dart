@@ -166,7 +166,7 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                           ),
                                         )
                                       : Image.asset(
-                                          'assets/icons/dummy_person.png'),
+                                          'assets/pngs/dummy_person_large.png'),
                                   const SizedBox(height: 10),
                                   Text('${user.name ?? ''}',
                                       style: kHeadTitleSB),
@@ -282,8 +282,8 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(left: 10),
                                       child: Image.asset(
-                                                      scale: 5,
-                                                      'assets/pngs/splash_logo.png'),
+                                          scale: 5,
+                                          'assets/pngs/splash_logo.png'),
                                     ),
                                     Text(
                                       'Member ID: ${user.memberId}',
@@ -657,7 +657,8 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 4.0), // Space between items
-                                      child: CertificateCard( onEdit: null,
+                                      child: CertificateCard(
+                                        onEdit: null,
                                         certificate: user.certificates![index],
                                         onRemove: null,
                                       ),
@@ -691,7 +692,8 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                   ),
                                   itemCount: user.awards!.length,
                                   itemBuilder: (context, index) {
-                                    return AwardCard(onEdit: null,
+                                    return AwardCard(
+                                      onEdit: null,
                                       award: user.awards![index],
                                       onRemove: null,
                                     );

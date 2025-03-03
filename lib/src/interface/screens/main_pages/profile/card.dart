@@ -144,7 +144,7 @@ class ProfileCard extends StatelessWidget {
                                                         ),
                                                       )
                                                     : Image.asset(
-                                                        'assets/icons/dummy_person.png'),
+                                                        'assets/pngs/dummy_person_large.png'),
                                               ],
                                             ),
                                             SizedBox(width: 10),

@@ -146,7 +146,7 @@ class ReviewsCard extends StatelessWidget {
                       backgroundImage: NetworkImage(review.reviewer!.image!),
                     )
                   : Image.asset(
-                      'assets/icons/dummy_person_small.png',
+                      'assets/pngs/dummy_person_small.png',
                       scale: .8,
                     ),
             ],
@@ -163,16 +163,16 @@ class ReviewsCard extends StatelessWidget {
                         style: kSmallerTitleR.copyWith(
                           color: kBlack54,
                         )),
-                        // Spacer(),
-                        // Text(review.createdAt)
+                    // Spacer(),
+                    // Text(review.createdAt)
                   ],
                 ),
                 const SizedBox(height: 5),
                 Text(
                   review.comment ?? '',
                   style: kBodyTitleR,
-                  maxLines: null, 
-                  overflow: TextOverflow.clip, 
+                  maxLines: null,
+                  overflow: TextOverflow.clip,
                 ),
               ],
             ),

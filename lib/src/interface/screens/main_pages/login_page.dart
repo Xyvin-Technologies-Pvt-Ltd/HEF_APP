@@ -266,7 +266,7 @@ class OTPScreen extends ConsumerStatefulWidget {
 class _OTPScreenState extends ConsumerState<OTPScreen> {
   Timer? _timer;
 
-  int _start = 30;
+  int _start = 59;
 
   bool _isButtonDisabled = true;
 
@@ -278,7 +278,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
 
   void startTimer() {
     _isButtonDisabled = true;
-    _start = 20;
+    _start = 59;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_start == 0) {
         setState(() {

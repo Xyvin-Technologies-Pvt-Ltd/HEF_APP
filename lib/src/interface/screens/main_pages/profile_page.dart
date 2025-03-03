@@ -172,7 +172,8 @@ class ProfilePage extends StatelessWidget {
                                                             ),
                                                           )
                                                         : Image.asset(
-                                                            'assets/icons/dummy_person.png'),
+                                                            scale: 1.5,
+                                                            'assets/pngs/dummy_person_large.png'),
                                                   ],
                                                 ),
                                                 SizedBox(width: 10),
@@ -355,9 +356,8 @@ class ProfilePage extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                               Image.asset(
-                                                      scale: 5,
-                                                      'assets/pngs/splash_logo.png'),
+                                  Image.asset(
+                                      scale: 5, 'assets/pngs/splash_logo.png'),
                                   Spacer(),
                                   RichText(
                                     text: TextSpan(

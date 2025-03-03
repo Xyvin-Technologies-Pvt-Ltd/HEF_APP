@@ -204,7 +204,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Image.asset(
-                                      'assets/icons/dummy_person_small.png');
+                                      'assets/pngs/dummy_person_small.png');
                                 },
                               ),
                             ),
@@ -379,24 +379,24 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                     child: customButton(
                         label: 'Get Quote',
                         onPressed: () async {
-                             if (subscriptionType != 'free') {
-                          await sendChatMessage(
-                              productId: widget.product.id,
-                              userId: widget.product.seller!,
-                              content:
-                                  '''I need ${_quantityController.text}\nLet\'s Connect!''');
+                          if (subscriptionType != 'free') {
+                            await sendChatMessage(
+                                productId: widget.product.id,
+                                userId: widget.product.seller!,
+                                content:
+                                    '''I need ${_quantityController.text}\nLet\'s Connect!''');
 
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => IndividualPage(
-                                    receiver: widget.receiver,
-                                    sender: widget.sender,
-                                  )));
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (context) => const UpgradeDialog(),
-                          );
-                        }
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => IndividualPage(
+                                      receiver: widget.receiver,
+                                      sender: widget.sender,
+                                    )));
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) => const UpgradeDialog(),
+                            );
+                          }
                         },
                         fontSize: 16),
                   ),

@@ -1,15 +1,16 @@
-
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/models/business_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:intl/intl.dart';
 
-Widget buildUserInfo(UserModel user, Business feed,context) {
+Widget buildUserInfo(UserModel user, Business feed, context) {
   String formattedDateTime = DateFormat('h:mm a · MMM d, yyyy')
       .format(DateTime.parse(feed.createdAt.toString()).toLocal());
 
   return ConstrainedBox(
-    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 32), // Ensure bounded width
+    constraints: BoxConstraints(
+        maxWidth:
+            MediaQuery.of(context).size.width - 32), // Ensure bounded width
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -25,7 +26,7 @@ Widget buildUserInfo(UserModel user, Business feed,context) {
                     user.image ?? 'https://placehold.co/600x400',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return Image.asset('assets/icons/dummy_person_small.png');
+                      return Image.asset('assets/pngs/dummy_person_small.png');
                     },
                   ),
                 ),
@@ -49,7 +50,8 @@ Widget buildUserInfo(UserModel user, Business feed,context) {
                         user.company![0].name != null)
                       Text(
                         user.company![0].name!,
-                        style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),

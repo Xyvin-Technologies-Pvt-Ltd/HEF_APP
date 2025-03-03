@@ -299,14 +299,15 @@ class _EditUserState extends ConsumerState<EditUser> {
     // String firstName = nameParts[0];
     // String middleName = nameParts.length > 2 ? nameParts[1] : ' ';
     // String lastName = nameParts.length > 1 ? nameParts.last : ' ';
-
+    log("profile picture${user.image}");
     final Map<String, dynamic> profileData = {
       "name": user.name ?? '',
       "email": user.email,
       "phone": user.phone,
-      if (user.image != null) "image": user.image ?? '',
-      if (user.address != null) "address": user.address ?? '',
-      if (user.bio != null) "bio": user.bio ?? '',
+      if (user.image != null && user.image != '') "image": user.image ?? '',
+      if (user.address != null && user.address != '')
+        "address": user.address ?? '',
+      if (user.bio != null && user.bio != '') "bio": user.bio ?? '',
       "chapter": user.chapter?.id ?? '',
       if (user.secondaryPhone != null)
         "secondaryPhone": {

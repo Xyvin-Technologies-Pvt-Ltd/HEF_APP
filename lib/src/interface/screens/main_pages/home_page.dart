@@ -174,12 +174,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                   _advancedDrawerController,
                                               builder: (_, value, __) {
                                                 return AnimatedSwitcher(
-                                                  duration: const Duration(
-                                                      milliseconds: 250),
-                                                  child: Image.asset(
-                                                      scale: 5,
-                                                      'assets/pngs/splash_logo.png'),
-                                                );
+                                                    duration: const Duration(
+                                                        milliseconds: 250),
+                                                    child: Icon(Icons.menu));
                                               },
                                             ),
                                           ),
@@ -225,6 +222,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           );
                                         },
                                       ),
+                                      Image.asset(
+                                          scale: 5,
+                                          'assets/pngs/splash_logo.png'),
+                                      SizedBox(
+                                        width: 20,
+                                      )
                                     ],
                                   ),
                                 ),

@@ -11,6 +11,19 @@ import 'package:hef/src/interface/components/loading_indicator/loading_indicator
 import 'package:intl/intl.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
+  final String? initialTab;
+  final String? requestType;
+  final String? startDate;
+  final String? endDate;
+
+  const AnalyticsPage({
+    super.key, 
+    this.initialTab,
+    this.requestType,
+    this.startDate,
+    this.endDate,
+  });
+
   @override
   _AnalyticsPageState createState() => _AnalyticsPageState();
 }
@@ -29,6 +42,24 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    
+    // Set initial tab if provided
+    if (widget.initialTab != null) {
+      _tabController.animateTo(
+        widget.initialTab == 'sent' ? 1 : widget.initialTab == 'received' ? 0 : 2
+      );
+    }
+
+    // Set initial filters if provided
+    if (widget.requestType != null) {
+      selectedRequestType = widget.requestType;
+    }
+    if (widget.startDate != null) {
+      startDate = DateTime.parse(widget.startDate!);
+    }
+    if (widget.endDate != null) {
+      endDate = DateTime.parse(widget.endDate!);
+    }
   }
 
   // Add filter modal sheet

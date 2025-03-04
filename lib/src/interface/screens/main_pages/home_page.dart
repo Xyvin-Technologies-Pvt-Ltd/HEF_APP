@@ -33,6 +33,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hef/src/interface/components/shimmers/dashboard_shimmer.dart';
 import 'package:hef/src/interface/components/ModalSheets/date_filter_sheet.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   final UserModel user;
@@ -735,36 +736,83 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _buildStatCard(String title, String value) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 0,
-            blurRadius: 5,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: kSmallerTitleR.copyWith(color: kBlack54, fontSize: 11),
-            textAlign: TextAlign.start,
-          ),
-          SizedBox(height: 5),
-          Text(value,
+    return InkWell(
+      onTap: () {
+        String? initialTab;
+        String? requestType;
+        
+        switch (title) {
+          case 'BUSINESS GIVEN':
+            initialTab = 'sent';
+            requestType = 'Business';
+            break;
+          case 'BUSINESS RECEIVED':
+            initialTab = 'received';
+            requestType = 'Business';
+            break;
+          case 'REFERRALS GIVEN':
+            initialTab = 'sent';
+            requestType = 'Referral';
+            break;
+          case 'REFERRALS RECEIVED':
+            initialTab = 'received';
+            requestType = 'Referral';
+            break;
+          case 'ONE V ONE MEETINGS':
+            initialTab = 'sent'; // or 'received' based on your preference
+            requestType = 'One v One Meeting';
+            break;
+        }
+
+        if (initialTab != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AnalyticsPage(
+                initialTab: initialTab,
+                requestType: requestType,
+                startDate: startDate?.toString().split(' ')[0],
+                endDate: endDate?.toString().split(' ')[0],
+              ),
+            ),
+          );
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 0,
+              blurRadius: 5,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              title,
+              style: kSmallerTitleR.copyWith(color: kBlack54, fontSize: 11),
+              textAlign: TextAlign.start,
+            ),
+            const SizedBox(height: 5),
+            Text(
+              value,
               style: kDisplayTitleB.copyWith(
-                  color: Color(0xFF512DB4), fontSize: 20)),
-        ],
+                color: const Color(0xFF512DB4),
+                fontSize: 20
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

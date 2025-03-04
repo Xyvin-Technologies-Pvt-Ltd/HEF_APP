@@ -37,12 +37,11 @@ Future<UserModel> fetchUserDetails(
 }
 
 @riverpod
-Future<UserDashboard> fetchUserDashboardDetails(
-    Ref ref,{String? startDate,String? endDate}) async {
-  
+Future<UserDashboard> fetchUserDashboardDetails(Ref ref,
+    {String? startDate, String? endDate}) async {
   Uri url = Uri.parse('$baseUrl/user/dashboard');
-  
-  if (startDate != null && endDate !=null) {
+
+  if (startDate != null && endDate != null) {
     url = Uri.parse(
         '$baseUrl/user/dashboard?startDate=$startDate&endDate=$endDate');
   }
@@ -302,7 +301,7 @@ Future<String?> uploadPayment({
       return jsonResponse['message'];
     } else {
       final jsonResponse = json.decode(response.body);
-         snackbarService.showSnackBar(jsonResponse['message']);
+      snackbarService.showSnackBar(jsonResponse['message']);
       print('Failed to upload Payment: ${response.statusCode}');
       return null;
     }

@@ -32,6 +32,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hef/src/interface/components/shimmers/dashboard_shimmer.dart';
+import 'package:hef/src/interface/components/ModalSheets/date_filter_sheet.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   final UserModel user;
@@ -279,6 +280,27 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   child: Row(
                                     children: [
                                       Text('DASHBOARD', style: kSmallTitleR),
+                                      const Spacer(),
+                                      IconButton(
+                                        icon: const Icon(Icons.filter_list),
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            builder: (context) => DateFilterSheet(
+                                              onApply: (String? newStartDate, String? newEndDate) {
+                                                setState(() {
+                                                  startDate = newStartDate;
+                                                  endDate = newEndDate;
+                                                });
+                                            
+                                                ref.invalidate(fetchUserDashboardDetailsProvider);
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     ],
                                   ),
                                 ),

@@ -6,7 +6,7 @@ part of 'analytics_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchAnalyticsHash() => r'bdc36261dd66b7c022ce70596f91a91b24f2c941';
+String _$fetchAnalyticsHash() => r'6d92f298b8010154584debff5c70e185b0d4550b';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -39,11 +39,17 @@ class FetchAnalyticsFamily extends Family<AsyncValue<List<AnalyticsModel>>> {
   const FetchAnalyticsFamily();
 
   /// See also [fetchAnalytics].
-  FetchAnalyticsProvider call(
-    String? type,
-  ) {
+  FetchAnalyticsProvider call({
+    required String? type,
+    String? startDate,
+    String? endDate,
+    String? requestType,
+  }) {
     return FetchAnalyticsProvider(
-      type,
+      type: type,
+      startDate: startDate,
+      endDate: endDate,
+      requestType: requestType,
     );
   }
 
@@ -52,7 +58,10 @@ class FetchAnalyticsFamily extends Family<AsyncValue<List<AnalyticsModel>>> {
     covariant FetchAnalyticsProvider provider,
   ) {
     return call(
-      provider.type,
+      type: provider.type,
+      startDate: provider.startDate,
+      endDate: provider.endDate,
+      requestType: provider.requestType,
     );
   }
 
@@ -75,12 +84,18 @@ class FetchAnalyticsFamily extends Family<AsyncValue<List<AnalyticsModel>>> {
 class FetchAnalyticsProvider
     extends AutoDisposeFutureProvider<List<AnalyticsModel>> {
   /// See also [fetchAnalytics].
-  FetchAnalyticsProvider(
-    String? type,
-  ) : this._internal(
+  FetchAnalyticsProvider({
+    required String? type,
+    String? startDate,
+    String? endDate,
+    String? requestType,
+  }) : this._internal(
           (ref) => fetchAnalytics(
             ref as FetchAnalyticsRef,
-            type,
+            type: type,
+            startDate: startDate,
+            endDate: endDate,
+            requestType: requestType,
           ),
           from: fetchAnalyticsProvider,
           name: r'fetchAnalyticsProvider',
@@ -92,6 +107,9 @@ class FetchAnalyticsProvider
           allTransitiveDependencies:
               FetchAnalyticsFamily._allTransitiveDependencies,
           type: type,
+          startDate: startDate,
+          endDate: endDate,
+          requestType: requestType,
         );
 
   FetchAnalyticsProvider._internal(
@@ -102,9 +120,15 @@ class FetchAnalyticsProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.type,
+    required this.startDate,
+    required this.endDate,
+    required this.requestType,
   }) : super.internal();
 
   final String? type;
+  final String? startDate;
+  final String? endDate;
+  final String? requestType;
 
   @override
   Override overrideWith(
@@ -120,6 +144,9 @@ class FetchAnalyticsProvider
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         type: type,
+        startDate: startDate,
+        endDate: endDate,
+        requestType: requestType,
       ),
     );
   }
@@ -131,13 +158,20 @@ class FetchAnalyticsProvider
 
   @override
   bool operator ==(Object other) {
-    return other is FetchAnalyticsProvider && other.type == type;
+    return other is FetchAnalyticsProvider &&
+        other.type == type &&
+        other.startDate == startDate &&
+        other.endDate == endDate &&
+        other.requestType == requestType;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, type.hashCode);
+    hash = _SystemHash.combine(hash, startDate.hashCode);
+    hash = _SystemHash.combine(hash, endDate.hashCode);
+    hash = _SystemHash.combine(hash, requestType.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -148,6 +182,15 @@ class FetchAnalyticsProvider
 mixin FetchAnalyticsRef on AutoDisposeFutureProviderRef<List<AnalyticsModel>> {
   /// The parameter `type` of this provider.
   String? get type;
+
+  /// The parameter `startDate` of this provider.
+  String? get startDate;
+
+  /// The parameter `endDate` of this provider.
+  String? get endDate;
+
+  /// The parameter `requestType` of this provider.
+  String? get requestType;
 }
 
 class _FetchAnalyticsProviderElement
@@ -157,6 +200,12 @@ class _FetchAnalyticsProviderElement
 
   @override
   String? get type => (origin as FetchAnalyticsProvider).type;
+  @override
+  String? get startDate => (origin as FetchAnalyticsProvider).startDate;
+  @override
+  String? get endDate => (origin as FetchAnalyticsProvider).endDate;
+  @override
+  String? get requestType => (origin as FetchAnalyticsProvider).requestType;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

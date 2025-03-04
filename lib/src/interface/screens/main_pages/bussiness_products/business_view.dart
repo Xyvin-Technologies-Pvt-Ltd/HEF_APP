@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:hef/src/data/api_routes/user_api/user_data/user_activities.dart';
+import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
+import 'package:hl_image_picker/hl_image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
@@ -24,7 +26,6 @@ import 'package:hef/src/interface/components/custom_widgets/user_tile.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:shimmer/shimmer.dart';
-import 'package:image_cropper/image_cropper.dart';
 
 class BusinessView extends ConsumerStatefulWidget {
   BusinessView({super.key});
@@ -41,10 +42,10 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
     super.initState();
 
     _scrollController.addListener(_onScroll);
-    _fetchInitialFeed();
+    _fetchInitialUsers();
   }
 
-  Future<void> _fetchInitialFeed() async {
+  Future<void> _fetchInitialUsers() async {
     await ref.read(businessNotifierProvider.notifier).fetchMoreFeed();
   }
 
@@ -59,41 +60,41 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
   ImageSource? _feedImageSource;
 
   Future<File?> _pickFile() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final _picker = HLImagePicker();
 
-    if (image != null) {
-      final croppedImage = await ImageCropper().cropImage(
-        sourcePath: image.path,
-        aspectRatio: CropAspectRatio(ratioX: 4, ratioY: 5),
-        compressQuality: 100,
-        uiSettings: [
-          AndroidUiSettings(
-            activeControlsWidgetColor: kPrimaryColor,
-            toolbarTitle: 'Crop Image',
-            toolbarColor: kPrimaryColor,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: true,
-          ),
-          IOSUiSettings(
-            title: 'Crop Image',
-          ),
-        ],
+    try {
+      // Open the picker to select an image
+      final images = await _picker.openPicker(
+        cropping: true, // Enable cropping
+        pickerOptions: HLPickerOptions(
+          mediaType: MediaType.image, // Ensure we are selecting images
+          maxSelectedAssets: 1, // Allow selecting only one image
+        ),
+        cropOptions: HLCropOptions(
+          aspectRatio:
+              CropAspectRatio(ratioX: 4, ratioY: 5), // Set 4:5 aspect ratio
+          compressQuality: 0.9, // Updated: Use a value between 0.1 and 1.0
+          compressFormat: CompressFormat.jpg,
+          croppingStyle: CroppingStyle.normal, // Optional, set cropping style
+        ),
       );
 
-      if (croppedImage != null) {
+      if (images.isNotEmpty) {
+        final selectedImage = images.first;
         setState(() {
-          _feedImage = File(croppedImage.path);
+          _feedImage = File(selectedImage.path);
           _feedImageSource = ImageSource.gallery;
         });
         return _feedImage;
       }
+    } catch (e) {
+      debugPrint("Error picking or cropping the image: $e");
     }
+
     return null;
   }
 
-  void _openModalSheet() {
+  void _openModalSheet({required String sheet}) {
     feedContentController.clear();
     _feedImage = null;
     showModalBottomSheet(
@@ -107,26 +108,27 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
         });
   }
 
-  // String selectedFilter = 'All';
+  String selectedFilter = 'All'; // Default filter is 'All'
 
-  // List<Business> filterFeeds(List<Business> feeds) {
-  //   if (selectedFilter == 'All') {
-  //     return feeds;
-  //   } else {
-  //     return feeds.where((feed) => feed.type == selectedFilter).toList();
-  //   }
-  // }
+  // Example method to filter feeds
+  List<Business> filterFeeds(List<Business> feeds) {
+    if (selectedFilter == 'All') {
+      return feeds;
+    } else {
+      return feeds.where((feed) => feed.type == selectedFilter).toList();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final feeds = ref.watch(businessNotifierProvider);
     final isLoading = ref.read(businessNotifierProvider.notifier).isLoading;
 
-    // List<Business> filteredFeeds = filterFeeds(feeds);
+    List<Business> filteredFeeds = filterFeeds(feeds);
 
     return RefreshIndicator(
       backgroundColor: Colors.white,
-      color: kPrimaryColor,
+      color: Colors.red,
       onRefresh: () =>
           ref.read(businessNotifierProvider.notifier).refreshFeed(),
       child: Scaffold(
@@ -134,47 +136,46 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
           children: [
             Column(
               children: [
-                // SingleChildScrollView(
-                //   scrollDirection: Axis.horizontal,
-                //   child: Padding(
-                //     padding: const EdgeInsets.all(8.0),
-                //     child: Row(
-                //       children: [
-                //         _buildChoiceChip('All'),
-                //         _buildChoiceChip('Information'),
-                //         _buildChoiceChip('Job'),
-                //         _buildChoiceChip('Funding'),
-                //         _buildChoiceChip('Requirement'),
-                //       ],
-                //     ),
-                //   ),
-                // ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        _buildChoiceChip('All'),
+                        _buildChoiceChip('Information'),
+                        _buildChoiceChip('Job'),
+                        _buildChoiceChip('Funding'),
+                        _buildChoiceChip('Requirement'),
+                      ],
+                    ),
+                  ),
+                ),
                 // Feed list
                 Expanded(
-                  child: feeds.isEmpty
+                  child: filteredFeeds.isEmpty
                       ? const Center(child: Text('No FEEDS'))
                       : ListView.builder(
                           padding: const EdgeInsets.all(16.0),
-                          itemCount: feeds.length + 2, // +2 for Ad and spacer
+                          itemCount:
+                              filteredFeeds.length + 2, // +2 for Ad and spacer
                           itemBuilder: (context, index) {
-                            if (index == feeds.length) {
+                            if (index == filteredFeeds.length) {
                               return isLoading
                                   ? const ReusableFeedPostSkeleton()
                                   : const SizedBox.shrink();
                             }
 
-                            if (index == feeds.length + 1) {
-                              // SizedBox to add space at the bottom
-                              return const SizedBox(
-                                  height: 80); // Adjust height as needed
+                            if (index == filteredFeeds.length + 1) {
+                              return const SizedBox(height: 80);
                             }
 
-                            final feed = feeds[index];
+                            final feed = filteredFeeds[index];
                             if (feed.status == 'published') {
                               return _buildPost(
                                 withImage: feed.media != null &&
                                     feed.media!.isNotEmpty,
-                                business: feed,
+                                feed: feed,
                               );
                             } else {
                               return const SizedBox.shrink();
@@ -188,21 +189,12 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
               right: 30,
               bottom: 30,
               child: GestureDetector(
-                onTap: () {
-                  if (subscriptionType != 'free') {
-                    _openModalSheet();
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const UpgradeDialog(),
-                    );
-                  }
-                },
+                onTap: () => _openModalSheet(sheet: 'post'),
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: kPrimaryColor,
+                    color: Color(0xFFE30613),
                   ),
                   child: Icon(
                     Icons.add,
@@ -225,83 +217,80 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
         //     color: Colors.white,
         //     size: 27,
         //   ),
-        //   backgroundColor: const kPrimaryColor,
+        //   backgroundColor: const Color(0xFFE30613),
         // ),
       ),
     );
   }
 
-  // // Method to build individual Choice Chips
-  // Widget _buildChoiceChip(String label) {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(horizontal: 4.0),
-  //     child: ChoiceChip(
-  //       label: Text(label),
-  //       selected: selectedFilter == label,
-  //       onSelected: (selected) {
-  //         setState(() {
-  //           selectedFilter = label;
-  //         });
-  //       },
-  //       backgroundColor: Colors.white, // Light green background color
-  //       selectedColor: const Color(0xFFD3EDCA), // When selected
+  // Method to build individual Choice Chips
+  Widget _buildChoiceChip(String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: selectedFilter == label,
+        onSelected: (selected) {
+          setState(() {
+            selectedFilter = label;
+          });
+        },
+        backgroundColor: Colors.white, // Light green background color
+        selectedColor: const Color(0xFFD3EDCA), // When selected
 
-  //       shape: RoundedRectangleBorder(
-  //         side: const BorderSide(color: Color.fromARGB(255, 214, 210, 210)),
-  //         borderRadius: BorderRadius.circular(20.0), // Circular border
-  //       ),
-  //       showCheckmark: false, // Remove tick icon
-  //     ),
-  //   );
-  // }
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Color.fromARGB(255, 214, 210, 210)),
+          borderRadius: BorderRadius.circular(20.0), // Circular border
+        ),
+        showCheckmark: false, // Remove tick icon
+      ),
+    );
+  }
 
-  Widget _buildPost({bool withImage = false, required Business business}) {
+  Widget _buildPost({bool withImage = false, required Business feed}) {
     return Consumer(
       builder: (context, ref, child) {
-        final asynPostOwner =
-            ref.watch(fetchUserDetailsProvider(business.author ?? ''));
-        final asyncUser = ref.watch(userProvider);
-        return asynPostOwner.when(
-          data: (postOwner) {
+        final asyncUser =
+            ref.watch(fetchUserDetailsProvider(feed.author ?? ''));
+        return asyncUser.when(
+          data: (user) {
             var receiver = Participant(
-              id: business.author,
-              name: postOwner.name,
-              image: postOwner.image,
+              id: user.uid ?? '',
+              name: user.name ?? '',
+              image: user.image ?? '',
             );
-            log('receiver:${receiver.id}\n${receiver.image}\n${receiver.name}');
 
-            return asyncUser.when(
-              data: (user) {
-                var sender = Participant(
-                    id: user.uid, image: user.image, name: user.name);
-                log('sender:${sender.id}\n${sender.image}\n${sender.name}');
-
-                return GestureDetector(
-                  onTap: () => showBusinessModalSheet(
-                      business: business,
-                      buttonText: 'Message',
+            var sender = Participant(
+              id: id,
+            );
+            return ReusableBusinessPost(
+                author: user,
+                withImage: feed.media != null ? true : false,
+                business: feed,
+                onLike: () async {
+                  await likeFeed(feed.id!);
+                  ref.read(businessNotifierProvider.notifier).refreshFeed();
+                },
+                onComment: () async {},
+                onShare: () {
+                  feedContentController.clear();
+                  _feedImage = null;
+                  showModalBottomSheet(
+                      isScrollControlled: true,
                       context: context,
-                      onButtonPressed: () {},
-                      receiver: receiver,
-                      sender: sender),
-                  child: ReusableBusinessPost(
-                    withImage: business.media != null ? true : false,
-                    business: business,
-                    user: postOwner,
-                  ),
-                );
-              },
-              loading: () => const ReusableFeedPostSkeleton(),
-              error: (error, stackTrace) {
-                return Center(
-                  child: Text('$error'),
-                );
-              },
-            );
+                      builder: (context) {
+                        return ShowAdddBusinessSheet(
+                          pickImage: _pickFile,
+                          textController: feedContentController,
+                        );
+                      });
+                });
           },
           loading: () => const ReusableFeedPostSkeleton(),
           error: (error, stackTrace) {
-            return const ReusableFeedPostSkeleton();
+            return const Center(
+              child: Text('No Posts'),
+            );
           },
         );
       },
@@ -312,44 +301,218 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
 class ReusableBusinessPost extends ConsumerStatefulWidget {
   final Business business;
   final bool withImage;
-  final UserModel user;
+  final UserModel author;
+  final Function onLike;
+  final Function onComment;
+  final Function onShare;
 
   const ReusableBusinessPost({
-    Key? key,
+    super.key,
     required this.business,
     this.withImage = false,
-    required this.user,
-  }) : super(key: key);
+    required this.onLike,
+    required this.onComment,
+    required this.onShare,
+    required this.author,
+  });
 
   @override
   _ReusableBusinessPostState createState() => _ReusableBusinessPostState();
 }
 
-class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
-  bool _isExpanded = false;
-  bool _isContentOverflowing = false;
-
+class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
+    with SingleTickerProviderStateMixin {
+  FocusNode commentFocusNode = FocusNode();
+  bool isLiked = false;
+  bool showHeartAnimation = false;
+  late AnimationController _animationController;
+  TextEditingController commentController = TextEditingController();
+  int likes = 0;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkContentOverflow();
+
+    initialize();
+  }
+
+  initialize() async {
+    if (widget.business.likes != null) {
+      if (widget.business.likes!.contains(id)) {
+        isLiked = true;
+      }
+    }
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+  }
+
+  void _toggleLike() {
+    setState(() {
+      likes = isLiked == true ? likes - 1 : likes + 1;
+      isLiked = !isLiked;
+      showHeartAnimation = true;
+      widget.onLike();
+    });
+    _animationController.forward().then((_) {
+      _animationController.reset();
+      setState(() {
+        showHeartAnimation = false;
+      });
     });
   }
 
-  void _checkContentOverflow() {
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: widget.business.content,
-        style: const TextStyle(fontSize: 14),
+  void _openCommentModal() {
+    log('comments: ${widget.business.comments?.length}');
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(20.0),
+                bottom: Radius.circular(20.0),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.7,
+              child: Scaffold(
+                backgroundColor: Colors.transparent,
+                appBar: AppBar(
+                  title: const Text('Comments'),
+                  backgroundColor: Colors.white,
+                  automaticallyImplyLeading: false,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20.0),
+                    ),
+                  ),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+                body: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: widget.business.comments?.length ?? 0,
+                        itemBuilder: (context, index) {
+                          return Consumer(
+                            builder: (context, ref, child) {
+                              return ListTile(
+                                leading: ClipOval(
+                                  child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    color: const Color.fromARGB(
+                                        255, 255, 255, 255),
+                                    child: widget.business.comments?[index].user
+                                                ?.image !=
+                                            null
+                                        ? Image.network(
+                                            fit: BoxFit.fill,
+                                            widget.business.comments![index]
+                                                .user!.image!)
+                                        : const Icon(Icons.person),
+                                  ),
+                                ),
+                                title: Text(
+                                    widget.business.comments![index].user !=
+                                            null
+                                        ? widget.business.comments![index].user!
+                                                .name ??
+                                            'Unknown User'
+                                        : 'Unknown User'),
+                                subtitle: Text(
+                                    widget.business.comments?[index].comment ??
+                                        ''),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    _buildCommentInputField(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCommentInputField() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              focusNode: commentFocusNode,
+              controller: commentController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                hintText: "Add a comment...",
+                filled: true,
+                fillColor: Colors.grey[200],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: const Text(
+                'Post',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () async {
+                if (commentController.text != '') {
+                  FocusScope.of(context)
+                      .unfocus(); // Ensure the keyboard is dismissed immediately
+
+                  await postComment(
+                      feedId: widget.business.id!,
+                      comment: commentController.text);
+                  await ref
+                      .read(businessNotifierProvider.notifier)
+                      .refreshFeed();
+                  commentController.clear();
+                  commentFocusNode.unfocus();
+                }
+              })
+        ],
       ),
-      maxLines: 3,
-      textDirection: TextDirection.ltr,
-    )..layout(
-        maxWidth: MediaQuery.of(context).size.width - 64); // Padding + margins
-    setState(() {
-      _isContentOverflowing = textPainter.didExceedMaxLines;
-    });
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    commentFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -366,27 +529,12 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
         children: [
           Padding(
             padding: const EdgeInsets.all(15),
-            child: ConstrainedBox(
-              constraints:
-                  BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: buildUserInfo(widget.user, widget.business, context),
-                  ),
-                  BlockReportDropdown(
-                    isBlocked: false,
-                    feed: widget.business,
-                  ),
-                ],
-              ),
-            ),
+            child: buildUserInfo(widget.author, widget.business, context),
           ),
           if (widget.withImage)
             Padding(
               padding: const EdgeInsets.only(left: 10, right: 10),
-              child: _buildPostImage(widget.business.media ?? ''),
+              child: _buildPostImage(widget.business.media!),
             ),
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -394,40 +542,87 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 5),
-                AnimatedCrossFade(
-                  duration: const Duration(milliseconds: 200),
-                  crossFadeState: _isExpanded
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  firstChild: Text(
-                    widget.business.content!,
-                    style: const TextStyle(fontSize: 14),
-                    maxLines: 3, // Limit to 3 lines when collapsed
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  secondChild: Text(
-                    widget.business.content!,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ),
-                if (_isContentOverflowing) const SizedBox(height: 8),
-                if (_isContentOverflowing)
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isExpanded = !_isExpanded;
-                      });
-                    },
+                Text(widget.business.content!,
+                    style: const TextStyle(fontSize: 14)),
+                const SizedBox(height: 16),
+                _buildActionButtons(),
+                GestureDetector(
+                  onTap: () => _openCommentModal(),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 10, top: 5),
                     child: Text(
-                      _isExpanded ? 'Show less' : 'Read more',
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      'View all ${widget.business.comments?.length ?? 0} comments',
+                      style:
+                          const TextStyle(color: Colors.grey, fontSize: 14.5),
                     ),
                   ),
-                const SizedBox(height: 16),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+                  child: Row(
+                    children: [
+                      ClipOval(
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          child: Image.network(
+                            widget.author.image ?? '',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                  'assets/icons/dummy_person_small.png');
+                            },
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => _openCommentModal(),
+                        child: const Padding(
+                          padding: EdgeInsets.only(
+                            left: 10,
+                          ),
+                          child: Text(
+                            'Add a comment...',
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 129, 128, 128)),
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () => _openCommentModal(),
+                        child: const Row(
+                          children: [
+                            Text(
+                              '❤️',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text('🙌'),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Icon(
+                              Icons.add_circle_outline_sharp,
+                              color: Colors.grey,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+                  child: Text(
+                    '${timeAgo(widget.business.createdAt!)}',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ),
               ],
             ),
           ),
@@ -437,36 +632,99 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost> {
   }
 
   Widget _buildPostImage(String imageUrl) {
-    return AspectRatio(
-      aspectRatio: 4 / 5,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.grey[200],
-          ),
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) {
-                return child;
-              }
-              return Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
-                child: ClipRRect(
+    return GestureDetector(
+      onDoubleTap: _toggleLike,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AspectRatio(
+            aspectRatio: 4 / 5,
+            child: ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(10), // Ensure border radius is applied
+              child: Container(
+                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  child: Container(
-                    color: Colors.grey[300],
-                  ),
+                  color: Colors.grey[200],
                 ),
-              );
-            },
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit
+                      .cover, // Changed to BoxFit.cover for better rendering inside the border
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child; // Image fully loaded
+                    }
+                    return Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                            10), // Shimmer respects border radius
+                        child: Container(
+                          color: Colors.grey[300],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
-        ),
+          if (showHeartAnimation)
+            Icon(Icons.favorite, color: Colors.red.withOpacity(0.8), size: 100)
+                .animate(target: showHeartAnimation ? 1 : 0)
+                .scaleXY(begin: 0.7, end: 1.2)
+                .then()
+                .scaleXY(begin: 1.2, end: 0.9),
+        ],
       ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? Colors.red : Colors.black,
+                  ),
+                  onPressed: _toggleLike,
+                ),
+                IconButton(
+                  icon: SvgPicture.asset('assets/svgs/icons/comment.svg'),
+                  onPressed: _openCommentModal,
+                ),
+                if (widget.business.author != id)
+                  IconButton(
+                    icon: SvgPicture.asset('assets/svgs/icons/share.svg'),
+                    onPressed: () => widget.onShare(),
+                  ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              child: Text(
+                '${widget.business.likes?.length ?? 0} Likes',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+        const Spacer(),
+        if (widget.business.author != id)
+          BlockReportDropdown(
+            isBlocked: false,
+            feed: widget.business,
+          )
+      ],
     );
   }
 }
@@ -476,53 +734,66 @@ class ReusableFeedPostSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FadeInTransition(
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.easeOut,
-      child: Card(
-        color: Colors.white,
-        elevation: 0,
-        margin: const EdgeInsets.only(bottom: 16.0),
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Color.fromARGB(255, 213, 208, 208)),
-          borderRadius: BorderRadius.circular(6.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  // User Avatar
-                  ClipOval(
-                    child: _buildShimmerContainer(height: 30, width: 30),
-                  ),
-                  const SizedBox(width: 8),
-                  // User Info (Name, Company)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildShimmerContainer(height: 12, width: 100),
-                      const SizedBox(height: 4),
-                      _buildShimmerContainer(height: 12, width: 60),
-                    ],
-                  ),
-                  const Spacer(),
-                  // Post Date Skeleton
-                  _buildShimmerContainer(height: 12, width: 80),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              SizedBox(
-                height: 20,
-              ),
-              // Image Skeleton
-              _buildShimmerContainer(height: 300.0, width: double.infinity),
-              const SizedBox(height: 16),
-            ],
-          ),
+    return Card(
+      color: Colors.white,
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 16.0),
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(color: Color.fromARGB(255, 213, 208, 208)),
+        borderRadius: BorderRadius.circular(6.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Skeleton
+            _buildShimmerContainer(height: 200.0, width: double.infinity),
+            const SizedBox(height: 16),
+            // Content Text Skeleton
+            _buildShimmerContainer(height: 14, width: double.infinity),
+            const SizedBox(height: 16),
+            // User Info Skeleton
+            Row(
+              children: [
+                // User Avatar
+                ClipOval(
+                  child: _buildShimmerContainer(height: 30, width: 30),
+                ),
+                const SizedBox(width: 8),
+                // User Info (Name, Company)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildShimmerContainer(height: 12, width: 100),
+                    const SizedBox(height: 4),
+                    _buildShimmerContainer(height: 12, width: 60),
+                  ],
+                ),
+                const Spacer(),
+                // Post Date Skeleton
+                _buildShimmerContainer(height: 12, width: 80),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Action Buttons Skeleton
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    _buildShimmerCircle(height: 30, width: 30),
+                    const SizedBox(width: 8),
+                    _buildShimmerCircle(height: 30, width: 30),
+                    const SizedBox(width: 8),
+                    _buildShimmerCircle(height: 30, width: 30),
+                  ],
+                ),
+                // Likes Count Skeleton
+                _buildShimmerContainer(height: 14, width: 60),
+              ],
+            ),
+          ],
         ),
       ),
     );

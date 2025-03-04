@@ -73,7 +73,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   double _estimateTextHeight(String text, double fontSize) {
     final double screenWidth = MediaQuery.sizeOf(context).width;
     final int numLines = (text.length / (screenWidth / fontSize)).ceil();
-    return numLines * fontSize * 1.2 + 20;
+    return numLines * fontSize * 1.2 + 40;
   }
 
   CarouselController controller = CarouselController();
@@ -288,14 +288,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                                             context: context,
                                             isScrollControlled: true,
                                             backgroundColor: Colors.transparent,
-                                            builder: (context) => DateFilterSheet(
-                                              onApply: (String? newStartDate, String? newEndDate) {
+                                            builder: (context) =>
+                                                DateFilterSheet(
+                                              onApply: (String? newStartDate,
+                                                  String? newEndDate) {
                                                 setState(() {
                                                   startDate = newStartDate;
                                                   endDate = newEndDate;
                                                 });
-                                            
-                                                ref.invalidate(fetchUserDashboardDetailsProvider);
+
+                                                ref.invalidate(
+                                                    fetchUserDashboardDetailsProvider);
                                               },
                                             ),
                                           );

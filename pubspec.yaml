@@ -68,6 +68,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   firebase_app_check: ^0.3.2+3
   hl_image_picker: ^1.2.16
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:

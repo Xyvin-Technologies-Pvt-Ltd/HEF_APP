@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -10,12 +11,27 @@ part 'analytics_api.g.dart';
 
 @riverpod
 Future<List<AnalyticsModel>> fetchAnalytics(
-    FetchAnalyticsRef ref, String? type) async {
-  Uri url = Uri.parse('$baseUrl/analytic');
+    Ref ref,{required String? type, String? startDate, String? endDate, String? requestType}) async {
+  Map<String, String> queryParams = {};
 
-  if (type != null && type != '') {
-    url = Uri.parse('$baseUrl/analytic?filter=$type');
+  if (type != null && type.isNotEmpty) {
+    queryParams['filter'] = type;
   }
+  if (startDate != null && startDate.isNotEmpty) {
+    queryParams['startDate'] = startDate;
+  }
+  if (endDate != null && endDate.isNotEmpty) {
+    queryParams['endDate'] = endDate;
+  }
+  if (requestType != null && requestType.isNotEmpty) {
+    queryParams['requestType'] = requestType;
+  }
+
+  Uri url = Uri.parse('$baseUrl/analytic');
+  if (queryParams.isNotEmpty) {
+    url = Uri.parse('$baseUrl/analytic').replace(queryParameters: queryParams);
+  }
+
   print('Requesting URL: $url');
   final response = await http.get(
     url,
@@ -29,19 +45,15 @@ Future<List<AnalyticsModel>> fetchAnalytics(
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body)['data'];
     print(response.body);
-    List<AnalyticsModel> promotions = [];
-
-    for (var item in data) {
-      promotions.add(AnalyticsModel.fromJson(item));
-    }
-    print(promotions);
-    return promotions;
+    List<AnalyticsModel> analytics = data.map((item) => AnalyticsModel.fromJson(item)).toList();
+    print(analytics);
+    return analytics;
   } else {
     print(json.decode(response.body)['message']);
-
     throw Exception(json.decode(response.body)['message']);
   }
 }
+
 
 Future<void> updateAnalyticStatus({
   required String analyticId,

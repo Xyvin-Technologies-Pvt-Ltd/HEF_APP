@@ -5,7 +5,7 @@ class Business {
   String? media;
   String? link;
   String? content;
-  Author? author;
+  String? author;
   List<String>? likes;
   String? status;
   DateTime? createdAt;
@@ -34,7 +34,7 @@ class Business {
       media: json['media'] as String?,
       link: json['link'] as String?,
       content: json['content'] as String?,
-       author: json['author'] != null ? Author.fromJson(json['author']) : null,
+       author:json['author'] as String?,
       likes: (json['like'] as List?)?.map((item) => item as String).toList(),
       status: json['status'] as String?,
       createdAt: json['createdAt'] != null
@@ -57,7 +57,7 @@ class Business {
       'media': media,
       'link': link,
       'content': content,
-      'author': author?.toJson(),
+      'author': author,
       'like': likes,
       'status': status,
       'createdAt': createdAt?.toIso8601String(),

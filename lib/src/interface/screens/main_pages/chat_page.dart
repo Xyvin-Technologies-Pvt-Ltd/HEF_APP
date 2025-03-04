@@ -10,8 +10,7 @@ class PeoplePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 2, // Number of tabs
-
+        length: 2,
         child: Scaffold(
             backgroundColor: kWhite,
             body: SafeArea(
@@ -21,15 +20,15 @@ class PeoplePage extends StatelessWidget {
                     preferredSize: Size.fromHeight(20),
                     child: Container(
                       margin: EdgeInsets.only(
-                          top: 0), // Adjust this value to reduce space
+                          top: 0), 
                       child: const SizedBox(
                         height: 40,
                         child: TabBar(
                           enableFeedback: true,
                           isScrollable:
-                              false, // Disable scroll to center the tabs
+                              false,
                           indicatorColor:
-                              kPrimaryColor, // Set to AppPalette.kPrimaryColor
+                              kPrimaryColor,
                           indicatorWeight: 3.0,
                           indicatorSize: TabBarIndicatorSize.tab,
                           labelColor: kPrimaryColor,
@@ -46,8 +45,6 @@ class PeoplePage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Wrap TabBar with a Container to adjust margin
-
                   Expanded(
                     child: TabBarView(
                       children: [

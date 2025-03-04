@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hef/src/data/models/dashboard_model.dart';
 import 'package:hef/src/data/models/payment_year_model.dart';
 import 'package:hef/src/data/models/subscription_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
@@ -28,6 +29,36 @@ Future<UserModel> fetchUserDetails(
   if (response.statusCode == 200) {
     final dynamic data = json.decode(response.body)['data'];
     return UserModel.fromJson(data);
+  } else {
+    print(json.decode(response.body)['message']);
+
+    throw Exception(json.decode(response.body)['message']);
+  }
+}
+
+@riverpod
+Future<UserDashboard> fetchUserDashboardDetails(
+    Ref ref,{String? startDate,String? endDate}) async {
+  
+  Uri url = Uri.parse('$baseUrl/user/dashboard');
+  
+  if (startDate != null && endDate !=null) {
+    url = Uri.parse(
+        '$baseUrl/user/dashboard?startDate=$startDate&endDate=$endDate');
+  }
+  print('Requesting URL: $url');
+  final response = await http.get(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token"
+    },
+  );
+
+  log(response.body);
+  if (response.statusCode == 200) {
+    final dynamic data = json.decode(response.body)['data'];
+    return UserDashboard.fromJson(data);
   } else {
     print(json.decode(response.body)['message']);
 

@@ -171,7 +171,7 @@ class _ProductViewState extends ConsumerState<ProductView> {
                             );
                           },
                           error: (error, stackTrace) {
-                            log(error.toString());
+                      
                             return const SizedBox();
                           },
                           loading: () {

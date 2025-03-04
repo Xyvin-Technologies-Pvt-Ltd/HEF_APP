@@ -105,7 +105,7 @@ Future<void> deleteAnalytic({
   }
 }
 
-Future<void> postAnalytic({Map<String, dynamic>? data}) async {
+Future<String?> postAnalytic({Map<String, dynamic>? data}) async {
   final url = Uri.parse('$baseUrl/analytic');
 
   final headers = {
@@ -121,10 +121,13 @@ Future<void> postAnalytic({Map<String, dynamic>? data}) async {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       print('Success: ${response.body}');
+      return 'success';
     } else {
       print('Error: ${response.statusCode} - ${response.body}');
+       return json.decode(response.body)['message'];
     }
   } catch (e) {
     print('Exception: $e');
+        return e.toString();
   }
 }

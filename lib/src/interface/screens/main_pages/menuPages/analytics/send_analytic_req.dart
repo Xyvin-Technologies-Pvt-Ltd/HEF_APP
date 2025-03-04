@@ -4,6 +4,7 @@ import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
 import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
+import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -28,27 +29,24 @@ class _SendAnalyticRequestPageState
   TextEditingController linkController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   TextEditingController amountController = TextEditingController();
-  TextEditingController referralContactController = TextEditingController();
+  TextEditingController referralName = TextEditingController();
 
-  // Dropdown values
+  TextEditingController referralNameController = TextEditingController();
+  TextEditingController referralEmailController = TextEditingController();
+  TextEditingController referralPhoneController = TextEditingController();
+  TextEditingController referralAddressController = TextEditingController();
+  TextEditingController referralInfoController = TextEditingController();
+
   String? selectedRequestType;
   String? selectedStateId;
   String? selectedZone;
   String? selectedDistrict;
   String? selectedChapter;
   String? selectedMember;
-  String? selectedRefferalStateId;
-  String? selectedRefferalZone;
-  String? selectedRefferalDistrict;
-  String? selectedRefferalChapter;
-  String? selectedRefferalMember;
-  bool isChecked = false;
-  bool isReferral = false;
 
-  // Add new meeting type dropdown value
   String? selectedMeetingType;
 
-  Future<void> createAnalytic() async {
+  Future<String?> createAnalytic() async {
     final Map<String, dynamic> analytictData = {
       "type": selectedRequestType,
       "member": selectedMember,
@@ -56,38 +54,48 @@ class _SendAnalyticRequestPageState
       if (amountController.text != '') "amount": amountController.text,
       "title": titleController.text,
       "description": descriptionController.text,
-      if (selectedRefferalMember != null) "referral": selectedRefferalMember,
-      if (referralContactController.text != '')
-        "contact": referralContactController.text,
-      if (amountController.text != '') "amount": amountController.text,
-      if (dateController.text != '') "date": "2024-12-01",
-      if (timeController.text != '') "time": "14:00",
+      if (selectedRequestType == 'Referral')
+        "referral": {
+          if (referralNameController.text != '')
+            "name": referralNameController.text,
+          if (referralEmailController.text != '')
+            "email": referralEmailController.text,
+          if (referralPhoneController.text != '')
+            "phone": referralPhoneController.text,
+          if (referralAddressController.text != '')
+            "address": referralAddressController.text,
+          if (referralInfoController.text != '')
+            "info": referralInfoController.text,
+        },
+      if (dateController.text != '') "date": dateController.text,
+      if (timeController.text != '') "time": timeController.text,
       if (selectedMeetingType == 'Online' && linkController.text != '')
         "meetingLink": linkController.text,
       if (selectedMeetingType == 'Offline' && locationController.text != '')
         "location": locationController.text,
     };
-    await postAnalytic(data: analytictData);
+    String? response = await postAnalytic(data: analytictData);
+    return response;
   }
 
-  void onChecked() {
-    print('Checkbox is checked!');
-    setState(() {
-      isReferral = true;
-    });
-  }
+  // void onChecked() {
+  //   print('Checkbox is checked!');
+  //   setState(() {
+  //     isReferral = true;
+  //   });
+  // }
 
-  void onUnchecked() {
-    setState(() {
-      isReferral = false;
-      selectedRefferalDistrict = null;
-      selectedRefferalStateId = null;
-      selectedRefferalChapter = null;
-      selectedRefferalZone = null;
-      selectedRefferalMember = null;
-    });
-    print('Checkbox is unchecked!');
-  }
+  // void onUnchecked() {
+  //   setState(() {
+  //     isReferral = false;
+  //     selectedRefferalDistrict = null;
+  //     selectedRefferalStateId = null;
+  //     selectedRefferalChapter = null;
+  //     selectedRefferalZone = null;
+  //     selectedRefferalMember = null;
+  //   });
+  //   print('Checkbox is unchecked!');
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -100,14 +108,14 @@ class _SendAnalyticRequestPageState
         ref.watch(fetchLevelDataProvider(selectedDistrict ?? '', 'district'));
     final asyncMembers =
         ref.watch(fetchLevelDataProvider(selectedChapter ?? '', 'user'));
-    final asyncReferralZones = ref
-        .watch(fetchLevelDataProvider(selectedRefferalStateId ?? '', 'state'));
-    final asyncReferralDistricts =
-        ref.watch(fetchLevelDataProvider(selectedRefferalZone ?? '', 'zone'));
-    final asyncReferralChapters = ref.watch(
-        fetchLevelDataProvider(selectedRefferalDistrict ?? '', 'district'));
-    final asyncReferralMembers = ref
-        .watch(fetchLevelDataProvider(selectedRefferalChapter ?? '', 'user'));
+    // final asyncReferralZones = ref
+    //     .watch(fetchLevelDataProvider(selectedRefferalStateId ?? '', 'state'));
+    // final asyncReferralDistricts =
+    //     ref.watch(fetchLevelDataProvider(selectedRefferalZone ?? '', 'zone'));
+    // final asyncReferralChapters = ref.watch(
+    //     fetchLevelDataProvider(selectedRefferalDistrict ?? '', 'district'));
+    // final asyncReferralMembers = ref
+    //     .watch(fetchLevelDataProvider(selectedRefferalChapter ?? '', 'user'));
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -131,7 +139,7 @@ class _SendAnalyticRequestPageState
                 hintText: 'Choose Type',
                 value: selectedRequestType, // Selected state ID
 
-                items: ['Business', 'One v One Meeting']
+                items: ['Business', 'One v One Meeting', 'Referral']
                     .map((reqType) => DropdownMenuItem(
                           value: reqType,
                           child: Text(reqType),
@@ -442,162 +450,69 @@ class _SendAnalyticRequestPageState
                     ],
                   ],
                 ),
-              if (selectedRequestType == 'Business')
-                Row(
-                  children: [
-                    Checkbox(
-                      value: isChecked,
-                      onChanged: (bool? value) {
-                        if (value != null) {
-                          setState(() {
-                            isChecked = value;
-                            if (isChecked) {
-                              onChecked();
-                            } else {
-                              onUnchecked();
-                            }
-                          });
-                        }
-                      },
-                    ),
-                    Text(
-                      'Referral',
-                      style: kBodyTitleR,
-                    )
-                  ],
-                ),
-              if (isChecked)
+              if (selectedRequestType == 'Referral')
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        const Text('Referred Person',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    asyncStates.when(
-                      data: (states) => SelectionDropDown(
-                        hintText: 'Choose State',
-                        value: selectedRefferalStateId, // Selected state ID
-                        label: null,
-                        items: states.map((state) {
-                          return DropdownMenuItem<String>(
-                            value: state.id, // Use state ID as the value
-                            child: Text(state.name), // Display state name
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedRefferalStateId =
-                                value; // Save the selected state ID
-                            selectedRefferalZone =
-                                null; // Reset dependent dropdowns
-                            selectedRefferalDistrict = null;
-                            selectedRefferalChapter = null;
-                          });
-                        },
-                      ),
-                      loading: () => const Center(child: LoadingAnimation()),
-                      error: (error, stackTrace) => const SizedBox(),
-                    ),
-
-                    // Zone Dropdown
-                    asyncReferralZones.when(
-                      data: (zones) => SelectionDropDown(
-                        hintText: 'Choose Zone',
-                        value: selectedRefferalZone,
-                        label: null,
-                        items: zones.map((zone) {
-                          return DropdownMenuItem<String>(
-                            value: zone.id,
-                            child: Text(zone.name),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedRefferalZone = value;
-                            selectedRefferalDistrict = null;
-                            selectedRefferalChapter = null;
-                          });
-                        },
-                      ),
-                      loading: () => const Center(child: LoadingAnimation()),
-                      error: (error, stackTrace) => const SizedBox(),
-                    ),
-
-                    asyncReferralDistricts.when(
-                      data: (districts) => SelectionDropDown(
-                        hintText: 'Choose District',
-                        value: selectedRefferalDistrict,
-                        label: null,
-                        items: districts.map((district) {
-                          return DropdownMenuItem<String>(
-                            value: district.id,
-                            child: Text(district.name),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedRefferalDistrict = value;
-                            selectedRefferalChapter = null;
-                          });
-                        },
-                      ),
-                      loading: () => const Center(child: LoadingAnimation()),
-                      error: (error, stackTrace) => const SizedBox(),
-                    ),
-
-                    asyncReferralChapters.when(
-                      data: (chapters) => SelectionDropDown(
-                        hintText: 'Choose Chapter',
-                        value: selectedRefferalChapter,
-                        label: null,
-                        items: chapters.map((chapter) {
-                          return DropdownMenuItem<String>(
-                            value: chapter.id,
-                            child: Text(chapter.name),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedRefferalChapter = value;
-                          });
-                        },
-                      ),
-                      loading: () => const Center(child: LoadingAnimation()),
-                      error: (error, stackTrace) => const SizedBox(),
-                    ),
-                    asyncReferralMembers.when(
-                      data: (members) {
-                        // Create a new list excluding the member with the matching id
-                        final filteredMembers =
-                            members.where((member) => member.id != id).toList();
-
-                        return SelectionDropDown(
-                          hintText: 'Choose Member',
-                          value: selectedRefferalMember,
-                          label: null,
-                          items: filteredMembers.map((member) {
-                            return DropdownMenuItem<String>(
-                              value: member.id,
-                              child: Text(member.name),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedRefferalMember = value;
-                            });
-                          },
-                        );
-                      },
-                      loading: () => const Center(child: LoadingAnimation()),
-                      error: (error, stackTrace) => const SizedBox(),
-                    ),
-
+                    const SizedBox(height: 16.0),
+                    const Text('Referral Details',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 10.0),
+                    const Text('Name',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    CustomTextFormField(
+                      textController: referralNameController,
+                      labelText: 'Enter referral name',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter referral name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10.0),
+                    const Text('Email',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    CustomTextFormField(
+                      textController: referralEmailController,
+                      labelText: 'Enter referral email',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter referral email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10.0),
+                    const Text('Phone',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    CustomTextFormField(
+                      textController: referralPhoneController,
+                      labelText: 'Enter referral phone',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter referral phone';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10.0),
+                    const Text('Address',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    CustomTextFormField(
+                      textController: referralAddressController,
+                      labelText: 'Enter referral address',
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 10.0),
+                    const Text('Additional Information',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    CustomTextFormField(
+                      textController: referralInfoController,
+                      labelText: 'Enter additional information',
+                      maxLines: 3,
+                    ),
                   ],
                 ),
               const SizedBox(height: 20.0),
@@ -605,9 +520,15 @@ class _SendAnalyticRequestPageState
                 label: 'Send Request',
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    await createAnalytic();
-                    Navigator.pop(context);
-                    ref.invalidate(fetchAnalyticsProvider);
+                    String? response = await createAnalytic();
+                    if (response != null && response.contains('success')) {
+                      Navigator.pop(context);
+                      ref.invalidate(fetchAnalyticsProvider);
+                    } else {
+                      SnackbarService service = SnackbarService();
+
+                      service.showSnackBar(response ?? 'Error');
+                    }
                     print('Form Submitted');
                   }
                 },

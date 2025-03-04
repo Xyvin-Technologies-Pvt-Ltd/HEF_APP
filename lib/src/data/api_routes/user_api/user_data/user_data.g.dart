@@ -158,7 +158,161 @@ class _FetchUserDetailsProviderElement
   String get userId => (origin as FetchUserDetailsProvider).userId;
 }
 
-String _$getSubscriptionHash() => r'a6bd58493a8e870104bef8a8ea305f6cdce87ea2';
+String _$fetchUserDashboardDetailsHash() =>
+    r'955b0540ffa80d5417f0baa496213692d43c8692';
+
+/// See also [fetchUserDashboardDetails].
+@ProviderFor(fetchUserDashboardDetails)
+const fetchUserDashboardDetailsProvider = FetchUserDashboardDetailsFamily();
+
+/// See also [fetchUserDashboardDetails].
+class FetchUserDashboardDetailsFamily
+    extends Family<AsyncValue<UserDashboard>> {
+  /// See also [fetchUserDashboardDetails].
+  const FetchUserDashboardDetailsFamily();
+
+  /// See also [fetchUserDashboardDetails].
+  FetchUserDashboardDetailsProvider call({
+    String? startDate,
+    String? endDate,
+  }) {
+    return FetchUserDashboardDetailsProvider(
+      startDate: startDate,
+      endDate: endDate,
+    );
+  }
+
+  @override
+  FetchUserDashboardDetailsProvider getProviderOverride(
+    covariant FetchUserDashboardDetailsProvider provider,
+  ) {
+    return call(
+      startDate: provider.startDate,
+      endDate: provider.endDate,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fetchUserDashboardDetailsProvider';
+}
+
+/// See also [fetchUserDashboardDetails].
+class FetchUserDashboardDetailsProvider
+    extends AutoDisposeFutureProvider<UserDashboard> {
+  /// See also [fetchUserDashboardDetails].
+  FetchUserDashboardDetailsProvider({
+    String? startDate,
+    String? endDate,
+  }) : this._internal(
+          (ref) => fetchUserDashboardDetails(
+            ref as FetchUserDashboardDetailsRef,
+            startDate: startDate,
+            endDate: endDate,
+          ),
+          from: fetchUserDashboardDetailsProvider,
+          name: r'fetchUserDashboardDetailsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$fetchUserDashboardDetailsHash,
+          dependencies: FetchUserDashboardDetailsFamily._dependencies,
+          allTransitiveDependencies:
+              FetchUserDashboardDetailsFamily._allTransitiveDependencies,
+          startDate: startDate,
+          endDate: endDate,
+        );
+
+  FetchUserDashboardDetailsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.startDate,
+    required this.endDate,
+  }) : super.internal();
+
+  final String? startDate;
+  final String? endDate;
+
+  @override
+  Override overrideWith(
+    FutureOr<UserDashboard> Function(FetchUserDashboardDetailsRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FetchUserDashboardDetailsProvider._internal(
+        (ref) => create(ref as FetchUserDashboardDetailsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        startDate: startDate,
+        endDate: endDate,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<UserDashboard> createElement() {
+    return _FetchUserDashboardDetailsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchUserDashboardDetailsProvider &&
+        other.startDate == startDate &&
+        other.endDate == endDate;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, startDate.hashCode);
+    hash = _SystemHash.combine(hash, endDate.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin FetchUserDashboardDetailsRef
+    on AutoDisposeFutureProviderRef<UserDashboard> {
+  /// The parameter `startDate` of this provider.
+  String? get startDate;
+
+  /// The parameter `endDate` of this provider.
+  String? get endDate;
+}
+
+class _FetchUserDashboardDetailsProviderElement
+    extends AutoDisposeFutureProviderElement<UserDashboard>
+    with FetchUserDashboardDetailsRef {
+  _FetchUserDashboardDetailsProviderElement(super.provider);
+
+  @override
+  String? get startDate =>
+      (origin as FetchUserDashboardDetailsProvider).startDate;
+  @override
+  String? get endDate => (origin as FetchUserDashboardDetailsProvider).endDate;
+}
+
+String _$getSubscriptionHash() => r'b2ae269a755d077ac256f7f9c2237f6c3a39dd83';
 
 /// See also [getSubscription].
 @ProviderFor(getSubscription)
@@ -176,7 +330,7 @@ final getSubscriptionProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GetSubscriptionRef = AutoDisposeFutureProviderRef<List<Subscription>>;
-String _$getPaymentYearsHash() => r'abec4d0ef9e7f47dfd355471fd0db5c6f439630b';
+String _$getPaymentYearsHash() => r'7e4cc9f8f5f6d7ef38c31fd7976a18125e9c6112';
 
 /// See also [getPaymentYears].
 @ProviderFor(getPaymentYears)

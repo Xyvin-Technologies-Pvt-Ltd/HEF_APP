@@ -31,11 +31,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
     initialize();
-    // checkAppVersion(context).then((_) {
-    //   if (!isAppUpdateRequired) {
+    checkAppVersion(context).then((_) {
+      if (!isAppUpdateRequired) {
     initialize();
-    // }
-    // });
+    }
+    });
     getToken();
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
       print("New FCM Token: $newToken");

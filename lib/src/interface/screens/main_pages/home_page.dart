@@ -9,12 +9,14 @@ import 'package:hef/src/data/api_routes/events_api/events_api.dart';
 import 'package:hef/src/data/api_routes/news_api/news_api.dart';
 import 'package:hef/src/data/api_routes/notification_api/notification_api.dart';
 import 'package:hef/src/data/api_routes/promotion_api/promotion_api.dart';
+import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/promotion_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/router/nav_router.dart';
+import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Drawer/drawer.dart';
 import 'package:hef/src/interface/components/common/custom_video.dart';
@@ -29,6 +31,7 @@ import 'package:sidebarx/sidebarx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:hef/src/interface/components/shimmers/dashboard_shimmer.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   final UserModel user;
@@ -73,7 +76,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   CarouselController controller = CarouselController();
-
+  String? startDate;
+  String? endDate;
   @override
   Widget build(BuildContext context) {
     NavigationService navigationService = NavigationService();
@@ -82,6 +86,9 @@ class _HomePageState extends ConsumerState<HomePage> {
         final asyncPromotions = ref.watch(fetchPromotionsProvider);
         final asyncEvents = ref.watch(fetchEventsProvider);
         final asyncNews = ref.watch(fetchNewsProvider);
+        final asyncUserDashBoardDetails = ref.watch(
+            fetchUserDashboardDetailsProvider(
+                startDate: startDate, endDate: endDate));
         return RefreshIndicator(
           color: kPrimaryColor,
           onRefresh: () async {
@@ -222,9 +229,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           );
                                         },
                                       ),
-                                      Image.asset(
-                                          scale: 5,
-                                          'assets/pngs/splash_logo.png'),
+                                      InkWell(
+                                        onTap: () {
+                                          launchURL(
+                                              'https://www.hefconnect.com/');
+                                        },
+                                        child: Image.asset(
+                                            scale: 5,
+                                            'assets/pngs/splash_logo.png'),
+                                      ),
                                       SizedBox(
                                         width: 20,
                                       )
@@ -260,6 +273,82 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     ],
                                   ),
                                 ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15, top: 10, bottom: 10),
+                                  child: Row(
+                                    children: [
+                                      Text('DASHBOARD', style: kSmallTitleR),
+                                    ],
+                                  ),
+                                ),
+                                asyncUserDashBoardDetails.when(
+                                  data: (userDashboard) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 20, right: 20),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: _buildStatCard(
+                                                  'BUSINESS GIVEN',
+                                                  '${userDashboard.businessGiven}',
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                  width:
+                                                      8), // Optional spacing between cards
+                                              Expanded(
+                                                child: _buildStatCard(
+                                                  'BUSINESS RECEIVED',
+                                                  '${userDashboard.businessReceived}',
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: _buildStatCard(
+                                                  'REFERRALS GIVEN',
+                                                  '${userDashboard.referralGiven}',
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                  width:
+                                                      8), // Optional spacing between cards
+                                              Expanded(
+                                                child: _buildStatCard(
+                                                  'REFERRALS RECEIVED',
+                                                  '${userDashboard.referralReceived}',
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: _buildStatCard(
+                                                  'ONE V ONE MEETINGS',
+                                                  '${userDashboard.oneToOneCount}',
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  error: (error, stackTrace) {
+                                    return const SizedBox.shrink();
+                                  },
+                                  loading: () {
+                                    return buildDashboardShimmer();
+                                  },
+                                ),
+
                                 // Banner Carousel
                                 if (banners.isNotEmpty)
                                   Column(
@@ -617,6 +706,41 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildStatCard(String title, String value) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 0,
+            blurRadius: 5,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: kSmallerTitleR.copyWith(color: kBlack54, fontSize: 11),
+            textAlign: TextAlign.start,
+          ),
+          SizedBox(height: 5),
+          Text(value,
+              style: kDisplayTitleB.copyWith(
+                  color: Color(0xFF512DB4), fontSize: 20)),
+        ],
+      ),
     );
   }
 

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_activities.dart';
+import 'package:hef/src/interface/components/ModalSheets/bussiness_enquiry_modal.dart';
 import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
 import 'package:hl_image_picker/hl_image_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -136,21 +137,21 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
           children: [
             Column(
               children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        _buildChoiceChip('All'),
-                        _buildChoiceChip('Information'),
-                        _buildChoiceChip('Job'),
-                        _buildChoiceChip('Funding'),
-                        _buildChoiceChip('Requirement'),
-                      ],
-                    ),
-                  ),
-                ),
+                // SingleChildScrollView(
+                //   scrollDirection: Axis.horizontal,
+                //   child: Padding(
+                //     padding: const EdgeInsets.all(8.0),
+                //     child: Row(
+                //       children: [
+                //         _buildChoiceChip('All'),
+                //         _buildChoiceChip('Information'),
+                //         _buildChoiceChip('Job'),
+                //         _buildChoiceChip('Funding'),
+                //         _buildChoiceChip('Requirement'),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 // Feed list
                 Expanded(
                   child: filteredFeeds.isEmpty
@@ -189,12 +190,21 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
               right: 30,
               bottom: 30,
               child: GestureDetector(
-                onTap: () => _openModalSheet(sheet: 'post'),
+                onTap: () {
+                  if (subscriptionType != 'free') {
+                    _openModalSheet(sheet: 'post');
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const UpgradeDialog(),
+                    );
+                  }
+                },
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Color(0xFFE30613),
+                    color: kPrimaryColor,
                   ),
                   child: Icon(
                     Icons.add,
@@ -223,29 +233,29 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
     );
   }
 
-  // Method to build individual Choice Chips
-  Widget _buildChoiceChip(String label) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: ChoiceChip(
-        label: Text(label),
-        selected: selectedFilter == label,
-        onSelected: (selected) {
-          setState(() {
-            selectedFilter = label;
-          });
-        },
-        backgroundColor: Colors.white, // Light green background color
-        selectedColor: const Color(0xFFD3EDCA), // When selected
+  // // Method to build individual Choice Chips
+  // Widget _buildChoiceChip(String label) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 4.0),
+  //     child: ChoiceChip(
+  //       label: Text(label),
+  //       selected: selectedFilter == label,
+  //       onSelected: (selected) {
+  //         setState(() {
+  //           selectedFilter = label;
+  //         });
+  //       },
+  //       backgroundColor: Colors.white, // Light green background color
+  //       selectedColor: const Color(0xFFD3EDCA), // When selected
 
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Color.fromARGB(255, 214, 210, 210)),
-          borderRadius: BorderRadius.circular(20.0), // Circular border
-        ),
-        showCheckmark: false, // Remove tick icon
-      ),
-    );
-  }
+  //       shape: RoundedRectangleBorder(
+  //         side: const BorderSide(color: Color.fromARGB(255, 214, 210, 210)),
+  //         borderRadius: BorderRadius.circular(20.0), // Circular border
+  //       ),
+  //       showCheckmark: false, // Remove tick icon
+  //     ),
+  //   );
+  // }
 
   Widget _buildPost({bool withImage = false, required Business feed}) {
     return Consumer(
@@ -273,17 +283,14 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
                 },
                 onComment: () async {},
                 onShare: () {
-                  feedContentController.clear();
-                  _feedImage = null;
-                  showModalBottomSheet(
-                      isScrollControlled: true,
+                  businessEnquiry(
+                      businessAuthor: user,
                       context: context,
-                      builder: (context) {
-                        return ShowAdddBusinessSheet(
-                          pickImage: _pickFile,
-                          textController: feedContentController,
-                        );
-                      });
+                      onButtonPressed: () async {},
+                      buttonText: 'MESSAGE',
+                      businesss: feed,
+                      receiver: receiver,
+                      sender: sender);
                 });
           },
           loading: () => const ReusableFeedPostSkeleton(),
@@ -699,12 +706,12 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
                   onPressed: _toggleLike,
                 ),
                 IconButton(
-                  icon: SvgPicture.asset('assets/svgs/icons/comment.svg'),
+                  icon: SvgPicture.asset('assets/svg/icons/comment.svg'),
                   onPressed: _openCommentModal,
                 ),
                 if (widget.business.author != id)
                   IconButton(
-                    icon: SvgPicture.asset('assets/svgs/icons/share.svg'),
+                    icon: SvgPicture.asset('assets/svg/icons/share.svg'),
                     onPressed: () => widget.onShare(),
                   ),
               ],

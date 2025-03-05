@@ -31,7 +31,11 @@ class NewsPage extends ConsumerWidget {
         ),
         body: asyncNews.when(
           data: (news) {
-            return NewsPageView(news: news);
+            return news.isNotEmpty
+                ? NewsPageView(news: news)
+                : Center(
+                    child: Text('Not News'),
+                  );
           },
           loading: () => const Center(child: LoadingAnimation()),
           error: (error, stackTrace) => const Center(child: Text('No news')),

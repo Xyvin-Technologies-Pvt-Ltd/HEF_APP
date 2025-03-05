@@ -6,7 +6,7 @@ part of 'people_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchActiveUsersHash() => r'6fc399f3267bd975e7fe9adc992ea1113efe7d0f';
+String _$fetchActiveUsersHash() => r'b9449eefbaa1b09e469bb341bbbf5f4bf18b4225';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -41,11 +41,13 @@ class FetchActiveUsersFamily extends Family<AsyncValue<List<UserModel>>> {
   /// See also [fetchActiveUsers].
   FetchActiveUsersProvider call({
     int pageNo = 1,
-    int limit = 10,
+    int limit = 20,
+    String? query,
   }) {
     return FetchActiveUsersProvider(
       pageNo: pageNo,
       limit: limit,
+      query: query,
     );
   }
 
@@ -56,6 +58,7 @@ class FetchActiveUsersFamily extends Family<AsyncValue<List<UserModel>>> {
     return call(
       pageNo: provider.pageNo,
       limit: provider.limit,
+      query: provider.query,
     );
   }
 
@@ -80,12 +83,14 @@ class FetchActiveUsersProvider
   /// See also [fetchActiveUsers].
   FetchActiveUsersProvider({
     int pageNo = 1,
-    int limit = 10,
+    int limit = 20,
+    String? query,
   }) : this._internal(
           (ref) => fetchActiveUsers(
             ref as FetchActiveUsersRef,
             pageNo: pageNo,
             limit: limit,
+            query: query,
           ),
           from: fetchActiveUsersProvider,
           name: r'fetchActiveUsersProvider',
@@ -98,6 +103,7 @@ class FetchActiveUsersProvider
               FetchActiveUsersFamily._allTransitiveDependencies,
           pageNo: pageNo,
           limit: limit,
+          query: query,
         );
 
   FetchActiveUsersProvider._internal(
@@ -109,10 +115,12 @@ class FetchActiveUsersProvider
     required super.from,
     required this.pageNo,
     required this.limit,
+    required this.query,
   }) : super.internal();
 
   final int pageNo;
   final int limit;
+  final String? query;
 
   @override
   Override overrideWith(
@@ -129,6 +137,7 @@ class FetchActiveUsersProvider
         debugGetCreateSourceHash: null,
         pageNo: pageNo,
         limit: limit,
+        query: query,
       ),
     );
   }
@@ -142,7 +151,8 @@ class FetchActiveUsersProvider
   bool operator ==(Object other) {
     return other is FetchActiveUsersProvider &&
         other.pageNo == pageNo &&
-        other.limit == limit;
+        other.limit == limit &&
+        other.query == query;
   }
 
   @override
@@ -150,6 +160,7 @@ class FetchActiveUsersProvider
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, pageNo.hashCode);
     hash = _SystemHash.combine(hash, limit.hashCode);
+    hash = _SystemHash.combine(hash, query.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -163,6 +174,9 @@ mixin FetchActiveUsersRef on AutoDisposeFutureProviderRef<List<UserModel>> {
 
   /// The parameter `limit` of this provider.
   int get limit;
+
+  /// The parameter `query` of this provider.
+  String? get query;
 }
 
 class _FetchActiveUsersProviderElement
@@ -174,6 +188,8 @@ class _FetchActiveUsersProviderElement
   int get pageNo => (origin as FetchActiveUsersProvider).pageNo;
   @override
   int get limit => (origin as FetchActiveUsersProvider).limit;
+  @override
+  String? get query => (origin as FetchActiveUsersProvider).query;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

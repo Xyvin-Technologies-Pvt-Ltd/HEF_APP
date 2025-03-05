@@ -11,6 +11,10 @@ import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/data/router/router.dart' as router;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
+
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

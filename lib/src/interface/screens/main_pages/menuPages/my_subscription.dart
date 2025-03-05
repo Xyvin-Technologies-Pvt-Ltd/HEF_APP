@@ -69,8 +69,10 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
   }
 
   String? getExpiryYear(String? period) {
-    final parts = period!.split('-');
-    return parts.length > 1 ? parts[1] : null;
+    if (period != null) {
+      final parts = period!.split('-');
+      return parts.length > 1 ? parts[1] : null;
+    }
   }
 
   Subscription? membershipSubscription;

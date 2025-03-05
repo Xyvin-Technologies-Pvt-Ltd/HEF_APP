@@ -1,17 +1,27 @@
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'dart:convert';
 import 'dart:developer';
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
 part 'people_api.g.dart';
+
 @riverpod
-Future<List<UserModel>> fetchActiveUsers(FetchActiveUsersRef ref,
-    {int pageNo = 1, int limit = 10}) async {
+Future<List<UserModel>> fetchActiveUsers(Ref ref,
+    {int pageNo = 1, int limit = 20, String? query}) async {
+  // Construct the base URL
+  Uri url = Uri.parse('$baseUrl/user/list?pageNo=$pageNo&limit=$limit');
+
+  // Append query parameter if provided
+  if (query != null && query.isNotEmpty) {
+    url = Uri.parse(
+        '$baseUrl/user/list?pageNo=$pageNo&limit=$limit&search=$query');
+  }
+  log('requesting url:$url');
   final response = await http.get(
-    Uri.parse('$baseUrl/user/list?pageNo=$pageNo&limit=$limit'),
+    url,
     headers: {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token"

@@ -119,13 +119,13 @@ class RegisteredPage extends StatelessWidget {
               child: Text('${error.toString()}'),
             ),
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              // Handle action
-            },
-            backgroundColor: Colors.orange,
-            child: Icon(Icons.person_add, color: Colors.white),
-          ),
+          // floatingActionButton: FloatingActionButton(
+          //   onPressed: () {
+          //     // Handle action
+          //   },
+          //   backgroundColor: Colors.orange,
+          //   child: Icon(Icons.person_add, color: Colors.white),
+          // ),
         );
       },
     );

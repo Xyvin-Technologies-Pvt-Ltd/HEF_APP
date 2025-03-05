@@ -19,6 +19,8 @@ Future<void> likeFeed(String feedId) async {
       final jsonResponse = json.decode(response.body);
       print(jsonResponse['message']);
     } else {
+      final jsonResponse = json.decode(response.body);
+      print(jsonResponse['message']);
       print('Failed to like the feed. Status code: ${response.statusCode}');
       // Handle errors or unsuccessful response here
     }

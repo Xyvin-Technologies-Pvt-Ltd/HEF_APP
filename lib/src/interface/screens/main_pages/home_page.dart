@@ -740,7 +740,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       onTap: () {
         String? initialTab;
         String? requestType;
-        
+
         switch (title) {
           case 'BUSINESS GIVEN':
             initialTab = 'sent';
@@ -807,9 +807,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             Text(
               value,
               style: kDisplayTitleB.copyWith(
-                color: const Color(0xFF512DB4),
-                fontSize: 20
-              ),
+                  color: const Color(0xFF512DB4), fontSize: 20),
             ),
           ],
         ),
@@ -1002,7 +1000,7 @@ Widget customNotice({
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  notice.description!,
+                  notice.description?.trim() ?? '',
                   style: const TextStyle(color: kGreyDark // Set the font color
                       ),
                 ),

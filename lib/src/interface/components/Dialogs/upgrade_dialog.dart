@@ -18,7 +18,7 @@ class UpgradeDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              'assets/upgrade.png',
+              'assets/pngs/upgrade.png',
               height: 80,
             ),
             const SizedBox(height: 20),

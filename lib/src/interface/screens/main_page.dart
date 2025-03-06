@@ -131,63 +131,60 @@ class _MainPageState extends ConsumerState<MainPage> {
     final selectedIndex = ref.watch(selectedIndexProvider);
     switch (status.toLowerCase()) {
       case 'active':
-        if (user.chapter != null && user.chapter != '') {
-          return Scaffold(
-            body: Center(
-              child: _widgetOptions.elementAt(selectedIndex),
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              items: List.generate(5, (index) {
-                return BottomNavigationBarItem(
-                  backgroundColor: Colors.white,
-                  icon: index == 2 // Assuming profile is the third item
-                      ? user.image != null && user.image != ''
-                          ? CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                user.image ?? '',
-                              ),
-                              radius: 15,
-                            )
-                          : Image.asset(
-                              'assets/pngs/dummy_person_small.png',
-                              scale: 1,
-                            )
-                      : IconResolver(
-                          iconPath: _inactiveIcons[index],
-                          color: selectedIndex == index
-                              ? kPrimaryColor
-                              : Colors.grey,
-                        ),
-                  activeIcon: index == 2
-                      ? user.image != null && user.image != ''
-                          ? CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                user.image ?? '',
-                              ),
-                              radius: 15,
-                            )
-                          : Image.asset(
-                              'assets/pngs/dummy_person_small.png',
-                              scale: 1.5,
-                            )
-                      : IconResolver(
-                          iconPath: _activeIcons[index], color: kPrimaryColor),
-                  label: ['Home', 'Business', 'Profile', 'News', 'Chat'][index],
-                );
-              }),
-              currentIndex: selectedIndex,
-              selectedItemColor: kPrimaryColor,
-              unselectedItemColor: Colors.grey,
-              onTap: (index) {
-                HapticFeedback.selectionClick();
-                _onItemTapped(index);
-              },
-              showUnselectedLabels: true,
-            ),
-          );
-        } else {
-          return NoChapterConditionPage(user: user);
-        }
+        return Scaffold(
+          body: Center(
+            child: _widgetOptions.elementAt(selectedIndex),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            items: List.generate(5, (index) {
+              return BottomNavigationBarItem(
+                backgroundColor: Colors.white,
+                icon: index == 2 // Assuming profile is the third item
+                    ? user.image != null && user.image != ''
+                        ? CircleAvatar(
+                            backgroundImage: NetworkImage(
+                              user.image ?? '',
+                            ),
+                            radius: 15,
+                          )
+                        : Image.asset(
+                            'assets/pngs/dummy_person_small.png',
+                            scale: 1,
+                          )
+                    : IconResolver(
+                        iconPath: _inactiveIcons[index],
+                        color: selectedIndex == index
+                            ? kPrimaryColor
+                            : Colors.grey,
+                      ),
+                activeIcon: index == 2
+                    ? user.image != null && user.image != ''
+                        ? CircleAvatar(
+                            backgroundImage: NetworkImage(
+                              user.image ?? '',
+                            ),
+                            radius: 15,
+                          )
+                        : Image.asset(
+                            'assets/pngs/dummy_person_small.png',
+                            scale: 1.5,
+                          )
+                    : IconResolver(
+                        iconPath: _activeIcons[index], color: kPrimaryColor),
+                label: ['Home', 'Business', 'Profile', 'News', 'Chat'][index],
+              );
+            }),
+            currentIndex: selectedIndex,
+            selectedItemColor: kPrimaryColor,
+            unselectedItemColor: Colors.grey,
+            onTap: (index) {
+              HapticFeedback.selectionClick();
+              _onItemTapped(index);
+            },
+            showUnselectedLabels: true,
+          ),
+        );
+
       case 'inactive':
         return Scaffold(
           body: Center(

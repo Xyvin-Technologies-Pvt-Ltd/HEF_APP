@@ -97,6 +97,29 @@ class _SendAnalyticRequestPageState
   //   print('Checkbox is unchecked!');
   // }
 
+  Widget _buildRequiredLabel(String label) {
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: label,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          const TextSpan(
+            text: ' *',
+            style: TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncStates = ref.watch(fetchStatesProvider);
@@ -133,12 +156,16 @@ class _SendAnalyticRequestPageState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Request Type',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              _buildRequiredLabel('Request Type'),
               SelectionDropDown(
                 hintText: 'Choose Type',
-                value: selectedRequestType, // Selected state ID
-
+                value: selectedRequestType,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select a request type';
+                  }
+                  return null;
+                },
                 items: ['Business', 'One v One Meeting', 'Referral']
                     .map((reqType) => DropdownMenuItem(
                           value: reqType,
@@ -152,12 +179,17 @@ class _SendAnalyticRequestPageState
                 },
               ),
               const SizedBox(height: 16.0),
-              const Text('Member',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              _buildRequiredLabel('Member'),
               asyncStates.when(
                 data: (states) => SelectionDropDown(
                   hintText: 'Choose State',
-                  value: selectedStateId, // Selected state ID
+                  value: selectedStateId,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a state';
+                    }
+                    return null;
+                  },
                   label: null,
                   items: states.map((state) {
                     return DropdownMenuItem<String>(
@@ -270,39 +302,64 @@ class _SendAnalyticRequestPageState
               ),
 
               const SizedBox(height: 10.0),
-              const Text('Title',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              _buildRequiredLabel('Title'),
               CustomTextFormField(
-                  textController: titleController, labelText: 'Title'),
+                textController: titleController,
+                labelText: 'Title',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a title';
+                  }
+                  return null;
+                },
+              ),
               if (selectedRequestType == 'Business')
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 10.0),
-                    const Text('Amount',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    _buildRequiredLabel('Amount'),
                     CustomTextFormField(
-                        textController: amountController, labelText: 'Amount'),
+                      textInputType: TextInputType.numberWithOptions(),
+                      textController: amountController,
+                      labelText: 'Amount',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter an amount';
+                        }
+                        return null;
+                      },
+                    ),
                   ],
                 ),
               const SizedBox(height: 10.0),
-              const Text('Description',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              _buildRequiredLabel('Description'),
               CustomTextFormField(
                 textController: descriptionController,
                 labelText: 'Description',
                 maxLines: 3,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a description';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20.0),
               if (selectedRequestType == 'One v One Meeting')
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Meeting Type',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    _buildRequiredLabel('Meeting Type'),
                     SelectionDropDown(
                       hintText: 'Choose Meeting Type',
                       value: selectedMeetingType,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a meeting type';
+                        }
+                        return null;
+                      },
                       items: ['Online', 'Offline']
                           .map((type) => DropdownMenuItem(
                                 value: type,
@@ -322,12 +379,17 @@ class _SendAnalyticRequestPageState
                       },
                     ),
                     const SizedBox(height: 10.0),
-                    const Text('Date',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    _buildRequiredLabel('Date'),
                     const SizedBox(height: 10.0),
                     TextFormField(
                       controller: dateController,
                       readOnly: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a date';
+                        }
+                        return null;
+                      },
                       decoration: InputDecoration(
                         labelStyle: const TextStyle(color: Colors.grey),
                         floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -378,12 +440,17 @@ class _SendAnalyticRequestPageState
                       ),
                     ),
                     const SizedBox(height: 10.0),
-                    const Text('Time',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    _buildRequiredLabel('Time'),
                     const SizedBox(height: 10.0),
                     TextFormField(
                       controller: timeController,
                       readOnly: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a time';
+                        }
+                        return null;
+                      },
                       decoration: InputDecoration(
                         labelStyle: const TextStyle(color: Colors.grey),
                         floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -459,8 +526,7 @@ class _SendAnalyticRequestPageState
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 10.0),
-                    const Text('Name',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    _buildRequiredLabel('Name'),
                     CustomTextFormField(
                       textController: referralNameController,
                       labelText: 'Enter referral name',
@@ -477,16 +543,9 @@ class _SendAnalyticRequestPageState
                     CustomTextFormField(
                       textController: referralEmailController,
                       labelText: 'Enter referral email',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter referral email';
-                        }
-                        return null;
-                      },
                     ),
                     const SizedBox(height: 10.0),
-                    const Text('Phone',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    _buildRequiredLabel('Phone'),
                     CustomTextFormField(
                       textController: referralPhoneController,
                       labelText: 'Enter referral phone',

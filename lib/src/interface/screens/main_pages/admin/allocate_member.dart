@@ -104,6 +104,12 @@ class _AllocateMemberState extends State<AllocateMember> {
                         selectedChapter = null;
                       });
                     },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select a state';
+                      }
+                      return null;
+                    },
                   ),
                   loading: () => const Center(child: LoadingAnimation()),
                   error: (error, stackTrace) => const SizedBox(),
@@ -127,6 +133,12 @@ class _AllocateMemberState extends State<AllocateMember> {
                         selectedChapter = null;
                       });
                     },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select a zone';
+                      }
+                      return null;
+                    },
                   ),
                   loading: () => const Center(child: LoadingAnimation()),
                   error: (error, stackTrace) => const SizedBox(),
@@ -148,6 +160,12 @@ class _AllocateMemberState extends State<AllocateMember> {
                         selectedChapter = null;
                       });
                     },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select a district';
+                      }
+                      return null;
+                    },
                   ),
                   loading: () => const Center(child: LoadingAnimation()),
                   error: (error, stackTrace) => const SizedBox(),
@@ -167,6 +185,12 @@ class _AllocateMemberState extends State<AllocateMember> {
                       setState(() {
                         selectedChapter = value;
                       });
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select a chapter';
+                      }
+                      return null;
                     },
                   ),
                   loading: () => const Center(child: LoadingAnimation()),
@@ -212,6 +236,7 @@ class SelectionDropDown extends StatefulWidget {
   final List<DropdownMenuItem<String>> items;
   final String? value;
   final ValueChanged<String?> onChanged;
+  final String? Function(String?)? validator;
 
   const SelectionDropDown({
     this.label,
@@ -220,6 +245,7 @@ class SelectionDropDown extends StatefulWidget {
     required this.onChanged,
     Key? key,
     this.hintText,
+    this.validator,
   }) : super(key: key);
 
   @override
@@ -289,6 +315,7 @@ class _SelectionDropDownState extends State<SelectionDropDown>
                 value: widget.value,
                 items: widget.items,
                 onChanged: widget.onChanged,
+                validator: widget.validator,
                 decoration: InputDecoration(
                   fillColor: Colors.white,
                   filled: true,

@@ -6,7 +6,7 @@ part of 'people_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchActiveUsersHash() => r'b9449eefbaa1b09e469bb341bbbf5f4bf18b4225';
+String _$fetchActiveUsersHash() => r'6ece8a420fb7e21d78a270a29fcd67756adfb70f';
 
 /// Copied from Dart SDK
 class _SystemHash {

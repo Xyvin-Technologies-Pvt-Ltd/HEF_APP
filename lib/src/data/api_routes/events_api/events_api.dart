@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/models/attendance_user_model.dart';
 import 'package:hef/src/data/models/events_model.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
@@ -9,7 +10,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'events_api.g.dart';
 
 @riverpod
-Future<List<Event>> fetchEvents(FetchEventsRef ref) async {
+Future<List<Event>> fetchEvents(Ref ref) async {
   final url = Uri.parse('$baseUrl/event/list');
   print('Requesting URL: $url');
   final response = await http.get(

@@ -34,6 +34,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hef/src/interface/components/shimmers/dashboard_shimmer.dart';
 import 'package:hef/src/interface/components/ModalSheets/date_filter_sheet.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
+import 'package:hef/src/interface/screens/web_view_screen.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   final UserModel user;
@@ -233,8 +234,18 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       ),
                                       InkWell(
                                         onTap: () {
-                                          launchURL(
-                                              'https://www.hefconnect.com/');
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const WebViewScreen(
+                                                color: kPrimaryColor,
+                                                url:
+                                                    'https://www.hefconnect.com/',
+                                                title: 'HEF Connect',
+                                              ),
+                                            ),
+                                          );
                                         },
                                         child: Image.asset(
                                             scale: 5,

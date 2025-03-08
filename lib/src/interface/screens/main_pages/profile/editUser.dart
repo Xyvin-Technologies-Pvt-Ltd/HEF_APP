@@ -37,6 +37,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:path/path.dart' as Path;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/services.dart';
 
 class EditUser extends ConsumerStatefulWidget {
   const EditUser({super.key});
@@ -156,6 +157,9 @@ class _EditUserState extends ConsumerState<EditUser> {
   final _formKey = GlobalKey<FormState>();
 
   String productUrl = '';
+
+  // Add new controller for tags
+  final TextEditingController _tagController = TextEditingController();
 
   Future<File?> _pickFile({required String imageType}) async {
     final ImagePicker _picker = ImagePicker();
@@ -437,6 +441,31 @@ class _EditUserState extends ConsumerState<EditUser> {
         companyDetailsControllers.removeAt(index);
       }
     });
+  }
+
+  // Add this method to handle tag addition
+  void _addTag(int companyIndex) {
+    final tag = _tagController.text.trim();
+    if (tag.isNotEmpty) {
+      setState(() {
+        final currentCompany = ref.read(userProvider).value?.company?[companyIndex];
+        if (currentCompany != null) {
+          List<String> updatedTags = [...?currentCompany.tags, tag];
+          ref.read(userProvider.notifier).updateCompanyTags(updatedTags, companyIndex);
+        }
+      });
+      _tagController.clear();
+    }
+  }
+
+  // Add this method to handle tag removal
+  void _removeTag(int companyIndex, String tag) {
+    final currentCompany = ref.read(userProvider).value?.company?[companyIndex];
+    if (currentCompany != null) {
+      List<String> updatedTags = [...?currentCompany.tags];
+      updatedTags.remove(tag);
+      ref.read(userProvider.notifier).updateCompanyTags(updatedTags, companyIndex);
+    }
   }
 
   @override
@@ -936,6 +965,69 @@ class _EditUserState extends ConsumerState<EditUser> {
                                         title: 'Company ${index + 1} Website',
                                         labelText: 'Enter Company Website',
                                         textController: controllers['website']!,
+                                      ),
+                                      const SizedBox(height: 20),
+                                      Text(
+                                        'Tags',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextField(
+                                              controller: _tagController,
+                                              decoration: InputDecoration(
+                                                hintText: 'Add tags (e.g., IT, Healthcare)',
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                                ),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                                ),
+                                              ),
+                                              onSubmitted: (_) => _addTag(index),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          IconButton(
+                                            onPressed: () => _addTag(index),
+                                            icon: const Icon(Icons.add),
+                                            style: IconButton.styleFrom(
+                                              backgroundColor: kPrimaryColor,
+                                              foregroundColor: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: [
+                                          ...(ref.watch(userProvider).value?.company?[index].tags ?? []).map((tag) {
+                                            return Chip(
+                                              label: Text(
+                                                tag,
+                                                style: const TextStyle(fontSize: 12),
+                                              ),
+                                              deleteIcon: const Icon(Icons.close, size: 16),
+                                              onDeleted: () => _removeTag(index, tag),
+                                              backgroundColor: Colors.grey[100],
+                                              side: BorderSide(color: Colors.grey[300]!),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ],
                                       ),
                                     ],
                                   ),

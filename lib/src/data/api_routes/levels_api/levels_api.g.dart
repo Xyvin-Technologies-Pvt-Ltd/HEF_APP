@@ -344,5 +344,24 @@ class _FetchChapterMemberDataProviderElement
   @override
   String get level => (origin as FetchChapterMemberDataProvider).level;
 }
+
+String _$fetchDistrictsHash() => r'4f4979ea3186e4b4dd54715784f6d93b86a5cc24';
+
+/// See also [fetchDistricts].
+@ProviderFor(fetchDistricts)
+final fetchDistrictsProvider =
+    AutoDisposeFutureProvider<List<DistrictModel>>.internal(
+  fetchDistricts,
+  name: r'fetchDistrictsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$fetchDistrictsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef FetchDistrictsRef = AutoDisposeFutureProviderRef<List<DistrictModel>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

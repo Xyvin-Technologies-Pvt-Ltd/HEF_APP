@@ -5,6 +5,7 @@ import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/district.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/zones.dart';
+import 'package:hef/src/interface/screens/web_view_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Widget customDrawer({required UserModel user, required BuildContext context}) {
@@ -144,14 +145,14 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
               navigationService.pushNamed('RequestNFC');
             },
           ),
-if(user.phone!='+919645398555')
-          _buildDrawerItem(
-            icon: 'assets/svg/icons/my_subscription.svg',
-            label: 'My Subscription',
-            onTap: () {
-              navigationService.pushNamed('MySubscriptionPage');
-            },
-          ),
+          if (user.phone != '+919645398555')
+            _buildDrawerItem(
+              icon: 'assets/svg/icons/my_subscription.svg',
+              label: 'My Subscription',
+              onTap: () {
+                navigationService.pushNamed('MySubscriptionPage');
+              },
+            ),
 
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_reviews.svg',
@@ -180,7 +181,7 @@ if(user.phone!='+919645398555')
             icon: 'assets/svg/icons/about_us.svg',
             label: 'About Us',
             onTap: () {
-                    navigationService.pushNamed('AboutPage');
+              navigationService.pushNamed('AboutPage');
             },
           ),
           _buildDrawerItem(
@@ -220,9 +221,48 @@ if(user.phone!='+919645398555')
                     'Powered by',
                     style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
-                  SizedBox(height: 4),
-                  Image.asset(
-                    'assets/pngs/xyvin.png',
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WebViewScreen(
+                            color: Colors.blue,
+                            url: 'https://www.skybertech.com/',
+                            title: 'Skybertech',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Image.asset(
+                      scale: 10,
+                      'assets/pngs/skybertechlogo.png',
+                    ),
+                  ),
+                  Text(
+                    'Developed by',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WebViewScreen(
+                            color: Colors.deepPurpleAccent,
+                            url: 'https://www.acutendeavors.com/',
+                            title: 'ACUTE ENDEAVORS',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Image.asset(
+                      scale: 20,
+                      'assets/pngs/acutelogo.png',
+                    ),
                   ),
                 ],
               ),

@@ -7,7 +7,7 @@ part of 'chapter_details.dart';
 // **************************************************************************
 
 String _$fetchChapterDetailsHash() =>
-    r'd3f80a0b07f8d41dffb0cd72e7c9f7ae8c249c3e';
+    r'94b29c902ce434a3384e5ae6a397ae40ad851e31';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -42,10 +42,10 @@ class FetchChapterDetailsFamily
 
   /// See also [fetchChapterDetails].
   FetchChapterDetailsProvider call(
-    String userId,
+    String chapterId,
   ) {
     return FetchChapterDetailsProvider(
-      userId,
+      chapterId,
     );
   }
 
@@ -54,7 +54,7 @@ class FetchChapterDetailsFamily
     covariant FetchChapterDetailsProvider provider,
   ) {
     return call(
-      provider.userId,
+      provider.chapterId,
     );
   }
 
@@ -78,11 +78,11 @@ class FetchChapterDetailsProvider
     extends AutoDisposeFutureProvider<ChapterDetailsModel> {
   /// See also [fetchChapterDetails].
   FetchChapterDetailsProvider(
-    String userId,
+    String chapterId,
   ) : this._internal(
           (ref) => fetchChapterDetails(
             ref as FetchChapterDetailsRef,
-            userId,
+            chapterId,
           ),
           from: fetchChapterDetailsProvider,
           name: r'fetchChapterDetailsProvider',
@@ -93,7 +93,7 @@ class FetchChapterDetailsProvider
           dependencies: FetchChapterDetailsFamily._dependencies,
           allTransitiveDependencies:
               FetchChapterDetailsFamily._allTransitiveDependencies,
-          userId: userId,
+          chapterId: chapterId,
         );
 
   FetchChapterDetailsProvider._internal(
@@ -103,10 +103,10 @@ class FetchChapterDetailsProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.userId,
+    required this.chapterId,
   }) : super.internal();
 
-  final String userId;
+  final String chapterId;
 
   @override
   Override overrideWith(
@@ -122,7 +122,7 @@ class FetchChapterDetailsProvider
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        userId: userId,
+        chapterId: chapterId,
       ),
     );
   }
@@ -134,13 +134,13 @@ class FetchChapterDetailsProvider
 
   @override
   bool operator ==(Object other) {
-    return other is FetchChapterDetailsProvider && other.userId == userId;
+    return other is FetchChapterDetailsProvider && other.chapterId == chapterId;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, userId.hashCode);
+    hash = _SystemHash.combine(hash, chapterId.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -150,8 +150,8 @@ class FetchChapterDetailsProvider
 // ignore: unused_element
 mixin FetchChapterDetailsRef
     on AutoDisposeFutureProviderRef<ChapterDetailsModel> {
-  /// The parameter `userId` of this provider.
-  String get userId;
+  /// The parameter `chapterId` of this provider.
+  String get chapterId;
 }
 
 class _FetchChapterDetailsProviderElement
@@ -160,7 +160,7 @@ class _FetchChapterDetailsProviderElement
   _FetchChapterDetailsProviderElement(super.provider);
 
   @override
-  String get userId => (origin as FetchChapterDetailsProvider).userId;
+  String get chapterId => (origin as FetchChapterDetailsProvider).chapterId;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -63,13 +63,13 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
 
   Future<File?> _pickFile() async {
     final picker = ImagePicker();
-    
+
     try {
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-      
+
       if (pickedFile != null) {
         final File imageFile = File(pickedFile.path);
-        
+
         // Navigate to crop screen
         final result = await Navigator.push(
           context,
@@ -77,21 +77,21 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
             builder: (context) => CropImageScreen(imageFile: imageFile),
           ),
         );
-        
+
         if (result != null) {
           // Generate a unique filename using timestamp
           final tempDir = await getTemporaryDirectory();
           final timestamp = DateTime.now().millisecondsSinceEpoch;
           final tempFile = File('${tempDir.path}/cropped_image_$timestamp.jpg');
-          
+
           // Make sure the file exists and is writable
           if (!tempFile.existsSync()) {
             tempFile.createSync(recursive: true);
           }
-          
+
           // Write the cropped image bytes to the file
           await tempFile.writeAsBytes(result.bytes);
-          
+
           setState(() {
             _feedImage = tempFile;
             _feedImageSource = ImageSource.gallery;
@@ -102,7 +102,7 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
     } catch (e) {
       debugPrint("Error picking or cropping the image: $e");
     }
-    
+
     return null;
   }
 
@@ -589,7 +589,7 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Image.asset(
-                                  'assets/icons/dummy_person_small.png');
+                                  'assets/pngs/dummy_person_small.png');
                             },
                           ),
                         ),

@@ -245,6 +245,18 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
       ).toList()
     ));
   }
+
+  void updateCompanyTags(List<String> tags, int index) {
+    state = state.whenData((user) {
+      final updatedCompanyList = [...?user.company];
+      if (index >= 0 && index < updatedCompanyList.length) {
+        updatedCompanyList[index] = updatedCompanyList[index].copyWith(
+          tags: tags,
+        );
+      }
+      return user.copyWith(company: updatedCompanyList);
+    });
+  }
 }
 
 

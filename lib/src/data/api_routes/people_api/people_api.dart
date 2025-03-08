@@ -7,19 +7,29 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 part 'people_api.g.dart';
-
 @riverpod
 Future<List<UserModel>> fetchActiveUsers(Ref ref,
-    {int pageNo = 1, int limit = 20, String? query}) async {
+    {int pageNo = 1, int limit = 20, String? query, String? district}) async {
   // Construct the base URL
   Uri url = Uri.parse('$baseUrl/user/list?pageNo=$pageNo&limit=$limit');
 
   // Append query parameter if provided
+  Map<String, String> queryParams = {};
+  
   if (query != null && query.isNotEmpty) {
-    url = Uri.parse(
-        '$baseUrl/user/list?pageNo=$pageNo&limit=$limit&search=$query');
+    queryParams['search'] = query;
   }
+  
+  if (district != null && district.isNotEmpty) {
+    queryParams['district'] = district;
+  }
+
+  if (queryParams.isNotEmpty) {
+    url = Uri.parse('$baseUrl/user/list?pageNo=$pageNo&limit=$limit&${Uri(queryParameters: queryParams).query}');
+  }
+
   log('requesting url:$url');
+  
   final response = await http.get(
     url,
     headers: {

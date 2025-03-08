@@ -12,6 +12,7 @@ class PeopleNotifier extends _$PeopleNotifier {
   final int limit = 9;
   bool hasMore = true;
   String? searchQuery;
+  String? district; // Added district filter
 
   @override
   List<UserModel> build() {
@@ -23,21 +24,24 @@ class PeopleNotifier extends _$PeopleNotifier {
 
     isLoading = true;
 
-    // Delay state update to avoid modifying during widget build
     Future(() {
       state = [...users];
     });
 
     try {
       final newUsers = await ref.read(
-          fetchActiveUsersProvider(pageNo: pageNo, limit: limit, query: searchQuery)
-              .future);
+        fetchActiveUsersProvider(
+          pageNo: pageNo,
+          limit: limit,
+          query: searchQuery,
+          district: district, // Pass district filter
+        ).future,
+      );
 
       users = [...users, ...newUsers];
       pageNo++;
       hasMore = newUsers.length == limit;
 
-      // Delay state update to trigger rebuild after data is fetched
       Future(() {
         state = [...users];
       });
@@ -47,7 +51,6 @@ class PeopleNotifier extends _$PeopleNotifier {
     } finally {
       isLoading = false;
 
-      // Ensure state update after fetch completion
       Future(() {
         state = [...users];
       });
@@ -56,16 +59,22 @@ class PeopleNotifier extends _$PeopleNotifier {
     }
   }
 
-  Future<void> searchUsers(String query) async {
+  Future<void> searchUsers(String query, {String? districtFilter}) async {
     isLoading = true;
     pageNo = 1;
-    users = []; // Reset the user list when searching
+    users = [];
     searchQuery = query;
+    district = districtFilter; // Apply district filter
 
     try {
       final newUsers = await ref.read(
-          fetchActiveUsersProvider(pageNo: pageNo, limit: limit, query: query)
-              .future);
+        fetchActiveUsersProvider(
+          pageNo: pageNo,
+          limit: limit,
+          query: query,
+          district: district, // Pass district filter
+        ).future,
+      );
 
       users = [...newUsers];
       hasMore = newUsers.length == limit;
@@ -83,18 +92,23 @@ class PeopleNotifier extends _$PeopleNotifier {
     isLoading = true;
     pageNo = 1;
     hasMore = true;
-    users = []; // Clear the current user list
-    state = [...users]; // Update the state to reflect the cleared list
+    users = [];
+    state = [...users];
 
     try {
       final newUsers = await ref.read(
-          fetchActiveUsersProvider(pageNo: pageNo, limit: limit, query: searchQuery)
-              .future);
+        fetchActiveUsersProvider(
+          pageNo: pageNo,
+          limit: limit,
+          query: searchQuery,
+          district: district, // Pass district filter
+        ).future,
+      );
 
       users = [...newUsers];
       hasMore = newUsers.length == limit;
 
-      state = [...users]; // Update the state with refreshed data
+      state = [...users];
     } catch (e, stackTrace) {
       log(e.toString());
       log(stackTrace.toString());
@@ -102,6 +116,9 @@ class PeopleNotifier extends _$PeopleNotifier {
       isLoading = false;
     }
   }
+
+  void setDistrict(String? newDistrict) {
+    district = newDistrict;
+    refresh(); // Auto-refresh when district is updated
+  }
 }
-
-

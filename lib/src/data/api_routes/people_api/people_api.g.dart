@@ -6,7 +6,7 @@ part of 'people_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchActiveUsersHash() => r'6ece8a420fb7e21d78a270a29fcd67756adfb70f';
+String _$fetchActiveUsersHash() => r'12453965daa0a27436880bea397d9bacdaa0dd85';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -43,11 +43,13 @@ class FetchActiveUsersFamily extends Family<AsyncValue<List<UserModel>>> {
     int pageNo = 1,
     int limit = 20,
     String? query,
+    String? district,
   }) {
     return FetchActiveUsersProvider(
       pageNo: pageNo,
       limit: limit,
       query: query,
+      district: district,
     );
   }
 
@@ -59,6 +61,7 @@ class FetchActiveUsersFamily extends Family<AsyncValue<List<UserModel>>> {
       pageNo: provider.pageNo,
       limit: provider.limit,
       query: provider.query,
+      district: provider.district,
     );
   }
 
@@ -85,12 +88,14 @@ class FetchActiveUsersProvider
     int pageNo = 1,
     int limit = 20,
     String? query,
+    String? district,
   }) : this._internal(
           (ref) => fetchActiveUsers(
             ref as FetchActiveUsersRef,
             pageNo: pageNo,
             limit: limit,
             query: query,
+            district: district,
           ),
           from: fetchActiveUsersProvider,
           name: r'fetchActiveUsersProvider',
@@ -104,6 +109,7 @@ class FetchActiveUsersProvider
           pageNo: pageNo,
           limit: limit,
           query: query,
+          district: district,
         );
 
   FetchActiveUsersProvider._internal(
@@ -116,11 +122,13 @@ class FetchActiveUsersProvider
     required this.pageNo,
     required this.limit,
     required this.query,
+    required this.district,
   }) : super.internal();
 
   final int pageNo;
   final int limit;
   final String? query;
+  final String? district;
 
   @override
   Override overrideWith(
@@ -138,6 +146,7 @@ class FetchActiveUsersProvider
         pageNo: pageNo,
         limit: limit,
         query: query,
+        district: district,
       ),
     );
   }
@@ -152,7 +161,8 @@ class FetchActiveUsersProvider
     return other is FetchActiveUsersProvider &&
         other.pageNo == pageNo &&
         other.limit == limit &&
-        other.query == query;
+        other.query == query &&
+        other.district == district;
   }
 
   @override
@@ -161,6 +171,7 @@ class FetchActiveUsersProvider
     hash = _SystemHash.combine(hash, pageNo.hashCode);
     hash = _SystemHash.combine(hash, limit.hashCode);
     hash = _SystemHash.combine(hash, query.hashCode);
+    hash = _SystemHash.combine(hash, district.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -177,6 +188,9 @@ mixin FetchActiveUsersRef on AutoDisposeFutureProviderRef<List<UserModel>> {
 
   /// The parameter `query` of this provider.
   String? get query;
+
+  /// The parameter `district` of this provider.
+  String? get district;
 }
 
 class _FetchActiveUsersProviderElement
@@ -190,6 +204,8 @@ class _FetchActiveUsersProviderElement
   int get limit => (origin as FetchActiveUsersProvider).limit;
   @override
   String? get query => (origin as FetchActiveUsersProvider).query;
+  @override
+  String? get district => (origin as FetchActiveUsersProvider).district;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

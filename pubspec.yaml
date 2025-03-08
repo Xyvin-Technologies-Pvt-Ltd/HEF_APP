@@ -69,6 +69,7 @@ dependencies:
   firebase_app_check: ^0.3.2+3
   custom_image_crop: ^0.1.1
   path_provider: ^2.0.15
+  webview_flutter: ^4.7.0
 
 dev_dependencies:
   flutter_test:

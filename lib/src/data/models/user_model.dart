@@ -29,19 +29,19 @@ class Link {
   }
 }
 
-class ChapterModel {
+class UserChapterModel {
   final String? id;
   final String? name;
-  final DistrictModel? district;
+  final UserDistrictModel? district;
 
-  ChapterModel({this.id, this.name, this.district});
+  UserChapterModel({this.id, this.name, this.district});
 
-  factory ChapterModel.fromJson(Map<String, dynamic> json) {
-    return ChapterModel(
+  factory UserChapterModel.fromJson(Map<String, dynamic> json) {
+    return UserChapterModel(
       id: json['_id'] as String?,
       name: json['name'] as String?,
       district: json['districtId'] != null
-          ? DistrictModel.fromJson(json['districtId'])
+          ? UserDistrictModel.fromJson(json['districtId'])
           : null,
     );
   }
@@ -55,18 +55,18 @@ class ChapterModel {
   }
 }
 
-class DistrictModel {
+class UserDistrictModel {
   final String? id;
   final String? name;
-  final ZoneModel? zone;
+  final UserZoneModel? zone;
 
-  DistrictModel({this.id, this.name, this.zone});
+  UserDistrictModel({this.id, this.name, this.zone});
 
-  factory DistrictModel.fromJson(Map<String, dynamic> json) {
-    return DistrictModel(
+  factory UserDistrictModel.fromJson(Map<String, dynamic> json) {
+    return UserDistrictModel(
       id: json['_id'] as String?,
       name: json['name'] as String?,
-      zone: json['zoneId'] != null ? ZoneModel.fromJson(json['zoneId']) : null,
+      zone: json['zoneId'] != null ? UserZoneModel.fromJson(json['zoneId']) : null,
     );
   }
 
@@ -79,18 +79,18 @@ class DistrictModel {
   }
 }
 
-class ZoneModel {
+class UserZoneModel {
   final String? id;
   final String? name;
-  final StateModel? state;
+  final UserStateModel? state;
 
-  ZoneModel({this.id, this.name, this.state});
+  UserZoneModel({this.id, this.name, this.state});
 
-  factory ZoneModel.fromJson(Map<String, dynamic> json) {
-    return ZoneModel(
+  factory UserZoneModel.fromJson(Map<String, dynamic> json) {
+    return UserZoneModel(
       id: json['_id'] as String?,
       name: json['name'] as String?,
-      state: json['stateId'] != null ? StateModel.fromJson(json['stateId']) : null,
+      state: json['stateId'] != null ? UserStateModel.fromJson(json['stateId']) : null,
     );
   }
 
@@ -103,14 +103,14 @@ class ZoneModel {
   }
 }
 
-class StateModel {
+class UserStateModel {
   final String? id;
   final String? name;
 
-  StateModel({this.id, this.name});
+  UserStateModel({this.id, this.name});
 
-  factory StateModel.fromJson(Map<String, dynamic> json) {
-    return StateModel(
+  factory UserStateModel.fromJson(Map<String, dynamic> json) {
+    return UserStateModel(
       id: json['_id'] as String?,
       name: json['name'] as String?,
     );
@@ -130,7 +130,7 @@ class UserModel {
   final String? memberId;
   final String? bloodgroup;
   final bool? isAdmin;
-  final ChapterModel? chapter; 
+  final UserChapterModel? chapter; 
   final String? image;
   final String? email;
   final String? phone;
@@ -204,7 +204,7 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
     bloodgroup: json['bloodgroup'] as String? ?? '',
     isAdmin: json['isAdmin'] as bool? ?? false,
     chapter: json['chapter'] != null
-        ? ChapterModel.fromJson(json['chapter'])
+        ? UserChapterModel.fromJson(json['chapter'])
         : null,
     image: json['image'] as String? ?? '',
     email: json['email'] as String? ?? '',
@@ -306,7 +306,7 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
     String? memberId,
     String? bloodgroup,
     bool? isAdmin,
-    ChapterModel? chapter,
+    UserChapterModel? chapter,
     String? image,
     String? email,
     String? phone,
@@ -395,8 +395,16 @@ class Company {
   final String? email;
   final String? websites;
   final String? phone;
+  final List<String>? tags;
 
-  Company({this.name, this.designation, this.email, this.websites, this.phone});
+  Company({
+    this.name,
+    this.designation,
+    this.email,
+    this.websites,
+    this.phone,
+    this.tags,
+  });
 
   factory Company.fromJson(Map<String, dynamic> json) {
     return Company(
@@ -405,6 +413,7 @@ class Company {
       email: json['email'] as String?,
       websites: json['websites'] as String?,
       phone: json['phone'] as String?,
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
     );
   }
 
@@ -415,6 +424,7 @@ class Company {
       'email': email,
       'websites': websites,
       'phone': phone,
+      'tags': tags,
     };
   }
 
@@ -424,6 +434,7 @@ class Company {
     String? email,
     String? websites,
     String? phone,
+    List<String>? tags,
   }) {
     return Company(
       name: name ?? this.name,
@@ -431,6 +442,7 @@ class Company {
       email: email ?? this.email,
       websites: websites ?? this.websites,
       phone: phone ?? this.phone,
+      tags: tags ?? this.tags,
     );
   }
 }

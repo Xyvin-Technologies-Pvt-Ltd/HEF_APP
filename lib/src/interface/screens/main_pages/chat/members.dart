@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
+import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/notifiers/people_notifier.dart';
+import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/chat_screen.dart';
@@ -24,6 +26,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   final TextEditingController _searchController = TextEditingController();
   FocusNode _searchFocus = FocusNode();
   Timer? _debounce;
+  String? selectedDistrictId;
+  String? selectedDistrictName;
 
   @override
   void initState() {
@@ -54,6 +58,202 @@ class _MembersPageState extends ConsumerState<MembersPage> {
     ref.read(peopleNotifierProvider.notifier).searchUsers(query);
   }
 
+  void _showFilterBottomSheet() {
+    String? tempDistrictId = selectedDistrictId;
+    String? tempDistrictName = selectedDistrictName;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.5,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Handle bar
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Filter Members',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (tempDistrictName != null)
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            tempDistrictId = null;
+                            tempDistrictName = null;
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red[400],
+                        ),
+                        child: const Text('Reset'),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Divider(),
+
+                // Filter Options
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Theme(
+                          data: Theme.of(context).copyWith(
+                            dividerColor: Colors.transparent,
+                          ),
+                          child: ExpansionTile(
+                            tilePadding: EdgeInsets.zero,
+                            childrenPadding: EdgeInsets.zero,
+                            title: Row(
+                              children: [
+                                const Icon(Icons.location_on_outlined),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'District',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                if (tempDistrictName != null) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[50],
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      '1 selected',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.blue[700],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            children: [
+                              Consumer(
+                                builder: (context, ref, child) {
+                                  final asyncDistricts =
+                                      ref.watch(fetchDistrictsProvider);
+                                  return asyncDistricts.when(
+                                    data: (districts) {
+                                      return ListView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: districts.length,
+                                        itemBuilder: (context, index) {
+                                          final district = districts[index];
+                                          return ListTile(
+                                            dense: true,
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 12),
+                                            title: Text(
+                                              district.name,
+                                              style: TextStyle(
+                                                color: tempDistrictId ==
+                                                        district.id
+                                                    ? Colors.blue[700]
+                                                    : null,
+                                              ),
+                                            ),
+                                            trailing:
+                                                tempDistrictId == district.id
+                                                    ? Icon(Icons.check_circle,
+                                                        color: Colors.blue[700])
+                                                    : null,
+                                            onTap: () {
+                                              setState(() {
+                                                tempDistrictId = district.id;
+                                                tempDistrictName =
+                                                    district.name;
+                                              });
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    loading: () =>
+                                        const Center(child: LoadingAnimation()),
+                                    error: (error, stackTrace) =>
+                                        const SizedBox(),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Apply Button
+                const SizedBox(height: 16),
+                SizedBox(
+                    width: double.infinity,
+                    child: customButton(
+                      label: 'Apply',
+                      onPressed: () {
+                        setState(() {
+                          selectedDistrictId = tempDistrictId;
+                          selectedDistrictName = tempDistrictName;
+                        });
+                        ref
+                            .read(peopleNotifierProvider.notifier)
+                            .setDistrict(tempDistrictId);
+                        Navigator.pop(context);
+                      },
+                    )),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final users = ref.watch(peopleNotifierProvider);
@@ -67,26 +267,75 @@ class _MembersPageState extends ConsumerState<MembersPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Search Bar
+            // Search Bar with Filter
             Container(
               padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
-              child: TextField(
-                controller: _searchController,
-                focusNode: _searchFocus,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: 'Search Members',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 216, 211, 211),
-                    ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          focusNode: _searchFocus,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            prefixIcon: const Icon(Icons.search),
+                            hintText: 'Search Members',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 216, 211, 211),
+                              ),
+                            ),
+                          ),
+                          onChanged: _onSearchChanged,
+                          onSubmitted: _onSearchSubmitted,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: const Color.fromARGB(255, 216, 211, 211),
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.filter_list,
+                            color: selectedDistrictName != null
+                                ? Colors.blue
+                                : Colors.grey,
+                          ),
+                          onPressed: _showFilterBottomSheet,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                onChanged: _onSearchChanged,
-                onSubmitted: _onSearchSubmitted,
+                  if (selectedDistrictName != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        children: [
+                          const Text('Filtered by: '),
+                          Chip(
+                            label: Text(selectedDistrictName!),
+                            onDeleted: () {
+                              setState(() {
+                                selectedDistrictId = null;
+                                selectedDistrictName = null;
+                              });
+                              ref
+                                  .read(peopleNotifierProvider.notifier)
+                                  .setDistrict(null);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -163,7 +412,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Image.asset(
-                                        'assets/icons/dummy_person_small.png');
+                                        'assets/pngs/dummy_person_small.png');
                                   },
                                 ),
                               ),
@@ -171,9 +420,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                             title: Text(
                               '${user.name ?? ''}',
                             ),
-                        subtitle: (user.company?.isNotEmpty ?? false)
-    ? Text(user.company![0].designation ?? '')
-    : null,
+                            subtitle: (user.company?.isNotEmpty ?? false)
+                                ? Text(user.company![0].designation ?? '')
+                                : null,
                             trailing: IconButton(
                               icon: Icon(Icons.chat_bubble_outline),
                               onPressed: () {

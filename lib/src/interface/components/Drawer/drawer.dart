@@ -175,17 +175,19 @@ if(user.phone!='+919645398555')
 
           SizedBox(
             height: 40,
-          ),if(user.phone!='+919645398555')
+          ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/about_us.svg',
             label: 'About Us',
-            onTap: () {},
-          ),if(user.phone!='+919645398555')
+            onTap: () {
+                    navigationService.pushNamed('AboutPage');
+            },
+          ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/terms.svg',
             label: 'Terms & Conditions',
             onTap: () {},
-          ),if(user.phone!='+919645398555')
+          ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/privacy_policy.svg',
             label: 'Privacy Policy',

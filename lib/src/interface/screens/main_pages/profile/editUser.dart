@@ -308,7 +308,7 @@ class _EditUserState extends ConsumerState<EditUser> {
       if (user.address != null && user.address != '')
         "address": user.address ?? '',
       if (user.bio != null && user.bio != '') "bio": user.bio ?? '',
-      "chapter": user.chapter ?? '',
+      "chapter": user.chapter?.id ?? '',
       if (user.secondaryPhone != null)
         "secondaryPhone": {
           if (user.secondaryPhone?.whatsapp != null)

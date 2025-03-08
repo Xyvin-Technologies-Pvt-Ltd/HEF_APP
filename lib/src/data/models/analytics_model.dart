@@ -1,6 +1,6 @@
 class AnalyticsModel {
   final String? id;
-  final String? user_id;  // Added user_id variable
+  final String? user_id; 
   final String? username;
   final String? userImage;
   final String? title;
@@ -9,14 +9,14 @@ class AnalyticsModel {
   final String? description;
   final String? referral;
   final String? contact;
-  final String? amount;
+  final int? amount;
   final DateTime? date;
   final String? meetingLink;
   final String? location;
 
   AnalyticsModel({
     this.id,
-    this.user_id,  // Added to constructor
+    this.user_id, 
     this.username,
     this.userImage,
     this.title,
@@ -43,7 +43,7 @@ class AnalyticsModel {
       description: json['description'] as String?,
       referral: json['referral'] as String?,
       contact: json['contact'] as String?,
-      amount: json['amount'] as String?,
+      amount: json['amount'] as int?,
       date: json['date'] != null ? DateTime.tryParse(json['date']) : null,
       meetingLink: json['meetingLink'] as String?,
       location: json['location'] as String?,
@@ -80,7 +80,7 @@ class AnalyticsModel {
     String? description,
     String? referral,
     String? contact,
-    String? amount,
+    int? amount,
     DateTime? date,
     String? meetingLink,
     String? location,

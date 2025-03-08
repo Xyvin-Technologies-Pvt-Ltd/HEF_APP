@@ -23,10 +23,59 @@ class ViewMoreEventPage extends ConsumerStatefulWidget {
 
 class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
   bool registered = false;
+  bool isRegistering = false;
   @override
   void initState() {
     super.initState();
     registered = widget.event.rsvp?.contains(id) ?? false;
+  }
+
+  String _getRegistrationButtonLabel() {
+    if (widget.event.status == 'cancelled') return 'CANCELLED';
+    if (registered) return 'REGISTERED';
+
+    final int limit = widget.event.limit ?? 0;
+    final int registeredCount = widget.event.rsvp?.length ?? 0;
+
+    if (limit > 0) {
+      final spotsLeft = limit - registeredCount;
+      if (spotsLeft <= 0) return 'REGISTRATION FULL';
+
+      // More user-friendly messages for remaining spots
+      if (spotsLeft == 1) {
+        return 'REGISTER (Last seat!)';
+      } else if (spotsLeft <= 5) {
+        return 'REGISTER (Only $spotsLeft seats left!)';
+      }
+      return 'REGISTER ($spotsLeft seats left)';
+    }
+
+    return 'REGISTER EVENT';
+  }
+
+  bool _canRegister() {
+    if (registered || widget.event.status == 'cancelled') return false;
+
+    final int limit = widget.event.limit ?? 0;
+    if (limit == 0) return true; // No limit set
+
+    final int registeredCount = widget.event.rsvp?.length ?? 0;
+    return registeredCount < limit;
+  }
+
+  String _getRegistrationCountText() {
+    final registered = widget.event.rsvp?.length ?? 0;
+    final limit = widget.event.limit!;
+    final remaining = limit - registered;
+
+    if (remaining == 0) {
+      return 'All seats taken ($registered/$limit)';
+    } else if (remaining == 1) {
+      return 'Last seat remaining ($registered/$limit)';
+    } else if (remaining <= 10) {
+      return 'Only $remaining seats left ($registered/$limit)';
+    }
+    return '$registered/$limit registered';
   }
 
   @override
@@ -39,7 +88,6 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
 
     log('rsvp : ${widget.event.rsvp}');
     log('my id : ${id}');
-    bool registered = widget.event.rsvp?.contains(id) ?? false;
     log('event registered?:$registered');
     return Scaffold(
       backgroundColor: kScaffoldColor,
@@ -359,31 +407,72 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
               widget.event.status != "completed")
             Consumer(
               builder: (context, ref, child) {
+                final bool canRegister = _canRegister();
+                final String buttonLabel = _getRegistrationButtonLabel();
+
                 return Positioned(
                   bottom: 36,
                   left: 16,
                   right: 16,
-                  child: customButton(
-                    sideColor: registered ? Colors.green : kPrimaryColor,
-                    buttonColor: registered ? Colors.green : kPrimaryColor,
-                    label: widget.event.status == 'cancelled'
-                        ? 'CANCELLED'
-                        : registered
-                            ? 'REGISTERED'
-                            : 'REGISTER EVENT',
-                    onPressed: () async {
-                      if (!registered && widget.event.status != 'cancelled') {
-                        await markEventAsRSVP(widget.event.id!);
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      if (widget.event.limit != null && widget.event.limit! > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            _getRegistrationCountText(),
+                            style: TextStyle(
+                              color: canRegister
+                                  ? Colors.grey[600]
+                                  : Colors.red[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      customButton(
+                        sideColor: registered
+                            ? Colors.green
+                            : canRegister
+                                ? kPrimaryColor
+                                : Colors.grey[400]!,
+                        buttonColor: registered
+                            ? Colors.green
+                            : canRegister
+                                ? kPrimaryColor
+                                : Colors.grey[400]!,
+                        label: buttonLabel,
+                        isLoading: isRegistering,
+                        onPressed: canRegister
+                            ? () async {
+                                if (!registered &&
+                                    widget.event.status != 'cancelled') {
+                                  setState(() {
+                                    isRegistering = true;
+                                  });
 
-                        setState(() {
-                          widget.event.rsvp?.add(id); // Add the user to RSVP
-                          registered = widget.event.rsvp?.contains(id) ?? false;
-                        });
+                                  try {
+                                    await markEventAsRSVP(widget.event.id!);
 
-                        ref.invalidate(fetchEventsProvider);
-                      }
-                    },
-                    fontSize: 16,
+                                    setState(() {
+                                      widget.event.rsvp?.add(id);
+                                      registered =
+                                          widget.event.rsvp?.contains(id) ??
+                                              false;
+                                    });
+
+                                    ref.invalidate(fetchEventsProvider);
+                                  } finally {
+                                    setState(() {
+                                      isRegistering = false;
+                                    });
+                                  }
+                                }
+                              }
+                            : null,
+                        fontSize: 16,
+                      ),
+                    ],
                   ),
                 );
               },

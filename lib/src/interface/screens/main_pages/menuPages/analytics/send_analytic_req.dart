@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
 import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
@@ -10,6 +11,8 @@ import 'package:hef/src/interface/components/custom_widgets/custom_textFormField
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/admin/allocate_member.dart';
 import 'package:intl/intl.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:intl_phone_field/phone_number.dart';
 
 class SendAnalyticRequestPage extends ConsumerStatefulWidget {
   @override
@@ -33,9 +36,10 @@ class _SendAnalyticRequestPageState
 
   TextEditingController referralNameController = TextEditingController();
   TextEditingController referralEmailController = TextEditingController();
-  TextEditingController referralPhoneController = TextEditingController();
+
   TextEditingController referralAddressController = TextEditingController();
   TextEditingController referralInfoController = TextEditingController();
+  TextEditingController referralPhoneController = TextEditingController();
 
   String? selectedRequestType;
   String? selectedStateId;
@@ -46,12 +50,13 @@ class _SendAnalyticRequestPageState
 
   String? selectedMeetingType;
 
-  Future<String?> createAnalytic() async {
+  Future<String?> createAnalytic(String countryCode) async {
     final Map<String, dynamic> analytictData = {
       "type": selectedRequestType,
       "member": selectedMember,
       "sender": id,
-      if (amountController.text != '') "amount": amountController.text,
+      if (amountController.text != '')
+        "amount": int.parse(amountController.text),
       "title": titleController.text,
       "description": descriptionController.text,
       if (selectedRequestType == 'Referral')
@@ -61,7 +66,7 @@ class _SendAnalyticRequestPageState
           if (referralEmailController.text != '')
             "email": referralEmailController.text,
           if (referralPhoneController.text != '')
-            "phone": referralPhoneController.text,
+            "phone": '+$countryCode${referralPhoneController.text}',
           if (referralAddressController.text != '')
             "address": referralAddressController.text,
           if (referralInfoController.text != '')
@@ -120,8 +125,11 @@ class _SendAnalyticRequestPageState
     );
   }
 
+  final countryCodeProvider = StateProvider<String?>((ref) => '91');
+
   @override
   Widget build(BuildContext context) {
+    final countryCode = ref.watch(countryCodeProvider);
     final asyncStates = ref.watch(fetchStatesProvider);
     final asyncZones =
         ref.watch(fetchLevelDataProvider(selectedStateId ?? '', 'state'));
@@ -305,7 +313,7 @@ class _SendAnalyticRequestPageState
               _buildRequiredLabel('Title'),
               CustomTextFormField(
                 textController: titleController,
-                labelText: 'Title',
+                labelText: 'Eg - Construction related',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a title';
@@ -313,7 +321,8 @@ class _SendAnalyticRequestPageState
                   return null;
                 },
               ),
-              if (selectedRequestType == 'Business')
+              if (selectedRequestType == 'Business' ||
+                  selectedRequestType == 'Referral')
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -322,7 +331,7 @@ class _SendAnalyticRequestPageState
                     CustomTextFormField(
                       textInputType: TextInputType.numberWithOptions(),
                       textController: amountController,
-                      labelText: 'Amount',
+                      labelText: 'Eg - 50000',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter an amount';
@@ -336,7 +345,7 @@ class _SendAnalyticRequestPageState
               _buildRequiredLabel('Description'),
               CustomTextFormField(
                 textController: descriptionController,
-                labelText: 'Description',
+                labelText: 'Eg - Business closed for purchase of materials',
                 maxLines: 3,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -410,14 +419,12 @@ class _SendAnalyticRequestPageState
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 212, 209,
-                                  209)), // Same as enabled border
+                              color: Color.fromARGB(255, 212, 209, 209)),
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 223, 220,
-                                  220)), // Same as focused border
+                              color: Color.fromARGB(255, 223, 220, 220)),
                         ),
                         labelText: 'Date',
                         suffixIcon: IconButton(
@@ -426,7 +433,7 @@ class _SendAnalyticRequestPageState
                             DateTime? pickedDate = await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
-                              firstDate: DateTime(2000),
+                              firstDate: DateTime(2025),
                               lastDate: DateTime(2101),
                             );
                             if (pickedDate != null) {
@@ -546,15 +553,70 @@ class _SendAnalyticRequestPageState
                     ),
                     const SizedBox(height: 10.0),
                     _buildRequiredLabel('Phone'),
-                    CustomTextFormField(
-                      textController: referralPhoneController,
-                      labelText: 'Enter referral phone',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter referral phone';
-                        }
-                        return null;
-                      },
+                    Container(
+                      width: double.infinity, // Full width container
+                      child: IntlPhoneField(
+                        validator: (phone) {
+                          if (phone == null || phone.number.isEmpty) {
+                            return 'Please enter a phone number';
+                          }
+                          if (phone.number.length != 10) {
+                            return 'Phone number must be 10 digits';
+                          }
+                          return null;
+                        },
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        controller: referralPhoneController,
+                        disableLengthCheck: true,
+                        showCountryFlag: true,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: kWhite,
+                          hintText: 'Enter referral phone number',
+                          hintStyle: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: BorderSide(color: kGrey),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: BorderSide(color: kGrey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(color: kGrey),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(color: Colors.red),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16.0,
+                            horizontal: 10.0,
+                          ),
+                        ),
+                        onCountryChanged: (value) {
+                          ref.read(countryCodeProvider.notifier).state =
+                              value.dialCode;
+                        },
+                        initialCountryCode: 'IN',
+                        onChanged: (PhoneNumber phone) {
+                          print(phone.completeNumber);
+                        },
+                        flagsButtonPadding: const EdgeInsets.only(left: 10),
+                        showDropdownIcon: true,
+                        dropdownIconPosition: IconPosition.trailing,
+                        dropdownTextStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 10.0),
                     const Text('Address',
@@ -579,7 +641,8 @@ class _SendAnalyticRequestPageState
                 label: 'Send Request',
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    String? response = await createAnalytic();
+                    String? response =
+                        await createAnalytic(countryCode ?? '91');
                     if (response != null && response.contains('success')) {
                       Navigator.pop(context);
                       ref.invalidate(fetchAnalyticsProvider);

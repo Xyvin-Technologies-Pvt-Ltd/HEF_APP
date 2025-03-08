@@ -19,7 +19,7 @@ class Event {
   final List<String>? attended;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-
+  final int? limit;
   Event({
     this.id,
     this.eventName,
@@ -40,7 +40,7 @@ class Event {
     this.rsvp,
     this.attended,
     this.createdAt,
-    this.updatedAt,
+    this.updatedAt,this.limit
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -79,6 +79,7 @@ class Event {
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'])
           : null,
+                limit: json['limit'] as int?,
     );
   }
 
@@ -104,6 +105,7 @@ class Event {
       'attended': attended,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'limit':limit
     };
   }
 }

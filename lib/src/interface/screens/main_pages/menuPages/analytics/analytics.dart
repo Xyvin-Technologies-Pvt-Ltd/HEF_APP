@@ -17,7 +17,7 @@ class AnalyticsPage extends ConsumerStatefulWidget {
   final String? endDate;
 
   const AnalyticsPage({
-    super.key, 
+    super.key,
     this.initialTab,
     this.requestType,
     this.startDate,
@@ -31,23 +31,29 @@ class AnalyticsPage extends ConsumerStatefulWidget {
 class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   // Add filter state variables
   DateTime? startDate;
   DateTime? endDate;
   String? selectedRequestType;
-  final List<String> requestTypes = ['Business', 'One v One Meeting', 'Referral'];
+  final List<String> requestTypes = [
+    'Business',
+    'One v One Meeting',
+    'Referral'
+  ];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    
+
     // Set initial tab if provided
     if (widget.initialTab != null) {
-      _tabController.animateTo(
-        widget.initialTab == 'sent' ? 1 : widget.initialTab == 'received' ? 0 : 2
-      );
+      _tabController.animateTo(widget.initialTab == 'sent'
+          ? 1
+          : widget.initialTab == 'received'
+              ? 0
+              : 2);
     }
 
     // Set initial filters if provided
@@ -88,7 +94,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  
+
                   // Date Range Section
                   Text('Date Range', style: kBodyTitleB),
                   const SizedBox(height: 16),
@@ -153,9 +159,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Request Type Section
                   Text('Request Type', style: kBodyTitleB),
                   const SizedBox(height: 16),
@@ -181,9 +187,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                       },
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Action Buttons
                   Row(
                     children: [
@@ -247,22 +253,31 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   Widget build(BuildContext context) {
     final asyncSentAnalytics = ref.watch(fetchAnalyticsProvider(
       type: 'sent',
-      startDate: startDate != null ? DateFormat('yyyy-MM-dd').format(startDate!) : null,
-      endDate: endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
+      startDate: startDate != null
+          ? DateFormat('yyyy-MM-dd').format(startDate!)
+          : null,
+      endDate:
+          endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
       requestType: selectedRequestType,
     ));
-    
+
     final asyncReceivedAnalytics = ref.watch(fetchAnalyticsProvider(
       type: 'received',
-      startDate: startDate != null ? DateFormat('yyyy-MM-dd').format(startDate!) : null,
-      endDate: endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
+      startDate: startDate != null
+          ? DateFormat('yyyy-MM-dd').format(startDate!)
+          : null,
+      endDate:
+          endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
       requestType: selectedRequestType,
     ));
-    
+
     final asyncHistoryAnalytics = ref.watch(fetchAnalyticsProvider(
       type: null,
-      startDate: startDate != null ? DateFormat('yyyy-MM-dd').format(startDate!) : null,
-      endDate: endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
+      startDate: startDate != null
+          ? DateFormat('yyyy-MM-dd').format(startDate!)
+          : null,
+      endDate:
+          endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
       requestType: selectedRequestType,
     ));
 

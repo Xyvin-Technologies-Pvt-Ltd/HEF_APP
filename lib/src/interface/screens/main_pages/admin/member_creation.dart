@@ -10,6 +10,8 @@ import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/custom_widgets/member_creation_textfield.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:intl_phone_field/phone_number.dart';
 import 'package:path/path.dart' as Path;
 
 class MemberCreationPage extends StatefulWidget {
@@ -27,9 +29,11 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
   TextEditingController bioController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
+  TextEditingController phoneCountryController = TextEditingController();
   TextEditingController adressController = TextEditingController();
   TextEditingController companyNameController = TextEditingController();
   TextEditingController companyPhoneController = TextEditingController();
+  TextEditingController companyPhoneCountryController = TextEditingController();
   TextEditingController companyDesignationController = TextEditingController();
   TextEditingController companyEmailController = TextEditingController();
   TextEditingController companyWebsiteController = TextEditingController();
@@ -96,13 +100,72 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 validator: (value) =>
                     value!.isEmpty ? 'This field is required' : null,
               ),
-              MemberCreationTextfield(
-                textInputType: TextInputType.numberWithOptions(),
-                textEditingController: phoneController,
-                label: 'Phone Number',
-                hintText: 'Phone',
-                validator: (value) =>
-                    value!.isEmpty ? 'This field is required' : null,
+              Container(
+                width: double.infinity, // Full width container
+                child: IntlPhoneField(
+                  validator: (phone) {
+                    if (phone == null || phone.number.isEmpty) {
+                      return 'Please enter a phone number';
+                    }
+                    if (phone.number.length != 10) {
+                      return 'Phone number must be 10 digits';
+                    }
+                    return null;
+                  },
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  controller: phoneController,
+                  disableLengthCheck: true,
+                  showCountryFlag: true,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: kWhite,
+                    hintText: 'Enter referral phone number',
+                    hintStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: kGrey),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: kGrey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: kGrey),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 10.0,
+                    ),
+                  ),
+                  onCountryChanged: (value) {
+                    phoneCountryController.text = value.dialCode;
+                  },
+                  initialCountryCode: 'IN',
+                  onChanged: (PhoneNumber phone) {
+                    print(phone.completeNumber);
+                  },
+                  flagsButtonPadding: const EdgeInsets.only(left: 10),
+                  showDropdownIcon: true,
+                  dropdownIconPosition: IconPosition.trailing,
+                  dropdownTextStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
               ),
               MemberCreationTextfield(
                 textEditingController: adressController,
@@ -118,13 +181,72 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 validator: (value) =>
                     value!.isEmpty ? 'This field is required' : null,
               ),
-              MemberCreationTextfield(
-                textInputType: TextInputType.number,
-                label: 'Company Phone',
-                hintText: 'Number',
-                textEditingController: companyPhoneController,
-                validator: (value) =>
-                    value!.isEmpty ? 'This field is required' : null,
+              Container(
+                width: double.infinity, // Full width container
+                child: IntlPhoneField(
+                  validator: (phone) {
+                    if (phone == null || phone.number.isEmpty) {
+                      return 'Please enter a phone number';
+                    }
+                    if (phone.number.length != 10) {
+                      return 'Phone number must be 10 digits';
+                    }
+                    return null;
+                  },
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  controller: companyPhoneController,
+                  disableLengthCheck: true,
+                  showCountryFlag: true,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: kWhite,
+                    hintText: 'Enter referral phone number',
+                    hintStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: kGrey),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: kGrey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: kGrey),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 10.0,
+                    ),
+                  ),
+                  onCountryChanged: (value) {
+                    companyPhoneCountryController.text = value.dialCode;
+                  },
+                  initialCountryCode: 'IN',
+                  onChanged: (PhoneNumber phone) {
+                    print(phone.completeNumber);
+                  },
+                  flagsButtonPadding: const EdgeInsets.only(left: 10),
+                  showDropdownIcon: true,
+                  dropdownIconPosition: IconPosition.trailing,
+                  dropdownTextStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
               ),
               MemberCreationTextfield(
                 textEditingController: companyDesignationController,
@@ -200,9 +322,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                             selectedBusinessCategory != null &&
                             selectedSubCategory != null &&
                             selectedStatus != null) {
-                          String profileImageUrl = await imageUpload(
-        
-                              _profileImage!.path);
+                          String profileImageUrl =
+                              await imageUpload(_profileImage!.path);
                           navigationService.pushNamed('MemberAllocation',
                               arguments: UserModel(
                                   name: nameController.text,
@@ -210,15 +331,19 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                   image: profileImageUrl,
                                   bio: bioController.text,
                                   email: emailController.text,
-                                  phone: phoneController.text,
+                                  phone: '${phoneCountryController.text}${phoneController.text}',
                                   address: adressController.text,
-                                  company: [Company(
-                                      name: companyNameController.text,
-                                      designation:
-                                          companyDesignationController.text,
-                                      email: companyEmailController.text,
-                                      phone: companyPhoneController.text,
-                                      websites: companyWebsiteController.text),],
+                                  company: [
+                                    Company(
+                                        name: companyNameController.text,
+                                        designation:
+                                            companyDesignationController.text,
+                                        email: companyEmailController.text,
+                                        phone:
+                                            '+${companyPhoneCountryController.text}${companyPhoneController.text}',
+                                        websites:
+                                            companyWebsiteController.text),
+                                  ],
                                   businessCategory: selectedBusinessCategory,
                                   businessSubCategory: selectedSubCategory,
                                   status: selectedStatus));

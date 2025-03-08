@@ -7,6 +7,7 @@ import 'package:hef/src/interface/screens/main_pages/admin/member_creation.dart'
 import 'package:hef/src/interface/screens/main_pages/event/event_member_list.dart';
 import 'package:hef/src/interface/screens/main_pages/event/view_more_event.dart';
 import 'package:hef/src/interface/screens/main_pages/login_page.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/about_us.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/add_product.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/send_analytic_req.dart';
@@ -81,6 +82,8 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
               ));
     case 'EditUser':
       return MaterialPageRoute(builder: (context) => EditUser());
+    case 'AboutPage':
+      return MaterialPageRoute(builder: (context) => AboutPage());
     case 'News':
       return MaterialPageRoute(builder: (context) => NewsPage());
     case 'MemberCreation':

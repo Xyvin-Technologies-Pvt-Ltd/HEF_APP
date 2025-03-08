@@ -77,7 +77,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                 'Date & time',
                 DateFormat("d'th' MMMM yyyy, h:mm a")
                     .format(analytic.time!.toLocal())),
-            _buildDetailRow('Amount', analytic.amount ?? ''),
+            _buildDetailRow('Amount', analytic.amount.toString() ?? ''),
             if (analytic.status == 'meeting_scheduled' &&
                 analytic.meetingLink != null)
               InkWell(

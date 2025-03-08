@@ -7,13 +7,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
 Widget eventWidget({
-  bool withImage = false,
+  bool withImage = true,
   required BuildContext context,
   required Event event,
 }) {
-  DateTime dateTime = DateTime.parse(event.startTime.toString()).toLocal();
-  String formattedTime = DateFormat('hh:mm a').format(dateTime);
-  String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
+  DateTime time = DateTime.parse(event.startTime.toString()).toLocal();
+  DateTime date = DateTime.parse(event.startDate.toString()).toLocal();
+  String formattedTime = DateFormat('hh:mm a').format(time);
+  String formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 12),

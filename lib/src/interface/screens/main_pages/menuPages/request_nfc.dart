@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
-
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RequestNFCPage extends StatelessWidget {
+  // Function to launch WhatsApp
+  Future<void> _launchWhatsApp() async {
+    // Replace this with your actual phone number
+    const phoneNumber = '+917592888111'; // Update this with your number
+    const message = 'Hi';
+
+    // Create the WhatsApp URL
+    final Uri whatsappUrl = Uri.parse(
+        'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
+
+    await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +76,7 @@ class RequestNFCPage extends StatelessWidget {
                 sideColor: kPrimaryColor,
                 buttonColor: kPrimaryColor,
                 label: 'REQUEST NFC',
-                onPressed: () {},
+                onPressed: _launchWhatsApp,
                 fontSize: 16),
           ],
         ),

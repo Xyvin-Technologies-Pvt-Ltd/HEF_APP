@@ -15,21 +15,31 @@ class ShowAdddBusinessSheet extends StatefulWidget {
   final Future<File?> Function() pickImage;
   final TextEditingController textController;
 
-  ShowAdddBusinessSheet({
-    super.key,
-    required this.textController,
+  const ShowAdddBusinessSheet({
+    Key? key,
     required this.pickImage,
-  });
+    required this.textController,
+  }) : super(key: key);
 
   @override
   State<ShowAdddBusinessSheet> createState() => _ShowAdddBusinessSheetState();
 }
 
 class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
-  File? postImage;
+  File? selectedImage;
   String? selectedType;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? mediaUrl;
+
+  Future<void> _handleImagePick() async {
+    final File? pickedImage = await widget.pickImage();
+    if (pickedImage != null) {
+      setState(() {
+        selectedImage = pickedImage;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     NavigationService navigationService = NavigationService();
@@ -81,18 +91,12 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                 // ),
                 const SizedBox(height: 20),
                 FormField<File>(
-                  initialValue: postImage,
+                  initialValue: selectedImage,
                   builder: (FormFieldState<File> state) {
                     return Column(
                       children: [
                         GestureDetector(
-                          onTap: () async {
-                            final pickedFile = await widget.pickImage();
-                            setState(() {
-                              postImage = pickedFile;
-                              state.didChange(pickedFile);
-                            });
-                          },
+                          onTap: _handleImagePick,
                           child: Container(
                             width: double.infinity,
                             height: 110,
@@ -103,7 +107,7 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                                   ? Border.all(color: Colors.red)
                                   : null,
                             ),
-                            child: postImage == null
+                            child: selectedImage == null
                                 ? const Center(
                                     child: Column(
                                       mainAxisAlignment:
@@ -122,7 +126,7 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                                     ),
                                   )
                                 : Image.file(
-                                    postImage!,
+                                    selectedImage!,
                                     fit: BoxFit.contain,
                                     width: 120,
                                     height: 120,
@@ -175,10 +179,9 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                       try {
                         print(selectedType);
 
-                        if (postImage != null) {
+                        if (selectedImage != null) {
                           mediaUrl = await imageUpload(
-                     
-                            postImage!.path,
+                            selectedImage!.path,
                           );
                         }
 
@@ -187,7 +190,7 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                           content: widget.textController.text,
                         );
                         widget.textController.clear();
-                        postImage = null;
+                        selectedImage = null;
 
                         navigationService
                             .pop(); // Close the dialog after completion

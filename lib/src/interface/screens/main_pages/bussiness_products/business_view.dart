@@ -4,11 +4,10 @@ import 'dart:io';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_activities.dart';
 import 'package:hef/src/interface/components/ModalSheets/bussiness_enquiry_modal.dart';
 import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
-import 'package:hl_image_picker/hl_image_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
@@ -25,6 +24,8 @@ import 'package:hef/src/interface/components/ModalSheets/business_details.dart';
 import 'package:hef/src/interface/components/animations/widget_animations.dart';
 import 'package:hef/src/interface/components/custom_widgets/user_tile.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:hef/src/interface/screens/crop_image_screen.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:shimmer/shimmer.dart';
 
@@ -61,37 +62,47 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
   ImageSource? _feedImageSource;
 
   Future<File?> _pickFile() async {
-    final _picker = HLImagePicker();
-
+    final picker = ImagePicker();
+    
     try {
-      // Open the picker to select an image
-      final images = await _picker.openPicker(
-        cropping: true, // Enable cropping
-        pickerOptions: HLPickerOptions(
-          mediaType: MediaType.image, // Ensure we are selecting images
-          maxSelectedAssets: 1, // Allow selecting only one image
-        ),
-        cropOptions: HLCropOptions(
-          aspectRatio:
-              CropAspectRatio(ratioX: 4, ratioY: 5), // Set 4:5 aspect ratio
-          compressQuality: 0.9, // Updated: Use a value between 0.1 and 1.0
-          compressFormat: CompressFormat.jpg,
-          croppingStyle: CroppingStyle.normal, // Optional, set cropping style
-        ),
-      );
-
-      if (images.isNotEmpty) {
-        final selectedImage = images.first;
-        setState(() {
-          _feedImage = File(selectedImage.path);
-          _feedImageSource = ImageSource.gallery;
-        });
-        return _feedImage;
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      
+      if (pickedFile != null) {
+        final File imageFile = File(pickedFile.path);
+        
+        // Navigate to crop screen
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CropImageScreen(imageFile: imageFile),
+          ),
+        );
+        
+        if (result != null) {
+          // Generate a unique filename using timestamp
+          final tempDir = await getTemporaryDirectory();
+          final timestamp = DateTime.now().millisecondsSinceEpoch;
+          final tempFile = File('${tempDir.path}/cropped_image_$timestamp.jpg');
+          
+          // Make sure the file exists and is writable
+          if (!tempFile.existsSync()) {
+            tempFile.createSync(recursive: true);
+          }
+          
+          // Write the cropped image bytes to the file
+          await tempFile.writeAsBytes(result.bytes);
+          
+          setState(() {
+            _feedImage = tempFile;
+            _feedImageSource = ImageSource.gallery;
+          });
+          return _feedImage;
+        }
       }
     } catch (e) {
       debugPrint("Error picking or cropping the image: $e");
     }
-
+    
     return null;
   }
 
@@ -679,11 +690,15 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
             ),
           ),
           if (showHeartAnimation)
-            Icon(Icons.favorite, color: Colors.red.withOpacity(0.8), size: 100)
-                .animate(target: showHeartAnimation ? 1 : 0)
-                .scaleXY(begin: 0.7, end: 1.2)
-                .then()
-                .scaleXY(begin: 1.2, end: 0.9),
+            AnimatedOpacity(
+              duration: const Duration(milliseconds: 300),
+              opacity: showHeartAnimation ? 1.0 : 0.0,
+              child: Icon(
+                Icons.favorite,
+                color: Colors.red.withOpacity(0.8),
+                size: 100,
+              ),
+            ),
         ],
       ),
     );

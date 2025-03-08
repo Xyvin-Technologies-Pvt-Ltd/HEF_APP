@@ -23,7 +23,7 @@ class AboutPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset('assets/aboutus1.png'),
+            Image.asset('assets/pngs/aboutus1.png'),
             SizedBox(height: 16),
             SizedBox(height: 8),
             Text(
@@ -33,38 +33,7 @@ The forum will be serving as a collaborative platform, it unites entrepreneurs, 
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 16),
-            Row(
-              children: [
-                Icon(Icons.phone, color: Color(0xFF004797)),
-                SizedBox(width: 10),
-                Text('8078955514', style: TextStyle(fontSize: 16)),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(Icons.email, color: Color(0xFF004797)),
-                SizedBox(width: 10),
-                Text('kssiatrisur@gmail.com', style: TextStyle(fontSize: 16)),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.location_on, color: Color(0xFF004797)),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    '''
-Kerala State Small Industries Association Thrissur,
-KSSIA Building, Patturaikkal, Shornur Road, Thiruvamapadi P. O, Thrissur - 680022
-Tel 0487-2321562''',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ],
-            ),
+
             SizedBox(height: 16),
             // Image.network('https://placehold.co/600x400/png'),
           ],

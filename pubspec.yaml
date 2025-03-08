@@ -37,7 +37,7 @@ dependencies:
   cached_network_image: ^3.4.1
   carousel_slider: ^5.0.0
   smooth_page_indicator: ^1.2.0+3
-  url_launcher: ^6.3.1
+  url_launcher: ^6.2.5
   youtube_player_iframe: ^5.2.1
   intl: ^0.17.0
   sidebarx: ^0.17.1
@@ -67,8 +67,8 @@ dependencies:
   image_gallery_saver_plus: ^3.0.5
   flutter_launcher_icons: ^0.13.1
   firebase_app_check: ^0.3.2+3
-  hl_image_picker: ^1.2.16
-  flutter_animate: ^4.5.2
+  custom_image_crop: ^0.1.1
+  path_provider: ^2.0.15
 
 dev_dependencies:
   flutter_test:

@@ -185,43 +185,77 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                               padding:
                                                   const EdgeInsets.symmetric(
                                                       vertical: 4.0),
-                                              child: RichText(
-                                                textAlign: TextAlign.center,
-                                                text: TextSpan(
-                                                  children: [
-                                                    if (i.name?.isNotEmpty ??
-                                                        false)
-                                                      TextSpan(
-                                                        text: i.name,
-                                                        style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 16,
-                                                          color: Color.fromARGB(
-                                                              255, 42, 41, 41),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  if (i.logo != null &&
+                                                      i.logo!.isNotEmpty)
+                                                    Container(
+                                                      width: 40,
+                                                      height: 40,
+                                                      margin: const EdgeInsets.only(
+                                                          right: 10),
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(8),
+                                                        color: Colors.white,
+                                                      ),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius.circular(8),
+                                                        child: Image.network(
+                                                          i.logo!,
+                                                          fit: BoxFit.contain,
+                                                          errorBuilder:
+                                                              (context, error, stackTrace) {
+                                                            return Image.asset(
+                                                                'assets/icons/dummy_company.png');
+                                                          },
                                                         ),
                                                       ),
-                                                    if (i.name != null &&
-                                                        i.designation != null)
-                                                      const TextSpan(
-                                                        text: ' - ',
-                                                        style: TextStyle(
-                                                          fontSize: 15,
-                                                          color: Colors.grey,
-                                                        ),
+                                                    ),
+                                                  Flexible(
+                                                    child: RichText(
+                                                      textAlign: TextAlign.center,
+                                                      text: TextSpan(
+                                                        children: [
+                                                          if (i.name?.isNotEmpty ??
+                                                              false)
+                                                            TextSpan(
+                                                              text: i.name,
+                                                              style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight.bold,
+                                                                fontSize: 16,
+                                                                color: Color.fromARGB(
+                                                                    255, 42, 41, 41),
+                                                              ),
+                                                            ),
+                                                          if (i.name != null &&
+                                                              i.designation != null)
+                                                            const TextSpan(
+                                                              text: ' - ',
+                                                              style: TextStyle(
+                                                                fontSize: 15,
+                                                                color: Colors.grey,
+                                                              ),
+                                                            ),
+                                                          if (i.designation
+                                                                  ?.isNotEmpty ??
+                                                              false)
+                                                            TextSpan(
+                                                              text: i.designation,
+                                                              style: const TextStyle(
+                                                                fontSize: 15,
+                                                                color: Colors.grey,
+                                                              ),
+                                                            ),
+                                                        ],
                                                       ),
-                                                    if (i.designation
-                                                            ?.isNotEmpty ??
-                                                        false)
-                                                      TextSpan(
-                                                        text: i.designation,
-                                                        style: const TextStyle(
-                                                          fontSize: 15,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                         const SizedBox(height: 10),

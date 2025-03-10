@@ -413,13 +413,14 @@ class Company {
   final String? email;
   final String? websites;
   final String? phone;
+  final String? logo;
 
   Company({
     this.name,
     this.designation,
     this.email,
     this.websites,
-    this.phone,
+    this.phone,this.logo, 
   });
 
   factory Company.fromJson(Map<String, dynamic> json) {
@@ -429,6 +430,7 @@ class Company {
       email: json['email'] as String?,
       websites: json['websites'] as String?,
       phone: json['phone'] as String?,
+      logo : json['logo'] as String?,
     );
   }
 
@@ -439,6 +441,7 @@ class Company {
       'email': email,
       'websites': websites,
       'phone': phone,
+      'logo': logo,
     };
   }
 
@@ -448,6 +451,7 @@ class Company {
     String? email,
     String? websites,
     String? phone,
+    String? logo,
   }) {
     return Company(
       name: name ?? this.name,
@@ -455,6 +459,7 @@ class Company {
       email: email ?? this.email,
       websites: websites ?? this.websites,
       phone: phone ?? this.phone,
+      logo: logo ?? this.logo,
     );
   }
 }

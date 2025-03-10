@@ -161,7 +161,8 @@ class _EditUserState extends ConsumerState<EditUser> {
   // Add new controller for tags
   final TextEditingController _tagController = TextEditingController();
 
-  Future<File?> _pickFile({required String imageType}) async {
+  Future<File?> _pickFile(
+      {required String imageType, int? companyIndex}) async {
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
@@ -177,6 +178,37 @@ class _EditUserState extends ConsumerState<EditUser> {
           });
         });
         return _profileImageFile;
+      } else if (imageType == 'company') {
+        setState(() {
+          _companyImageFile = File(image.path);
+          imageUpload(_companyImageFile!.path).then((url) {
+            String companyUrl = url;
+            _companyImageSource = ImageSource.gallery;
+
+            if (companyIndex != null) {
+              // Update the specific company's logo
+              final existingCompany =
+                  ref.read(userProvider).value?.company?[companyIndex];
+              final updatedCompany = Company(
+                logo: url,
+                name: existingCompany?.name,
+                designation: existingCompany?.designation,
+                email: existingCompany?.email,
+                phone: existingCompany?.phone,
+                websites: existingCompany?.websites,
+              );
+
+              ref
+                  .read(userProvider.notifier)
+                  .updateCompany(updatedCompany, companyIndex);
+            } else {
+              log('Warning: No company index provided for logo update');
+            }
+
+            print('Company logo updated: $companyUrl');
+          });
+        });
+        return _companyImageFile;
       } else if (imageType == 'award') {
         _awardImageFIle = File(image.path);
         _awardImageSource = ImageSource.gallery;
@@ -295,15 +327,6 @@ class _EditUserState extends ConsumerState<EditUser> {
   }
 
   Future<String> _submitData({required UserModel user}) async {
-    // String fullName =
-    //     '${user.name!.first} ${user.name!.middle} ${user.name!.last}';
-
-    // List<String> nameParts = fullName.split(' ');
-
-    // String firstName = nameParts[0];
-    // String middleName = nameParts.length > 2 ? nameParts[1] : ' ';
-    // String lastName = nameParts.length > 1 ? nameParts.last : ' ';
-    log("profile picture${user.image}");
     final Map<String, dynamic> profileData = {
       "name": user.name ?? '',
       "email": user.email,
@@ -320,23 +343,33 @@ class _EditUserState extends ConsumerState<EditUser> {
           if (user.secondaryPhone?.business != null)
             "business": user.secondaryPhone?.business ?? '',
         },
-      if (user.company != null)
-        "company": user.company!.map((company) {
-          final name = company.name?.trim();
-          final designation = company.designation?.trim();
-          final phone = company.phone?.trim();
-          final email = company.email?.trim();
-          final websites = company.websites?.trim();
+      "company": companyDetailsControllers
+          .map((controllers) {
+            final name = controllers['name']?.text.trim();
+            final designation = controllers['designation']?.text.trim();
+            final phone = controllers['phone']?.text.trim();
+            final email = controllers['email']?.text.trim();
+            final website = controllers['website']?.text.trim();
 
-          return {
-            if (name != null && name.isNotEmpty) "name": name,
-            if (designation != null && designation.isNotEmpty)
-              "designation": designation,
-            if (phone != null && phone.isNotEmpty) "phone": phone,
-            if (email != null && email.isNotEmpty) "email": email,
-            if (websites != null && websites.isNotEmpty) "websites": websites,
-          };
-        }).toList(),
+            // Get the existing company data to preserve the logo
+            final existingCompany = user.company?.firstWhere(
+              (company) => company.name == name,
+              orElse: () => Company(),
+            );
+
+            return {
+              if (name != null && name.isNotEmpty) "name": name,
+              if (designation != null && designation.isNotEmpty)
+                "designation": designation,
+              if (phone != null && phone.isNotEmpty) "phone": phone,
+              if (email != null && email.isNotEmpty) "email": email,
+              if (website != null && website.isNotEmpty) "websites": website,
+              if (existingCompany?.logo != null) "logo": existingCompany?.logo,
+            };
+          })
+          .where((company) => company.values
+              .any((value) => value != null && value.toString().isNotEmpty))
+          .toList(),
       "social": [
         for (var i in user.social!) {"name": "${i.name}", "link": i.link}
       ],
@@ -357,6 +390,8 @@ class _EditUserState extends ConsumerState<EditUser> {
       if (user.businessTags != null && user.businessTags!.isNotEmpty)
         "businessTags": user.businessTags,
     };
+
+    log("Submitting profile data: ${profileData.toString()}");
     String response = await editUser(profileData);
     log(profileData.toString());
     return response;
@@ -1185,185 +1220,189 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       SizedBox(
                                         height: 10,
                                       ),
-                                      Stack(
-                                        children: [
-                                          DottedBorder(
-                                            radius: const Radius.circular(10),
-                                            borderType: BorderType.RRect,
-                                            dashPattern: [6, 3],
-                                            color: Colors.grey,
-                                            strokeWidth: 2,
-                                            child: ClipRRect(
-                                              child: Container(
-                                                width: 110,
-                                                height: 100,
-                                                color: const Color.fromARGB(
-                                                    255, 255, 255, 255),
-                                                child:
-                                                    user.company?.logo != null
-                                                        ? Image.network(
-                                                            errorBuilder:
-                                                                (context, error,
-                                                                    stackTrace) {
-                                                              return const Center(
-                                                                  child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      Text(
-                                                                        'Upload',
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                17,
-                                                                            fontWeight:
-                                                                                FontWeight.w600,
-                                                                            color: Colors.grey),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                  Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      Text(
-                                                                        'Company',
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                17,
-                                                                            fontWeight:
-                                                                                FontWeight.w600,
-                                                                            color: Colors.grey),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                  Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      Text(
-                                                                        'Logo',
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                17,
-                                                                            fontWeight:
-                                                                                FontWeight.w600,
-                                                                            color: Colors.grey),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ],
-                                                              ));
-                                                            },
-                                                            user.company!
-                                                                .logo!, // Replace with your image URL
-                                                            fit: BoxFit.contain,
-                                                          )
-                                                        : const Center(
-                                                            child: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Text(
-                                                                    'Upload',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            17,
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w600,
-                                                                        color: Colors
-                                                                            .grey),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Text(
-                                                                    'Company',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            17,
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w600,
-                                                                        color: Colors
-                                                                            .grey),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Text(
-                                                                    'Logo',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            17,
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w600,
-                                                                        color: Colors
-                                                                            .grey),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ],
-                                                          )),
+                                      Center(
+                                        child: Stack(
+                                          children: [
+                                            DottedBorder(
+                                              radius: const Radius.circular(10),
+                                              borderType: BorderType.RRect,
+                                              dashPattern: [6, 3],
+                                              color: Colors.grey,
+                                              strokeWidth: 2,
+                                              child: ClipRRect(
+                                                child: Container(
+                                                  width: 110,
+                                                  height: 100,
+                                                  color: const Color.fromARGB(
+                                                      255, 255, 255, 255),
+                                                  child:
+                                                      user.company?[index]
+                                                                  .logo !=
+                                                              null
+                                                          ? Image.network(
+                                                              errorBuilder:
+                                                                  (context,
+                                                                      error,
+                                                                      stackTrace) {
+                                                                return const Center(
+                                                                    child:
+                                                                        Column(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Text(
+                                                                          'Upload',
+                                                                          style: TextStyle(
+                                                                              fontSize: 17,
+                                                                              fontWeight: FontWeight.w600,
+                                                                              color: Colors.grey),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Text(
+                                                                          'Company',
+                                                                          style: TextStyle(
+                                                                              fontSize: 17,
+                                                                              fontWeight: FontWeight.w600,
+                                                                              color: Colors.grey),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Text(
+                                                                          'Logo',
+                                                                          style: TextStyle(
+                                                                              fontSize: 17,
+                                                                              fontWeight: FontWeight.w600,
+                                                                              color: Colors.grey),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ],
+                                                                ));
+                                                              },
+                                                              user
+                                                                      .company?[
+                                                                          index]
+                                                                      .logo ??
+                                                                  '',
+                                                              fit: BoxFit
+                                                                  .contain,
+                                                            )
+                                                          : const Center(
+                                                              child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Text(
+                                                                      'Upload',
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              17,
+                                                                          fontWeight: FontWeight
+                                                                              .w600,
+                                                                          color:
+                                                                              Colors.grey),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Text(
+                                                                      'Company',
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              17,
+                                                                          fontWeight: FontWeight
+                                                                              .w600,
+                                                                          color:
+                                                                              Colors.grey),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Text(
+                                                                      'Logo',
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              17,
+                                                                          fontWeight: FontWeight
+                                                                              .w600,
+                                                                          color:
+                                                                              Colors.grey),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            )),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          Positioned(
-                                            bottom: -4,
-                                            right: -4,
-                                            child: InkWell(
-                                              onTap: () {
-                                                _pickFile(imageType: 'company');
-                                              },
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black
-                                                          .withOpacity(0.2),
-                                                      offset:
-                                                          const Offset(-1, -1),
-                                                      blurRadius: 4,
+                                            Positioned(
+                                              bottom: -4,
+                                              right: -4,
+                                              child: InkWell(
+                                                onTap: () {
+                                                  _pickFile(
+                                                      imageType: 'company',
+                                                      companyIndex: index);
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.2),
+                                                        offset: const Offset(
+                                                            -1, -1),
+                                                        blurRadius: 4,
+                                                      ),
+                                                    ],
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const CircleAvatar(
+                                                    radius: 17,
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    child: Icon(
+                                                      Icons.edit,
+                                                      color: Color(0xFFE30613),
+                                                      size: 16,
                                                     ),
-                                                  ],
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: const CircleAvatar(
-                                                  radius: 17,
-                                                  backgroundColor: Colors.white,
-                                                  child: Icon(
-                                                    Icons.edit,
-                                                    color: Color(0xFFE30613),
-                                                    size: 16,
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                       SizedBox(
                                         height: 10,

@@ -52,6 +52,7 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
 
       // Check if any field has a valid non-empty value
       bool hasValidData = [
+            updatedCompany.logo,
             updatedCompany.name,
             updatedCompany.designation,
             updatedCompany.email,
@@ -68,6 +69,7 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
         if (index >= 0 && index < updatedCompanyList.length) {
           log(updatedCompany.name ?? '');
           updatedCompanyList[index] = updatedCompanyList[index].copyWith(
+            logo: updatedCompany.logo ?? updatedCompanyList[index].logo,
             designation: updatedCompany.designation ??
                 updatedCompanyList[index].designation,
             email: updatedCompany.email ?? updatedCompanyList[index].email,
@@ -210,47 +212,42 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
       return user.copyWith(certificates: updatedCertificate);
     });
   }
-    void editAward(Award oldAward, Award updatedAward) {
-  state = state.whenData((user) {
-    final updatedAwards = user.awards!.map((award) {
-      return award == oldAward ? updatedAward : award;
-    }).toList();
 
-    return user.copyWith(awards: updatedAwards);
-  });
-}
+  void editAward(Award oldAward, Award updatedAward) {
+    state = state.whenData((user) {
+      final updatedAwards = user.awards!.map((award) {
+        return award == oldAward ? updatedAward : award;
+      }).toList();
+
+      return user.copyWith(awards: updatedAwards);
+    });
+  }
 
   void editWebsite(Link oldWebsite, Link newWebsite) {
     state = AsyncValue.data(state.value!.copyWith(
-      websites: state.value!.websites!.map((w) => 
-        w == oldWebsite ? newWebsite : w
-      ).toList()
-    ));
+        websites: state.value!.websites!
+            .map((w) => w == oldWebsite ? newWebsite : w)
+            .toList()));
   }
 
   void editVideo(Link oldVideo, Link newVideo) {
     state = AsyncValue.data(state.value!.copyWith(
-      videos: state.value!.videos!.map((v) =>
-        v == oldVideo ? newVideo : v  
-      ).toList()
-    ));
+        videos: state.value!.videos!
+            .map((v) => v == oldVideo ? newVideo : v)
+            .toList()));
   }
-
-
 
   void editCertificate(Link oldCertificate, Link newCertificate) {
     state = AsyncValue.data(state.value!.copyWith(
-      certificates: state.value!.certificates!.map((c) => 
-        c == oldCertificate ? newCertificate : c
-      ).toList()
-    ));
+        certificates: state.value!.certificates!
+            .map((c) => c == oldCertificate ? newCertificate : c)
+            .toList()));
   }
 
   void updateBusinessTags(List<String> businessTags) {
     state = state.whenData((user) => user.copyWith(businessTags: businessTags));
   }
 }
-
 
 final userProvider =
     StateNotifierProvider<UserNotifier, AsyncValue<UserModel>>((ref) {

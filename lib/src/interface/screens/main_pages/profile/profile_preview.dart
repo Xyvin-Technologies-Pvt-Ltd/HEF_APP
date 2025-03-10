@@ -141,80 +141,74 @@ class ProfilePreview extends ConsumerWidget {
                         Text('${user.name ?? ''}', style: kHeadTitleSB),
                         const SizedBox(height: 5),
                         if (user.company != null)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          Column(
                             children: [
-                              // Column(
-                              //   children: [
-                              //     if (user.company?.designation != null ||
-                              //         user.company?.name != null)
-                              //       ClipRRect(
-                              //           borderRadius: BorderRadius.circular(9),
-                              //           child: user.company?.logo != null &&
-                              //                   user.company?.logo != ''
-                              //               ? Image.network(
-                              //                   errorBuilder: (context, error,
-                              //                       stackTrace) {
-                              //                     return Image.asset(
-                              //                         'assets/icons/dummy_company.png');
-                              //                   },
-                              //                   user.company!.logo!,
-                              //                   height: 33,
-                              //                   width: 40,
-                              //                   fit: BoxFit.contain,
-                              //                 )
-                              //               : Image.asset(
-                              //                   'assets/icons/dummy_company.png'))
-                              //   ],
-                              // ),
-                              const SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  for (Company i in user.company ?? [])
-                                    if ((i?.name != null && i?.name != '') ||
-                                        (i?.designation != null &&
-                                            i?.designation != ''))
-                                      RichText(
-                                        text: TextSpan(
-                                          children: [
-                                            if (i.name != null && i.name != '')
-                                              TextSpan(
-                                                text: i.name,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                  color: Color.fromARGB(
-                                                      255, 42, 41, 41),
-                                                ),
+                              for (Company i in user.company ?? [])
+                                if ((i?.name != null && i?.name != '') ||
+                                    (i?.designation != null && i?.designation != ''))
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        if (i.logo != null && i.logo!.isNotEmpty)
+                                          Container(
+                                            width: 40,
+                                            height: 40,
+                                            margin: const EdgeInsets.only(right: 10),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(8),
+                                              color: Colors.white,
+                                            ),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(8),
+                                              child: Image.network(
+                                                i.logo!,
+                                                fit: BoxFit.contain,
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  return Image.asset('assets/icons/dummy_company.png');
+                                                },
                                               ),
-                                            if (i.name != null &&
-                                                i.name != '' &&
-                                                i.designation != null &&
-                                                i.designation != '')
-                                              const TextSpan(
-                                                text: ' - ',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 15,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            if (i.designation != null &&
-                                                i.designation != '')
-                                              TextSpan(
-                                                text: i.designation,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 15,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                          ],
+                                            ),
+                                          ),
+                                        Flexible(
+                                          child: RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                if (i.name != null && i.name != '')
+                                                  TextSpan(
+                                                    text: i.name,
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 16,
+                                                      color: Color.fromARGB(255, 42, 41, 41),
+                                                    ),
+                                                  ),
+                                                if (i.name != null && i.name != '' && i.designation != null && i.designation != '')
+                                                  const TextSpan(
+                                                    text: ' - ',
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.normal,
+                                                      fontSize: 15,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                if (i.designation != null && i.designation != '')
+                                                  TextSpan(
+                                                    text: i.designation,
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.normal,
+                                                      fontSize: 15,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                ],
-                              ),
+                                      ],
+                                    ),
+                                  ),
                             ],
                           ),
                       ],

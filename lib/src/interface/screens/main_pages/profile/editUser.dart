@@ -354,6 +354,8 @@ class _EditUserState extends ConsumerState<EditUser> {
       "certificates": [
         for (var i in user.certificates!) {"name": i.name, "link": i.link}
       ],
+      if (user.businessTags != null && user.businessTags!.isNotEmpty)
+        "businessTags": user.businessTags,
     };
     String response = await editUser(profileData);
     log(profileData.toString());
@@ -443,31 +445,41 @@ class _EditUserState extends ConsumerState<EditUser> {
     });
   }
 
-  // Add this method to handle tag addition
-  void _addTag(int companyIndex) {
+  void _addBusinessTag() {
     final tag = _tagController.text.trim();
     if (tag.isNotEmpty) {
-      setState(() {
-        final currentCompany = ref.read(userProvider).value?.company?[companyIndex];
-        if (currentCompany != null) {
-          List<String> updatedTags = [...?currentCompany.tags, tag];
-          ref.read(userProvider.notifier).updateCompanyTags(updatedTags, companyIndex);
-        }
-      });
-      _tagController.clear();
+      final currentTags = [...?ref.read(userProvider).value?.businessTags];
+      // Check if tag already exists (case-insensitive comparison)
+      if (!currentTags.any(
+          (existingTag) => existingTag.toLowerCase() == tag.toLowerCase())) {
+        ref
+            .read(userProvider.notifier)
+            .updateBusinessTags([...currentTags, tag]);
+        _tagController.clear();
+        setState(() {
+          businessTagSearch = null; // Clear search when tag is added
+        });
+      } else {
+        // Show snackbar or some indication that tag already exists
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Tag "$tag" already exists'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+        _tagController.clear();
+      }
     }
   }
 
-  // Add this method to handle tag removal
-  void _removeTag(int companyIndex, String tag) {
-    final currentCompany = ref.read(userProvider).value?.company?[companyIndex];
-    if (currentCompany != null) {
-      List<String> updatedTags = [...?currentCompany.tags];
-      updatedTags.remove(tag);
-      ref.read(userProvider.notifier).updateCompanyTags(updatedTags, companyIndex);
-    }
+  void _removeBusinessTag(String tag) {
+    final currentTags = [...?ref.read(userProvider).value?.businessTags];
+    currentTags.remove(tag);
+    ref.read(userProvider.notifier).updateBusinessTags(currentTags);
   }
 
+  String? businessTagSearch;
   @override
   Widget build(BuildContext context) {
     final asyncUser = ref.watch(userProvider);
@@ -876,11 +888,261 @@ class _EditUserState extends ConsumerState<EditUser> {
                                   // ),
                                 ],
                               ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 25, left: 20, bottom: 15),
+                                child: Row(
+                                  children: [
+                                    Text('Business Tags',
+                                        style: kSubHeadingB.copyWith(
+                                            color: const Color(0xFF2C2829))),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            children: [
+                                              TextField(
+                                                controller: _tagController,
+                                                decoration: InputDecoration(
+                                                  hintText:
+                                                      'Add business tags (e.g., IT, Healthcare)',
+                                                  contentPadding:
+                                                      const EdgeInsets
+                                                          .symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Colors.grey[300]!),
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Colors.grey[300]!),
+                                                  ),
+                                                ),
+                                                onSubmitted: (_) =>
+                                                    _addBusinessTag(),
+                                                onChanged: (value) {
+                                                  if (value.endsWith(' ')) {
+                                                    final tag = value.trim();
+                                                    if (tag.isNotEmpty) {
+                                                      _addBusinessTag();
+                                                    }
+                                                  } else {
+                                                    setState(() {
+                                                      businessTagSearch = value;
+                                                    });
+                                                  }
+                                                },
+                                              ),
+                                              if (businessTagSearch
+                                                      ?.isNotEmpty ??
+                                                  false)
+                                                Consumer(
+                                                  builder:
+                                                      (context, ref, child) {
+                                                    final asyncBusinessTags =
+                                                        ref.watch(
+                                                      fetchBusinessTagsProvider(
+                                                          search:
+                                                              businessTagSearch),
+                                                    );
+                                                    return asyncBusinessTags
+                                                        .when(
+                                                      data: (businessTags) {
+                                                        log('Business tags:$businessTags');
+                                                        if (businessTags
+                                                            .isEmpty)
+                                                          return const SizedBox
+                                                              .shrink();
+                                                        return Container(
+                                                          margin:
+                                                              const EdgeInsets
+                                                                  .only(top: 4),
+                                                          constraints:
+                                                              const BoxConstraints(
+                                                                  maxHeight:
+                                                                      200),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.1),
+                                                                spreadRadius: 1,
+                                                                blurRadius: 4,
+                                                                offset:
+                                                                    const Offset(
+                                                                        0, 2),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            child: ListView
+                                                                .builder(
+                                                              shrinkWrap: true,
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              itemCount:
+                                                                  businessTags
+                                                                      .length,
+                                                              itemBuilder:
+                                                                  (context,
+                                                                      index) {
+                                                                final tag =
+                                                                    businessTags[
+                                                                        index];
+                                                                return Material(
+                                                                  color: Colors
+                                                                      .transparent,
+                                                                  child:
+                                                                      InkWell(
+                                                                    onTap: () {
+                                                                      _tagController
+                                                                              .text =
+                                                                          tag ??
+                                                                              '';
+                                                                      _addBusinessTag();
+                                                                      setState(
+                                                                          () {
+                                                                        businessTagSearch =
+                                                                            null;
+                                                                      });
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding:
+                                                                          const EdgeInsets
+                                                                              .symmetric(
+                                                                        horizontal:
+                                                                            12,
+                                                                        vertical:
+                                                                            8,
+                                                                      ),
+                                                                      child:
+                                                                          Row(
+                                                                        children: [
+                                                                          Icon(
+                                                                            Icons.tag,
+                                                                            size:
+                                                                                16,
+                                                                            color:
+                                                                                Colors.grey[600],
+                                                                          ),
+                                                                          const SizedBox(
+                                                                              width: 8),
+                                                                          Text(
+                                                                            tag ??
+                                                                                '',
+                                                                            style:
+                                                                                TextStyle(
+                                                                              color: Colors.grey[800],
+                                                                              fontSize: 14,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      loading: () =>
+                                                          SizedBox.shrink(),
+                                                      error: (_, __) =>
+                                                          const SizedBox
+                                                              .shrink(),
+                                                    );
+                                                  },
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        IconButton(
+                                          onPressed: _addBusinessTag,
+                                          icon: const Icon(Icons.add),
+                                          style: IconButton.styleFrom(
+                                            backgroundColor: kPrimaryColor,
+                                            foregroundColor: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: [
+                                        ...(ref
+                                                    .watch(userProvider)
+                                                    .value
+                                                    ?.businessTags ??
+                                                [])
+                                            .map((tag) {
+                                          return Chip(
+                                            label: Text(
+                                              tag,
+                                              style:
+                                                  const TextStyle(fontSize: 12),
+                                            ),
+                                            deleteIcon: const Icon(Icons.close,
+                                                size: 16),
+                                            onDeleted: () =>
+                                                _removeBusinessTag(tag),
+                                            backgroundColor: kWhite,
+                                            side: BorderSide(
+                                                color: Colors.grey[300]!),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                               const Row(
                                 children: [
                                   Padding(
                                     padding: EdgeInsets.only(
-                                        top: 60, left: 16, bottom: 10),
+                                        top: 10, left: 16, bottom: 10),
                                     child: Text(
                                       'Company Details',
                                       style: kSubHeadingB,
@@ -967,68 +1229,6 @@ class _EditUserState extends ConsumerState<EditUser> {
                                         textController: controllers['website']!,
                                       ),
                                       const SizedBox(height: 20),
-                                      Text(
-                                        'Tags',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey[700],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: TextField(
-                                              controller: _tagController,
-                                              decoration: InputDecoration(
-                                                hintText: 'Add tags (e.g., IT, Healthcare)',
-                                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                                ),
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                                ),
-                                              ),
-                                              onSubmitted: (_) => _addTag(index),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          IconButton(
-                                            onPressed: () => _addTag(index),
-                                            icon: const Icon(Icons.add),
-                                            style: IconButton.styleFrom(
-                                              backgroundColor: kPrimaryColor,
-                                              foregroundColor: Colors.white,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Wrap(
-                                        spacing: 8,
-                                        runSpacing: 8,
-                                        children: [
-                                          ...(ref.watch(userProvider).value?.company?[index].tags ?? []).map((tag) {
-                                            return Chip(
-                                              label: Text(
-                                                tag,
-                                                style: const TextStyle(fontSize: 12),
-                                              ),
-                                              deleteIcon: const Icon(Icons.close, size: 16),
-                                              onDeleted: () => _removeTag(index, tag),
-                                              backgroundColor: Colors.grey[100],
-                                              side: BorderSide(color: Colors.grey[300]!),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ],
-                                      ),
                                     ],
                                   ),
                                 );

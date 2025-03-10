@@ -158,6 +158,7 @@ class UserModel {
   final String? levelId; 
   final String? levelName; 
   final String? adminType; 
+  final List<String>? businessTags;
 
   UserModel({
     this.name,
@@ -194,72 +195,75 @@ class UserModel {
     this.levelName,
     this.adminType,
     this.levelId,
+    this.businessTags,
   });
-factory UserModel.fromJson(Map<String, dynamic> json) {
-  return UserModel(
-    name: json['name'] as String? ?? '',
-    uid: json['_id'] as String? ?? '',
 
-    memberId: json['memberId'] as String? ?? '',
-    bloodgroup: json['bloodgroup'] as String? ?? '',
-    isAdmin: json['isAdmin'] as bool? ?? false,
-    chapter: json['chapter'] != null
-        ? UserChapterModel.fromJson(json['chapter'])
-        : null,
-    image: json['image'] as String? ?? '',
-    email: json['email'] as String? ?? '',
-    phone: json['phone'] as String? ?? '',
-    secondaryPhone: json['secondaryPhone'] != null
-        ? SecondaryPhone.fromJson(json['secondaryPhone'])
-        : null,
-    bio: json['bio'] as String? ?? '',
-    status: json['status'] as String? ?? '',
-    address: json['address'] as String? ?? '',
-    company: (json['company'] as List<dynamic>?)
-            ?.map((e) => Company.fromJson(e as Map<String, dynamic>))
-            .toList() ??
-        [],
-    businessCategory: json['businessCategory'] as String? ?? '',
-    businessSubCategory: json['businessSubCategory'] as String? ?? '',
-    file: (json['file'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
-    social: (json['social'] as List<dynamic>?)
-            ?.map((e) => Link.fromJson(e as Map<String, dynamic>))
-            .toList() ??
-        [],
-    websites: (json['websites'] as List<dynamic>?)
-            ?.map((e) => Link.fromJson(e as Map<String, dynamic>))
-            .toList() ??
-        [],
-    awards: (json['awards'] as List<dynamic>?)
-            ?.map((e) => Award.fromJson(e as Map<String, dynamic>))
-            .toList() ??
-        [],
-    videos: (json['videos'] as List<dynamic>?)
-            ?.map((e) => Link.fromJson(e as Map<String, dynamic>))
-            .toList() ??
-        [],
-    certificates: (json['certificates'] as List<dynamic>?)
-            ?.map((e) => Link.fromJson(e as Map<String, dynamic>))
-            .toList() ??
-        [],
-    otp: json['otp'] as int? ?? 0,
-    blockedUsers: (json['blockedUsers'] as List<dynamic>?)
-            ?.map((e) => e as UserModel)
-            .toList() ??
-        [],
-    feedCount: json['feedCount'] as int? ?? 0,
-    productCount: json['productCount'] as int? ?? 0,
-    subscription: json['subscription'] as String? ?? '',
-    fcm: json['fcm'] as String? ?? '',
-    createdAt: json['createdAt'] != null
-        ? DateTime.tryParse(json['createdAt'] as String)
-        : null,
-    level: json['level'] as String? ?? '', 
-    levelName: json['levelName'] as String? ?? '', 
-    levelId: json['levelId'] as String? ?? '', 
-    adminType: json['adminType'] as String? ?? '', 
-  );
-}
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      name: json['name'] as String? ?? '',
+      uid: json['_id'] as String? ?? '',
+
+      memberId: json['memberId'] as String? ?? '',
+      bloodgroup: json['bloodgroup'] as String? ?? '',
+      isAdmin: json['isAdmin'] as bool? ?? false,
+      chapter: json['chapter'] != null
+          ? UserChapterModel.fromJson(json['chapter'])
+          : null,
+      image: json['image'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
+      secondaryPhone: json['secondaryPhone'] != null
+          ? SecondaryPhone.fromJson(json['secondaryPhone'])
+          : null,
+      bio: json['bio'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      address: json['address'] as String? ?? '',
+      company: (json['company'] as List<dynamic>?)
+              ?.map((e) => Company.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      businessCategory: json['businessCategory'] as String? ?? '',
+      businessSubCategory: json['businessSubCategory'] as String? ?? '',
+      file: (json['file'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+      social: (json['social'] as List<dynamic>?)
+              ?.map((e) => Link.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      websites: (json['websites'] as List<dynamic>?)
+              ?.map((e) => Link.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      awards: (json['awards'] as List<dynamic>?)
+              ?.map((e) => Award.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      videos: (json['videos'] as List<dynamic>?)
+              ?.map((e) => Link.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      certificates: (json['certificates'] as List<dynamic>?)
+              ?.map((e) => Link.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      otp: json['otp'] as int? ?? 0,
+      blockedUsers: (json['blockedUsers'] as List<dynamic>?)
+              ?.map((e) => e as UserModel)
+              .toList() ??
+          [],
+      feedCount: json['feedCount'] as int? ?? 0,
+      productCount: json['productCount'] as int? ?? 0,
+      subscription: json['subscription'] as String? ?? '',
+      fcm: json['fcm'] as String? ?? '',
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'] as String)
+          : null,
+      level: json['level'] as String? ?? '', 
+      levelName: json['levelName'] as String? ?? '', 
+      levelId: json['levelId'] as String? ?? '', 
+      adminType: json['adminType'] as String? ?? '', 
+      businessTags: (json['businessTags'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -296,6 +300,7 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
       'levelName': levelName, 
       'adminType': adminType, 
       'levelId': levelId, 
+      'businessTags': businessTags,
     };
   }
 
@@ -331,7 +336,8 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
     String? level,
     String? levelName,
     String? levelId,
-    String? adminType
+    String? adminType,
+    List<String>? businessTags,
   }) {
     return UserModel(
       name: name ?? this.name,
@@ -364,7 +370,8 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
       level: level??this.level,
       levelName: levelName??this.levelName,
       levelId: levelId??this.levelId,
-      adminType: level??this.adminType
+      adminType: level??this.adminType,
+      businessTags: businessTags ?? this.businessTags,
     );
   }
 }
@@ -389,13 +396,13 @@ class SecondaryPhone {
     };
   }
 }
+
 class Company {
   final String? name;
   final String? designation;
   final String? email;
   final String? websites;
   final String? phone;
-  final List<String>? tags;
 
   Company({
     this.name,
@@ -403,7 +410,6 @@ class Company {
     this.email,
     this.websites,
     this.phone,
-    this.tags,
   });
 
   factory Company.fromJson(Map<String, dynamic> json) {
@@ -413,7 +419,6 @@ class Company {
       email: json['email'] as String?,
       websites: json['websites'] as String?,
       phone: json['phone'] as String?,
-      tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
     );
   }
 
@@ -424,7 +429,6 @@ class Company {
       'email': email,
       'websites': websites,
       'phone': phone,
-      'tags': tags,
     };
   }
 
@@ -434,7 +438,6 @@ class Company {
     String? email,
     String? websites,
     String? phone,
-    List<String>? tags,
   }) {
     return Company(
       name: name ?? this.name,
@@ -442,10 +445,10 @@ class Company {
       email: email ?? this.email,
       websites: websites ?? this.websites,
       phone: phone ?? this.phone,
-      tags: tags ?? this.tags,
     );
   }
 }
+
 class Award {
   final String? image;
   final String? name;

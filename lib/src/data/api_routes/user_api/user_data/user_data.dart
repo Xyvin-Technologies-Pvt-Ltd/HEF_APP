@@ -12,10 +12,8 @@ import 'package:hef/src/data/models/user_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'user_data.g.dart';
 
-
 @riverpod
-Future<UserModel> fetchUserDetails(
-    Ref ref, String userId) async {
+Future<UserModel> fetchUserDetails(Ref ref, String userId) async {
   final url = Uri.parse('$baseUrl/user/single/$userId');
   print('Requesting URL: $url');
   final response = await http.get(
@@ -310,5 +308,39 @@ Future<String?> uploadPayment({
     print('Error occurred: $e');
     snackbarService.showSnackBar(e.toString());
     return null;
+  }
+}
+
+@riverpod
+Future<List<String>> fetchBusinessTags(Ref ref, {String? search}) async {
+  Uri url = Uri.parse('$baseUrl/user/business-tags');
+
+  if (search != null) {
+    url = Uri.parse('$baseUrl/user/business-tags?search=$search');
+  }
+  
+  print('Requesting URL: $url');
+  final response = await http.get(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token"
+    },
+  );
+
+  log(response.body);
+
+  if (response.statusCode == 200) {
+    final responseData = json.decode(response.body);
+    final List<dynamic> data = responseData['data'];
+
+    final List<String> tags = data.map((e) => e.toString()).toList();
+
+    log('business tags response data: $tags');
+    return tags;
+  } else {
+    final errorMessage = json.decode(response.body)['message'];
+    print(errorMessage);
+    throw Exception(errorMessage);
   }
 }

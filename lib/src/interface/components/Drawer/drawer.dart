@@ -212,15 +212,11 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
             onTap: () {},
           ),
           // Footer
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Center(
+              child: Row(
                 children: [
-                  Text(
-                    'Powered by',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -234,17 +230,32 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
                         ),
                       );
                     },
-                    child: Image.asset(
-                      scale: 10,
-                      'assets/pngs/skybertechlogo.png',
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: kGrey),
+                          color: const Color.fromARGB(255, 246, 246, 246)),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                top: 10, left: 22, right: 22),
+                            child: Text(
+                              'Powered by',
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ),
+                          Image.asset(
+                            scale: 15,
+                            'assets/pngs/skybertechlogo.png',
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  Text(
-                    'Developed by',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
                   SizedBox(
-                    height: 10,
+                    width: 10,
                   ),
                   GestureDetector(
                     onTap: () {
@@ -259,9 +270,37 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
                         ),
                       );
                     },
-                    child: Image.asset(
-                      scale: 20,
-                      'assets/pngs/acutelogo.png',
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: kGrey),
+                          color: const Color.fromARGB(255, 246, 246, 246)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 8),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2, bottom: 3),
+                              child: Text(
+                                'Developed by',
+                                style:
+                                    TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 7),
+                              child: Image.asset(
+                                scale: 25,
+                                'assets/pngs/acutelogo.png',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],

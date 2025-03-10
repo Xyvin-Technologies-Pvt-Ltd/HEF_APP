@@ -9,10 +9,11 @@ class PeopleNotifier extends _$PeopleNotifier {
   List<UserModel> users = [];
   bool isLoading = false;
   int pageNo = 1;
-  final int limit = 9;
+  final int limit = 20;
   bool hasMore = true;
   String? searchQuery;
   String? district; // Added district filter
+  List<String>? tags; // Added tags filter
 
   @override
   List<UserModel> build() {
@@ -35,6 +36,7 @@ class PeopleNotifier extends _$PeopleNotifier {
           limit: limit,
           query: searchQuery,
           district: district, // Pass district filter
+          tags: tags, // Pass tags filter
         ).future,
       );
 
@@ -59,12 +61,13 @@ class PeopleNotifier extends _$PeopleNotifier {
     }
   }
 
-  Future<void> searchUsers(String query, {String? districtFilter}) async {
+  Future<void> searchUsers(String query, {String? districtFilter, List<String>? tagsFilter}) async {
     isLoading = true;
     pageNo = 1;
     users = [];
     searchQuery = query;
     district = districtFilter; // Apply district filter
+    tags = tagsFilter; // Apply tags filter
 
     try {
       final newUsers = await ref.read(
@@ -73,6 +76,7 @@ class PeopleNotifier extends _$PeopleNotifier {
           limit: limit,
           query: query,
           district: district, // Pass district filter
+          tags: tags, // Pass tags filter
         ).future,
       );
 
@@ -102,6 +106,7 @@ class PeopleNotifier extends _$PeopleNotifier {
           limit: limit,
           query: searchQuery,
           district: district, // Pass district filter
+          tags: tags, // Pass tags filter
         ).future,
       );
 
@@ -120,5 +125,10 @@ class PeopleNotifier extends _$PeopleNotifier {
   void setDistrict(String? newDistrict) {
     district = newDistrict;
     refresh(); // Auto-refresh when district is updated
+  }
+
+  void setTags(List<String>? newTags) {
+    tags = newTags;
+    refresh(); // Auto-refresh when tags are updated
   }
 }

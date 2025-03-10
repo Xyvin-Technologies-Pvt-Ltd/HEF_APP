@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 part 'people_api.g.dart';
 @riverpod
 Future<List<UserModel>> fetchActiveUsers(Ref ref,
-    {int pageNo = 1, int limit = 20, String? query, String? district}) async {
+    {int pageNo = 1, int limit = 20, String? query, String? district, List<String>? tags}) async {
   // Construct the base URL
   Uri url = Uri.parse('$baseUrl/user/list?pageNo=$pageNo&limit=$limit');
 
@@ -22,6 +22,10 @@ Future<List<UserModel>> fetchActiveUsers(Ref ref,
   
   if (district != null && district.isNotEmpty) {
     queryParams['district'] = district;
+  }
+
+  if (tags != null && tags.isNotEmpty) {
+    queryParams['tags'] = tags.join(','); // Convert list to comma-separated string
   }
 
   if (queryParams.isNotEmpty) {

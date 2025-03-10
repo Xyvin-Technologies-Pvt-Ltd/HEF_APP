@@ -349,5 +349,136 @@ final getPaymentYearsProvider =
 // ignore: unused_element
 typedef GetPaymentYearsRef
     = AutoDisposeFutureProviderRef<List<PaymentYearModel>>;
+String _$fetchBusinessTagsHash() => r'153f8414b47e9d2bc04b8edba6ec5daab10774c1';
+
+/// See also [fetchBusinessTags].
+@ProviderFor(fetchBusinessTags)
+const fetchBusinessTagsProvider = FetchBusinessTagsFamily();
+
+/// See also [fetchBusinessTags].
+class FetchBusinessTagsFamily extends Family<AsyncValue<List<String>>> {
+  /// See also [fetchBusinessTags].
+  const FetchBusinessTagsFamily();
+
+  /// See also [fetchBusinessTags].
+  FetchBusinessTagsProvider call({
+    String? search,
+  }) {
+    return FetchBusinessTagsProvider(
+      search: search,
+    );
+  }
+
+  @override
+  FetchBusinessTagsProvider getProviderOverride(
+    covariant FetchBusinessTagsProvider provider,
+  ) {
+    return call(
+      search: provider.search,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fetchBusinessTagsProvider';
+}
+
+/// See also [fetchBusinessTags].
+class FetchBusinessTagsProvider
+    extends AutoDisposeFutureProvider<List<String>> {
+  /// See also [fetchBusinessTags].
+  FetchBusinessTagsProvider({
+    String? search,
+  }) : this._internal(
+          (ref) => fetchBusinessTags(
+            ref as FetchBusinessTagsRef,
+            search: search,
+          ),
+          from: fetchBusinessTagsProvider,
+          name: r'fetchBusinessTagsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$fetchBusinessTagsHash,
+          dependencies: FetchBusinessTagsFamily._dependencies,
+          allTransitiveDependencies:
+              FetchBusinessTagsFamily._allTransitiveDependencies,
+          search: search,
+        );
+
+  FetchBusinessTagsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.search,
+  }) : super.internal();
+
+  final String? search;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<String>> Function(FetchBusinessTagsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FetchBusinessTagsProvider._internal(
+        (ref) => create(ref as FetchBusinessTagsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        search: search,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<String>> createElement() {
+    return _FetchBusinessTagsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchBusinessTagsProvider && other.search == search;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, search.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin FetchBusinessTagsRef on AutoDisposeFutureProviderRef<List<String>> {
+  /// The parameter `search` of this provider.
+  String? get search;
+}
+
+class _FetchBusinessTagsProviderElement
+    extends AutoDisposeFutureProviderElement<List<String>>
+    with FetchBusinessTagsRef {
+  _FetchBusinessTagsProviderElement(super.provider);
+
+  @override
+  String? get search => (origin as FetchBusinessTagsProvider).search;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

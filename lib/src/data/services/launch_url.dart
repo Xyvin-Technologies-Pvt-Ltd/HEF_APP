@@ -27,3 +27,18 @@ Future<void> openGoogleMaps(String location) async {
     print('Failed to load maps');
   }
 }
+
+
+  void launchPhone(String phoneNumber) async {
+    final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
+
+      await launchUrl(uri);
+ 
+  }
+
+  void launchEmail(String email) async {
+    final Uri uri = Uri(scheme: 'mailto', path: email);
+    
+      await launchUrl(uri);
+
+  }

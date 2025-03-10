@@ -53,6 +53,7 @@ class _ContactEditorState extends State<ContactEditor> {
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -63,7 +64,6 @@ class _ContactEditorState extends State<ContactEditor> {
                           borderRadius: BorderRadius.circular(16)),
                       width: 70, // Width of the line
                       height: 4, // Thickness of the line
-                      // Line color
                     ),
                   ),
                 ),
@@ -71,6 +71,19 @@ class _ContactEditorState extends State<ContactEditor> {
                   labelText: 'Enter ${widget.label}',
                   textController: textController,
                 ),
+                if (widget.label.toLowerCase().contains('phone') ||
+                    widget.label.toLowerCase().contains('whatsapp') ||
+                    widget.label.toLowerCase().contains('number'))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      'Enter with your country code',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 16),
                 customButton(
                   label: 'Save',

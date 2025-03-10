@@ -171,7 +171,13 @@ class _MainPageState extends ConsumerState<MainPage> {
                           )
                     : IconResolver(
                         iconPath: _activeIcons[index], color: kPrimaryColor),
-                label: ['Home', 'Business', 'Profile', 'News', 'Chat'][index],
+                label: [
+                  'Home',
+                  'Business',
+                  'Profile',
+                  'News',
+                  'Members'
+                ][index],
               );
             }),
             currentIndex: selectedIndex,

@@ -8,6 +8,7 @@ import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/save_contact.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
@@ -295,27 +296,37 @@ class ProfilePreview extends ConsumerWidget {
                     ),
                     Column(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              const Icon(Icons.phone, color: kPrimaryColor),
-                              const SizedBox(width: 10),
-                              Text(user.phone.toString()),
-                            ],
+                        GestureDetector(
+                          onTap: () => launchPhone(user.phone ?? ""),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.phone, color: kPrimaryColor),
+                                const SizedBox(width: 10),
+                                Text(user.phone.toString(),
+                                    style: const TextStyle(
+                                        decoration: TextDecoration.underline)),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 10),
                         if (user.email != null)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.email, color: kPrimaryColor),
-                                const SizedBox(width: 10),
-                                Text(user.email ?? ''),
-                              ],
+                          GestureDetector(
+                            onTap: () => launchEmail(user.email!),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.email, color: kPrimaryColor),
+                                  const SizedBox(width: 10),
+                                  Text(user.email!,
+                                      style: const TextStyle(
+                                          decoration:
+                                              TextDecoration.underline)),
+                                ],
+                              ),
                             ),
                           ),
                         const SizedBox(height: 10),

@@ -19,16 +19,13 @@ class PeoplePage extends StatelessWidget {
                   PreferredSize(
                     preferredSize: Size.fromHeight(20),
                     child: Container(
-                      margin: EdgeInsets.only(
-                          top: 0), 
+                      margin: EdgeInsets.only(top: 0),
                       child: const SizedBox(
                         height: 40,
                         child: TabBar(
                           enableFeedback: true,
-                          isScrollable:
-                              false,
-                          indicatorColor:
-                              kPrimaryColor,
+                          isScrollable: false,
+                          indicatorColor: kPrimaryColor,
                           indicatorWeight: 3.0,
                           indicatorSize: TabBarIndicatorSize.tab,
                           labelColor: kPrimaryColor,
@@ -38,7 +35,7 @@ class PeoplePage extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                           tabs: [
-                            Tab(text: "CHAT"),
+                            Tab(text: "CHAT LIST"),
                             Tab(text: "MEMBERS"),
                           ],
                         ),

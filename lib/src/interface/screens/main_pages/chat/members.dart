@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
+import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/notifiers/people_notifier.dart';
@@ -13,6 +14,7 @@ import 'package:hef/src/interface/screens/main_pages/profile/profile_preview.dar
 import 'package:shimmer/shimmer.dart';
 
 import 'dart:async';
+import 'dart:developer';
 
 class MembersPage extends ConsumerStatefulWidget {
   const MembersPage({super.key});
@@ -24,10 +26,13 @@ class MembersPage extends ConsumerStatefulWidget {
 class _MembersPageState extends ConsumerState<MembersPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _tagController = TextEditingController();
   FocusNode _searchFocus = FocusNode();
   Timer? _debounce;
   String? selectedDistrictId;
   String? selectedDistrictName;
+  String? businessTagSearch;
+  List<String> selectedTags = [];
 
   @override
   void initState() {
@@ -77,7 +82,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
           child: Container(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.5,
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -107,13 +112,15 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    if (tempDistrictName != null)
+                    if (tempDistrictName != null || selectedTags.isNotEmpty)
                       TextButton(
                         onPressed: () {
                           setState(() {
                             tempDistrictId = null;
                             tempDistrictName = null;
+                            selectedTags.clear();
                           });
+                          ref.read(peopleNotifierProvider.notifier).setTags([]);
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.red[400],
@@ -224,6 +231,245 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                             ],
                           ),
                         ),
+                        const Divider(),
+                        ExpansionTile(
+                          tilePadding: EdgeInsets.zero,
+                          childrenPadding: EdgeInsets.zero,
+                          title: Row(
+                            children: [
+                              const Icon(Icons.tag),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Business Tags',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              if (selectedTags.isNotEmpty) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue[50],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '${selectedTags.length} selected',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.blue[700],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                right: 12,
+                                bottom: 16,
+                              ),
+                              child: Column(
+                                children: [
+                                  TextField(
+                                    controller: _tagController,
+                                    decoration: InputDecoration(
+                                      hintText: 'Search business tags',
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[300]!),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[300]!),
+                                      ),
+                                    ),
+                                    onChanged: (value) {
+                                      if (value.endsWith(' ')) {
+                                        final tag = value.trim();
+                                        if (tag.isNotEmpty) {
+                                          setState(() {
+                                            if (!selectedTags.contains(tag)) {
+                                              selectedTags.add(tag);
+                                            }
+                                            _tagController.clear();
+                                            businessTagSearch = null;
+                                          });
+                                        }
+                                      } else {
+                                        setState(() {
+                                          businessTagSearch = value;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(height: 12),
+                                  if (selectedTags.isNotEmpty)
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: selectedTags
+                                          .map((tag) => Chip(
+                                                label: Text(tag),
+                                                deleteIcon: const Icon(
+                                                    Icons.close,
+                                                    size: 16),
+                                                onDeleted: () {
+                                                  setState(() {
+                                                    selectedTags.remove(tag);
+                                                  });
+                                                },
+                                                backgroundColor:
+                                                    Colors.blue[50],
+                                                side: BorderSide(
+                                                    color: Colors.blue[200]!),
+                                                labelStyle: TextStyle(
+                                                    color: Colors.blue[700]),
+                                              ))
+                                          .toList(),
+                                    ),
+                                  const SizedBox(height: 12),
+                                  if (businessTagSearch?.isNotEmpty ?? false)
+                                    Consumer(
+                                      builder: (context, ref, child) {
+                                        final asyncBusinessTags = ref.watch(
+                                          fetchBusinessTagsProvider(
+                                              search: businessTagSearch),
+                                        );
+                                        return asyncBusinessTags.when(
+                                          data: (businessTags) {
+                                            log('Business tags response: $businessTags');
+                                            if (businessTags.isEmpty)
+                                              return const SizedBox.shrink();
+                                            return Container(
+                                              constraints: const BoxConstraints(
+                                                maxHeight: 250,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.grey
+                                                        .withOpacity(0.1),
+                                                    spreadRadius: 1,
+                                                    blurRadius: 4,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: ListView.builder(
+                                                shrinkWrap: true,
+                                                padding: EdgeInsets.zero,
+                                                itemCount: businessTags.length,
+                                                itemBuilder: (context, index) {
+                                                  final tag =
+                                                      businessTags[index];
+                                                  log('Building tag at index $index: $tag');
+                                                  return Material(
+                                                    color: Colors.transparent,
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          if (selectedTags
+                                                              .contains(tag)) {
+                                                            selectedTags
+                                                                .remove(tag);
+                                                          } else {
+                                                            selectedTags
+                                                                .add(tag ?? '');
+                                                          }
+                                                          _tagController
+                                                              .clear();
+                                                          businessTagSearch =
+                                                              null;
+                                                        });
+                                                        ref
+                                                            .read(
+                                                                peopleNotifierProvider
+                                                                    .notifier)
+                                                            .setTags(
+                                                                selectedTags);
+                                                      },
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 8,
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(
+                                                              selectedTags
+                                                                      .contains(
+                                                                          tag)
+                                                                  ? Icons
+                                                                      .check_circle
+                                                                  : Icons.tag,
+                                                              size: 16,
+                                                              color: selectedTags
+                                                                      .contains(
+                                                                          tag)
+                                                                  ? Colors
+                                                                      .blue[700]
+                                                                  : Colors.grey[
+                                                                      600],
+                                                            ),
+                                                            const SizedBox(
+                                                                width: 8),
+                                                            Text(
+                                                              tag ?? '',
+                                                              style: TextStyle(
+                                                                color: selectedTags
+                                                                        .contains(
+                                                                            tag)
+                                                                    ? Colors.blue[
+                                                                        700]
+                                                                    : Colors.grey[
+                                                                        800],
+                                                                fontSize: 14,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          },
+                                          loading: () => const Center(
+                                            child: Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: LoadingAnimation(),
+                                            ),
+                                          ),
+                                          error: (_, __) =>
+                                              const SizedBox.shrink(),
+                                        );
+                                      },
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -240,9 +486,12 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                           selectedDistrictId = tempDistrictId;
                           selectedDistrictName = tempDistrictName;
                         });
-                        ref
-                            .read(peopleNotifierProvider.notifier)
-                            .setDistrict(tempDistrictId);
+
+                        final notifier =
+                            ref.read(peopleNotifierProvider.notifier);
+                        notifier.setDistrict(tempDistrictId);
+                        notifier.setTags(selectedTags);
+
                         Navigator.pop(context);
                       },
                     )),
@@ -314,23 +563,41 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                       ),
                     ],
                   ),
-                  if (selectedDistrictName != null)
+                  if (selectedDistrictName != null || selectedTags.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Filtered by: '),
-                          Chip(
-                            label: Text(selectedDistrictName!),
-                            onDeleted: () {
-                              setState(() {
-                                selectedDistrictId = null;
-                                selectedDistrictName = null;
-                              });
-                              ref
-                                  .read(peopleNotifierProvider.notifier)
-                                  .setDistrict(null);
-                            },
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              if (selectedDistrictName != null)
+                                Chip(
+                                  label: Text(selectedDistrictName!),
+                                  onDeleted: () {
+                                    setState(() {
+                                      selectedDistrictId = null;
+                                      selectedDistrictName = null;
+                                    });
+                                    ref
+                                        .read(peopleNotifierProvider.notifier)
+                                        .setDistrict(null);
+                                  },
+                                ),
+                              ...selectedTags.map((tag) => Chip(
+                                    label: Text(tag),
+                                    onDeleted: () {
+                                      setState(() {
+                                        selectedTags.remove(tag);
+                                      });
+                                      ref
+                                          .read(peopleNotifierProvider.notifier)
+                                          .setTags(selectedTags);
+                                    },
+                                  )),
+                            ],
                           ),
                         ],
                       ),
@@ -420,8 +687,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                             title: Text(
                               '${user.name ?? ''}',
                             ),
-                            subtitle: (user.company?.isNotEmpty ?? false)
-                                ? Text(user.company![0].designation ?? '')
+                            subtitle: (user.chapter?.shortCode != null)
+                                ? Text(user.chapter?.shortCode ?? '')
                                 : null,
                             trailing: IconButton(
                               icon: Icon(Icons.chat_bubble_outline),
@@ -481,6 +748,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   void dispose() {
     _scrollController.dispose();
     _searchController.dispose();
+    _tagController.dispose();
     _debounce?.cancel();
     _searchFocus.dispose();
     super.dispose();

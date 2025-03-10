@@ -702,29 +702,29 @@ class ProfilePreview extends ConsumerWidget {
                                         )));
                               }),
                         ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Flexible(
-                          child: customButton(
-                              sideColor:
-                                  const Color.fromARGB(255, 219, 217, 217),
-                              labelColor: const Color(0xFF2C2829),
-                              buttonColor:
-                                  const Color.fromARGB(255, 222, 218, 218),
-                              buttonHeight: 60,
-                              fontSize: 13,
-                              label: 'SAVE CONTACT',
-                              onPressed: () {
-                                if (user.phone != null) {
-                                  saveContact(
-                                      firstName: '${user.name ?? ''}',
-                                      number: user.phone ?? '',
-                                      email: user.email ?? '',
-                                      context: context);
-                                }
-                              }),
-                        ),
+                        // const SizedBox(
+                        //   width: 10,
+                        // ),
+                        // Flexible(
+                        //   child: customButton(
+                        //       sideColor:
+                        //           const Color.fromARGB(255, 219, 217, 217),
+                        //       labelColor: const Color(0xFF2C2829),
+                        //       buttonColor:
+                        //           const Color.fromARGB(255, 222, 218, 218),
+                        //       buttonHeight: 60,
+                        //       fontSize: 13,
+                        //       label: 'SAVE CONTACT',
+                        //       onPressed: () {
+                        //         if (user.phone != null) {
+                        //           saveContact(
+                        //               firstName: '${user.name ?? ''}',
+                        //               number: user.phone ?? '',
+                        //               email: user.email ?? '',
+                        //               context: context);
+                        //         }
+                        //       }),
+                        // ),
                       ],
                     ))),
         ],

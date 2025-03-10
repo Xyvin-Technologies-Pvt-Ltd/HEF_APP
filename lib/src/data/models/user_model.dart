@@ -33,8 +33,9 @@ class UserChapterModel {
   final String? id;
   final String? name;
   final UserDistrictModel? district;
+  final String? shortCode;
 
-  UserChapterModel({this.id, this.name, this.district});
+  UserChapterModel( {this.id, this.name, this.district,this.shortCode,});
 
   factory UserChapterModel.fromJson(Map<String, dynamic> json) {
     return UserChapterModel(
@@ -43,12 +44,14 @@ class UserChapterModel {
       district: json['districtId'] != null
           ? UserDistrictModel.fromJson(json['districtId'])
           : null,
+          shortCode:json['shortCode'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
+      'shortCode': shortCode,
       'name': name,
       'districtId': district?.toJson(),
     };
@@ -66,7 +69,9 @@ class UserDistrictModel {
     return UserDistrictModel(
       id: json['_id'] as String?,
       name: json['name'] as String?,
-      zone: json['zoneId'] != null ? UserZoneModel.fromJson(json['zoneId']) : null,
+      zone: json['zoneId'] != null
+          ? UserZoneModel.fromJson(json['zoneId'])
+          : null,
     );
   }
 
@@ -90,7 +95,9 @@ class UserZoneModel {
     return UserZoneModel(
       id: json['_id'] as String?,
       name: json['name'] as String?,
-      state: json['stateId'] != null ? UserStateModel.fromJson(json['stateId']) : null,
+      state: json['stateId'] != null
+          ? UserStateModel.fromJson(json['stateId'])
+          : null,
     );
   }
 
@@ -130,7 +137,7 @@ class UserModel {
   final String? memberId;
   final String? bloodgroup;
   final bool? isAdmin;
-  final UserChapterModel? chapter; 
+  final UserChapterModel? chapter;
   final String? image;
   final String? email;
   final String? phone;
@@ -154,16 +161,15 @@ class UserModel {
   final String? subscription;
   final String? fcm;
   final DateTime? createdAt;
-  final String? level; 
-  final String? levelId; 
-  final String? levelName; 
-  final String? adminType; 
+  final String? level;
+  final String? levelId;
+  final String? levelName;
+  final String? adminType;
   final List<String>? businessTags;
 
   UserModel({
     this.name,
     this.uid,
-
     this.memberId,
     this.bloodgroup,
     this.isAdmin,
@@ -202,7 +208,6 @@ class UserModel {
     return UserModel(
       name: json['name'] as String? ?? '',
       uid: json['_id'] as String? ?? '',
-
       memberId: json['memberId'] as String? ?? '',
       bloodgroup: json['bloodgroup'] as String? ?? '',
       isAdmin: json['isAdmin'] as bool? ?? false,
@@ -224,7 +229,9 @@ class UserModel {
           [],
       businessCategory: json['businessCategory'] as String? ?? '',
       businessSubCategory: json['businessSubCategory'] as String? ?? '',
-      file: (json['file'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+      file:
+          (json['file'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              [],
       social: (json['social'] as List<dynamic>?)
               ?.map((e) => Link.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -257,11 +264,14 @@ class UserModel {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String)
           : null,
-      level: json['level'] as String? ?? '', 
-      levelName: json['levelName'] as String? ?? '', 
-      levelId: json['levelId'] as String? ?? '', 
-      adminType: json['adminType'] as String? ?? '', 
-      businessTags: (json['businessTags'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+      level: json['level'] as String? ?? '',
+      levelName: json['levelName'] as String? ?? '',
+      levelId: json['levelId'] as String? ?? '',
+      adminType: json['adminType'] as String? ?? '',
+      businessTags: (json['businessTags'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
     );
   }
 
@@ -280,7 +290,7 @@ class UserModel {
       'bio': bio,
       'status': status,
       'address': address,
-      'company':  company?.map((e) => e.toJson()).toList(),
+      'company': company?.map((e) => e.toJson()).toList(),
       'businessCategory': businessCategory,
       'businessSubCategory': businessSubCategory,
       'file': file,
@@ -296,10 +306,10 @@ class UserModel {
       'subscription': subscription,
       'fcm': fcm,
       'createdAt': createdAt?.toIso8601String(),
-      'level': level, 
-      'levelName': levelName, 
-      'adminType': adminType, 
-      'levelId': levelId, 
+      'level': level,
+      'levelName': levelName,
+      'adminType': adminType,
+      'levelId': levelId,
       'businessTags': businessTags,
     };
   }
@@ -366,11 +376,11 @@ class UserModel {
       blockedUsers: blockedUsers ?? this.blockedUsers,
       subscription: subscription ?? this.subscription,
       fcm: fcm ?? this.fcm,
-      createdAt: createdAt??this.createdAt,
-      level: level??this.level,
-      levelName: levelName??this.levelName,
-      levelId: levelId??this.levelId,
-      adminType: level??this.adminType,
+      createdAt: createdAt ?? this.createdAt,
+      level: level ?? this.level,
+      levelName: levelName ?? this.levelName,
+      levelId: levelId ?? this.levelId,
+      adminType: level ?? this.adminType,
       businessTags: businessTags ?? this.businessTags,
     );
   }

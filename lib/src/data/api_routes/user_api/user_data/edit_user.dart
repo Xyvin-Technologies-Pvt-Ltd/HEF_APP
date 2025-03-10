@@ -114,7 +114,7 @@ Future<void> postReview(
   };
 
   final body = json.encode({
-    'toUser': id,
+    'toUser': userId,
     'comment': content,
     'rating': rating,
   });

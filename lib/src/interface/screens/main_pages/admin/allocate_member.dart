@@ -7,6 +7,7 @@ import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
+import 'package:hef/src/interface/components/DropDown/selectionDropdown.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/admin/member_creation.dart';
 
@@ -226,126 +227,6 @@ class _AllocateMemberState extends State<AllocateMember> {
           ),
         );
       },
-    );
-  }
-}
-
-class SelectionDropDown extends StatefulWidget {
-  final String? hintText;
-  final String? label;
-  final List<DropdownMenuItem<String>> items;
-  final String? value;
-  final ValueChanged<String?> onChanged;
-  final String? Function(String?)? validator;
-
-  const SelectionDropDown({
-    this.label,
-    required this.items,
-    this.value,
-    required this.onChanged,
-    Key? key,
-    this.hintText,
-    this.validator,
-  }) : super(key: key);
-
-  @override
-  _SelectionDropDownState createState() => _SelectionDropDownState();
-}
-
-class _SelectionDropDownState extends State<SelectionDropDown>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Initialize animation controller
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-
-    // Define fade animation
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-
-    // Define slide animation
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.5),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-
-    // Start the animation
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (widget.label != null)
-                Text(
-                  widget.label ?? "",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                hint: Text(widget.hintText ?? ''),
-                value: widget.value,
-                items: widget.items,
-                onChanged: widget.onChanged,
-                validator: widget.validator,
-                decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: kGreyLight),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: kGreyLight),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: kGreyLight),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.red),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.red),
-                  ),
-                ),
-                iconSize: 16,
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

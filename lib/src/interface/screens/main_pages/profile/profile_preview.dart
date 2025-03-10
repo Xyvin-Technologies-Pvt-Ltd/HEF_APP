@@ -239,6 +239,9 @@ class ProfilePreview extends ConsumerWidget {
                             child: Image.asset(
                                 scale: 5, 'assets/pngs/splash_logo.png'),
                           ),
+                          SizedBox(
+                            width: 10,
+                          ),
                           Expanded(
                             // Added Expanded widget to make the text expandable
                             child: Text(

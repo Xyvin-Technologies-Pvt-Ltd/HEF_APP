@@ -322,7 +322,7 @@ class ProfileCard extends StatelessWidget {
                                       buttonColor: kWhite,
                                       buttonHeight: 60,
                                       fontSize: 15,
-                                      label: 'Download Qr',
+                                      label: 'Download QR',
                                       onPressed: () async {
                                         saveQr(
                                           screenshotController:

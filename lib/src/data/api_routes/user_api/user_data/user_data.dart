@@ -318,7 +318,7 @@ Future<List<String>> fetchBusinessTags(Ref ref, {String? search}) async {
   if (search != null) {
     url = Uri.parse('$baseUrl/user/business-tags?search=$search');
   }
-  
+
   print('Requesting URL: $url');
   final response = await http.get(
     url,
@@ -342,5 +342,27 @@ Future<List<String>> fetchBusinessTags(Ref ref, {String? search}) async {
     final errorMessage = json.decode(response.body)['message'];
     print(errorMessage);
     throw Exception(errorMessage);
+  }
+}
+
+Future<bool> checkUser() async {
+  const String url = '$baseUrl/user/check-user';
+  log('requesting url:$url');
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    return false;
   }
 }

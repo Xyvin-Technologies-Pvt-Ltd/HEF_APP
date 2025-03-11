@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hef/src/data/api_routes/user_api/admin/admin_activities_api.dart';
 import 'package:hef/src/data/api_routes/user_api/login/user_login_api.dart';
+import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
@@ -182,68 +183,74 @@ class PhoneNumberScreen extends ConsumerWidget {
   }
 
   Future<void> _handleOtpGeneration(BuildContext context, WidgetRef ref) async {
-    final countryCode = ref.watch(countryCodeProvider);
-    ref.read(loadingProvider.notifier).startLoading();
     SnackbarService snackbarService = SnackbarService();
-    try {
-      if (countryCode == '971') {
-        if (_mobileController.text.length != 9) {
-          snackbarService.showSnackBar('Please Enter valid mobile number');
-        } else {
-          final data = await submitPhoneNumber(
-              countryCode == '971'
-                  ? 9710.toString()
-                  : countryCode ?? 91.toString(),
-              context,
-              _mobileController.text);
-          final verificationId = data['verificationId'];
-          final resendToken = data['resendToken'];
-          if (verificationId != null && verificationId.isNotEmpty) {
-            log('Otp Sent successfully');
+    ref.read(loadingProvider.notifier).startLoading();
+    bool userExists = await checkUser();
+    if (userExists) {
+      final countryCode = ref.watch(countryCodeProvider);
 
-            Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => OTPScreen(
-                phone: _mobileController.text,
-                verificationId: verificationId,
-                resendToken: resendToken ?? '',
-              ),
-            ));
+      try {
+        if (countryCode == '971') {
+          if (_mobileController.text.length != 9) {
+            snackbarService.showSnackBar('Please Enter valid mobile number');
           } else {
-            snackbarService.showSnackBar('Failed');
+            final data = await submitPhoneNumber(
+                countryCode == '971'
+                    ? 9710.toString()
+                    : countryCode ?? 91.toString(),
+                context,
+                _mobileController.text);
+            final verificationId = data['verificationId'];
+            final resendToken = data['resendToken'];
+            if (verificationId != null && verificationId.isNotEmpty) {
+              log('Otp Sent successfully');
+
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => OTPScreen(
+                  phone: _mobileController.text,
+                  verificationId: verificationId,
+                  resendToken: resendToken ?? '',
+                ),
+              ));
+            } else {
+              snackbarService.showSnackBar('Failed');
+            }
+          }
+        } else if (countryCode != '971') {
+          if (_mobileController.text.length != 10) {
+            snackbarService.showSnackBar('Please Enter valid mobile number');
+          } else {
+            final data = await submitPhoneNumber(
+                countryCode == '971'
+                    ? 9710.toString()
+                    : countryCode ?? 971.toString(),
+                context,
+                _mobileController.text);
+            final verificationId = data['verificationId'];
+            final resendToken = data['resendToken'];
+            if (verificationId != null && verificationId.isNotEmpty) {
+              log('Otp Sent successfully');
+
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => OTPScreen(
+                  phone: _mobileController.text,
+                  verificationId: verificationId,
+                  resendToken: resendToken ?? '',
+                ),
+              ));
+            } else {
+              snackbarService.showSnackBar('Failed');
+            }
           }
         }
-      } else if (countryCode != '971') {
-        if (_mobileController.text.length != 10) {
-          snackbarService.showSnackBar('Please Enter valid mobile number');
-        } else {
-          final data = await submitPhoneNumber(
-              countryCode == '971'
-                  ? 9710.toString()
-                  : countryCode ?? 971.toString(),
-              context,
-              _mobileController.text);
-          final verificationId = data['verificationId'];
-          final resendToken = data['resendToken'];
-          if (verificationId != null && verificationId.isNotEmpty) {
-            log('Otp Sent successfully');
-
-            Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => OTPScreen(
-                phone: _mobileController.text,
-                verificationId: verificationId,
-                resendToken: resendToken ?? '',
-              ),
-            ));
-          } else {
-            snackbarService.showSnackBar('Failed');
-          }
-        }
+      } catch (e) {
+        log(e.toString());
+        snackbarService.showSnackBar('Failed');
+      } finally {
+        ref.read(loadingProvider.notifier).stopLoading();
       }
-    } catch (e) {
-      log(e.toString());
-      snackbarService.showSnackBar('Failed');
-    } finally {
-      ref.read(loadingProvider.notifier).stopLoading();
+    } else {
+      snackbarService.showSnackBar('User does not exists');
     }
   }
 }

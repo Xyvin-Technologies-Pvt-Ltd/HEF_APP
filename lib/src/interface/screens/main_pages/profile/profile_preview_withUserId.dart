@@ -8,6 +8,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/services/extract_level_details.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/save_contact.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
@@ -48,23 +49,6 @@ class ProfilePreviewUsingId extends ConsumerWidget {
   ];
 
   final ValueNotifier<int> _currentVideo = ValueNotifier<int>(0);
-  Map<String, String> extractLevelDetails(String input) {
-    final regex =
-        RegExp(r"^(.*?) State (.*?) Zone (.*?) District (.*?) Chapter$");
-
-    final match = regex.firstMatch(input);
-
-    if (match != null) {
-      return {
-        "stateName": match.group(1)?.trim() ?? "",
-        "zoneName": match.group(2)?.trim() ?? "",
-        "districtName": match.group(3)?.trim() ?? "",
-        "chapterName": match.group(4)?.trim() ?? "",
-      };
-    } else {
-      throw ArgumentError("Input string does not match the expected format.");
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -194,21 +178,25 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                                     Container(
                                                       width: 40,
                                                       height: 40,
-                                                      margin: const EdgeInsets.only(
-                                                          right: 10),
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                              right: 10),
                                                       decoration: BoxDecoration(
                                                         borderRadius:
-                                                            BorderRadius.circular(8),
+                                                            BorderRadius
+                                                                .circular(8),
                                                         color: Colors.white,
                                                       ),
                                                       child: ClipRRect(
                                                         borderRadius:
-                                                            BorderRadius.circular(8),
+                                                            BorderRadius
+                                                                .circular(8),
                                                         child: Image.network(
                                                           i.logo!,
                                                           fit: BoxFit.contain,
                                                           errorBuilder:
-                                                              (context, error, stackTrace) {
+                                                              (context, error,
+                                                                  stackTrace) {
                                                             return Image.asset(
                                                                 'assets/icons/dummy_company.png');
                                                           },
@@ -217,38 +205,51 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                                     ),
                                                   Flexible(
                                                     child: RichText(
-                                                      textAlign: TextAlign.center,
+                                                      textAlign:
+                                                          TextAlign.center,
                                                       text: TextSpan(
                                                         children: [
-                                                          if (i.name?.isNotEmpty ??
+                                                          if (i.name
+                                                                  ?.isNotEmpty ??
                                                               false)
                                                             TextSpan(
                                                               text: i.name,
-                                                              style: const TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontWeight:
-                                                                    FontWeight.bold,
+                                                                    FontWeight
+                                                                        .bold,
                                                                 fontSize: 16,
-                                                                color: Color.fromARGB(
-                                                                    255, 42, 41, 41),
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        42,
+                                                                        41,
+                                                                        41),
                                                               ),
                                                             ),
                                                           if (i.name != null &&
-                                                              i.designation != null)
+                                                              i.designation !=
+                                                                  null)
                                                             const TextSpan(
                                                               text: ' - ',
                                                               style: TextStyle(
                                                                 fontSize: 15,
-                                                                color: Colors.grey,
+                                                                color:
+                                                                    Colors.grey,
                                                               ),
                                                             ),
                                                           if (i.designation
                                                                   ?.isNotEmpty ??
                                                               false)
                                                             TextSpan(
-                                                              text: i.designation,
-                                                              style: const TextStyle(
+                                                              text:
+                                                                  i.designation,
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15,
-                                                                color: Colors.grey,
+                                                                color:
+                                                                    Colors.grey,
                                                               ),
                                                             ),
                                                         ],

@@ -689,57 +689,26 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                             title: Text(
                               '${user.name ?? ''}',
                             ),
-                            trailing: IntrinsicWidth(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (user.chapter?.shortCode != null)
-                                    Flexible(
-                                      child: ConstrainedBox(
-                                        constraints:
-                                            const BoxConstraints(maxWidth: 80),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: kPrimaryColor,
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            user.chapter?.shortCode ?? '',
-                                            style: kSmallerTitleM.copyWith(
-                                                color: kWhite),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
+                            subtitle: Text('${user.chapter?.name ?? ''}',
+                                style:
+                                    kSmallerTitleB.copyWith(color: kGreyDark)),
+                            trailing: SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: IconButton(
+                                icon: const Icon(Icons.chat_bubble_outline),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => IndividualPage(
+                                        receiver: receiver!,
+                                        sender: sender!,
                                       ),
                                     ),
-                                  const SizedBox(width: 4),
-                                  SizedBox(
-                                    width: 40,
-                                    height: 40,
-                                    child: IconButton(
-                                      icon:
-                                          const Icon(Icons.chat_bubble_outline),
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(),
-                                      onPressed: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                IndividualPage(
-                                              receiver: receiver!,
-                                              sender: sender!,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
+                                  );
+                                },
                               ),
                             ),
                           ),

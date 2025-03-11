@@ -8,6 +8,7 @@ import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/services/extract_level_details.dart';
 import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/save_contact.dart';
@@ -18,6 +19,7 @@ import 'package:hef/src/interface/components/ModalSheets/write_review.dart';
 import 'package:hef/src/interface/components/common/review_barchart.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/chat_screen.dart';
+import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -52,7 +54,8 @@ class ProfilePreview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final reviewsToShow = ref.watch(reviewsProvider);
     PageController _videoCountController = PageController();
-
+    String joinedDate = DateFormat('dd/MM/yyyy').format(user.createdAt!);
+    Map<String, String> levelData = extractLevelDetails(user.level ?? '');
     _videoCountController.addListener(() {
       _currentVideo.value = _videoCountController.page!.round();
     });
@@ -145,28 +148,37 @@ class ProfilePreview extends ConsumerWidget {
                             children: [
                               for (Company i in user.company ?? [])
                                 if ((i?.name != null && i?.name != '') ||
-                                    (i?.designation != null && i?.designation != ''))
+                                    (i?.designation != null &&
+                                        i?.designation != ''))
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4.0),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        if (i.logo != null && i.logo!.isNotEmpty)
+                                        if (i.logo != null &&
+                                            i.logo!.isNotEmpty)
                                           Container(
                                             width: 40,
                                             height: 40,
-                                            margin: const EdgeInsets.only(right: 10),
+                                            margin: const EdgeInsets.only(
+                                                right: 10),
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               color: Colors.white,
                                             ),
                                             child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               child: Image.network(
                                                 i.logo!,
                                                 fit: BoxFit.contain,
-                                                errorBuilder: (context, error, stackTrace) {
-                                                  return Image.asset('assets/icons/dummy_company.png');
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Image.asset(
+                                                      'assets/icons/dummy_company.png');
                                                 },
                                               ),
                                             ),
@@ -175,29 +187,38 @@ class ProfilePreview extends ConsumerWidget {
                                           child: RichText(
                                             text: TextSpan(
                                               children: [
-                                                if (i.name != null && i.name != '')
+                                                if (i.name != null &&
+                                                    i.name != '')
                                                   TextSpan(
                                                     text: i.name,
                                                     style: const TextStyle(
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 16,
-                                                      color: Color.fromARGB(255, 42, 41, 41),
+                                                      color: Color.fromARGB(
+                                                          255, 42, 41, 41),
                                                     ),
                                                   ),
-                                                if (i.name != null && i.name != '' && i.designation != null && i.designation != '')
+                                                if (i.name != null &&
+                                                    i.name != '' &&
+                                                    i.designation != null &&
+                                                    i.designation != '')
                                                   const TextSpan(
                                                     text: ' - ',
                                                     style: TextStyle(
-                                                      fontWeight: FontWeight.normal,
+                                                      fontWeight:
+                                                          FontWeight.normal,
                                                       fontSize: 15,
                                                       color: Colors.grey,
                                                     ),
                                                   ),
-                                                if (i.designation != null && i.designation != '')
+                                                if (i.designation != null &&
+                                                    i.designation != '')
                                                   TextSpan(
                                                     text: i.designation,
                                                     style: const TextStyle(
-                                                      fontWeight: FontWeight.normal,
+                                                      fontWeight:
+                                                          FontWeight.normal,
                                                       fontSize: 15,
                                                       color: Colors.grey,
                                                     ),
@@ -270,8 +291,35 @@ class ProfilePreview extends ConsumerWidget {
                     //     ),
                     //   ),
                     // ),
-                    const SizedBox(
-                      height: 20,
+                    const SizedBox(height: 20),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      children: [
+                        Text(
+                          '${levelData['stateName']} > ',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          '${levelData['zoneName']} > ',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          '${levelData['districtName']} > ',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          '${levelData['chapterName']} > ',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Joined Date: $joinedDate',
+                      style: const TextStyle(
+                        fontSize: 17,
+                        color: Colors.grey,
+                      ),
                     ),
                     // const Row(
                     //   children: [
@@ -286,7 +334,7 @@ class ProfilePreview extends ConsumerWidget {
                     //   ],
                     // ),
                     const SizedBox(
-                      height: 10,
+                      height: 20,
                     ),
                     Column(
                       children: [

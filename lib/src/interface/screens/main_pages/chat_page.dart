@@ -35,8 +35,8 @@ class PeoplePage extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                           tabs: [
-                            Tab(text: "CHAT LIST"),
                             Tab(text: "MEMBERS"),
+                            Tab(text: "CHAT LIST"),
                           ],
                         ),
                       ),
@@ -45,8 +45,8 @@ class PeoplePage extends StatelessWidget {
                   Expanded(
                     child: TabBarView(
                       children: [
-                        ChatDash(),
                         const MembersPage(),
+                        ChatDash(),
                       ],
                     ),
                   ),

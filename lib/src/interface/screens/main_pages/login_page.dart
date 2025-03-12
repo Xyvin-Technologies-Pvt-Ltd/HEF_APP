@@ -31,7 +31,7 @@ TextEditingController _otpController = TextEditingController();
 final countryCodeProvider = StateProvider<String?>((ref) => '91');
 
 class PhoneNumberScreen extends ConsumerWidget {
-  PhoneNumberScreen({
+  const PhoneNumberScreen({
     super.key,
   });
 
@@ -185,8 +185,8 @@ class PhoneNumberScreen extends ConsumerWidget {
   Future<void> _handleOtpGeneration(BuildContext context, WidgetRef ref) async {
     SnackbarService snackbarService = SnackbarService();
     ref.read(loadingProvider.notifier).startLoading();
-    bool userExists = await checkUser();
-    if (userExists) {
+    // bool userExists = await checkUser();
+    // if (userExists) {
       final countryCode = ref.watch(countryCodeProvider);
 
       try {
@@ -249,10 +249,12 @@ class PhoneNumberScreen extends ConsumerWidget {
       } finally {
         ref.read(loadingProvider.notifier).stopLoading();
       }
-    } else {
-      snackbarService.showSnackBar('User does not exists');
     }
-  }
+    //  else {
+    //   snackbarService.showSnackBar('User does not exists');
+    //   ref.read(loadingProvider.notifier).stopLoading();
+    // }
+  // }
 }
 
 class OTPScreen extends ConsumerStatefulWidget {

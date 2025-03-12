@@ -345,24 +345,22 @@ Future<List<String>> fetchBusinessTags(Ref ref, {String? search}) async {
   }
 }
 
-Future<bool> checkUser() async {
-  const String url = '$baseUrl/user/check-user';
-  log('requesting url:$url');
-  try {
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+// Future<bool> checkUser({required String mobile}) async {
+//   final String url = '$baseUrl/user/check-user?phone=$mobile';
+//   log('requesting url: $url');
 
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      return false;
-    }
-  } catch (e) {
-    return false;
-  }
-}
+//   try {
+//     final response = await http.get(
+//       Uri.parse(url),
+//       headers: {
+//         'accept': 'application/json',
+//         'Authorization': 'Bearer $token',
+//       },
+//     );
+
+//     return response.statusCode == 200;
+//   } catch (e) {
+//     log('Error: $e');
+//     return false;
+//   }
+// }

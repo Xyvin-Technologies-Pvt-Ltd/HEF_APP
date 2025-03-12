@@ -43,6 +43,10 @@
 	<string>We need permission to save photos to your library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to select images for your profile picture, awards, certificates, posts and many more.</string>
+	<key>NSCameraUsageDescription</key>
+<string>This app needs camera access to scan QR codes to mark attendance of users</string>
+
+
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

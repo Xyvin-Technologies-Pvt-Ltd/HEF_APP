@@ -296,19 +296,19 @@ class ProfilePreview extends ConsumerWidget {
                       alignment: WrapAlignment.center,
                       children: [
                         Text(
-                          '${levelData['stateName']} > ',
+                          '${levelData['stateName']} / ',
                           style: const TextStyle(fontSize: 16),
                         ),
                         Text(
-                          '${levelData['zoneName']} > ',
+                          '${levelData['zoneName']} / ',
                           style: const TextStyle(fontSize: 16),
                         ),
                         Text(
-                          '${levelData['districtName']} > ',
+                          '${levelData['districtName']} / ',
                           style: const TextStyle(fontSize: 16),
                         ),
                         Text(
-                          '${levelData['chapterName']} > ',
+                          '${levelData['chapterName']} ',
                           style: const TextStyle(fontSize: 16),
                         ),
                       ],

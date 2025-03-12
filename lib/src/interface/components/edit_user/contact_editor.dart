@@ -69,7 +69,7 @@ class _ContactEditorState extends State<ContactEditor> {
                 ),
                 CustomTextFormField(
                   textInputType: widget.label.toLowerCase().contains('whatsapp')
-                      ? TextInputType.numberWithOptions()
+                      ? TextInputType.phone
                       : TextInputType.text,
                   labelText: 'Enter ${widget.label}',
                   textController: textController,

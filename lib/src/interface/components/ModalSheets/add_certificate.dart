@@ -31,6 +31,7 @@ class ShowAddCertificateSheet extends StatefulWidget {
 class _ShowAddCertificateSheetState extends State<ShowAddCertificateSheet> {
   File? certificateImage;
   final _formKey = GlobalKey<FormState>();
+  bool get isEditMode => widget.imageUrl != null;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +72,7 @@ class _ShowAddCertificateSheetState extends State<ShowAddCertificateSheet> {
               FormField<File>(
                 initialValue: certificateImage,
                 validator: (value) {
-                  if (value == null) {
+                  if (!isEditMode && value == null && widget.imageUrl == null) {
                     return 'Please upload an image';
                   }
                   return null;
@@ -84,7 +85,7 @@ class _ShowAddCertificateSheetState extends State<ShowAddCertificateSheet> {
                           final pickedFile = await widget.pickImage(
                               imageType: widget.imageType);
                           if (pickedFile == null) {
-                            Navigator.pop(context);
+                            return; // Don't pop if no image selected
                           }
                           setState(() {
                             certificateImage = pickedFile;
@@ -162,7 +163,7 @@ class _ShowAddCertificateSheetState extends State<ShowAddCertificateSheet> {
               ),
               const SizedBox(height: 10),
               customButton(
-                label: 'SAVE',
+                label: isEditMode ? 'UPDATE' : 'SAVE',
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     showDialog(

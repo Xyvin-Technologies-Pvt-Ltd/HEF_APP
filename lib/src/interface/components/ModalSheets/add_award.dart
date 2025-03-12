@@ -33,6 +33,7 @@ class ShowEnterAwardSheet extends StatefulWidget {
 class _ShowEnterAwardSheetState extends State<ShowEnterAwardSheet> {
   final _formKey = GlobalKey<FormState>();
   File? awardImage; // Moved awardImage to State
+  bool get isEditMode => widget.editAwardCard != null;
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +73,9 @@ class _ShowEnterAwardSheetState extends State<ShowEnterAwardSheet> {
               ),
               const SizedBox(height: 10),
               FormField<File>(
-                initialValue: awardImage, // Updated to use awardImage in State
+                initialValue: awardImage,
                 validator: (value) {
-                  if (value == null) {
+                  if (!isEditMode && value == null && widget.imageUrl == null) {
                     return 'Please upload an image';
                   }
                   return null;
@@ -87,7 +88,7 @@ class _ShowEnterAwardSheetState extends State<ShowEnterAwardSheet> {
                           final pickedFile = await widget.pickImage(
                               imageType: widget.imageType);
                           if (pickedFile == null) {
-                            Navigator.pop(context);
+                            return; // Don't pop if no image selected
                           }
                           setState(() {
                             awardImage = pickedFile;
@@ -175,7 +176,7 @@ class _ShowEnterAwardSheetState extends State<ShowEnterAwardSheet> {
               ),
               const SizedBox(height: 10),
               customButton(
-                label: 'SAVE',
+                label: isEditMode ? 'UPDATE' : 'SAVE',
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     showDialog(

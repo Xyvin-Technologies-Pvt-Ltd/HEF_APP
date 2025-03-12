@@ -159,7 +159,7 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                         IconButton(
                           onPressed: () {
                             setState(() {
-                              textToCopy = 'Canara Bank Main Branch';
+                              textToCopy = ' SOUTH INDIAN BANK';
                             });
                             Clipboard.setData(ClipboardData(text: textToCopy));
                             snackbarService

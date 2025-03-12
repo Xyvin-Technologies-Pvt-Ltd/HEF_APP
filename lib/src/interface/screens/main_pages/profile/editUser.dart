@@ -170,6 +170,9 @@ class _EditUserState extends ConsumerState<EditUser> {
   // Add new controller for tags
   final TextEditingController _tagController = TextEditingController();
 
+  bool _isProfileImageLoading = false;
+  Map<int, bool> _companyLogoLoadingStates = {};
+
   Future<File?> _pickFile(
       {required String imageType, int? companyIndex}) async {
     final ImagePicker _picker = ImagePicker();
@@ -178,46 +181,59 @@ class _EditUserState extends ConsumerState<EditUser> {
     if (image != null) {
       if (imageType == 'profile') {
         setState(() {
+          _isProfileImageLoading = true;
           _profileImageFile = File(image.path);
-          imageUpload(_profileImageFile!.path).then((url) {
-            String profileUrl = url;
-            _profileImageSource = ImageSource.gallery;
-            ref.read(userProvider.notifier).updateProfilePicture(profileUrl);
-            print((profileUrl));
-          });
         });
-        return _profileImageFile;
+        try {
+          String profileUrl = await imageUpload(_profileImageFile!.path);
+          _profileImageSource = ImageSource.gallery;
+          ref.read(userProvider.notifier).updateProfilePicture(profileUrl);
+          print((profileUrl));
+          return _profileImageFile;
+        } catch (e) {
+          print('Error uploading profile image: $e');
+          snackbarService.showSnackBar('Failed to upload profile image');
+        } finally {
+          setState(() {
+            _isProfileImageLoading = false;
+          });
+        }
       } else if (imageType == 'company') {
-        setState(() {
-          _companyImageFile = File(image.path);
-          imageUpload(_companyImageFile!.path).then((url) {
-            String companyUrl = url;
+        if (companyIndex != null) {
+          setState(() {
+            _companyLogoLoadingStates[companyIndex] = true;
+            _companyImageFile = File(image.path);
+          });
+          try {
+            String companyUrl = await imageUpload(_companyImageFile!.path);
             _companyImageSource = ImageSource.gallery;
 
-            if (companyIndex != null) {
-              // Update the specific company's logo
-              final existingCompany =
-                  ref.read(userProvider).value?.company?[companyIndex];
-              final updatedCompany = Company(
-                logo: url,
-                name: existingCompany?.name,
-                designation: existingCompany?.designation,
-                email: existingCompany?.email,
-                phone: existingCompany?.phone,
-                websites: existingCompany?.websites,
-              );
+            final existingCompany =
+                ref.read(userProvider).value?.company?[companyIndex];
+            final updatedCompany = Company(
+              logo: companyUrl,
+              name: existingCompany?.name,
+              designation: existingCompany?.designation,
+              email: existingCompany?.email,
+              phone: existingCompany?.phone,
+              websites: existingCompany?.websites,
+            );
 
-              ref
-                  .read(userProvider.notifier)
-                  .updateCompany(updatedCompany, companyIndex);
-            } else {
-              log('Warning: No company index provided for logo update');
-            }
-
-            print('Company logo updated: $companyUrl');
-          });
-        });
-        return _companyImageFile;
+            ref
+                .read(userProvider.notifier)
+                .updateCompany(updatedCompany, companyIndex);
+            return _companyImageFile;
+          } catch (e) {
+            print('Error uploading company logo: $e');
+            snackbarService.showSnackBar('Failed to upload company logo');
+          } finally {
+            setState(() {
+              _companyLogoLoadingStates[companyIndex] = false;
+            });
+          }
+        } else {
+          log('Warning: No company index provided for logo update');
+        }
       } else if (imageType == 'award') {
         _awardImageFIle = File(image.path);
         _awardImageSource = ImageSource.gallery;
@@ -624,12 +640,6 @@ class _EditUserState extends ConsumerState<EditUser> {
                               ),
                               const SizedBox(height: 35),
                               FormField<File>(
-                                // validator: (value) {
-                                //   if (user.image == null) {
-                                //     return 'Please select a profile image';
-                                //   }
-                                //   return null;
-                                // },
                                 builder: (FormFieldState<File> state) {
                                   return Center(
                                     child: Column(
@@ -647,17 +657,22 @@ class _EditUserState extends ConsumerState<EditUser> {
                                                   height: 120,
                                                   color: const Color.fromARGB(
                                                       255, 255, 255, 255),
-                                                  child: Image.network(
-                                                    errorBuilder: (context,
-                                                        error, stackTrace) {
-                                                      return Image.asset(
-                                                          scale: .7,
-                                                          'assets/pngs/dummy_person_large.png');
-                                                    },
-                                                    user.image ??
-                                                        '', // Replace with your image URL
-                                                    fit: BoxFit.cover,
-                                                  ),
+                                                  child: _isProfileImageLoading
+                                                      ? const Center(
+                                                          child:
+                                                              LoadingAnimation())
+                                                      : Image.network(
+                                                          errorBuilder:
+                                                              (context, error,
+                                                                  stackTrace) {
+                                                            return Image.asset(
+                                                                scale: .7,
+                                                                'assets/pngs/dummy_person_large.png');
+                                                          },
+                                                          user.image ??
+                                                              '', // Replace with your image URL
+                                                          fit: BoxFit.cover,
+                                                        ),
                                                 ),
                                               ),
                                             ),
@@ -1244,25 +1259,41 @@ class _EditUserState extends ConsumerState<EditUser> {
                                                   height: 100,
                                                   color: const Color.fromARGB(
                                                       255, 255, 255, 255),
-                                                  child: user.company != null &&
-                                                          index <
-                                                              user.company!
-                                                                  .length &&
-                                                          user.company![index]
-                                                                  .logo !=
-                                                              null
-                                                      ? Image.network(
-                                                          errorBuilder:
-                                                              (context, error,
-                                                                  stackTrace) {
-                                                            return _buildDefaultLogoWidget();
-                                                          },
-                                                          user.company![index]
-                                                                  .logo ??
-                                                              '',
-                                                          fit: BoxFit.contain,
-                                                        )
-                                                      : _buildDefaultLogoWidget(),
+                                                  child: _companyLogoLoadingStates[
+                                                              index] ==
+                                                          true
+                                                      ? const Center(
+                                                          child:
+                                                              LoadingAnimation())
+                                                      : user.company != null &&
+                                                              index <
+                                                                  user.company!
+                                                                      .length &&
+                                                              user
+                                                                      .company![
+                                                                          index]
+                                                                      .logo !=
+                                                                  null
+                                                          ? Image.network(
+                                                              errorBuilder:
+                                                                  (context,
+                                                                      error,
+                                                                      stackTrace) {
+                                                                return _buildDefaultLogoWidget(
+                                                                    companyIndex:
+                                                                        index);
+                                                              },
+                                                              user
+                                                                      .company![
+                                                                          index]
+                                                                      .logo ??
+                                                                  '',
+                                                              fit: BoxFit
+                                                                  .contain,
+                                                            )
+                                                          : _buildDefaultLogoWidget(
+                                                              companyIndex:
+                                                                  index),
                                                 ),
                                               ),
                                             ),
@@ -1522,7 +1553,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 4.0), // Space between items
                                     child: customWebsiteCard(
-                                        onEdit: () => _editVideo(index),
+                                        onEdit: () => _editWebsite(index),
                                         onRemove: () => _removeWebsite(index),
                                         website: user.websites?[index]),
                                   );
@@ -1578,9 +1609,9 @@ class _EditUserState extends ConsumerState<EditUser> {
                               ),
                               ListView.builder(
                                 shrinkWrap:
-                                    true, // Let ListView take up only as much space as it needs
+                                    true,
                                 physics:
-                                    const NeverScrollableScrollPhysics(), // Disable ListView's internal scrolling
+                                    const NeverScrollableScrollPhysics(), 
                                 itemCount: user.videos?.length,
                                 itemBuilder: (context, index) {
                                   log('video count: ${user.videos?.length}');
@@ -2297,7 +2328,10 @@ class _EditUserState extends ConsumerState<EditUser> {
     );
   }
 
-  Widget _buildDefaultLogoWidget() {
+  Widget _buildDefaultLogoWidget({required int companyIndex}) {
+    if (_companyLogoLoadingStates[companyIndex] == true) {
+      return const Center(child: LoadingAnimation());
+    }
     return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

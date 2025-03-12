@@ -31,8 +31,10 @@ class ShowPaymentUploadSheet extends StatefulWidget {
 class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
   String? selectedYearId; // Variable to store the selected academic year ID
   TextEditingController amountController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    amountController.text = '1000';
     return Padding(
       padding: EdgeInsets.only(
         left: 16,

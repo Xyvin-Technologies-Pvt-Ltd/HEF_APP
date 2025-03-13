@@ -10,10 +10,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
-import 'package:hef/src/data/globals.dart';
-import 'package:hef/src/data/models/product_model.dart';
 import 'package:hef/src/data/services/image_upload.dart';
-import 'package:path/path.dart';
 
 class EnterProductsPage extends ConsumerStatefulWidget {
   EnterProductsPage({
@@ -45,18 +42,10 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
   Future<File?> _pickFile({required String imageType}) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['png', 'jpg', 'jpeg', 'pdf'],
+      allowedExtensions: ['png', 'jpg', 'jpeg'],
     );
 
     if (result != null) {
-      // Check if the file size is more than or equal to 1 MB (1 MB = 1024 * 1024 bytes)
-      // if (result.files.single.size >= 1024 * 1024) {
-      //   CustomSnackbar.showSnackbar(context, 'File size cannot exceed 1MB');
-
-      //   return null; // Exit the function if the file is too large
-      // }
-
-      // Set the selected file if it's within the size limit and matches the specified image type
       if (imageType == 'product') {
         _productImageFIle = File(result.files.single.path!);
         return _productImageFIle;
@@ -72,7 +61,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
       _productImageFIle!.path,
     );
     log('product price type:${productPriceType.text}');
-    final createdProduct = await uploadProduct(
+ await uploadProduct(
       name: productNameController.text,
       price: productActualPriceController.text,
       offerPrice: productOfferPriceController.text,
@@ -81,21 +70,6 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
       productImage: productUrl,
       productPriceType: productPriceType.text,
     );
-    if (createdProduct == null) {
-      print('couldnt create new product');
-    } else {
-      final newProduct = Product(
-        id: createdProduct.id,
-        name: productNameController.text,
-        image: productUrl,
-        description: productDescriptionController.text,
-        moq: int.parse(productMoqController.text),
-        offerPrice: double.parse(productOfferPriceController.text),
-        price: double.parse(productActualPriceController.text),
-        seller: id,
-        status: 'pending',
-      );
-    }
   }
 
   @override

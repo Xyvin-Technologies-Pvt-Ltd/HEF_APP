@@ -126,7 +126,8 @@ Future<void> captureAndShareWidgetScreenshot(BuildContext context) async {
                           ),
                           child: QrImageView(
                             size: 285,
-                            data: 'https://admin.hef.com/user/${user.uid}',
+                            data:
+                                'https://admin.hefconnect.in/user/${user.uid}',
                           ),
                         ),
                         const SizedBox(height: 20),

@@ -232,9 +232,7 @@ class _ChangeNumberPageState extends State<ChangeNumberPage> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 16),
-              CircularProgressIndicator(
-                color: kPrimaryColor,
-              ),
+              LoadingAnimation()
             ],
           ),
         );

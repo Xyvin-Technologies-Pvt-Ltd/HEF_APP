@@ -169,9 +169,7 @@ class _BlockPersonDialogState extends ConsumerState<BlockPersonDialog> {
               barrierDismissible: false,
               builder: (BuildContext context) {
                 return Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(kPrimaryColor),
-                  ),
+                  child: LoadingAnimation()
                 );
               },
             );

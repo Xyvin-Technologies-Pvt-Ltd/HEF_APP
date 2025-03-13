@@ -345,22 +345,26 @@ Future<List<String>> fetchBusinessTags(Ref ref, {String? search}) async {
   }
 }
 
-// Future<bool> checkUser({required String mobile}) async {
-//   final String url = '$baseUrl/user/check-user?phone=$mobile';
-//   log('requesting url: $url');
+Future<bool> checkUser({required String mobile}) async {
+  final String url = '$baseUrl/user/check-user';
+  log('Requesting URL: $url');
 
-//   try {
-//     final response = await http.get(
-//       Uri.parse(url),
-//       headers: {
-//         'accept': 'application/json',
-//         'Authorization': 'Bearer $token',
-//       },
-//     );
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({"phone": mobile}),
+    );
 
-//     return response.statusCode == 200;
-//   } catch (e) {
-//     log('Error: $e');
-//     return false;
-//   }
-// }
+    log('Response: ${response.body}');
+
+    return response.statusCode == 200;
+  } catch (e) {
+    log('Error: $e');
+    return false;
+  }
+}

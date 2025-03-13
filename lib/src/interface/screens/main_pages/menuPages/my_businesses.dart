@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,7 +36,7 @@ class MyBusinessesPage extends StatelessWidget {
             body: asyncMyPosts.when(
               loading: () => Center(child: LoadingAnimation()),
               error: (error, stackTrace) {
-                // Handle error state
+                log(error.toString());
                 return Center(
                   child: Text('USER HASN\'T POSTED ANYTHING'),
                 );
@@ -65,7 +67,7 @@ class MyBusinessesPage extends StatelessWidget {
                     ),
                   );
                 } else {
-                  Center(
+               return   Center(
                     child: Text('No Business Posts Added'),
                   );
                 }
@@ -204,8 +206,8 @@ class MyBusinessesPage extends StatelessWidget {
                       return TextButton(
                         style: TextButton.styleFrom(
                             backgroundColor: Color(0xFFEB5757)),
-                        onPressed: () {
-                          deletePost(requirementId, context);
+                        onPressed: () async {
+                          await deletePost(requirementId, context);
                           ref.invalidate(fetchMyBusinessesProvider);
                           Navigator.of(context).pop();
                         },

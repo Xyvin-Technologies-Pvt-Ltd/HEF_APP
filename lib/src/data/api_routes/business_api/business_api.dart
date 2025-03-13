@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:hef/src/data/globals.dart';
@@ -32,7 +33,7 @@ Future<List<Business>> fetchBusiness(FetchBusinessRef ref,
 }
 
 @riverpod
-Future<List<Business>> fetchMyBusinesses(FetchMyBusinessesRef ref) async {
+Future<List<Business>> fetchMyBusinesses(Ref ref) async {
   final url = Uri.parse('$baseUrl/feeds/my-feeds');
   print('Requesting URL: $url');
   final response = await http.get(
@@ -42,17 +43,16 @@ Future<List<Business>> fetchMyBusinesses(FetchMyBusinessesRef ref) async {
       "Authorization": "Bearer $token"
     },
   );
-  print('hello');
   print(json.decode(response.body)['status']);
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body)['data'];
-    print(response.body);
+    log(response.body, name: 'MY BUSINESS API');
     List<Business> posts = [];
 
     for (var item in data) {
       posts.add(Business.fromJson(item));
     }
-    print(posts);
+    log(posts.toString());
     return posts;
   } else {
     print(json.decode(response.body)['message']);
@@ -62,9 +62,7 @@ Future<List<Business>> fetchMyBusinesses(FetchMyBusinessesRef ref) async {
 }
 
 Future<void> uploadBusiness(
-    {
-    required String? media,
-    required String content}) async {
+    {required String? media, required String content}) async {
   final url = Uri.parse('$baseUrl/feeds');
 
   final headers = {
@@ -74,7 +72,6 @@ Future<void> uploadBusiness(
   };
 
   final body = jsonEncode({
-    
     if (media != null && media != '') 'media': media,
     'content': content,
   });
@@ -86,7 +83,7 @@ Future<void> uploadBusiness(
       body: body,
     );
 
-    if (response.statusCode == 201|| response.statusCode == 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print('Feed created successfully');
     } else {
       print('Failed to create bussiness: ${response.statusCode}');

@@ -792,7 +792,7 @@ class ProfilePreview extends ConsumerWidget {
     final videoUrl = video.link;
 
     final ytController = YoutubePlayerController.fromVideoId(
-      videoId: YoutubePlayerController.convertUrlToId(videoUrl ?? '')!,
+      videoId: YoutubePlayerController.convertUrlToId(videoUrl ?? '')??'',
       autoPlay: false,
       params: const YoutubePlayerParams(
         enableJavaScript: true,

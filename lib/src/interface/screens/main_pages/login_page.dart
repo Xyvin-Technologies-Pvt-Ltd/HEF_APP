@@ -184,77 +184,78 @@ class PhoneNumberScreen extends ConsumerWidget {
 
   Future<void> _handleOtpGeneration(BuildContext context, WidgetRef ref) async {
     SnackbarService snackbarService = SnackbarService();
-    ref.read(loadingProvider.notifier).startLoading();
-    // bool userExists = await checkUser();
-    // if (userExists) {
     final countryCode = ref.watch(countryCodeProvider);
+    FocusScope.of(context).unfocus();
+    ref.read(loadingProvider.notifier).startLoading();
 
-    try {
-      if (countryCode == '971') {
-        if (_mobileController.text.length != 9) {
-          snackbarService.showSnackBar('Please Enter valid mobile number');
-        } else {
-          final data = await submitPhoneNumber(
-              countryCode == '971'
-                  ? 9710.toString()
-                  : countryCode ?? 91.toString(),
-              context,
-              _mobileController.text);
-          final verificationId = data['verificationId'];
-          final resendToken = data['resendToken'];
-          if (verificationId != null && verificationId.isNotEmpty) {
-            log('Otp Sent successfully');
-
-            Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => OTPScreen(
-                phone: _mobileController.text,
-                verificationId: verificationId,
-                resendToken: resendToken ?? '',
-              ),
-            ));
+    bool userExists =
+        await checkUser(mobile: '+$countryCode${_mobileController.text}');
+    if (userExists) {
+      try {
+        if (countryCode == '971') {
+          if (_mobileController.text.length != 9) {
+            snackbarService.showSnackBar('Please Enter valid mobile number');
           } else {
-            snackbarService.showSnackBar('Failed');
+            final data = await submitPhoneNumber(
+                countryCode == '971'
+                    ? 9710.toString()
+                    : countryCode ?? 91.toString(),
+                context,
+                _mobileController.text);
+            final verificationId = data['verificationId'];
+            final resendToken = data['resendToken'];
+            if (verificationId != null && verificationId.isNotEmpty) {
+              log('Otp Sent successfully');
+
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => OTPScreen(
+                  phone: _mobileController.text,
+                  verificationId: verificationId,
+                  resendToken: resendToken ?? '',
+                ),
+              ));
+            } else {
+              snackbarService.showSnackBar('Failed');
+            }
+          }
+        } else if (countryCode != '971') {
+          if (_mobileController.text.length != 10) {
+            snackbarService.showSnackBar('Please Enter valid mobile number');
+          } else {
+            final data = await submitPhoneNumber(
+                countryCode == '971'
+                    ? 9710.toString()
+                    : countryCode ?? 971.toString(),
+                context,
+                _mobileController.text);
+            final verificationId = data['verificationId'];
+            final resendToken = data['resendToken'];
+            if (verificationId != null && verificationId.isNotEmpty) {
+              log('Otp Sent successfully');
+
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => OTPScreen(
+                  phone: _mobileController.text,
+                  verificationId: verificationId,
+                  resendToken: resendToken ?? '',
+                ),
+              ));
+            } else {
+              snackbarService.showSnackBar('Failed');
+            }
           }
         }
-      } else if (countryCode != '971') {
-        if (_mobileController.text.length != 10) {
-          snackbarService.showSnackBar('Please Enter valid mobile number');
-        } else {
-          final data = await submitPhoneNumber(
-              countryCode == '971'
-                  ? 9710.toString()
-                  : countryCode ?? 971.toString(),
-              context,
-              _mobileController.text);
-          final verificationId = data['verificationId'];
-          final resendToken = data['resendToken'];
-          if (verificationId != null && verificationId.isNotEmpty) {
-            log('Otp Sent successfully');
-
-            Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => OTPScreen(
-                phone: _mobileController.text,
-                verificationId: verificationId,
-                resendToken: resendToken ?? '',
-              ),
-            ));
-          } else {
-            snackbarService.showSnackBar('Failed');
-          }
-        }
+      } catch (e) {
+        log(e.toString());
+        snackbarService.showSnackBar('Failed');
+      } finally {
+        ref.read(loadingProvider.notifier).stopLoading();
       }
-    } catch (e) {
-      log(e.toString());
-      snackbarService.showSnackBar('Failed');
-    } finally {
+    } else {
+      snackbarService.showSnackBar('User does not exists');
       ref.read(loadingProvider.notifier).stopLoading();
     }
   }
-  //  else {
-  //   snackbarService.showSnackBar('User does not exists');
-  //   ref.read(loadingProvider.notifier).stopLoading();
-  // }
-  // }
 }
 
 class OTPScreen extends ConsumerStatefulWidget {

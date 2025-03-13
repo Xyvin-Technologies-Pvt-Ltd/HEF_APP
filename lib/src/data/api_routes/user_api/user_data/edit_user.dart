@@ -30,6 +30,33 @@ Future<String> editUser(Map<String, dynamic> profileData) async {
   }
 }
 
+Future<String> changeNumber(String phone) async {
+  final url = Uri.parse('$baseUrl/user/change-phone-number');
+  log('requesting url:$url');
+  final response = await http.patch(
+    url,
+    headers: {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode({
+      "phone": phone
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    print('Profile updated successfully');
+    print(json.decode(response.body)['message']);
+    return json.decode(response.body)['message'];
+  } else {
+    print(json.decode(response.body)['message']);
+
+    print('Failed to update profile. Status code: ${response.statusCode}');
+    return json.decode(response.body)['message'];
+    // throw Exception('Failed to update profile');
+  }
+}
+
 Future<Product?> uploadProduct({
   required String name,
   required String price,

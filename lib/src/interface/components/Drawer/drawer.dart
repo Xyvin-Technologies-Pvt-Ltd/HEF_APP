@@ -145,14 +145,14 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
               navigationService.pushNamed('RequestNFC');
             },
           ),
-          // if (user.phone != '+919645398555')
-          _buildDrawerItem(
-            icon: 'assets/svg/icons/my_subscription.svg',
-            label: 'My Subscription',
-            onTap: () {
-              navigationService.pushNamed('MySubscriptionPage');
-            },
-          ),
+          if (user.phone != '+919645398555')
+            _buildDrawerItem(
+              icon: 'assets/svg/icons/my_subscription.svg',
+              label: 'My Subscription',
+              onTap: () {
+                navigationService.pushNamed('MySubscriptionPage');
+              },
+            ),
 
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_reviews.svg',
@@ -161,6 +161,7 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
               navigationService.pushNamed('MyReviews');
             },
           ),
+
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_events.svg',
             label: 'My Events',
@@ -206,6 +207,13 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
               preferences.remove('token');
               preferences.remove('id');
               navigationService.pushNamedAndRemoveUntil('PhoneNumber');
+            },
+          ),
+          _buildDrawerItem(
+            icon: 'assets/svg/icons/phone_icon.svg',
+            label: 'Change Number',
+            onTap: () {
+              navigationService.pushNamed('ChangeNumber');
             },
           ),
           _buildDrawerItem(

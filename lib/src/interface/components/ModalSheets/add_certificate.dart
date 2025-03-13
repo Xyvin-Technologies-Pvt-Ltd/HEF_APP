@@ -72,6 +72,9 @@ class _ShowAddCertificateSheetState extends State<ShowAddCertificateSheet> {
               FormField<File>(
                 initialValue: certificateImage,
                 validator: (value) {
+                  if (isEditMode && certificateImage == null) {
+                    return null;
+                  }
                   if (!isEditMode && value == null && widget.imageUrl == null) {
                     return 'Please upload an image';
                   }
@@ -174,19 +177,29 @@ class _ShowAddCertificateSheetState extends State<ShowAddCertificateSheet> {
                     );
 
                     try {
-                      // Pass awardImage to addAwardCard
-                      await widget.addCertificateCard();
+                      if (isEditMode) {
+                        // Edit mode - handle both text-only and image updates
+                        await widget.addCertificateCard();
+                      } else {
+                        // Add mode - always needs image
+                        await widget.addCertificateCard();
+                      }
+                      
                       widget.textController.clear();
 
                       if (certificateImage != null) {
                         setState(() {
-                          certificateImage =
-                              null; // Clear the image after saving
+                          certificateImage = null; // Clear the image after saving
                         });
                       }
+                    } catch (e) {
+                      print('Error updating certificate: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to update certificate: $e')),
+                      );
                     } finally {
-                      Navigator.of(context).pop();
-                      Navigator.pop(context);
+                      Navigator.of(context).pop(); // Close loading dialog
+                      Navigator.pop(context); // Close modal sheet
                     }
                   }
                 },

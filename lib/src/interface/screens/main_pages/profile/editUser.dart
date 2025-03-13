@@ -1608,10 +1608,8 @@ class _EditUserState extends ConsumerState<EditUser> {
                                 ),
                               ),
                               ListView.builder(
-                                shrinkWrap:
-                                    true,
-                                physics:
-                                    const NeverScrollableScrollPhysics(), 
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
                                 itemCount: user.videos?.length,
                                 itemBuilder: (context, index) {
                                   log('video count: ${user.videos?.length}');
@@ -2244,19 +2242,31 @@ class _EditUserState extends ConsumerState<EditUser> {
   }
 
   Future<void> _editAward({required Award oldAward}) async {
-    await imageUpload(
-      _awardImageFIle!.path,
-    ).then((url) {
-      final String awardUrl = url;
+    if (_awardImageFIle != null) {
+      // If a new image is selected, upload it
+      try {
+        final String awardUrl = await imageUpload(_awardImageFIle!.path);
+        final newAward = Award(
+          name: awardNameController.text,
+          image: awardUrl,
+          authority: awardAuthorityController.text,
+        );
+
+        ref.read(userProvider.notifier).editAward(oldAward, newAward);
+      } catch (e) {
+        print('Error uploading award image: $e');
+        snackbarService.showSnackBar('Failed to upload award image');
+      }
+    } else {
+      // Text-only update - keep the existing image URL
       final newAward = Award(
         name: awardNameController.text,
-        image: awardUrl,
+        image: oldAward.image, // Preserve existing image URL
         authority: awardAuthorityController.text,
       );
 
       ref.read(userProvider.notifier).editAward(oldAward, newAward);
-    });
-    _awardImageFIle == null;
+    }
   }
 
   void _editWebsite(int index) {
@@ -2315,14 +2325,29 @@ class _EditUserState extends ConsumerState<EditUser> {
         pickImage: _pickFile,
         imageType: 'certificate',
         addCertificateCard: () async {
-          await imageUpload(_certificateImageFIle!.path).then((url) {
-            final String certificateUrl = url;
+          if (_certificateImageFIle != null) {
+            // If a new image is selected, upload it
+            try {
+              final String certificateUrl = await imageUpload(_certificateImageFIle!.path);
+              final newCertificate = Link(
+                  name: certificateNameController.text, link: certificateUrl);
+              ref
+                  .read(userProvider.notifier)
+                  .editCertificate(oldCertificate, newCertificate);
+            } catch (e) {
+              print('Error uploading certificate image: $e');
+              snackbarService.showSnackBar('Failed to upload certificate image');
+            }
+          } else {
+            // Text-only update - keep the existing image URL
             final newCertificate = Link(
-                name: certificateNameController.text, link: certificateUrl);
+              name: certificateNameController.text,
+              link: oldCertificate.link, // Preserve existing image URL
+            );
             ref
                 .read(userProvider.notifier)
                 .editCertificate(oldCertificate, newCertificate);
-          });
+          }
         },
       ),
     );

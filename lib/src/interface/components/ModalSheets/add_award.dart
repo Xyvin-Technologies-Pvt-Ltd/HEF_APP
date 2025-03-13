@@ -75,6 +75,11 @@ class _ShowEnterAwardSheetState extends State<ShowEnterAwardSheet> {
               FormField<File>(
                 initialValue: awardImage,
                 validator: (value) {
+                  // Skip validation if in edit mode and no new image is selected
+                  if (isEditMode && awardImage == null) {
+                    return null;
+                  }
+                  // Only validate if in add mode or if new image is selected
                   if (!isEditMode && value == null && widget.imageUrl == null) {
                     return 'Please upload an image';
                   }
@@ -187,11 +192,14 @@ class _ShowEnterAwardSheetState extends State<ShowEnterAwardSheet> {
                     );
 
                     try {
-                      if (widget.addAwardCard != null) {
-                        await widget.addAwardCard!();
-                      } else {
+                      if (isEditMode) {
+                        // Edit mode - handle both text-only and image updates
                         await widget.editAwardCard!();
+                      } else {
+                        // Add mode - always needs image
+                        await widget.addAwardCard!();
                       }
+                      
                       widget.textController1.clear();
                       widget.textController2.clear();
 
@@ -200,9 +208,14 @@ class _ShowEnterAwardSheetState extends State<ShowEnterAwardSheet> {
                           awardImage = null; // Clear the image after saving
                         });
                       }
+                    } catch (e) {
+                      print('Error updating award: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to update award: $e')),
+                      );
                     } finally {
-                      Navigator.of(context).pop();
-                      Navigator.pop(context);
+                      Navigator.of(context).pop(); // Close loading dialog
+                      Navigator.pop(context); // Close modal sheet
                     }
                   }
                 },

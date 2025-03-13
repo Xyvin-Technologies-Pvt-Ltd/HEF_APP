@@ -31,6 +31,7 @@ class ShowPaymentUploadSheet extends StatefulWidget {
 class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
   String? selectedYearId; // Variable to store the selected academic year ID
   TextEditingController amountController = TextEditingController();
+  bool isLoading = false; // Add loading state
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +158,13 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
           const SizedBox(height: 10),
           customButton(
             label: 'SAVE',
+            isLoading: isLoading, // Pass loading state to button
             onPressed: () async {
+              if (isLoading) return; // Prevent double clicks
+              setState(() {
+                isLoading = true; // Start loading
+              });
+              
               log(selectedYearId.toString());
               log(amountController.text.toString());
 
@@ -167,6 +174,9 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
                     content: Text('Please select an academic year'),
                   ),
                 );
+                setState(() {
+                  isLoading = false; // Stop loading on error
+                });
                 return;
               }
 
@@ -177,6 +187,9 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
                     content: Text('Please upload an image'),
                   ),
                 );
+                setState(() {
+                  isLoading = false; // Stop loading on error
+                });
                 return;
               }
 
@@ -187,28 +200,43 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
                     content: Text('Please enter the amount'),
                   ),
                 );
+                setState(() {
+                  isLoading = false; // Stop loading on error
+                });
                 return;
               }
-              final String paymentImageUrl = await imageUpload(
-                widget.paymentImage!.path,
-              );
-              // Attempt to upload the payment details
-              String? success = await uploadPayment(
-                  parentSub: selectedYearId ?? '',
-                  catergory: widget.subscriptionType,
-                  amount: amountController.text,
-                  image: paymentImageUrl);
+              
+              try {
+                final String paymentImageUrl = await imageUpload(
+                  widget.paymentImage!.path,
+                );
+                // Attempt to upload the payment details
+                String? success = await uploadPayment(
+                    parentSub: selectedYearId ?? '',
+                    catergory: widget.subscriptionType,
+                    amount: amountController.text,
+                    image: paymentImageUrl);
 
-              if (success != null) {
-                Navigator.pop(context);
-                Navigator.pop(context);
-              } else {
-                Navigator.pop(context);
+                if (success != null) {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to upload payment details'),
+                    ),
+                  );
+                }
+              } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Failed to upload payment details'),
+                    content: Text('An error occurred while processing payment'),
                   ),
                 );
+                setState(() {
+                  isLoading = false; // Stop loading on error
+                });
               }
             },
             fontSize: 16,

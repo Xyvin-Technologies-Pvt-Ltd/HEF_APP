@@ -72,6 +72,8 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
     if (period != null) {
       final parts = period!.split('-');
       return parts.length > 1 ? parts[1] : null;
+    } else {
+      return '';
     }
   }
 

@@ -294,7 +294,7 @@ Future<String?> uploadPayment({
     );
 
     if (response.statusCode == 201) {
-      print('Product uploaded successfully');
+      print('Payment uploaded successfully');
       final jsonResponse = json.decode(response.body);
       snackbarService.showSnackBar(jsonResponse['message']);
       return jsonResponse['message'];

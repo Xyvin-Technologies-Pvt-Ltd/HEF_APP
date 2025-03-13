@@ -221,6 +221,6 @@ Future<void> captureAndShareWidgetScreenshot(BuildContext context) async {
   Share.shareXFiles(
     [XFile(file.path)],
     text:
-        'Check out my profile on HEF!:\n https://admin.hef.com/user/${userId}',
+        'Check out my profile on HEF!:\n https://admin.hefconnect.in/user/${userId}',
   );
 }

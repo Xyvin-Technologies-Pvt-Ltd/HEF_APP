@@ -8,8 +8,6 @@ import 'package:hef/src/data/services/save_qr.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/ModalSheets/payment_model_sheet.dart';
-
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
 
 class PremiumPlanPage extends StatefulWidget {

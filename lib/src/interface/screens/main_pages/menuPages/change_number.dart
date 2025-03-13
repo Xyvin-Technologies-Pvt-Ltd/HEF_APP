@@ -4,6 +4,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
+import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -62,11 +63,7 @@ class _ChangeNumberPageState extends State<ChangeNumberPage> {
                   SizedBox(
                     width: double.infinity,
                     child: _isLoading
-                        ? Center(
-                            child: CircularProgressIndicator(
-                              color: kPrimaryColor,
-                            ),
-                          )
+                        ? Center(child: LoadingAnimation())
                         : customButton(
                             label: 'Update Number',
                             onPressed: () {
@@ -176,7 +173,8 @@ class _ChangeNumberPageState extends State<ChangeNumberPage> {
       await _showSuccessDialog();
 
       // Clear preferences and navigate
-      final SharedPreferences preferences = await SharedPreferences.getInstance();
+      final SharedPreferences preferences =
+          await SharedPreferences.getInstance();
       preferences.remove('token');
       preferences.remove('id');
 
@@ -193,9 +191,9 @@ class _ChangeNumberPageState extends State<ChangeNumberPage> {
   }
 
   Future<void> _showSuccessDialog() async {
-    return showDialog(
+    showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: false, // Prevent dismissing manually
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -226,35 +224,36 @@ class _ChangeNumberPageState extends State<ChangeNumberPage> {
               ),
               SizedBox(height: 12),
               Text(
-                'You will now be logged out. Please login again with your new number.',
+                'Redirecting to login screen...',
                 style: TextStyle(
                   color: Colors.grey[700],
                   fontSize: 14,
                 ),
                 textAlign: TextAlign.center,
               ),
+              SizedBox(height: 16),
+              CircularProgressIndicator(
+                color: kPrimaryColor,
+              ),
             ],
           ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kPrimaryColor,
-                foregroundColor: kWhite,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              ),
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-          actionsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         );
       },
     );
+
+    // Wait for 3 seconds before redirecting
+    await Future.delayed(Duration(seconds: 3));
+
+    // Close the dialog
+    Navigator.of(context).pop();
+
+    // Clear preferences and navigate to the login screen
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.remove('token');
+    preferences.remove('id');
+
+    NavigationService navigatorKey = NavigationService();
+    navigatorKey.pushNamedAndRemoveUntil('PhoneNumber');
   }
 
   void _showErrorDialog(String errorMessage) {

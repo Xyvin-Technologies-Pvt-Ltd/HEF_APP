@@ -175,9 +175,9 @@ class MyBusinessesPage extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.network(
-                'https://img.freepik.com/free-photo/question-mark-bubble-speech-sign-symbol-icon-3d-rendering_56104-1950.jpg?t=st=1722584569~exp=1722588169~hmac=4fd202dfa51c41238e3a253545f7aab4bf8f87f64027a5f42e82cd22cd3395f5&w=1380',
-                height: 100,
+              Icon(
+                Icons.question_mark_rounded,
+                size: 70,
               ),
               SizedBox(height: 20),
               Text(

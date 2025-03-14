@@ -71,6 +71,7 @@ dependencies:
   path_provider: ^2.0.15
   webview_flutter: ^4.7.0
   mobile_scanner: ^6.0.7
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:

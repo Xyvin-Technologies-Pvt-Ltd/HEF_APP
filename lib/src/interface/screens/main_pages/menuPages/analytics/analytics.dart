@@ -9,6 +9,7 @@ import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/ModalSheets/analytics.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:intl/intl.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   final String? initialTab;
@@ -422,7 +423,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                             maxLines: 2,
                             analytic.username ?? '',
                             style: const TextStyle(
-                                fontSize: 16.0, fontWeight: FontWeight.bold),
+                                fontSize: 14.0, fontWeight: FontWeight.bold),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -432,7 +433,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                           DateFormat("h:mm a · MMM d, yyyy")
                               .format(analytic.time!.toLocal()),
                           style: const TextStyle(
-                              fontSize: 12.0, color: Colors.grey),
+                              fontSize: 10.0, color: Colors.grey),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],

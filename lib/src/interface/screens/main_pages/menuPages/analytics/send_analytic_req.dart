@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
@@ -80,6 +82,7 @@ class _SendAnalyticRequestPageState
       if (selectedMeetingType == 'Offline' && locationController.text != '')
         "location": locationController.text,
     };
+    log(analytictData.toString(), name: "analytic to be created:");
     String? response = await postAnalytic(data: analytictData);
     return response;
   }
@@ -166,6 +169,9 @@ class _SendAnalyticRequestPageState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildRequiredLabel('Request Type'),
+              SizedBox(
+                height: 10,
+              ),
               SelectionDropDown(
                 hintText: 'Choose Type',
                 value: selectedRequestType,
@@ -189,6 +195,9 @@ class _SendAnalyticRequestPageState
               ),
               const SizedBox(height: 16.0),
               _buildRequiredLabel('Member'),
+              SizedBox(
+                height: 10,
+              ),
               asyncStates.when(
                 data: (states) => SelectionDropDown(
                   hintText: 'Choose State',

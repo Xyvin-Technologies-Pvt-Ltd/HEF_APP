@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
+import 'package:flutter/material.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 
 class SelectionDropDown extends StatefulWidget {
   final String? hintText;
@@ -7,16 +9,16 @@ class SelectionDropDown extends StatefulWidget {
   final List<DropdownMenuItem<String>> items;
   final String? value;
   final ValueChanged<String?> onChanged;
-  final String? Function(String?)? validator;
+  final FormFieldValidator<String>? validator;
 
   const SelectionDropDown({
     this.label,
     required this.items,
     this.value,
     required this.onChanged,
+    this.validator,
     Key? key,
     this.hintText,
-    this.validator,
   }) : super(key: key);
 
   @override
@@ -28,12 +30,10 @@ class _SelectionDropDownState extends State<SelectionDropDown>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  bool _isOpen = false;
 
   @override
   void initState() {
     super.initState();
-
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -93,34 +93,17 @@ class _SelectionDropDownState extends State<SelectionDropDown>
                   ),
                 ),
                 value: widget.value,
-                items: widget.items.map((item) {
-                  return DropdownMenuItem<String>(
-                    value: item.value,
-                    child: Text(
-                      item.child.toString(),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF2D3748),
-                      ),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() => _isOpen = false);
-                  widget.onChanged(value);
-                },
+                items: widget.items,
+                onChanged: widget.onChanged,
                 validator: widget.validator,
-                icon: AnimatedRotation(
-                  duration: const Duration(milliseconds: 200),
-                  turns: _isOpen ? 0.5 : 0,
-                  child: const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: Color(0xFF718096),
-                  ),
+                icon: const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: Color(0xFF718096),
                 ),
-                onTap: () {
-                  setState(() => _isOpen = !_isOpen);
-                },
+                iconSize: 24,
+                isExpanded: true,
+                dropdownColor: Colors.white,
+                menuMaxHeight: 300,
                 decoration: InputDecoration(
                   fillColor: Colors.white,
                   filled: true,
@@ -130,38 +113,30 @@ class _SelectionDropDownState extends State<SelectionDropDown>
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: kGreyLight, width: 1),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor,
-                      width: 1.5,
-                    ),
+                    borderSide:
+                        const BorderSide(color: Color(0xFF3182CE), width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: kGreyLight, width: 1),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.red, width: 1),
+                    borderSide: const BorderSide(color: Colors.red),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                    borderSide: const BorderSide(color: Colors.red),
                   ),
                 ),
-                dropdownColor: Colors.white,
-                elevation: 3,
-                isExpanded: true,
-                menuMaxHeight: 300,
                 style: const TextStyle(
                   fontSize: 14,
                   color: Color(0xFF2D3748),
                 ),
-                iconSize: 20,
-                borderRadius: BorderRadius.circular(8),
               ),
             ],
           ),

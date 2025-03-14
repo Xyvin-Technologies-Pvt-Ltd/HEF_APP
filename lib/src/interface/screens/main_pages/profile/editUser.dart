@@ -1357,7 +1357,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       SizedBox(
                                         height: 10,
                                       ),
-                                      CustomTextFormField(
+                                      CustomTextFormField(textInputType: TextInputType.number,
                                         companyIndex: index,
                                         title: 'Company ${index + 1} Phone',
                                         labelText: 'Enter Company Phone',

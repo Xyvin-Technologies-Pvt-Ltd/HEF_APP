@@ -1,11 +1,11 @@
-
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
 class DropDownMenu extends StatelessWidget {
   final VoidCallback onRemove;
+  final VoidCallback onEdit;
 
-  const DropDownMenu({super.key, required this.onRemove});
+  const DropDownMenu({super.key, required this.onRemove, required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +18,16 @@ class DropDownMenu extends StatelessWidget {
         ),
         items: [
           const DropdownMenuItem<String>(
+            value: 'edit',
+            child: Text(
+              'Edit',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+              ),
+            ),
+          ),
+          const DropdownMenuItem<String>(
             value: 'remove',
             child: Text(
               'Remove',
@@ -29,7 +39,9 @@ class DropDownMenu extends StatelessWidget {
           ),
         ],
         onChanged: (value) {
-          if (value == 'remove') {
+          if (value == 'edit') {
+            onEdit();
+          } else if (value == 'remove') {
             onRemove();
           }
         },

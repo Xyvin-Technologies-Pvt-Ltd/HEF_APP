@@ -9,7 +9,7 @@ class Product {
   final double? offerPrice;
   final String? description;
   final int? moq;
-  final String? units;
+  final String? productPriceType;
   final String? status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -24,7 +24,7 @@ class Product {
     this.offerPrice,
     this.description,
     this.moq,
-    this.units,
+    this.productPriceType,
     this.status,
     this.createdAt,
     this.updatedAt,
@@ -41,7 +41,7 @@ class Product {
       offerPrice: (json['offerPrice'] as num?)?.toDouble(),
       description: json['description'] as String?,
       moq: json['moq'] as int?,
-      units: json['units'] as String?,
+      productPriceType: json['units'] as String?,
       status: json['status'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
@@ -63,7 +63,7 @@ class Product {
       'offerPrice': offerPrice,
       'description': description,
       'moq': moq,
-      'units': units,
+      'units': productPriceType,
       'status': status,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),

@@ -62,40 +62,10 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
     return null;
   }
 
-  Future<void> _addNewProduct({required List<String> selectedTags}) async {
-    productUrl = await imageUpload(
 
-      _productImageFIle!.path,
-    );
-    log('product price type:${productPriceType.text}');
-    final createdProduct = await uploadProduct(
-      name: productNameController.text,
-      price: productActualPriceController.text,
-      offerPrice: productOfferPriceController.text,
-      description: productDescriptionController.text,
-      moq: productMoqController.text,
-      productImage: productUrl,
-      productPriceType: productPriceType.text,
-    );
-    if (createdProduct == null) {
-      print('couldnt create new product');
-    } else {
-      final newProduct = Product(
-        id: createdProduct.id,
-        name: productNameController.text,
-        image: productUrl,
-        description: productDescriptionController.text,
-        moq: int.parse(productMoqController.text),
-        offerPrice: double.parse(productOfferPriceController.text),
-        price: double.parse(productActualPriceController.text),
-        seller: id,
-        status: 'pending',
-      );
-    }
-  }
 
   void _removeProduct(String productId) async {
-    deleteProduct(productId ?? '');
+    deleteProduct(productId);
     ref.invalidate(fetchMyProductsProvider);
   }
 

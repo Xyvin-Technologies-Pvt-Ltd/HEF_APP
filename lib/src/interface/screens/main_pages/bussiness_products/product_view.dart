@@ -163,7 +163,7 @@ class _ProductViewState extends ConsumerState<ProductView> {
                                   sender: Participant(id: id),
                                   context: context,
                                   product: products[index]),
-                              child: ProductCard(
+                              child: ProductCard(onEdit: null,
                                 isOthersProduct: true,
                                 product: products[index],
                                 onRemove: null,

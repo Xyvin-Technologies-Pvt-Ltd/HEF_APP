@@ -211,14 +211,14 @@ class _SendAnalyticRequestPageState
                   label: null,
                   items: states.map((state) {
                     return DropdownMenuItem<String>(
-                      value: state.id, // Use state ID as the value
-                      child: Text(state.name), // Display state name
+                      value: state.id, 
+                      child: Text(state.name), 
                     );
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedStateId = value; // Save the selected state ID
-                      selectedZone = null; // Reset dependent dropdowns
+                      selectedStateId = value; 
+                      selectedZone = null; 
                       selectedDistrict = null;
                       selectedChapter = null;
                     });
@@ -228,7 +228,7 @@ class _SendAnalyticRequestPageState
                 error: (error, stackTrace) => const SizedBox(),
               ),
 
-              // Zone Dropdown
+          
               asyncZones.when(
                 data: (zones) => SelectionDropDown(
                   hintText: 'Choose Zone',

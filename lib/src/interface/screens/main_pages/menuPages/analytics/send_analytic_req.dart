@@ -211,14 +211,14 @@ class _SendAnalyticRequestPageState
                   label: null,
                   items: states.map((state) {
                     return DropdownMenuItem<String>(
-                      value: state.id, 
-                      child: Text(state.name), 
+                      value: state.id,
+                      child: Text(state.name),
                     );
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedStateId = value; 
-                      selectedZone = null; 
+                      selectedStateId = value;
+                      selectedZone = null;
                       selectedDistrict = null;
                       selectedChapter = null;
                     });
@@ -227,8 +227,6 @@ class _SendAnalyticRequestPageState
                 loading: () => const Center(child: LoadingAnimation()),
                 error: (error, stackTrace) => const SizedBox(),
               ),
-
-          
               asyncZones.when(
                 data: (zones) => SelectionDropDown(
                   hintText: 'Choose Zone',
@@ -251,7 +249,6 @@ class _SendAnalyticRequestPageState
                 loading: () => const Center(child: LoadingAnimation()),
                 error: (error, stackTrace) => const SizedBox(),
               ),
-
               asyncDistricts.when(
                 data: (districts) => SelectionDropDown(
                   hintText: 'Choose District',
@@ -273,7 +270,6 @@ class _SendAnalyticRequestPageState
                 loading: () => const Center(child: LoadingAnimation()),
                 error: (error, stackTrace) => const SizedBox(),
               ),
-
               asyncChapters.when(
                 data: (chapters) => SelectionDropDown(
                   hintText: 'Choose Chapter',
@@ -318,7 +314,6 @@ class _SendAnalyticRequestPageState
                 loading: () => const Center(child: LoadingAnimation()),
                 error: (error, stackTrace) => const SizedBox(),
               ),
-
               const SizedBox(height: 10.0),
               _buildRequiredLabel('Title'),
               CustomTextFormField(
@@ -364,12 +359,77 @@ class _SendAnalyticRequestPageState
                   return null;
                 },
               ),
+              SizedBox(
+                height: 10,
+              ),
+              if (selectedRequestType == 'Business')
+                _buildRequiredLabel('Date'),
+              const SizedBox(height: 10.0),
+              TextFormField(
+                controller: dateController,
+                readOnly: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select a date';
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  labelStyle: const TextStyle(color: Colors.grey),
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                  fillColor: Colors.white,
+                  filled: true,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(
+                            255, 212, 209, 209)), // Unfocused border color
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(
+                            255, 223, 220, 220)), // Focused border color
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 212, 209, 209)),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 223, 220, 220)),
+                  ),
+                  labelText: 'Date',
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.calendar_today),
+                    onPressed: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2025),
+                        lastDate: DateTime(2101),
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          dateController.text =
+                              DateFormat('yyyy-MM-dd').format(pickedDate);
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ),
               const SizedBox(height: 20.0),
               if (selectedRequestType == 'One v One Meeting')
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildRequiredLabel('Meeting Type'),
+                    SizedBox(
+                      height: 10,
+                    ),
                     SelectionDropDown(
                       hintText: 'Choose Meeting Type',
                       value: selectedMeetingType,
@@ -500,18 +560,22 @@ class _SendAnalyticRequestPageState
                         labelText: 'Time',
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.access_time),
-                          onPressed: () async {
-                            TimeOfDay? pickedTime = await showTimePicker(
-                              context: context,
-                              initialTime: TimeOfDay.now(),
-                            );
-                            if (pickedTime != null) {
-                              setState(() {
-                                timeController.text =
-                                    pickedTime.format(context);
-                              });
-                            }
-                          },
+                     onPressed: () async {
+  TimeOfDay? pickedTime = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+  );
+
+  if (pickedTime != null) {
+    final localizations = MaterialLocalizations.of(context);
+    final formattedTime = localizations.formatTimeOfDay(pickedTime, alwaysUse24HourFormat: false);
+
+    setState(() {
+      timeController.text = formattedTime; // This will show time in "hh:mm AM/PM" format
+    });
+  }
+}
+
                         ),
                       ),
                     ),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
@@ -388,6 +390,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   }
 
   Widget _buildCard(AnalyticsModel analytic, String tabBarType) {
+    log(analytic.userImage ?? '', name: 'User image of analytic');
     return InkWell(
       onTap: () => _showReusableModalSheet(analytic, tabBarType, context),
       child: Container(
@@ -430,8 +433,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                         const Spacer(),
                         Text(
                           maxLines: 2,
-                          DateFormat("h:mm a · MMM d, yyyy")
-                              .format(analytic.time!.toLocal()),
+                          '${DateFormat("h:mm a · MMM d").format(analytic.date!.toLocal())} ${analytic.time}',
                           style: const TextStyle(
                               fontSize: 10.0, color: Colors.grey),
                           overflow: TextOverflow.ellipsis,

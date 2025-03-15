@@ -71,13 +71,12 @@ class AnalyticsModalSheet extends ConsumerWidget {
             const SizedBox(height: 24),
             // Details Section
 
-            // _buildDetailRow('Request Type', analytic.type ?? ''),
+            _buildDetailRow('Request Type', analytic.type ?? ''),
             _buildDetailRow('Title', analytic.title ?? ''),
-            _buildDetailRow(
-                'Date & time',
-                DateFormat("d'th' MMMM yyyy, h:mm a")
-                    .format(analytic.time!.toLocal())),
-            _buildDetailRow('Amount', analytic.amount.toString() ?? ''),
+            _buildDetailRow('Date & time',
+                '${DateFormat("d'th' MMMM yyyy").format(analytic.date!.toLocal())}  ${analytic.time}'),
+            if (analytic.amount != null)
+              _buildDetailRow('Amount', analytic.amount.toString() ?? ''),
             if (analytic.status == 'meeting_scheduled' &&
                 analytic.meetingLink != null)
               InkWell(

@@ -4,8 +4,9 @@ class AnalyticsModel {
   final String? username;
   final String? userImage;
   final String? title;
+  final String? type;
   final String? status;
-  final DateTime? time;
+  final String? time;
   final String? description;
   final String? referral;
   final String? contact;
@@ -18,6 +19,7 @@ class AnalyticsModel {
     this.id,
     this.user_id, 
     this.username,
+    this.type,
     this.userImage,
     this.title,
     this.status,
@@ -37,9 +39,10 @@ class AnalyticsModel {
       user_id: json['user_id'] as String?,  // Added to fromJson
       username: json['username'] as String?,
       userImage: json['user_image'] as String?,
+      type: json['type'] as String?,
       title: json['title'] as String?,
       status: json['status'] as String?,
-      time: json['time'] != null ? DateTime.tryParse(json['time']) : null,
+      time: json['time'] as String? ,
       description: json['description'] as String?,
       referral: json['referral'] as String?,
       contact: json['contact'] as String?,
@@ -57,8 +60,9 @@ class AnalyticsModel {
       'username': username,
       'user_image': userImage,
       'title': title,
+      'type': type,
       'status': status,
-      'time': time?.toIso8601String(),
+      'time': time,
       'description': description,
       'referral': referral,
       'contact': contact,
@@ -76,7 +80,7 @@ class AnalyticsModel {
     String? userImage,
     String? title,
     String? status,
-    DateTime? time,
+    String? time,
     String? description,
     String? referral,
     String? contact,

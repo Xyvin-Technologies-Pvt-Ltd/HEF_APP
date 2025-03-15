@@ -213,15 +213,21 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
     });
   }
 
-  void editAward(Award oldAward, Award updatedAward) {
-    state = state.whenData((user) {
-      final updatedAwards = user.awards!.map((award) {
-        return award == oldAward ? updatedAward : award;
-      }).toList();
+void editAward(Award oldAward, Award updatedAward) {
+  state = state.whenData((user) {
+    final updatedAwards = user.awards!.map((award) {
+      final isReplacing = award == oldAward;
+      print("Checking Award: ${award.name} -> Replacing? $isReplacing");
 
-      return user.copyWith(awards: updatedAwards);
-    });
-  }
+      return isReplacing ? updatedAward : award;
+    }).toList();
+
+    print("Updated Awards List: ${updatedAwards.map((e) => e.image).toList()}");
+
+    return user.copyWith(awards: updatedAwards);
+  });
+}
+
 
   void editWebsite(Link oldWebsite, Link newWebsite) {
     state = AsyncValue.data(state.value!.copyWith(

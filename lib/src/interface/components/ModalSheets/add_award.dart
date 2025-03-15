@@ -37,6 +37,7 @@ class _ShowEnterAwardSheetState extends State<ShowEnterAwardSheet> {
 
   @override
   Widget build(BuildContext context) {
+
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
         widget.textController1.text = '';

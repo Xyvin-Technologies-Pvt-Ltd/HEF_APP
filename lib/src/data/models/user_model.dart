@@ -463,7 +463,6 @@ class Company {
     );
   }
 }
-
 class Award {
   final String? image;
   final String? name;
@@ -486,4 +485,17 @@ class Award {
       'authority': authority,
     };
   }
+
+  // Override equality and hashCode
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Award &&
+        other.image == image &&
+        other.name == name &&
+        other.authority == authority;
+  }
+
+  @override
+  int get hashCode => Object.hash(image, name, authority);
 }

@@ -271,6 +271,8 @@ class _EditUserState extends ConsumerState<EditUser> {
           .read(userProvider.notifier)
           .updateAwards([...?ref.read(userProvider).value?.awards, newAward]);
     });
+
+    _awardImageFIle = null;
   }
 
   void _removeAward(int index) async {
@@ -323,6 +325,8 @@ class _EditUserState extends ConsumerState<EditUser> {
       ref.read(userProvider.notifier).updateCertificate(
           [...?ref.read(userProvider).value?.certificates, newCertificate]);
     });
+
+    _certificateImageFIle = null;
   }
 
   void _removeCertificate(int index) async {
@@ -1357,7 +1361,8 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       SizedBox(
                                         height: 10,
                                       ),
-                                      CustomTextFormField(textInputType: TextInputType.number,
+                                      CustomTextFormField(
+                                        textInputType: TextInputType.number,
                                         companyIndex: index,
                                         title: 'Company ${index + 1} Phone',
                                         labelText: 'Enter Company Phone',
@@ -2328,7 +2333,8 @@ class _EditUserState extends ConsumerState<EditUser> {
           if (_certificateImageFIle != null) {
             // If a new image is selected, upload it
             try {
-              final String certificateUrl = await imageUpload(_certificateImageFIle!.path);
+              final String certificateUrl =
+                  await imageUpload(_certificateImageFIle!.path);
               final newCertificate = Link(
                   name: certificateNameController.text, link: certificateUrl);
               ref
@@ -2336,7 +2342,8 @@ class _EditUserState extends ConsumerState<EditUser> {
                   .editCertificate(oldCertificate, newCertificate);
             } catch (e) {
               print('Error uploading certificate image: $e');
-              snackbarService.showSnackBar('Failed to upload certificate image');
+              snackbarService
+                  .showSnackBar('Failed to upload certificate image');
             }
           } else {
             // Text-only update - keep the existing image URL

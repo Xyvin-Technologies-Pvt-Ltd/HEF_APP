@@ -100,7 +100,7 @@ class DeepLinkService {
           }
           break;
 
-        case 'my_requirements':
+        case 'my_feeds':
           try {
             NavigationService.navigatorKey.currentState
                 ?.pushNamed('MyBusinesses');
@@ -162,8 +162,8 @@ class DeepLinkService {
         return 'hef://app/my_subscription';
       case 'my_products':
         return 'hef://app/my_products';
-      case 'my_requirements':
-        return 'hef://app/my_requirements';
+      case 'my_feeds':
+        return 'hef://app/my_feeds';
       case 'mainpage':
         return 'hef://app/mainpage';
 

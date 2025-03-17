@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/events_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/interface/screens/main_page.dart';
 import 'package:hef/src/interface/screens/main_pages/admin/allocate_member.dart';
 import 'package:hef/src/interface/screens/main_pages/admin/member_creation.dart';
+import 'package:hef/src/interface/screens/main_pages/chat/chat_screen.dart';
 import 'package:hef/src/interface/screens/main_pages/event/event_member_list.dart';
 import 'package:hef/src/interface/screens/main_pages/event/view_more_event.dart';
 import 'package:hef/src/interface/screens/main_pages/login_page.dart';
@@ -27,6 +29,7 @@ import 'package:hef/src/interface/screens/main_pages/menuPages/my_reviews.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_subscription.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/request_nfc.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
+import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/card.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/editUser.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/profile_preview.dart';
@@ -83,8 +86,16 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
               ));
     case 'EditUser':
       return MaterialPageRoute(builder: (context) => EditUser());
+    case 'IndividualPage':
+              final args = settings?.arguments as Map<String, dynamic>?;
+          Participant sender = args?['sender'];
+          Participant receiver = args?['receiver'];
+
+      return MaterialPageRoute(builder: (context) => IndividualPage(receiver: receiver,sender: sender,));
     case 'ChangeNumber':
       return MaterialPageRoute(builder: (context) => ChangeNumberPage());
+    case 'NotificationPage':
+      return MaterialPageRoute(builder: (context) => NotificationPage());
     case 'AboutPage':
       return MaterialPageRoute(builder: (context) => AboutPage());
     case 'News':
@@ -115,24 +126,7 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       return MaterialPageRoute(builder: (context) => MySubscriptionPage());
 
 
-    // case 'Districts':
-    //   String zoneId = settings?.arguments as String;
-    //   return MaterialPageRoute(
-    //       builder: (context) => DistrictsPage(
-    //             zoneId: zoneId,
-    //           ));
-    // case 'Chapters':
-    //   String districtId = settings?.arguments as String;
-    //   return MaterialPageRoute(
-    //       builder: (context) => ChaptersPage(
-    //             districtId: districtId,
-    //           ));
-    // case 'LevelMembers':
-    //   String chapterId = settings?.arguments as String;
-    //   return MaterialPageRoute(
-    //       builder: (context) => LevelMembers(
-    //             chapterId: chapterId,
-    //           ));
+
     case 'ProfileAnalytics':
       UserModel user = settings?.arguments as UserModel;
       return MaterialPageRoute(

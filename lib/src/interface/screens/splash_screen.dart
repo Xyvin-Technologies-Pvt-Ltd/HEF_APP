@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/app_version_model.dart';
+import 'package:hef/src/data/services/deep_link_service.dart';
 import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:http/http.dart' as http;
@@ -29,7 +30,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool isAppUpdateRequired = false;
   bool hasVersionCheckError = false;
   String errorMessage = '';
-
+  final DeepLinkService _deepLinkService = DeepLinkService();
   @override
   void initState() {
     super.initState();
@@ -39,47 +40,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       }
     });
     getToken();
-    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-      print("New FCM Token: $newToken");
-      // Save or send the new token to your server
-    });
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification != null) {
-        if (Platform.isAndroid) {
-          const AndroidNotificationDetails androidPlatformChannelSpecifics =
-              AndroidNotificationDetails(
-            'your_channel_id',
-            'your_channel_name',
-            importance: Importance.max,
-            priority: Priority.high,
-            showWhen: true,
-          );
-          const NotificationDetails platformChannelSpecifics =
-              NotificationDetails(android: androidPlatformChannelSpecifics);
-
-          flutterLocalNotificationsPlugin.show(
-            0, // Notification ID
-            message.notification?.title,
-            message.notification?.body,
-            platformChannelSpecifics,
-          );
-        }
-        // No need for local notifications on iOS in foreground
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Notification opened: ${message.data}');
-    });
-
-    FirebaseMessaging.instance
-        .getInitialMessage()
-        .then((RemoteMessage? message) {
-      if (message != null) {
-        print('Notification clicked when app was terminated');
-      }
-    });
   }
 
   Future<void> checkAppVersion(context) async {
@@ -150,23 +110,31 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> initialize() async {
-    if (hasVersionCheckError || isAppUpdateRequired) return;
-
-    NavigationService navigationSerivce = NavigationService();
-    await checkLoggedIn();
+    NavigationService navigationService = NavigationService();
+    await checktoken();
     Timer(Duration(seconds: 2), () {
-      if (!isAppUpdateRequired && !hasVersionCheckError) {
+      if (!isAppUpdateRequired) {
         print('Logged in : $LoggedIn');
         if (LoggedIn) {
-          navigationSerivce.pushNamedReplacement('MainPage');
+          // Check for pending deep link
+          final pendingDeepLink = _deepLinkService.pendingDeepLink;
+          if (pendingDeepLink != null) {
+            navigationService.pushNamedReplacement('MainPage').then((_) {
+              // Handle the deep link after main page is loaded
+              _deepLinkService.handleDeepLink(pendingDeepLink);
+              _deepLinkService.clearPendingDeepLink();
+            });
+          } else {
+        navigationService.pushNamedReplacement( 'MainPage');
+          }
         } else {
-          navigationSerivce.pushNamedReplacement('PhoneNumber');
+      navigationService.pushNamedReplacement( 'PhoneNumber');
         }
       }
     });
   }
 
-  Future<void> checkLoggedIn() async {
+  Future<void> checktoken() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String? savedtoken = preferences.getString('token');
     String? savedId = preferences.getString('id');

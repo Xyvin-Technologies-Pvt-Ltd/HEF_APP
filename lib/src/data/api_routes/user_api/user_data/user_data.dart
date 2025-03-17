@@ -35,6 +35,29 @@ Future<UserModel> fetchUserDetails(Ref ref, String userId) async {
   }
 }
 
+
+Future<UserModel> fetchUser( String userId) async {
+  final url = Uri.parse('$baseUrl/user/single/$userId');
+  print('Requesting URL: $url');
+  final response = await http.get(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token"
+    },
+  );
+
+  log(response.body);
+  if (response.statusCode == 200) {
+    final dynamic data = json.decode(response.body)['data'];
+    return UserModel.fromJson(data);
+  } else {
+    print(json.decode(response.body)['message']);
+
+    throw Exception(json.decode(response.body)['message']);
+  }
+}
+
 @riverpod
 Future<UserDashboard> fetchUserDashboardDetails(Ref ref,
     {String? startDate, String? endDate}) async {

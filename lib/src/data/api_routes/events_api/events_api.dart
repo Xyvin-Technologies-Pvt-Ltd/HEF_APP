@@ -39,6 +39,33 @@ Future<List<Event>> fetchEvents(Ref ref) async {
   }
 }
 
+
+
+Future<Event> fetchEventById(
+  id) async {
+  final url = Uri.parse('$baseUrl/event/single/$id');
+  print('Requesting URL: $url');
+  final response = await http.get(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token"
+    },
+  );
+  print('hello');
+  print(json.decode(response.body)['status']);
+  if (response.statusCode == 200) {
+       final dynamic data = json.decode(response.body)['data'];
+    print(data['products']);
+
+    return Event.fromJson(data);
+  } else {
+    print(json.decode(response.body)['message']);
+
+    throw Exception(json.decode(response.body)['message']);
+  }
+}
+
 @riverpod
 Future<AttendanceUserListModel> fetchEventAttendance(FetchEventAttendanceRef ref,{required String eventId}) async {
   final url = Uri.parse('$baseUrl/event/attend/$eventId');

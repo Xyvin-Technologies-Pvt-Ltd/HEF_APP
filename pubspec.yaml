@@ -4,7 +4,7 @@ description: "A new Flutter project."
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 0.1.9+28
+version: 0.1.10+29
 
 environment:
   sdk: ^3.5.3
@@ -72,6 +72,7 @@ dependencies:
   webview_flutter: ^4.7.0
   mobile_scanner: ^6.0.7
   auto_size_text: ^3.0.0
+  app_links: ^6.4.0
 
 dev_dependencies:
   flutter_test:

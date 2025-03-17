@@ -372,20 +372,21 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         ref.invalidate(fetchAnalyticsProvider);
       },
       child: asyncAnalytics.when(
-        data: (analytics) => analytics.isEmpty
-            ? const Center(child: Text("No data available"))
-            : ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16.0),
-                itemCount: analytics.length,
-                itemBuilder: (context, index) {
-                  return _buildCard(analytics[index], tabBarType);
-                },
-              ),
-        loading: () => const Center(child: LoadingAnimation()),
-        error: (error, stackTrace) =>
-            const Center(child: Text("Error loading data")),
-      ),
+          data: (analytics) => analytics.isEmpty
+              ? const Center(child: Text("No data available"))
+              : ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16.0),
+                  itemCount: analytics.length,
+                  itemBuilder: (context, index) {
+                    return _buildCard(analytics[index], tabBarType);
+                  },
+                ),
+          loading: () => const Center(child: LoadingAnimation()),
+          error: (error, stackTrace) {
+            log(error.toString());
+            return Center(child: Text("Error loading data"));
+          }),
     );
   }
 

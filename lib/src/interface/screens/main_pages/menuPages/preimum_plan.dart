@@ -284,10 +284,7 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                           fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 16.0),
-                    // QrImage(
-                    //   data: 'kssia@cnrb',
-                    //   size: 150.0,
-                    // ),
+      
                     const SizedBox(height: 8.0),
                     Container(
                       decoration: BoxDecoration(

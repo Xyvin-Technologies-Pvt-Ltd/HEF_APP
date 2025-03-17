@@ -97,31 +97,33 @@ class NotificationService {
       debugPrint('Foreground message handling error: $e');
     }
   }
-void _handleMessageOpenedApp(RemoteMessage message) {
-  try {
-    String? deepLink;
-    if (message.data.containsKey('screen')) {
-      final id = message.data['id'];
-      deepLink = _deepLinkService.getDeepLinkPath(message.data['screen'], id: id);
-    }
 
-    if (deepLink != null) {
-      _deepLinkService.handleDeepLink(Uri.parse(deepLink));
-    }
-  } catch (e) {
-    debugPrint('Message opened app handling error: $e');
-  }
-}
-void _handleNotificationTap(NotificationResponse response) {
-  try {
-    if (response.payload != null) {
-      _deepLinkService.handleDeepLink(Uri.parse(response.payload!));
-    }
-  } catch (e) {
-    debugPrint('Notification tap handling error: $e');
-  }
-}
+  void _handleMessageOpenedApp(RemoteMessage message) {
+    try {
+      String? deepLink;
+      if (message.data.containsKey('screen')) {
+        final id = message.data['id'];
+        deepLink =
+            _deepLinkService.getDeepLinkPath(message.data['screen'], id: id);
+      }
 
+      if (deepLink != null) {
+        _deepLinkService.handleDeepLink(Uri.parse(deepLink));
+      }
+    } catch (e) {
+      debugPrint('Message opened app handling error: $e');
+    }
+  }
+
+  void _handleNotificationTap(NotificationResponse response) {
+    try {
+      if (response.payload != null) {
+        _deepLinkService.handleDeepLink(Uri.parse(response.payload!));
+      }
+    } catch (e) {
+      debugPrint('Notification tap handling error: $e');
+    }
+  }
 
   Future<void> _handleInitialMessage() async {
     try {

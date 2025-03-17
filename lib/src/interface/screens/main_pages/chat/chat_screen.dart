@@ -114,296 +114,305 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
       }
     });
 
-    return Stack(
-      children: [
-        Scaffold(
-          appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(60),
-              child: AppBar(
-                actions: [
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert), // The three-dot icon
-                    onSelected: (value) {
-                      if (value == 'report') {
-                        showReportPersonDialog(
-                          context: context,
-                          onReportStatusChanged: () {},
-                          reportType: 'User',
-                          reportedItemId: widget.receiver.id ?? '',
-                        );
-                      } else if (value == 'block') {
-                        showBlockPersonDialog(
-                          context: context,
-                          userId: widget.receiver.id ?? '',
-                          onBlockStatusChanged: () {
-                            Future.delayed(const Duration(seconds: 1), () {
-                              setState(() {
-                                isBlocked = !isBlocked;
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: PreferredSize(
+                preferredSize: const Size.fromHeight(60),
+                child: AppBar(
+                  actions: [
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert), // The three-dot icon
+                      onSelected: (value) {
+                        if (value == 'report') {
+                          showReportPersonDialog(
+                            context: context,
+                            onReportStatusChanged: () {},
+                            reportType: 'User',
+                            reportedItemId: widget.receiver.id ?? '',
+                          );
+                        } else if (value == 'block') {
+                          showBlockPersonDialog(
+                            context: context,
+                            userId: widget.receiver.id ?? '',
+                            onBlockStatusChanged: () {
+                              Future.delayed(const Duration(seconds: 1), () {
+                                setState(() {
+                                  isBlocked = !isBlocked;
+                                });
                               });
-                            });
-                          },
-                        );
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'report',
-                        child: Row(
-                          children: [
-                            Icon(Icons.report, color: kPrimaryColor),
-                            SizedBox(width: 8),
-                            Text('Report'),
-                          ],
+                            },
+                          );
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'report',
+                          child: Row(
+                            children: [
+                              Icon(Icons.report, color: kPrimaryColor),
+                              SizedBox(width: 8),
+                              Text('Report'),
+                            ],
+                          ),
+                        ),
+                        // Divider for visual separation
+                        const PopupMenuDivider(height: 1),
+                        PopupMenuItem(
+                          value: 'block',
+                          child: Row(
+                            children: [
+                              Icon(Icons.block),
+                              SizedBox(width: 8),
+                              isBlocked ? Text('Unblock') : Text('Block'),
+                            ],
+                          ),
+                        ),
+                      ],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            12), // Border radius for the menu
+                      ),
+                      color: Colors
+                          .white, // Optional: set background color for the menu
+                      offset: const Offset(
+                          0, 40), // Optional: adjust the position of the menu
+                    )
+                  ],
+                  elevation: 1,
+                  shadowColor: Colors.white,
+                  backgroundColor: Colors.white,
+                  leadingWidth: 90,
+                  titleSpacing: 0,
+                  leading: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(width: 10),
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Icon(
+                          Icons.arrow_back_ios,
+                          size: 24,
                         ),
                       ),
-                      // Divider for visual separation
-                      const PopupMenuDivider(height: 1),
-                      PopupMenuItem(
-                        value: 'block',
-                        child: Row(
-                          children: [
-                            Icon(Icons.block),
-                            SizedBox(width: 8),
-                            isBlocked ? Text('Unblock') : Text('Block'),
-                          ],
+                      const SizedBox(width: 10),
+                      ClipOval(
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          child: Image.network(
+                            widget.receiver.image ?? '',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                  'assets/pngs/dummy_person_small.png');
+                            },
+                          ),
                         ),
                       ),
                     ],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          12), // Border radius for the menu
-                    ),
-                    color: Colors
-                        .white, // Optional: set background color for the menu
-                    offset: const Offset(
-                        0, 40), // Optional: adjust the position of the menu
-                  )
-                ],
-                elevation: 1,
-                shadowColor: Colors.white,
-                backgroundColor: Colors.white,
-                leadingWidth: 90,
-                titleSpacing: 0,
-                leading: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(width: 10),
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Icon(
-                        Icons.arrow_back_ios,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    ClipOval(
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        child: Image.network(
-                          widget.receiver.image ?? '',
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                                'assets/pngs/dummy_person_small.png');
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                title: Consumer(
-                  builder: (context, ref, child) {
-                    final asyncUser = ref.watch(
-                        fetchUserDetailsProvider(widget.receiver.id ?? ''));
-                    return asyncUser.when(
-                      data: (user) {
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder: (_, __, ___) => ProfilePreview(
-                                  user: user,
-                                ),
-                                transitionDuration:
-                                    const Duration(milliseconds: 500),
-                                transitionsBuilder: (_, a, __, c) =>
-                                    FadeTransition(opacity: a, child: c),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            '${widget.receiver.name ?? ''}',
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        );
-                      },
-                      loading: () => Text(
-                        '${widget.receiver.name ?? ''}',
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      error: (error, stackTrace) {
-                        // Handle error state
-                        return const Center(
-                          child: Text(
-                              'Something went wrong please try again later'),
-                        );
-                      },
-                    );
-                  },
-                ),
-              )),
-          body: Container(
-            decoration: const BoxDecoration(
-              gradient: RadialGradient(
-                colors: [
-                  Color(0xFFFBFAF8),
-                  Color(0xFFE8D5B5),
-                ],
-                center: Alignment.center,
-                radius: 0.8,
-              ),
-            ),
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: PopScope(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: messages.isNotEmpty
-                        ? ListView.builder(
-                            reverse: true,
-                            controller: _scrollController,
-                            itemCount: messages.length,
-                            itemBuilder: (context, index) {
-                              final message = messages[messages.length -
-                                  1 -
-                                  index]; // Reverse the index to get the latest message first
-                              if (message.from == widget.sender.id) {
-                                return OwnMessageCard(
-                                  requirement: message.feed,
-                                  status: message.status!,
-                                  message: message.content ?? '',
-                                  time: DateFormat('h:mm a').format(
-                                    DateTime.parse(message.createdAt.toString())
-                                        .toLocal(),
+                  ),
+                  title: Consumer(
+                    builder: (context, ref, child) {
+                      final asyncUser = ref.watch(
+                          fetchUserDetailsProvider(widget.receiver.id ?? ''));
+                      return asyncUser.when(
+                        data: (user) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (_, __, ___) => ProfilePreview(
+                                    user: user,
                                   ),
-                                );
-                              } else {
-                                return GestureDetector(
-                                  onLongPress: () {
-                                    showReportPersonDialog(
-                                        reportedItemId: message.id ?? '',
-                                        context: context,
-                                        onReportStatusChanged: () {},
-                                        reportType: 'Message');
-                                  },
-                                  child: ReplyCard(
-                                    business: message.feed,
+                                  transitionDuration:
+                                      const Duration(milliseconds: 500),
+                                  transitionsBuilder: (_, a, __, c) =>
+                                      FadeTransition(opacity: a, child: c),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              '${widget.receiver.name ?? ''}',
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                          );
+                        },
+                        loading: () => Text(
+                          '${widget.receiver.name ?? ''}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        error: (error, stackTrace) {
+                          // Handle error state
+                          return const Center(
+                            child: Text(
+                                'Something went wrong please try again later'),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                )),
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    Color(0xFFFBFAF8),
+                    Color(0xFFE8D5B5),
+                  ],
+                  center: Alignment.center,
+                  radius: 0.8,
+                ),
+              ),
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: PopScope(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: messages.isNotEmpty
+                          ? ListView.builder(
+                              reverse: true,
+                              controller: _scrollController,
+                              itemCount: messages.length,
+                              itemBuilder: (context, index) {
+                                final message = messages[messages.length -
+                                    1 -
+                                    index]; // Reverse the index to get the latest message first
+                                if (message.from == widget.sender.id) {
+                                  return OwnMessageCard(
+                                    requirement: message.feed,
+                                    status: message.status!,
                                     message: message.content ?? '',
                                     time: DateFormat('h:mm a').format(
                                       DateTime.parse(
                                               message.createdAt.toString())
                                           .toLocal(),
                                     ),
-                                  ),
-                                );
-                              }
-                            },
-                          )
-                        : Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Center(
-                                child: Image.asset(
-                                    'assets/pngs/startConversation.png')),
-                          ),
-                  ),
-                  isBlocked
-                      ? Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                          ),
-                          decoration: const BoxDecoration(
-                            color: kPrimaryColor,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 10,
-                                offset: Offset(4, 4),
-                              ),
-                            ],
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'This user is blocked',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 1.5,
-                                shadows: [
-                                  // Shadow(
-                                  //   color: Colors.black45,
-                                  //   blurRadius: 5,
-                                  //   offset: Offset(2, 2),
-                                  // ),
-                                ],
+                                  );
+                                } else {
+                                  return GestureDetector(
+                                    onLongPress: () {
+                                      showReportPersonDialog(
+                                          reportedItemId: message.id ?? '',
+                                          context: context,
+                                          onReportStatusChanged: () {},
+                                          reportType: 'Message');
+                                    },
+                                    child: ReplyCard(
+                                      business: message.feed,
+                                      message: message.content ?? '',
+                                      time: DateFormat('h:mm a').format(
+                                        DateTime.parse(
+                                                message.createdAt.toString())
+                                            .toLocal(),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                                  child: Image.asset(
+                                      'assets/pngs/startConversation.png')),
+                            ),
+                    ),
+                    isBlocked
+                        ? Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 20,
+                            ),
+                            decoration: const BoxDecoration(
+                              color: kPrimaryColor,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 10,
+                                  offset: Offset(4, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'This user is blocked',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1.5,
+                                  shadows: [
+                                    // Shadow(
+                                    //   color: Colors.black45,
+                                    //   blurRadius: 5,
+                                    //   offset: Offset(2, 2),
+                                    // ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      : Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0, vertical: 12.0),
-                            color: kScaffoldColor,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Card(
-                                    elevation: 1,
-                                    color: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 220, 215, 215),
-                                        width: 0.5,
-                                      ),
-                                      borderRadius: BorderRadius.circular(15.0),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0, vertical: 5.0),
-                                      child: Container(
-                                        constraints: const BoxConstraints(
-                                          maxHeight: 150, // Limit the height
+                          )
+                        : Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 12.0),
+                              color: kScaffoldColor,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Card(
+                                      elevation: 1,
+                                      color: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(
+                                          color: Color.fromARGB(
+                                              255, 220, 215, 215),
+                                          width: 0.5,
                                         ),
-                                        child: Scrollbar(
-                                          thumbVisibility: true,
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.vertical,
-                                            reverse: true, // Start from bottom
-                                            child: TextField(
-                                              controller: _controller,
-                                              focusNode: focusNode,
-                                              keyboardType:
-                                                  TextInputType.multiline,
-                                              maxLines:
-                                                  null, // Allows for unlimited lines
-                                              minLines:
-                                                  1, // Starts with a single line
-                                              decoration: const InputDecoration(
-                                                border: InputBorder.none,
-                                                hintText: "Type a message",
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                        horizontal: 10),
+                                        borderRadius:
+                                            BorderRadius.circular(15.0),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0, vertical: 5.0),
+                                        child: Container(
+                                          constraints: const BoxConstraints(
+                                            maxHeight: 150, // Limit the height
+                                          ),
+                                          child: Scrollbar(
+                                            thumbVisibility: true,
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.vertical,
+                                              reverse:
+                                                  true, // Start from bottom
+                                              child: TextField(
+                                                controller: _controller,
+                                                focusNode: focusNode,
+                                                keyboardType:
+                                                    TextInputType.multiline,
+                                                maxLines:
+                                                    null, // Allows for unlimited lines
+                                                minLines:
+                                                    1, // Starts with a single line
+                                                decoration:
+                                                    const InputDecoration(
+                                                  border: InputBorder.none,
+                                                  hintText: "Type a message",
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                          horizontal: 10),
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -411,54 +420,55 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                       ),
                                     ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    right: 2,
-                                    left: 2,
-                                  ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: kPrimaryColor,
-                                        borderRadius: BorderRadius.circular(5)),
-                                    child: IconButton(
-                                      icon: const Icon(
-                                        Icons.send,
-                                        color: Colors.white,
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 2,
+                                      left: 2,
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: kPrimaryColor,
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
+                                      child: IconButton(
+                                        icon: const Icon(
+                                          Icons.send,
+                                          color: Colors.white,
+                                        ),
+                                        onPressed: () {
+                                          sendMessage();
+                                        },
                                       ),
-                                      onPressed: () {
-                                        sendMessage();
-                                      },
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        )
-                ],
-              ),
-              onPopInvoked: (didPop) {
-                if (didPop) {
-                  if (show) {
-                    setState(() {
-                      show = false;
-                    });
-                  } else {
-                    focusNode.unfocus();
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (Navigator.canPop(context)) {
-                        Navigator.pop(context);
-                      }
-                    });
+                          )
+                  ],
+                ),
+                onPopInvoked: (didPop) {
+                  if (didPop) {
+                    if (show) {
+                      setState(() {
+                        show = false;
+                      });
+                    } else {
+                      focusNode.unfocus();
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (Navigator.canPop(context)) {
+                          Navigator.pop(context);
+                        }
+                      });
+                    }
+                    ref.invalidate(fetchChatThreadProvider);
                   }
-                  ref.invalidate(fetchChatThreadProvider);
-                }
-              },
+                },
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

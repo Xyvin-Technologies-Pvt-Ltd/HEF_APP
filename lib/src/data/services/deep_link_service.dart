@@ -51,7 +51,7 @@ class DeepLinkService {
       if (!isAppForeground) {
         // App is in the background or terminated, go through splash & mainpage
         NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          '/Splash',
+          'Splash',
           (route) => false,
         );
 
@@ -59,7 +59,7 @@ class DeepLinkService {
             Duration(seconds: 2)); // Simulating splash processing
 
         NavigationService.navigatorKey.currentState
-            ?.pushReplacementNamed('/MainPage');
+            ?.pushReplacementNamed('MainPage');
 
         await Future.delayed(Duration(milliseconds: 500)); // Ensure stability
       }
@@ -72,7 +72,7 @@ class DeepLinkService {
             try {
               final user = await fetchUser(userId);
               NavigationService.navigatorKey.currentState
-                  ?.pushNamed('/IndividualPage', arguments: {
+                  ?.pushNamed('IndividualPage', arguments: {
                 'sender': Participant(id: id),
                 'receiver': Participant(
                   id: user.uid,
@@ -92,7 +92,7 @@ class DeepLinkService {
             try {
               final event = await fetchEventById(eventId);
               NavigationService.navigatorKey.currentState
-                  ?.pushNamed('/ViewMoreEvent', arguments: event);
+                  ?.pushNamed('ViewMoreEvent', arguments: event);
             } catch (e) {
               debugPrint('Error fetching event: $e');
               _showError('Unable to load profile');
@@ -103,7 +103,7 @@ class DeepLinkService {
         case 'my_requirements':
           try {
             NavigationService.navigatorKey.currentState
-                ?.pushNamed('/MyBusinesses');
+                ?.pushNamed('MyBusinesses');
           } catch (e) {
             debugPrint('Error fetching requirement: $e');
             _showError('Unable to load profile');
@@ -113,7 +113,7 @@ class DeepLinkService {
         case 'my_products':
           try {
             NavigationService.navigatorKey.currentState
-                ?.pushNamed('/MyProducts');
+                ?.pushNamed('MyProducts');
           } catch (e) {
             debugPrint('Error fetching requirement: $e');
             _showError('Unable to load profile');
@@ -121,7 +121,7 @@ class DeepLinkService {
         case 'my_subscription':
           try {
             NavigationService.navigatorKey.currentState
-                ?.pushNamed('/MySubscriptionPage');
+                ?.pushNamed('MySubscriptionPage');
           } catch (e) {
             debugPrint('Error fetching requirement: $e');
             _showError('Unable to load profile');
@@ -134,7 +134,7 @@ class DeepLinkService {
 
         default:
           NavigationService.navigatorKey.currentState
-              ?.pushNamed('/NotificationPage');
+              ?.pushNamed('NotificationPage');
           break;
       }
     } catch (e) {

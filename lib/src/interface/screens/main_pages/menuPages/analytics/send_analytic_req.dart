@@ -364,63 +364,65 @@ class _SendAnalyticRequestPageState
               ),
               if (selectedRequestType == 'Business')
                 _buildRequiredLabel('Date'),
-              const SizedBox(height: 10.0),
-              TextFormField(
-                controller: dateController,
-                readOnly: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a date';
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  floatingLabelBehavior: FloatingLabelBehavior.never,
-                  fillColor: Colors.white,
-                  filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                        color: Color.fromARGB(
-                            255, 212, 209, 209)), // Unfocused border color
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                        color: Color.fromARGB(
-                            255, 223, 220, 220)), // Focused border color
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                        color: Color.fromARGB(255, 212, 209, 209)),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                        color: Color.fromARGB(255, 223, 220, 220)),
-                  ),
-                  labelText: 'Date',
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.calendar_today),
-                    onPressed: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2025),
-                        lastDate: DateTime(2101),
-                      );
-                      if (pickedDate != null) {
-                        setState(() {
-                          dateController.text =
-                              DateFormat('yyyy-MM-dd').format(pickedDate);
-                        });
-                      }
-                    },
+              if (selectedRequestType == 'Business')
+                const SizedBox(height: 10.0),
+              if (selectedRequestType == 'Business')
+                TextFormField(
+                  controller: dateController,
+                  readOnly: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a date';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelStyle: const TextStyle(color: Colors.grey),
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    fillColor: Colors.white,
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(
+                          color: Color.fromARGB(
+                              255, 212, 209, 209)), // Unfocused border color
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(
+                          color: Color.fromARGB(
+                              255, 223, 220, 220)), // Focused border color
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(
+                          color: Color.fromARGB(255, 212, 209, 209)),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(
+                          color: Color.fromARGB(255, 223, 220, 220)),
+                    ),
+                    labelText: 'Date',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2025),
+                          lastDate: DateTime(2101),
+                        );
+                        if (pickedDate != null) {
+                          setState(() {
+                            dateController.text =
+                                DateFormat('yyyy-MM-dd').format(pickedDate);
+                          });
+                        }
+                      },
+                    ),
                   ),
                 ),
-              ),
               const SizedBox(height: 20.0),
               if (selectedRequestType == 'One v One Meeting')
                 Column(
@@ -559,24 +561,26 @@ class _SendAnalyticRequestPageState
                         ),
                         labelText: 'Time',
                         suffixIcon: IconButton(
-                          icon: const Icon(Icons.access_time),
-                     onPressed: () async {
-  TimeOfDay? pickedTime = await showTimePicker(
-    context: context,
-    initialTime: TimeOfDay.now(),
-  );
+                            icon: const Icon(Icons.access_time),
+                            onPressed: () async {
+                              TimeOfDay? pickedTime = await showTimePicker(
+                                context: context,
+                                initialTime: TimeOfDay.now(),
+                              );
 
-  if (pickedTime != null) {
-    final localizations = MaterialLocalizations.of(context);
-    final formattedTime = localizations.formatTimeOfDay(pickedTime, alwaysUse24HourFormat: false);
+                              if (pickedTime != null) {
+                                final localizations =
+                                    MaterialLocalizations.of(context);
+                                final formattedTime =
+                                    localizations.formatTimeOfDay(pickedTime,
+                                        alwaysUse24HourFormat: false);
 
-    setState(() {
-      timeController.text = formattedTime; // This will show time in "hh:mm AM/PM" format
-    });
-  }
-}
-
-                        ),
+                                setState(() {
+                                  timeController.text =
+                                      formattedTime; // This will show time in "hh:mm AM/PM" format
+                                });
+                              }
+                            }),
                       ),
                     ),
                     const SizedBox(height: 20.0),

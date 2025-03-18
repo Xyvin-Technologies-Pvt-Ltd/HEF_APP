@@ -362,12 +362,12 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                       child: customButton(
                                           sideColor:
                                               membershipSubscription?.status ==
-                                                      'accepted'
+                                                      'active'
                                                   ? Colors.green
                                                   : Colors.red,
                                           buttonColor:
                                               membershipSubscription?.status ==
-                                                      'accepted'
+                                                      'active'
                                                   ? Colors.green
                                                   : Colors.red,
                                           label: membershipSubscription?.status
@@ -375,11 +375,8 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                               'SUBSCRIBE',
                                           onPressed: () {
                                             if (membershipSubscription
-                                                        ?.status !=
-                                                    'accepted' ||
-                                                membershipSubscription
-                                                        ?.status ==
-                                                    null)
+                                                    ?.status !=
+                                                'active') {
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
@@ -389,6 +386,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                           'membership',
                                                     ),
                                                   ));
+                                            }
                                             // if (membershipSubscription
                                             //         ?.status !=
                                             //     'accepted') {
@@ -509,7 +507,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                     appSubscription?.status ==
                                                             'active'
                                                         ? 'Premium'
-                                                        : 'Free',
+                                                        : 'Inactive',
                                                     style: const TextStyle(
                                                       fontSize: 12,
                                                       color: Colors.green,
@@ -518,6 +516,9 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                     ),
                                                   )),
                                             ],
+                                          ),
+                                          SizedBox(
+                                            height: 10,
                                           ),
                                           if (appSubscription
                                                   ?.parentSub?.academicYear !=
@@ -625,14 +626,14 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                           buttonHeight: 40,
                                           sideColor: const Color(0xFFF76412),
                                           buttonColor: const Color(0xFFF76412),
-                                          label: appSubscription?.status
-                                                  ?.toUpperCase() ??
-                                              'SUBSCRIBE',
+                                          label: appSubscription?.status !=
+                                                  'Premium'
+                                              ? 'SUBSCRIBE'
+                                              : appSubscription?.status ??
+                                                  'SUBSCRIBE',
                                           onPressed: () {
-                                            if (appSubscription?.status ==
-                                                    'free' ||
-                                                appSubscription?.status ==
-                                                    null) {
+                                            if (appSubscription?.status !=
+                                                'Premium') {
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(

@@ -433,12 +433,23 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                         ),
                         const Spacer(),
                         if (analytic.date != null)
-                          Text(
-                            maxLines: 2,
-                            '${DateFormat("h:mm a · MMM d").format(analytic.date!.toLocal())} ${analytic.time}',
-                            style: const TextStyle(
-                                fontSize: 10.0, color: Colors.grey),
-                            overflow: TextOverflow.ellipsis,
+                          Row(
+                            children: [
+                              Text(
+                                maxLines: 2,
+                                '${DateFormat("MMM d yyyy ").format(analytic.date!.toLocal())}',
+                                style: const TextStyle(
+                                    fontSize: 10.0, color: Colors.grey),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (analytic.time != null)
+                                Text(
+                                  '${analytic.time}',
+                                  style: const TextStyle(
+                                      fontSize: 10.0, color: Colors.grey),
+                                  overflow: TextOverflow.ellipsis,
+                                )
+                            ],
                           ),
                       ],
                     ),

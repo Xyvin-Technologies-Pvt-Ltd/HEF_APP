@@ -502,6 +502,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     switch (status) {
       case "accepted":
         return kGreen;
+      case "completed":
+        return kGreen;
       case "rejected":
         return kRed;
       case "meeting_scheduled":

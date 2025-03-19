@@ -74,8 +74,10 @@ class AnalyticsModalSheet extends ConsumerWidget {
             _buildDetailRow('Request Type', analytic.type ?? ''),
             _buildDetailRow('Title', analytic.title ?? ''),
             if (analytic.date != null && analytic.time != null)
-              _buildDetailRow('Date',
-                  DateFormat("d'th' MMMM yyyy").format(analytic.date!.toLocal())),
+              _buildDetailRow(
+                  'Date',
+                  DateFormat("d'th' MMMM yyyy")
+                      .format(analytic.date!.toLocal())),
             if (analytic.time != null)
               _buildDetailRow('Time', ' ${analytic.time}'),
             if (analytic.amount != null)
@@ -115,45 +117,74 @@ class AnalyticsModalSheet extends ConsumerWidget {
                   navigationService.pop();
                 },
               )),
-            if (analytic.status != 'meeting_scheduled' &&
-                tabBarType != 'sent' &&
+            if (tabBarType != 'sent' &&
                 tabBarType != 'history' &&
                 analytic.status != 'rejected' &&
-                analytic.status != 'meeting_scheduled' &&
                 analytic.user_id != id)
               Row(
                 children: [
-                  Flexible(
-                      child: customButton(
-                    sideColor: kRedDark,
-                    buttonColor: kRedDark,
-                    label: 'Reject',
-                    onPressed: () async {
-                      await updateAnalyticStatus(
-                          analyticId: analytic.id ?? '', action: 'rejected');
-                      ref.invalidate(fetchAnalyticsProvider);
-                      navigationService.pop();
-                    },
-                  )),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Flexible(
-                      child: customButton(
-                    sideColor: kGreen,
-                    buttonColor: analytic.status == 'pending' ? kGreen : kBlue,
-                    label: analytic.status == 'pending' ? 'Accept' : 'Schedule',
-                    onPressed: () async {
-                      await updateAnalyticStatus(
-                          analyticId: analytic.id ?? '',
-                          action: analytic.status == 'pending'
-                              ? 'accepted'
-                              : 'meeting_scheduled');
+                  if (analytic.status != 'meeting_scheduled')
+                    Flexible(
+                        child: customButton(
+                      sideColor: kRedDark,
+                      buttonColor: kRedDark,
+                      label: 'Reject',
+                      onPressed: () async {
+                        await updateAnalyticStatus(
+                            analyticId: analytic.id ?? '', action: 'rejected');
+                        ref.invalidate(fetchAnalyticsProvider);
+                        navigationService.pop();
+                      },
+                    )),
+                  if (analytic.status != 'meeting_scheduled')
+                    SizedBox(
+                      width: 20,
+                    ),
+                  if (analytic.type != 'One v One Meeting' &&
+                      analytic.status != 'accepted')
+                    Flexible(
+                        child: customButton(
+                      sideColor: kGreen,
+                      buttonColor: kGreen,
+                      label: 'Accept',
+                      onPressed: () async {
+                        await updateAnalyticStatus(
+                            analyticId: analytic.id ?? '', action: 'accepted');
 
-                      ref.invalidate(fetchAnalyticsProvider);
-                      navigationService.pop();
-                    },
-                  )),
+                        ref.invalidate(fetchAnalyticsProvider);
+                        navigationService.pop();
+                      },
+                    )),
+                  if (analytic.type == 'One v One Meeting' &&
+                      analytic.status != 'meeting_scheduled')
+                    Flexible(
+                        child: customButton(
+                      sideColor: kGreen,
+                      buttonColor: kBlue,
+                      label: 'Schedule',
+                      onPressed: () async {
+                        await updateAnalyticStatus(
+                            analyticId: analytic.id ?? '',
+                            action: 'meeting_scheduled');
+
+                        ref.invalidate(fetchAnalyticsProvider);
+                        navigationService.pop();
+                      },
+                    )),
+                  if (analytic.status == 'meeting_scheduled')
+                    Flexible(
+                        child: customButton(
+                      sideColor: kGreen,
+                      buttonColor: kGreen,
+                      label: 'Complete',
+                      onPressed: () async {
+                        await updateAnalyticStatus(
+                            analyticId: analytic.id ?? '', action: 'completed');
+
+                        ref.invalidate(fetchAnalyticsProvider);
+                        navigationService.pop();
+                      },
+                    )),
                 ],
               )
           ],

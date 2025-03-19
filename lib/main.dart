@@ -18,8 +18,8 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
    await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.playIntegrity, //Change to PlayIntegrityProvider for release
-    appleProvider: AppleProvider.debug, //May need to change for different iOS versions
+    androidProvider: AndroidProvider.playIntegrity,
+    appleProvider: AppleProvider.debug, 
   );
   await NotificationService().initialize();
   runApp(ProviderScope(child: MyApp()));

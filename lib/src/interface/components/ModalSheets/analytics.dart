@@ -120,6 +120,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
             if (tabBarType != 'sent' &&
                 tabBarType != 'history' &&
                 analytic.status != 'rejected' &&
+                analytic.status != 'completed' &&
                 analytic.user_id != id)
               Row(
                 children: [

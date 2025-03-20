@@ -100,6 +100,7 @@ Future<String> sendChatMessage(
     {required String userId,
     String? content,
     String? productId,
+    bool? isGroup=false,
     String? businessId}) async {
   final url = Uri.parse('$baseUrl/chat/send-message/$userId');
   final headers = {
@@ -110,7 +111,8 @@ Future<String> sendChatMessage(
   final body = jsonEncode({
     if (content != null) 'content': content,
     if (productId != null) 'product': productId,
-    if (businessId != null) 'feed': businessId
+    if (businessId != null) 'feed': businessId,
+    "isGroup":isGroup
   });
   log('sending body $body');
   try {

@@ -14,6 +14,7 @@ import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/interface/components/Cards/product_card.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/add_product.dart';
 import 'package:path/path.dart';
 import '../../../../data/services/navgitor_service.dart';
 
@@ -62,7 +63,21 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
     return null;
   }
 
-
+  Future<void> _editProduct(
+      int index, Product oldProduct, BuildContext context) async {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EnterProductsPage(
+                  imageUrl: oldProduct.image,
+                  isEditing: true,
+                  product: oldProduct,
+                  onEdit: (Product updatedProduct) async {
+                    // Call API to update product
+                    await updateProduct(updatedProduct);
+                  },
+                )));
+  }
 
   void _removeProduct(String productId) async {
     deleteProduct(productId);
@@ -139,6 +154,8 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
                                   itemCount: products.length,
                                   itemBuilder: (context, index) {
                                     return ProductCard(
+                                        onEdit: () => _editProduct(
+                                            index, products[index], context),
                                         product: products[index],
                                         onRemove: () => _removeProduct(
                                             products[index].id ?? ''));
@@ -223,116 +240,6 @@ class _InfoCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProductCard extends StatelessWidget {
-  final VoidCallback onPressed;
-  final VoidCallback onMorePressed;
-
-  const _ProductCard({
-    required this.onPressed,
-    required this.onMorePressed,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Container(
-                height: 120,
-                decoration: BoxDecoration(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(8)),
-                  color: Colors.grey[300], // Placeholder for image
-                ),
-              ),
-              Positioned(
-                top: 4,
-                right: 4,
-                child: Container(
-                  padding: const EdgeInsets.all(1),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            Color.fromARGB(255, 0, 0, 0).withOpacity(0.00003),
-                        spreadRadius: 0.002,
-                        blurRadius: 0.002,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.more_vert),
-                    onPressed: () {
-                      // More options action
-                    },
-                    iconSize: 14,
-                    padding: EdgeInsets.zero, // Remove default padding
-                    constraints: const BoxConstraints(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                SizedBox(height: 4),
-                Text(
-                  'Plastic Cartons',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '₹2000 ',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '₹1224',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'MOQ: 100',
-                  style: TextStyle(fontSize: 14),
-                ),
-              ],
             ),
           ),
         ],

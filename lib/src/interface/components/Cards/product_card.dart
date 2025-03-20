@@ -5,19 +5,19 @@ import 'package:hef/src/interface/components/DropDown/block_repor_dropDown.dart'
 import 'package:hef/src/interface/components/DropDown/dropdown_menu.dart';
 
 class ProductCard extends StatelessWidget {
-  // final VoidCallback? onEdit;
   final VoidCallback? onRemove;
   final VoidCallback? onEdit;
   final Product product;
   final bool? isOthersProduct;
   final bool? statusNeeded;
+
   const ProductCard(
       {this.onRemove,
-      this.onEdit,
       required this.product,
       super.key,
       this.isOthersProduct,
-      this.statusNeeded = false});
+      this.statusNeeded = false,
+      required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +47,12 @@ class ProductCard extends StatelessWidget {
               Container(
                 height: statusNeeded == true ? 92 : 80,
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(10.0),
                     bottomRight: Radius.circular(10.0),
                   ),
-                  color: Color(0xFFF2F2F2),
+                  color: const Color(0xFFF2F2F2),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(6.0),
@@ -98,7 +98,7 @@ class ProductCard extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    color: kPrimaryColor,
+                                    color: Color(0xFF004797),
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -132,7 +132,7 @@ class ProductCard extends StatelessWidget {
               ),
             ],
           ),
-          if (onRemove != null && onEdit!=null)
+          if (onRemove != null)
             Positioned(
               top: 4.0,
               right: 10.0,
@@ -143,9 +143,9 @@ class ProductCard extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: DropDownMenu(onEdit:onEdit!,
+                  child: DropDownMenu(
                     onRemove: onRemove!,
-                    // onEdit:onEdit!
+                    onEdit: onEdit!,
                   ),
                 ),
               ),

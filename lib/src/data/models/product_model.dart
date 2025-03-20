@@ -13,7 +13,6 @@ class Product {
   final String? status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final int? version;
 
   Product({
     this.id,
@@ -28,8 +27,7 @@ class Product {
     this.status,
     this.createdAt,
     this.updatedAt,
-    this.version,
-  });
+      });
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
@@ -49,13 +47,13 @@ class Product {
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'] as String)
           : null,
-      version: json['__v'] as int?,
+
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      '_id': id,
+      'id': id,
       'seller': seller,
       'name': name,
       'image': image,
@@ -67,7 +65,7 @@ class Product {
       'status': status,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
-      '__v': version,
+
     };
   }
 }

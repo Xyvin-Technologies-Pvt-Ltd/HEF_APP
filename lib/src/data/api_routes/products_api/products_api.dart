@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/globals.dart';
@@ -78,51 +79,35 @@ Future<List<Product>> fetchMyProducts(
   }
 }
 
-Future<bool?> updateProduct({
-  required String productId,
-  required String name,
-  required String price,
-  required String offerPrice,
-  required String description,
-  required String moq,
-  required String productImage,
- 
-  required String productPriceType,
-}) async {
+Future<void> updateProduct(Product product) async {
+  try {
+    final productData = product.toJson();
+    productData.remove('id');
+    productData.remove('createdAt');
+    productData.remove('updatedAt');
 
+    productData['status'] = 'pending';
 
-  SnackbarService snackbarService = SnackbarService();
-  final String url = '$baseUrl/product/single/${productId}';
-  final Map<String, String> headers = {
-    'accept': 'application/json',
-    'Authorization': 'Bearer $token',
-    'Content-Type': 'application/json',
-  };
-  final Map<String, String> body = {
-    
-  "name":name,
-  "image": productImage,
-  "price": price,
-  "offerPrice": offerPrice,
-  "description": description,
-  "moq":  moq,
-  "units":  productPriceType,
-  "status":  'pending',
-  };
-  final response = await http.put(
-    Uri.parse(url),
-    headers: headers,    body: jsonEncode(body),
-  );
+    final response = await http.patch(
+      Uri.parse('$baseUrl/product/single/${product.id}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(productData),
+    );
+    log(productData.toString());
+    final responseData = jsonDecode(response.body);
 
-  if (response.statusCode == 200) {
-    final dynamic body = json.decode(response.body);
-
-    print(body);
-    return true;
-  } else {
-    print(json.decode(response.body)['message']);
-    snackbarService.showSnackBar(json.decode(response.body)['message']);
-    return false;
-
+    if (response.statusCode == 200) {
+      log('Product updated successfully: ${responseData['message']}');
+    } else {
+      log('Failed to update product. Status Code: ${response.statusCode}, Response: $responseData');
+      throw Exception(
+          'Failed to update product: ${responseData['message'] ?? 'Unknown error'}');
+    }
+  } catch (e) {
+    log('Exception in updateProduct: $e');
+    throw Exception('Failed to update product: $e');
   }
 }

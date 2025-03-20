@@ -2,6 +2,9 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:hef/src/data/api_routes/products_api/products_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
+import 'package:hef/src/data/globals.dart';
+import 'package:hef/src/data/models/product_model.dart';
+import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -13,8 +16,16 @@ import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 
 class EnterProductsPage extends ConsumerStatefulWidget {
-  EnterProductsPage({
+  final bool isEditing;
+  final Product? product;
+  final Function(Product)? onEdit;
+  final String? imageUrl;
+  const EnterProductsPage({
+    this.imageUrl,
     super.key,
+    this.isEditing = false,
+    this.product,
+    this.onEdit,
   });
 
   @override
@@ -23,53 +34,91 @@ class EnterProductsPage extends ConsumerStatefulWidget {
 
 class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
   File? productImage;
-
   final _formKey = GlobalKey<FormState>();
-  TextEditingController productPriceType =
-      TextEditingController(text: "Price per unit");
-  final TextEditingController productNameController = TextEditingController();
-  final TextEditingController productDescriptionController =
-      TextEditingController();
-  final TextEditingController productMoqController = TextEditingController();
-  final TextEditingController productActualPriceController =
-      TextEditingController();
-  final TextEditingController productOfferPriceController =
-      TextEditingController();
-  File? _productImageFIle;
 
-  String productUrl = '';
+  // Initialize controllers
+  late TextEditingController productPriceType;
+  late TextEditingController productNameController;
+  late TextEditingController productDescriptionController;
+  late TextEditingController productMoqController;
+  late TextEditingController productActualPriceController;
+  late TextEditingController productOfferPriceController;
 
-  Future<File?> _pickFile({required String imageType}) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['png', 'jpg', 'jpeg'],
-    );
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers with existing data if editing
+    productPriceType = TextEditingController(
+        text: widget.isEditing
+            ? widget.product?.productPriceType
+            : "Price per unit");
+    productNameController = TextEditingController(
+        text: widget.isEditing ? widget.product?.name : '');
+    productDescriptionController = TextEditingController(
+        text: widget.isEditing ? widget.product?.description : '');
+    productMoqController = TextEditingController(
+        text: widget.isEditing ? widget.product?.moq?.toString() : '');
+    productActualPriceController = TextEditingController(
+        text: widget.isEditing ? widget.product?.price?.toString() : '');
+    productOfferPriceController = TextEditingController(
+        text: widget.isEditing ? widget.product?.offerPrice?.toString() : '');
+  }
 
-    if (result != null) {
-      if (imageType == 'product') {
-        _productImageFIle = File(result.files.single.path!);
-        return _productImageFIle;
-      }
-    }
-
-    return null;
+  @override
+  void dispose() {
+    productPriceType.dispose();
+    productNameController.dispose();
+    productDescriptionController.dispose();
+    productMoqController.dispose();
+    productActualPriceController.dispose();
+    productOfferPriceController.dispose();
+    super.dispose();
   }
 
   Future<void> _addNewProduct() async {
-    productUrl = await imageUpload(
-
-      _productImageFIle!.path,
-    );
-    log('product price type:${productPriceType.text}');
- await uploadProduct(
+    final createdProduct = await uploadProduct(
       name: productNameController.text,
       price: productActualPriceController.text,
       offerPrice: productOfferPriceController.text,
       description: productDescriptionController.text,
       moq: productMoqController.text,
-      productImage: productUrl,
+      productImage: await imageUpload(productImage!.path),
       productPriceType: productPriceType.text,
     );
+    if (createdProduct == null) {
+      print('couldnt create new product');
+    } else {
+      final newProduct = Product(
+        id: createdProduct.id,
+        name: productNameController.text,
+        image: await imageUpload(productImage!.path),
+        description: productDescriptionController.text,
+        moq: int.parse(productMoqController.text),
+        offerPrice: double.parse(productOfferPriceController.text),
+        price: double.parse(productActualPriceController.text),
+        seller: id,
+        productPriceType: productPriceType.text,
+        status: 'pending',
+      );
+    }
+  }
+
+  File? _productImageFIle;
+  Future<File?> _pickFile({required String imageType}) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: [
+        'png',
+        'jpg',
+        'jpeg',
+      ],
+    );
+
+    if (result != null) {
+      _productImageFIle = File(result.files.single.path!);
+      return _productImageFIle;
+    }
+    return null;
   }
 
   @override
@@ -103,9 +152,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                 child: SizedBox(
                   width: 100,
                   height: 100,
-                  child:Image.asset(
-                                                      scale: 5,
-                                                      'assets/pngs/splash_logo.png'),
+                  child: Image.asset(scale: 5, 'assets/pngs/splash_logo.png'),
                 ),
               ),
               bottom: PreferredSize(
@@ -158,7 +205,11 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                       initialValue: productImage,
                       validator: (value) {
                         if (value == null) {
-                          return 'Please upload an image';
+                          if (!widget.isEditing) {
+                            return 'Please upload an image';
+                          } else {
+                            return null;
+                          }
                         }
                         return null;
                       },
@@ -201,23 +252,29 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                                       : null,
                                 ),
                                 child: productImage == null
-                                    ? const Center(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.add,
-                                                size: 27, color: kPrimaryColor),
-                                            SizedBox(height: 10),
-                                            Text(
-                                              'Upload Image',
-                                              style: TextStyle(
-                                                  color: Color.fromARGB(
-                                                      255, 102, 101, 101)),
+                                    ? widget.imageUrl != null
+                                        ? Center(
+                                            child: Image.network(
+                                                widget.imageUrl ?? ''),
+                                          )
+                                        : const Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.add,
+                                                    size: 27,
+                                                    color: Color(0xFF004797)),
+                                                SizedBox(height: 10),
+                                                Text(
+                                                  'Upload Image',
+                                                  style: TextStyle(
+                                                      color: Color.fromARGB(
+                                                          255, 102, 101, 101)),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                      )
+                                          )
                                     : Center(
                                         child: Image.file(
                                           productImage!,
@@ -267,12 +324,8 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                       },
                     ),
                     const SizedBox(height: 10),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    const SizedBox(height: 10),
                     ModalSheetTextFormField(
-                      textInputType: TextInputType.number,
+                      textInputType: const TextInputType.numberWithOptions(),
                       textController: productMoqController,
                       label: 'Add MOQ',
                       validator: (value) {
@@ -287,7 +340,8 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                       children: [
                         Flexible(
                           child: ModalSheetTextFormField(
-                            textInputType: TextInputType.number,
+                            textInputType:
+                                const TextInputType.numberWithOptions(),
                             textController: productActualPriceController,
                             label: 'Actual price',
                             validator: (value) {
@@ -301,21 +355,24 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                         const SizedBox(width: 10),
                         Flexible(
                           child: ModalSheetTextFormField(
-                            textInputType: TextInputType.number,
+                            textInputType:
+                                const TextInputType.numberWithOptions(),
                             textController: productOfferPriceController,
                             label: 'Offer price',
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter the offer price';
                               }
-                              if (int.parse(productOfferPriceController.text) >
-                                  int.parse(
+                              if (double.parse(
+                                      productOfferPriceController.text) >
+                                  double.parse(
                                       productActualPriceController.text)) {
                                 return 'Make actual price higher';
                               }
-                              if (int.parse(
+                              if (double.parse(
                                       productActualPriceController.text) ==
-                                  int.parse(productOfferPriceController.text)) {
+                                  double.parse(
+                                      productOfferPriceController.text)) {
                                 return 'Prices should be different';
                               }
                               return null;
@@ -365,9 +422,36 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                     ),
                     const SizedBox(height: 10),
                     customButton(
-                      label: 'SAVE',
+                      label: widget.isEditing ? 'UPDATE' : 'SAVE',
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
+                          if (widget.isEditing) {
+                            // Show confirmation dialog before updating the product
+                            final bool confirmUpdate = await showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Confirm Update"),
+                                content: const Text(
+                                    "If you update this product, you will need to wait for admin approval again. Do you want to proceed?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false), // Cancel
+                                    child: const Text("Cancel"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true), // Confirm
+                                    child: const Text("Proceed"),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (!confirmUpdate)
+                              return; // If user cancels, do nothing
+                          }
+
                           showDialog(
                             context: context,
                             barrierDismissible: false,
@@ -376,21 +460,42 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                           );
 
                           try {
-                            await _addNewProduct();
-                            productActualPriceController.clear();
-                            productDescriptionController.clear();
-                            productMoqController.clear();
-                            productOfferPriceController.clear();
-                            productNameController.clear();
-                            productPriceType.clear();
+                            if (widget.isEditing && widget.onEdit != null) {
+                              // Create updated product
+                              final updatedProduct = Product(
+                                id: widget.product!.id,
+                                name: productNameController.text,
+                                description: productDescriptionController.text,
+                                moq: int.parse(productMoqController.text),
+                                price: double.parse(
+                                    productActualPriceController.text),
+                                offerPrice: double.parse(
+                                    productOfferPriceController.text),
+                                productPriceType: productPriceType.text,
+                                image: productImage != null
+                                    ? await imageUpload(productImage!.path)
+                                    : widget.product?.image,
+                                seller: widget.product?.seller,
+                                status:
+                                    "pending", // Ensure status is set to pending
+                              );
 
-                            if (productImage != null) {
-                              setState(() {
-                                productImage = null;
-                              });
+                              await widget.onEdit!(updatedProduct);
+                              ref.invalidate(fetchMyProductsProvider);
+                            } else {
+                              await _addNewProduct();
                             }
 
-                            ref.invalidate(fetchMyProductsProvider);
+                            // Clear form
+                            productNameController.clear();
+                            productDescriptionController.clear();
+                            productMoqController.clear();
+                            productActualPriceController.clear();
+                            productOfferPriceController.clear();
+                            productPriceType.clear();
+                            setState(() {
+                              productImage = null;
+                            });
                           } finally {
                             Navigator.of(context).pop(); // Close loader
                             Navigator.pop(context); // Go back

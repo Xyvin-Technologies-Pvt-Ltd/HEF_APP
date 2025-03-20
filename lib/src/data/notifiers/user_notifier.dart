@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/globals.dart';
+import 'package:hef/src/data/models/product_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
 
 class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {

@@ -109,7 +109,7 @@ class _ChatPageState extends ConsumerState<GroupChatPage> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Center(child: Image.asset('assets/nochat.png')),
+                      child: Center(child: Image.asset('assets/pngs/nochat.png')),
                     ),
                     Text('No group chat yet!')
                   ],

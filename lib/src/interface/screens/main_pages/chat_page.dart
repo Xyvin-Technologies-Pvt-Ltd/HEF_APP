@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/chat_dash.dart';
+import 'package:hef/src/interface/screens/main_pages/chat/groupchat.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/members.dart';
 
 class PeoplePage extends StatelessWidget {
@@ -10,7 +11,7 @@ class PeoplePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 2,
+        length: 3,
         child: Scaffold(
             backgroundColor: kWhite,
             body: SafeArea(
@@ -37,6 +38,7 @@ class PeoplePage extends StatelessWidget {
                           tabs: [
                             Tab(text: "MEMBERS"),
                             Tab(text: "CHAT LIST"),
+                            Tab(text: "GROUP CHAT"),
                           ],
                         ),
                       ),
@@ -47,6 +49,7 @@ class PeoplePage extends StatelessWidget {
                       children: [
                         const MembersPage(),
                         ChatDash(),
+                        GroupChatPage()
                       ],
                     ),
                   ),

@@ -44,7 +44,7 @@ class GroupInfoPage extends StatelessWidget {
                       width: 100,
                       height: 100,
                       child: Image.asset(
-                        'assets/icons/ackaf_logo.png',
+                        'assets/pngs/splash_logo.png',
                         fit: BoxFit.contain,
                       ),
                     ),

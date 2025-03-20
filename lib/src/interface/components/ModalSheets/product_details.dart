@@ -382,7 +382,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                           if (subscriptionType != 'free') {
                             await sendChatMessage(
                                 productId: widget.product.id,
-                                userId: widget.product.seller!,
+                                Id: widget.product.seller!,
                                 content:
                                     '''I need ${_quantityController.text}\nLet\'s Connect!''');
 

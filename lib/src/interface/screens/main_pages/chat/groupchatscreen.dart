@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/group_chat_api/group_chat_api.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/group_chat_model.dart';
 import 'package:hef/src/data/models/msg_model.dart';
@@ -79,7 +80,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
     if (_controller.text.isNotEmpty && mounted) {
       sendChatMessage(
         isGroup: true,
-        userId: widget.group.id!,
+        Id: widget.group.id!,
         content: _controller.text,
       );
       setMessage("sent", _controller.text, widget.sender.id!);
@@ -106,22 +107,22 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
       messages.add(messageModel);
     });
   }
+@override
+Widget build(BuildContext context) {
+  final groupMessageStream = ref.watch(groupMessageStreamProvider);
 
-  @override
-  Widget build(BuildContext context) {
-    final messageStream = ref.watch(groupMessageStreamProvider);
+  groupMessageStream.whenData((newMessage) {
+    bool messageExists = messages.any((message) =>
+        message.createdAt == newMessage.createdAt &&
+        message.content == newMessage.content);
 
-    messageStream.whenData((newMessage) {
-      bool messageExists = messages.any((message) =>
-          message.createdAt == newMessage.createdAt &&
-          message.content == newMessage.content);
+    if (!messageExists) {
+      setState(() {
+        messages.add(newMessage);
+      });
+    }
+  });
 
-      if (!messageExists) {
-        setState(() {
-          messages.add(newMessage);
-        });
-      }
-    });
 
     return Stack(
       children: [
@@ -175,12 +176,11 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
                       MaterialPageRoute(
                           builder: (context) => GroupInfoPage(
                               groupId: widget.group.id ?? '',
-                              groupName:
-                                  '${widget.group.name?? ''}')),
+                              groupName: '${widget.group.name ?? ''}')),
                     );
                   },
                   child: Text(
-                    '${widget.group.name?? ''}',
+                    '${widget.group.name ?? ''}',
                     style: const TextStyle(fontSize: 18),
                   ),
                 ),
@@ -235,8 +235,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
                               return asyncUser.when(
                                 data: (user) {
                                   return GroupchatOwnMessageCard(
-                                    username:
-                                        '${user.name?? ''}',
+                                    username: '${user.name ?? ''}',
                                     status: message.status!,
                                     message: message.content ?? '',
                                     time: DateFormat('h:mm a').format(
@@ -272,8 +271,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
                                     reportType: 'Message');
                               },
                               child: GroupchatReplyMsgCard(
-                                username:
-                                    '${message.from?.name?? ''}',
+                                username: '${message.from?.name ?? ''}',
                                 message: message.content ?? '',
                                 time: DateFormat('h:mm a').format(
                                   DateTime.parse(message.createdAt.toString())
@@ -322,95 +320,82 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
                       : Align(
                           alignment: Alignment.bottomCenter,
                           child: Container(
-                            height: 70,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0, vertical: 12.0),
+                            color: kScaffoldColor,
+                            child: Row(
                               children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: MediaQuery.of(context).size.width -
-                                          65,
-                                      child: Card(
-                                        elevation: 0,
-                                        color: Colors.white,
-                                        margin: const EdgeInsets.only(
-                                            left: 15, right: 2, bottom: 22),
-                                        shape: const RoundedRectangleBorder(
-                                          side: BorderSide(
-                                            color: Color.fromARGB(
-                                                255, 220, 215, 215),
-                                            width: .5,
-                                          ),
-                                        ),
-                                        child: TextFormField(
-                                          controller: _controller,
-                                          focusNode: focusNode,
-                                          textAlignVertical:
-                                              TextAlignVertical.center,
-                                          keyboardType: TextInputType.multiline,
-                                          maxLines: 5,
-                                          minLines: 1,
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: "What would you share?",
-                                            hintStyle: const TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 14),
-                                            suffixIcon: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                // IconButton(
-                                                //   icon: const Icon(
-                                                //       Icons.attach_file),
-                                                //   onPressed: () {
-                                                //     showModalBottomSheet(
-                                                //         backgroundColor:
-                                                //             Colors.transparent,
-                                                //         context: context,
-                                                //         builder: (builder) =>
-                                                //             bottomSheet());
-                                                //   },
-                                                // ),
-                                              ],
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.all(5),
-                                          ),
-                                        ),
+                                Expanded(
+                                  child: Card(
+                                    elevation: 1,
+                                    color: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      side: const BorderSide(
+                                        color:
+                                            Color.fromARGB(255, 220, 215, 215),
+                                        width: 0.5,
                                       ),
+                                      borderRadius: BorderRadius.circular(15.0),
                                     ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 20,
-                                        right: 2,
-                                        left: 2,
-                                      ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0, vertical: 5.0),
                                       child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Color(0xFFE30613),
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        child: IconButton(
-                                          icon: const Icon(
-                                            Icons.send,
-                                            color: Colors.white,
+                                        constraints: const BoxConstraints(
+                                          maxHeight: 150, // Limit the height
+                                        ),
+                                        child: Scrollbar(
+                                          thumbVisibility: true,
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.vertical,
+                                            reverse: true, // Start from bottom
+                                            child: TextField(
+                                              controller: _controller,
+                                              focusNode: focusNode,
+                                              keyboardType:
+                                                  TextInputType.multiline,
+                                              maxLines:
+                                                  null, // Allows for unlimited lines
+                                              minLines:
+                                                  1, // Starts with a single line
+                                              decoration: const InputDecoration(
+                                                border: InputBorder.none,
+                                                hintText: "Type a message",
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 10),
+                                              ),
+                                            ),
                                           ),
-                                          onPressed: () {
-                                            sendMessage();
-                                          },
                                         ),
                                       ),
                                     ),
-                                  ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    right: 2,
+                                    left: 2,
+                                  ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: kPrimaryColor,
+                                        borderRadius: BorderRadius.circular(5)),
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.send,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        sendMessage();
+                                      },
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
+                        )
                 ],
               ),
               onPopInvoked: (didPop) {

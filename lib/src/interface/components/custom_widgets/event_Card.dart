@@ -11,9 +11,7 @@ Widget eventWidget({
   required BuildContext context,
   required Event event,
 }) {
-  DateTime time = DateTime.parse(event.startTime.toString()).toLocal();
-  DateTime date = DateTime.parse(event.startDate.toString()).toLocal();
-  String formattedTime = DateFormat('hh:mm a').format(time);
+  DateTime date = DateTime.parse(event.eventDate.toString()).toLocal();
   String formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
   return Padding(
@@ -163,27 +161,7 @@ Widget eventWidget({
                               ),
                             ],
                           ),
-                          const SizedBox(width: 4),
-                          Container(
-                            width: 1,
-                            height: 14,
-                            color: const Color.fromARGB(255, 210, 205, 205),
-                          ),
-                          const SizedBox(width: 6),
-                          Row(
-                            children: [
-                              const Icon(Icons.access_time,
-                                  size: 13, color: Color(0xFF0E1877)),
-                              const SizedBox(width: 4),
-                              Text(
-                                formattedTime,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF0E1877),
-                                ),
-                              ),
-                            ],
-                          ),
+          
                         ],
                       ),
                     ],

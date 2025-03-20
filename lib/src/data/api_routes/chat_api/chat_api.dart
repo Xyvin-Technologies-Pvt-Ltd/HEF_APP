@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hef/src/data/api_routes/group_chat_api/group_api.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
+import 'package:hef/src/data/models/group_chat_model.dart';
 import 'package:hef/src/data/models/msg_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,97 +14,100 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 part 'chat_api.g.dart';
-
-// Define a Socket.IO client providerr
 final socketIoClientProvider = Provider<SocketIoClient>((ref) {
   return SocketIoClient();
 });
 
-// Define a message stream provider
+// Individual Message Stream Provider
 final messageStreamProvider = StreamProvider.autoDispose<MessageModel>((ref) {
   final socketIoClient = ref.read(socketIoClientProvider);
   return socketIoClient.messageStream;
 });
 
+// Group Message Stream Provider
+final groupMessageStreamProvider = StreamProvider.autoDispose<GroupChatModel>((ref) {
+  final socketIoClient = ref.read(socketIoClientProvider);
+  return socketIoClient.groupMessageStream;
+});
+
 class SocketIoClient {
   late IO.Socket _socket;
-  final _controller = StreamController<MessageModel>.broadcast();
+  
+  // Separate controllers for individual & group chat messages
+  final _messageController = StreamController<MessageModel>.broadcast();
+  final _groupMessageController = StreamController<GroupChatModel>.broadcast();
 
   SocketIoClient();
 
-  Stream<MessageModel> get messageStream => _controller.stream;
+  Stream<MessageModel> get messageStream => _messageController.stream;
+  Stream<GroupChatModel> get groupMessageStream => _groupMessageController.stream;
 
   void connect(String senderId, WidgetRef ref) {
     final uri = 'wss://api.hefconnect.in/api/v1/chat?userId=$senderId';
 
-    // Initialize socket.io client
     _socket = IO.io(
       uri,
       IO.OptionBuilder()
-          .setTransports(['websocket']) // Use WebSocket transport
-          .disableAutoConnect() // Disable auto-connect
+          .setTransports(['websocket'])
+          .disableAutoConnect()
           .build(),
     );
 
     log('Connecting to: $uri');
 
-    // Listen for connection events
     _socket.onConnect((_) {
       log('Connected to: $uri');
     });
 
-    // Listen to messages from the server
+    // Listen for messages (for both individual and group chat)
     _socket.on('message', (data) {
-      log(data.toString());
-      print("im inside event listener");
-      print('Received message: $data');
-      log(' Received message${data.toString()}');
-      final messageModel = MessageModel.fromJson(data);
-
-      // Invalidate the fetchChatThreadProvider when a new message is received
-      ref.invalidate(fetchChatThreadProvider);
-
-      if (!_controller.isClosed) {
-        _controller.add(messageModel);
+      log('Received message: $data');
+      
+      if (data['isGroup'] == true) {
+        final groupMessageModel = GroupChatModel.fromJson(data);
+        ref.invalidate(getGroupListProvider); // Invalidate group list provider
+        if (!_groupMessageController.isClosed) {
+          _groupMessageController.add(groupMessageModel);
+        }
+      } else {
+        final messageModel = MessageModel.fromJson(data);
+        ref.invalidate(fetchChatThreadProvider); // Invalidate individual chat provider
+        if (!_messageController.isClosed) {
+          _messageController.add(messageModel);
+        }
       }
     });
 
-    // Handle connection errors
     _socket.on('connect_error', (error) {
-      print('Connection Error: $error');
-      if (!_controller.isClosed) {
-        _controller.addError(error);
-      }
+      log('Connection Error: $error');
+      if (!_messageController.isClosed) _messageController.addError(error);
+      if (!_groupMessageController.isClosed) _groupMessageController.addError(error);
     });
 
-    // Handle disconnection
     _socket.onDisconnect((_) {
-      print('Disconnected from server');
-      if (!_controller.isClosed) {
-        _controller.close();
-      }
+      log('Disconnected from server');
     });
 
-    // Connect manually
     _socket.connect();
   }
 
   void disconnect() {
     _socket.disconnect();
-    _socket.dispose(); // To prevent memory leaks
-    if (!_controller.isClosed) {
-      _controller.close();
-    }
+    _socket.dispose(); // Prevent memory leaks
+
+    if (!_messageController.isClosed) _messageController.close();
+    if (!_groupMessageController.isClosed) _groupMessageController.close();
   }
 }
 
 Future<String> sendChatMessage(
-    {required String userId,
+    {required String Id,
     String? content,
     String? productId,
+
     bool? isGroup=false,
     String? businessId}) async {
-  final url = Uri.parse('$baseUrl/chat/send-message/$userId');
+  final url = Uri.parse('$baseUrl/chat/send-message/$Id');
   final headers = {
     'accept': '*/*',
     'Authorization': 'Bearer $token',

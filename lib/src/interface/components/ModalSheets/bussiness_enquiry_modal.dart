@@ -249,7 +249,7 @@ void messageSheet({
                             label: buttonText,
                             onPressed: () async {
                               await sendChatMessage(
-                                  userId: feed.author ?? '',
+                                  Id: feed.author ?? '',
                                   content: feed.content!,
                                   businessId: feed.id);
                               Navigator.of(context).push(MaterialPageRoute(
@@ -258,7 +258,7 @@ void messageSheet({
                                         sender: sender,
                                       )));
                               await sendChatMessage(
-                                  userId: feed.author ?? '',
+                                  Id: feed.author ?? '',
                                   content: messageController.text);
                             },
                             fontSize: 16,

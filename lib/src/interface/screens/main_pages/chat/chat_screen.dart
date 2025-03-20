@@ -77,7 +77,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   void sendMessage() {
     if (_controller.text.isNotEmpty && mounted) {
       sendChatMessage(
-        userId: widget.receiver.id!,
+        Id: widget.receiver.id!,
         content: _controller.text,
       );
       setMessage("sent", _controller.text, widget.sender.id!);
@@ -98,21 +98,22 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final messageStream = ref.watch(messageStreamProvider);
+ @override
+Widget build(BuildContext context) {
+  final messageStream = ref.watch(messageStreamProvider);
 
-    messageStream.whenData((newMessage) {
-      bool messageExists = messages.any((message) =>
-          message.createdAt == newMessage.createdAt &&
-          message.content == newMessage.content);
+  messageStream.whenData((newMessage) {
+    bool messageExists = messages.any((message) =>
+        message.createdAt == newMessage.createdAt &&
+        message.content == newMessage.content);
 
-      if (!messageExists) {
-        setState(() {
-          messages.add(newMessage);
-        });
-      }
-    });
+    if (!messageExists) {
+      setState(() {
+        messages.add(newMessage);
+      });
+    }
+  });
+
 
     return GestureDetector(
       onTap: () {

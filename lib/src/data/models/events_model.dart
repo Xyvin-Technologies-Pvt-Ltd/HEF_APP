@@ -8,6 +8,7 @@ class Event {
   final DateTime? startTime;
   final DateTime? endDate;
   final DateTime? endTime;
+  final DateTime? eventDate;
   final String? platform;
   final String? link;
   final String? venue;
@@ -20,7 +21,7 @@ class Event {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final int? limit;
-  Event({
+  Event( {this.eventDate,
     this.id,
     this.eventName,
     this.description,
@@ -52,6 +53,9 @@ class Event {
       image: json['image'] as String?,
       startDate: json['startDate'] != null
           ? DateTime.tryParse(json['startDate'])
+          : null,
+      eventDate: json['eventDate'] != null
+          ? DateTime.tryParse(json['eventDate'])
           : null,
       startTime: json['startTime'] != null
           ? DateTime.tryParse(json['startTime'])
@@ -91,6 +95,7 @@ class Event {
       'type': type,
       'image': image,
       'startDate': startDate?.toIso8601String(),
+      'eventDate': eventDate?.toIso8601String(),
       'startTime': startTime?.toIso8601String(),
       'endDate': endDate?.toIso8601String(),
       'endTime': endTime?.toIso8601String(),

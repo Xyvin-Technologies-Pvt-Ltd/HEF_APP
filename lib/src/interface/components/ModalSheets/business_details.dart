@@ -157,7 +157,7 @@ class BusinessDetailsModalSheet extends StatelessWidget {
                           label: buttonText,
                           onPressed: () async {
                             await sendChatMessage(
-                                userId: business.author ?? '',
+                                Id: business.author ?? '',
                                 content: business.content ?? '',
                                 businessId: business.id);
                             Navigator.of(context).push(MaterialPageRoute(

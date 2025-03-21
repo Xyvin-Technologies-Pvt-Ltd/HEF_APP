@@ -175,31 +175,48 @@ class GroupInfoPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 0.0),
       child: ListTile(
-        leading: Image.asset(
-          'assets/icons/dummy_person_small.png',
-          scale: .7,
+        leading: CircleAvatar(
+          radius: 25,
+          backgroundColor: Colors.grey[200], // Optional background color
+          child: member.image != null && member.image.isNotEmpty
+              ? ClipOval(
+                  child: Image.asset(
+                    member.image,
+                    fit: BoxFit.cover,
+                    width: 50, // Match double the radius
+                    height: 50,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/pngs/dummy_person_small.png',
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
+                )
+              : Image.asset(
+                  'assets/pngs/dummy_person_small.png',
+                  fit: BoxFit.cover,
+                ),
         ),
 
-        // CircleAvatar(
-        //   backgroundImage: AssetImage(member.imagePath),
-        //   radius: 25,
-        // ),
-        title: Text(member.name ?? '',
+        title: Text(member.name,
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              member.college ?? '',
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: const Color.fromARGB(255, 103, 100, 100)),
-            ),
-            Text(
-              member.batch.toString(),
-              style: const TextStyle(fontSize: 13),
-            ),
+            if (member.chapter != 'null')
+              Text(
+                member.chapter,
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: const Color.fromARGB(255, 103, 100, 100)),
+              ),
+            if (member.chapter != 'null')
+              Text(
+                member.memberId,
+                style: const TextStyle(fontSize: 13),
+              ),
           ],
         ),
         // trailing: member.isAdmin

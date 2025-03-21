@@ -1362,11 +1362,21 @@ class _EditUserState extends ConsumerState<EditUser> {
                                         height: 10,
                                       ),
                                       CustomTextFormField(
-                                        textInputType: TextInputType.number,
+                                        textInputType: TextInputType.phone,
                                         companyIndex: index,
                                         title: 'Company ${index + 1} Phone',
                                         labelText: 'Enter Company Phone',
                                         textController: controllers['phone']!,
+                                        validator: (value) {
+                                          if (value != null &&
+                                              value.isNotEmpty) {
+                                            if (!RegExp(r'^\+\d{1,3}\d{7,15}$')
+                                                .hasMatch(value)) {
+                                              return 'Enter a valid phone number with country code';
+                                            }
+                                          }
+                                          return null; // No error if field is empty
+                                        },
                                       ),
                                       SizedBox(
                                         height: 5,
@@ -1393,6 +1403,17 @@ class _EditUserState extends ConsumerState<EditUser> {
                                         title: 'Company ${index + 1} Email',
                                         labelText: 'Enter Company Email',
                                         textController: controllers['email']!,
+                                        validator: (value) {
+                                          if (value != null &&
+                                              value.isNotEmpty) {
+                                            if (!RegExp(
+                                                    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                                                .hasMatch(value)) {
+                                              return 'Enter a valid email address';
+                                            }
+                                          }
+                                          return null; // No error if field is empty
+                                        },
                                       ),
                                       SizedBox(
                                         height: 10,

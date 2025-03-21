@@ -5,14 +5,23 @@ import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
-
 Widget eventWidget({
   bool withImage = true,
   required BuildContext context,
   required Event event,
 }) {
-  DateTime date = DateTime.parse(event.eventDate.toString()).toLocal();
-  String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+  String formattedDate = '';
+  
+  if (event.eventDate != null) {
+    try {
+      DateTime date = DateTime.parse(event.eventDate.toString()).toLocal();
+      formattedDate = DateFormat('yyyy-MM-dd').format(date);
+    } catch (e) {
+      formattedDate = 'Invalid date';
+    }
+  } else {
+    formattedDate = 'TBA'; // "To Be Announced" or any other placeholder text
+  }
 
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -30,7 +39,7 @@ Widget eventWidget({
               Stack(
                 children: [
                   Container(
-                    padding: EdgeInsets.only(left: 10, right: 10, top: 10),
+                    padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
                     width: MediaQuery.sizeOf(context).width * .95,
                     height: 190,
                     decoration: BoxDecoration(
@@ -73,10 +82,10 @@ Widget eventWidget({
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: event.status == 'completed'
-                            ? Color(0xFF434343)
+                            ? const Color(0xFF434343)
                             : event.status == 'live'
-                                ? Color(0xFF2D8D00)
-                                : Color(0xFF596AFF),
+                                ? const Color(0xFF2D8D00)
+                                : const Color(0xFF596AFF),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
@@ -92,13 +101,13 @@ Widget eventWidget({
                               color: Colors.white,
                             ),
                           if (event.status == 'upcoming')
-                            Icon(
+                            const Icon(
                               Icons.access_time,
                               color: Colors.white,
                             ),
                           Text(
                             event.status?.toUpperCase() ?? '',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
                             ),
@@ -131,37 +140,22 @@ Widget eventWidget({
                       ),
                     ],
                   ),
-                  // const SizedBox(height: 2),
-                  // Text(
-                  //   event.description ?? '',
-                  //   style: const TextStyle(
-                  //     fontSize: 14,
-                  //     color: Colors.grey,
-                  //   ),
-                  //   maxLines: 2,
-                  //   overflow: TextOverflow.ellipsis,
-                  // ),
                   const SizedBox(height: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.calendar_today,
-                                  size: 13, color: Color(0xFF700F0F)),
-                              const SizedBox(width: 4),
-                              Text(
-                                formattedDate,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF700F0F),
-                                ),
-                              ),
-                            ],
+                          const Icon(Icons.calendar_today,
+                              size: 13, color: Color(0xFF700F0F)),
+                          const SizedBox(width: 4),
+                          Text(
+                            formattedDate,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF700F0F),
+                            ),
                           ),
-          
                         ],
                       ),
                     ],

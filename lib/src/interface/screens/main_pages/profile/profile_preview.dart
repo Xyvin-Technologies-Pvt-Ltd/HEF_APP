@@ -241,12 +241,10 @@ class ProfilePreview extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 234, 226, 226),
-                        ),
-                      ),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 234, 226, 226))),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -255,18 +253,10 @@ class ProfilePreview extends ConsumerWidget {
                             child: Image.asset(
                                 scale: 5, 'assets/pngs/splash_logo.png'),
                           ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Expanded(
-                            // Added Expanded widget to make the text expandable
-                            child: Text(
-                              'Member ID: ${user.memberId}',
-                              overflow: TextOverflow
-                                  .ellipsis, // Optional: handles overflow
-                              style: const TextStyle(
-                                color: Colors.grey,
-                              ),
+                          Text(
+                            'Member ID: ${user.memberId}',
+                            style: const TextStyle(
+                              color: Colors.grey,
                             ),
                           ),
                         ],
@@ -792,7 +782,7 @@ class ProfilePreview extends ConsumerWidget {
     final videoUrl = video.link;
 
     final ytController = YoutubePlayerController.fromVideoId(
-      videoId: YoutubePlayerController.convertUrlToId(videoUrl ?? '')??'',
+      videoId: YoutubePlayerController.convertUrlToId(videoUrl ?? '') ?? '',
       autoPlay: false,
       params: const YoutubePlayerParams(
         enableJavaScript: true,

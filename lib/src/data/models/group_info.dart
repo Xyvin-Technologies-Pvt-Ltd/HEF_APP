@@ -1,24 +1,22 @@
 class GroupInfoModel {
-  final String? groupName;
-  final String? groupInfo;
-  final int? memberCount;
-  final List<GroupParticipantModel>? participantsData;
+  final String groupName;
+  final String groupInfo;
+  final int memberCount;
+  final List<GroupParticipantModel> participantsData;
 
   GroupInfoModel({
-    this.groupName,
-    this.groupInfo,
-    this.memberCount,
-    this.participantsData,
+    required this.groupName,
+    required this.groupInfo,
+    required this.memberCount,
+    required this.participantsData,
   });
 
   factory GroupInfoModel.fromJson(Map<String, dynamic> json) {
     return GroupInfoModel(
-      groupName: json['groupInfo']?['groupName'] as String?,
-      groupInfo: json['groupInfo']?['groupInfo'] as String?,
-      memberCount: json['groupInfo']?['memberCount'] as int?,
-      participantsData: (json['participantsData'] as List?)
-          ?.map((item) => GroupParticipantModel.fromJson(item as Map<String, dynamic>))
-          .toList(),
+      groupName: json['groupInfo']?['groupName'] ?? '',
+      groupInfo: json['groupInfo']?['groupInfo'] ?? '',
+      memberCount: json['groupInfo']?['memberCount'] ?? 0,
+      participantsData: (json['participantsData'] as List?)?.map((e) => GroupParticipantModel.fromJson(e)).toList() ?? [],
     );
   }
 
@@ -29,39 +27,39 @@ class GroupInfoModel {
         'groupInfo': groupInfo,
         'memberCount': memberCount,
       },
-      'participantsData': participantsData?.map((item) => item.toJson()).toList(),
+      'participantsData': participantsData.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class GroupParticipantModel {
-  final String? id;
-  final String? name;
-  final String? phone;
-  final int? batch;
-  final String? college;
-  final String? memberId;
-  final String? status;
+  final String id;
+  final String name;
+  final String image;
+  final String phone;
+  final String chapter;
+  final String memberId;
+  final String status;
 
   GroupParticipantModel({
-    this.id,
-    this.name,
-    this.phone,
-    this.batch,
-    this.college,
-    this.memberId,
-    this.status,
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.phone,
+    required this.chapter,
+    required this.memberId,
+    required this.status,
   });
 
   factory GroupParticipantModel.fromJson(Map<String, dynamic> json) {
     return GroupParticipantModel(
-      id: json['_id'] as String?,
-      name: json['name'] as String?,
-      phone: json['phone'] as String?,
-      batch: json['batch'] as int?,
-      college: json['college'] as String?,
-      memberId: json['memberId'] as String?,
-      status: json['status'] as String?,
+      id: json['_id'] ?? '',
+      name: json['name'] ?? '',
+      image: json['image'] ?? '',
+      phone: json['phone'] ?? '',
+      chapter: json['chapter'] ?? '',
+      memberId: json['memberId'] ?? '',
+      status: json['status'] ?? '',
     );
   }
 
@@ -69,9 +67,9 @@ class GroupParticipantModel {
     return {
       '_id': id,
       'name': name,
+      'image': image,
       'phone': phone,
-      'batch': batch,
-      'college': college,
+      'chapter': chapter,
       'memberId': memberId,
       'status': status,
     };

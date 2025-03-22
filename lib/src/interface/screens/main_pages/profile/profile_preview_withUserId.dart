@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hef/src/data/api_routes/review_api/review_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
@@ -413,6 +414,44 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                       ),
                                     ),
                                   const SizedBox(height: 10),
+                                  if (user.secondaryPhone?.whatsapp != null &&
+                                      user.secondaryPhone!.whatsapp!.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 10),
+                                      child: Row(
+                                        children: [
+                                          const Icon(FontAwesomeIcons.whatsapp,
+                                              color: kPrimaryColor),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                                user.secondaryPhone!.whatsapp!),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  if (user.secondaryPhone?.business != null &&
+                                      user.secondaryPhone!.business!.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 10),
+                                      child: Row(
+                                        children: [
+                                          SvgPicture.asset(
+                                            color: kPrimaryColor,
+                                            'assets/svg/icons/whatsapp-business.svg',
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                                user.secondaryPhone?.business ??
+                                                    ''),
+                                          )
+                                        ],
+                                      ),
+                                    ),
                                 ],
                               ),
                               const SizedBox(height: 60),

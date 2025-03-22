@@ -89,9 +89,16 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
     });
   }
 
-  void updateSecondaryPhone(SecondaryPhone? secondaryPhone) {
-    state =
-        state.whenData((user) => user.copyWith(secondaryPhone: secondaryPhone));
+  void updateSecondaryPhone({String? whatsapp, String? business}) {
+    state = state.whenData((user) {
+      final existingSecondaryPhone = user.secondaryPhone ?? SecondaryPhone();
+      return user.copyWith(
+        secondaryPhone: SecondaryPhone(
+          whatsapp: whatsapp ?? existingSecondaryPhone.whatsapp,
+          business: business ?? existingSecondaryPhone.business,
+        ),
+      );
+    });
   }
 
   void updateEmail(String? email) {
@@ -214,21 +221,21 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
     });
   }
 
-void editAward(Award oldAward, Award updatedAward) {
-  state = state.whenData((user) {
-    final updatedAwards = user.awards!.map((award) {
-      final isReplacing = award == oldAward;
-      print("Checking Award: ${award.name} -> Replacing? $isReplacing");
+  void editAward(Award oldAward, Award updatedAward) {
+    state = state.whenData((user) {
+      final updatedAwards = user.awards!.map((award) {
+        final isReplacing = award == oldAward;
+        print("Checking Award: ${award.name} -> Replacing? $isReplacing");
 
-      return isReplacing ? updatedAward : award;
-    }).toList();
+        return isReplacing ? updatedAward : award;
+      }).toList();
 
-    print("Updated Awards List: ${updatedAwards.map((e) => e.image).toList()}");
+      print(
+          "Updated Awards List: ${updatedAwards.map((e) => e.image).toList()}");
 
-    return user.copyWith(awards: updatedAwards);
-  });
-}
-
+      return user.copyWith(awards: updatedAwards);
+    });
+  }
 
   void editWebsite(Link oldWebsite, Link newWebsite) {
     state = AsyncValue.data(state.value!.copyWith(

@@ -175,6 +175,24 @@ class AnalyticsModalSheet extends ConsumerWidget {
                   if (analytic.status == 'meeting_scheduled')
                     Flexible(
                         child: customButton(
+                      sideColor: kRedDark,
+                      buttonColor: kRedDark,
+                      label: 'Reject',
+                      onPressed: () async {
+                        await updateAnalyticStatus(
+                            analyticId: analytic.id ?? '', action: 'rejected');
+
+                        ref.invalidate(fetchAnalyticsProvider);
+                        navigationService.pop();
+                      },
+                    )),
+                  if (analytic.status == 'meeting_scheduled')
+                    SizedBox(
+                      width: 10,
+                    ),
+                  if (analytic.status == 'meeting_scheduled')
+                    Flexible(
+                        child: customButton(
                       sideColor: kGreen,
                       buttonColor: kGreen,
                       label: 'Complete',

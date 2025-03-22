@@ -835,17 +835,17 @@ class _EditUserState extends ConsumerState<EditUser> {
                                     MainAxisAlignment.spaceAround,
                                 children: [
                                   ContactEditor(
-                                      value:
-                                          user.secondaryPhone?.whatsapp ?? '',
-                                      icon: FontAwesomeIcons.whatsapp,
-                                      onSave: (whatsapp) {
-                                        ref
-                                            .read(userProvider.notifier)
-                                            .updateSecondaryPhone(
-                                                SecondaryPhone(
-                                                    whatsapp: whatsapp));
-                                      },
-                                      label: 'Whatsapp'),
+                                    value: user.secondaryPhone?.whatsapp ?? '',
+                                    icon: FontAwesomeIcons.whatsapp,
+                                    onSave: (whatsapp) {
+                                      ref
+                                          .read(userProvider.notifier)
+                                          .updateSecondaryPhone(
+                                            whatsapp: whatsapp,
+                                          );
+                                    },
+                                    label: 'Whatsapp',
+                                  ),
                                   ContactEditor(
                                       value: user.email ?? '',
                                       icon: FontAwesomeIcons.at,
@@ -856,17 +856,17 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       },
                                       label: 'Email'),
                                   ContactEditor(
-                                      value:
-                                          user.secondaryPhone?.business ?? '',
-                                      icon: FontAwesomeIcons.b,
-                                      onSave: (business) {
-                                        ref
-                                            .read(userProvider.notifier)
-                                            .updateSecondaryPhone(
-                                                SecondaryPhone(
-                                                    business: business));
-                                      },
-                                      label: 'Whatsapp Business'),
+                                    value: user.secondaryPhone?.business ?? '',
+                                    icon: FontAwesomeIcons.b,
+                                    onSave: (business) {
+                                      ref
+                                          .read(userProvider.notifier)
+                                          .updateSecondaryPhone(
+                                            business: business,
+                                          );
+                                    },
+                                    label: 'Whatsapp Business',
+                                  ),
                                   ContactEditor(
                                       value: user.address ?? '',
                                       icon: FontAwesomeIcons.locationDot,

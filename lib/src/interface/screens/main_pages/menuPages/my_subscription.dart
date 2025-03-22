@@ -61,7 +61,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
 
   String? getRenewalYear(String? period) {
     if (period != null) {
-      final parts = period!.split('-');
+      final parts = period.split('-');
       return parts.isNotEmpty ? parts[0] : null;
     } else {
       return '';
@@ -70,7 +70,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
 
   String? getExpiryYear(String? period) {
     if (period != null) {
-      final parts = period!.split('-');
+      final parts = period.split('-');
       return parts.length > 1 ? parts[1] : null;
     } else {
       return '';
@@ -216,9 +216,10 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                       BorderRadius.circular(16),
                                                 ),
                                                 child: Text(
-                                                  membershipSubscription
-                                                          ?.status ??
-                                                      'Inactive',
+                                                  appSubscription?.status ==
+                                                          'active'
+                                                      ? 'Active'
+                                                      : 'Inactive',
                                                   style: const TextStyle(
                                                     fontSize: 12,
                                                     color: Colors.green,
@@ -370,23 +371,18 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                       'active'
                                                   ? Colors.green
                                                   : Colors.red,
-                                          label: membershipSubscription?.status
-                                                  ?.toUpperCase() ??
-                                              'SUBSCRIBE',
+                                          label: 'SUBSCRIBE',
                                           onPressed: () {
-                                            if (membershipSubscription
-                                                    ?.status !=
-                                                'active') {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const PremiumPlanPage(
-                                                      subcriptionType:
-                                                          'membership',
-                                                    ),
-                                                  ));
-                                            }
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const PremiumPlanPage(
+                                                    subcriptionType:
+                                                        'membership',
+                                                  ),
+                                                ));
+
                                             // if (membershipSubscription
                                             //         ?.status !=
                                             //     'accepted') {
@@ -506,7 +502,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                                   child: Text(
                                                     appSubscription?.status ==
                                                             'active'
-                                                        ? 'Premium'
+                                                        ? 'Active'
                                                         : 'Inactive',
                                                     style: const TextStyle(
                                                       fontSize: 12,

@@ -186,18 +186,22 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
                 navigationService.pushNamed('AboutPage');
               },
             ),
-          if (user.phone != '+919645398555')
-            _buildDrawerItem(
-              icon: 'assets/svg/icons/terms.svg',
-              label: 'Terms & Conditions',
-              onTap: () {},
-            ),
-          if (user.phone != '+919645398555')
-            _buildDrawerItem(
-              icon: 'assets/svg/icons/privacy_policy.svg',
-              label: 'Privacy Policy',
-              onTap: () {},
-            ),
+
+          _buildDrawerItem(
+            icon: 'assets/svg/icons/terms.svg',
+            label: 'Terms & Conditions',
+            onTap: () {
+              navigationService.pushNamed('Terms');
+            },
+          ),
+
+          _buildDrawerItem(
+            icon: 'assets/svg/icons/privacy_policy.svg',
+            label: 'Privacy Policy',
+            onTap: () {
+              navigationService.pushNamed('PrivacyPolicy');
+            },
+          ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/logout.svg',
             label: 'Logout',

@@ -290,7 +290,6 @@ Future<List<PaymentYearModel>> getPaymentYears(Ref ref) async {
 }
 
 Future<String?> uploadPayment({
-  required String amount,
   required String image,
   required String catergory,
   required String parentSub,
@@ -301,7 +300,7 @@ Future<String?> uploadPayment({
   final body = {
     'category': catergory,
     'receipt': image,
-    'amount': amount,
+    'amount': '1000',
     'parentSub': parentSub,
   };
   log(body.toString());

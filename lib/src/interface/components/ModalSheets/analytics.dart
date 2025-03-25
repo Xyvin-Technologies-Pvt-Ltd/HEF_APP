@@ -102,6 +102,32 @@ class AnalyticsModalSheet extends ConsumerWidget {
               analytic.description ?? '',
               style: const TextStyle(color: Colors.grey),
             ),
+            const SizedBox(height: 15),
+
+            if (analytic.referral?.name != '' &&
+                analytic.referral?.name != null)
+              const Text(
+                'Referral Details:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            if (analytic.referral?.name != '' &&
+                analytic.referral?.name != null)
+              const SizedBox(height: 4),
+            if (analytic.referral?.name != '' &&
+                analytic.referral?.name != null)
+              _buildDetailRow('name', analytic.referral?.name ?? ''),
+            if (analytic.referral?.email != '' &&
+                analytic.referral?.email != null)
+              _buildDetailRow('email', analytic.referral?.email ?? ''),
+            if (analytic.referral?.phone != '' &&
+                analytic.referral?.phone != null)
+              _buildDetailRow('phone', analytic.referral?.phone ?? ''),
+            if (analytic.referral?.address != '' &&
+                analytic.referral?.address != null)
+              _buildDetailRow('address', analytic.referral?.address ?? ''),
+            if (analytic.referral?.info != '' &&
+                analytic.referral?.info != null)
+              _buildDetailRow('info', analytic.referral?.info ?? ''),
             SizedBox(
               height: 20,
             ),

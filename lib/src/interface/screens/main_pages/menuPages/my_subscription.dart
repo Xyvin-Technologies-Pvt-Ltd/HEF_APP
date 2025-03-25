@@ -610,7 +610,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                                         _buildPremiumCard(
                                             'Premium profile features'),
                                         // _buildPremiumCard(
-                                        //     'Provide feedback to KSSIA office'),
+                                        //     'Provide feedback to HEF office'),
                                         // _buildPremiumCard('Chat with everyone'),
                                       ],
                                     ),

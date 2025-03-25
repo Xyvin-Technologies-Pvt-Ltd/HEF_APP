@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:hef/src/data/constants/color_constants.dart';
+import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,12 +31,11 @@ class ShowPaymentUploadSheet extends StatefulWidget {
 
 class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
   String? selectedYearId; // Variable to store the selected academic year ID
-  TextEditingController amountController = TextEditingController();
+
   bool isLoading = false; // Add loading state
 
   @override
   Widget build(BuildContext context) {
-    amountController.text = '1000';
     return Padding(
       padding: EdgeInsets.only(
         left: 16,
@@ -144,17 +144,7 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
             },
           ),
           const SizedBox(height: 10),
-          TextField(
-            keyboardType: TextInputType.numberWithOptions(),
-            controller: amountController,
-            maxLines: 1,
-            decoration: InputDecoration(
-              hintText: 'Amount',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
+          Text('Amount: 1000', style: kSmallTitleR),
           const SizedBox(height: 10),
           customButton(
             label: 'SAVE',
@@ -164,9 +154,8 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
               setState(() {
                 isLoading = true; // Start loading
               });
-              
+
               log(selectedYearId.toString());
-              log(amountController.text.toString());
 
               if (selectedYearId == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -193,19 +182,6 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
                 return;
               }
 
-              // Check if the amount is provided and valid
-              if (amountController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please enter the amount'),
-                  ),
-                );
-                setState(() {
-                  isLoading = false; // Stop loading on error
-                });
-                return;
-              }
-              
               try {
                 final String paymentImageUrl = await imageUpload(
                   widget.paymentImage!.path,
@@ -214,7 +190,6 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
                 String? success = await uploadPayment(
                     parentSub: selectedYearId ?? '',
                     catergory: widget.subscriptionType,
-                    amount: amountController.text,
                     image: paymentImageUrl);
 
                 if (success != null) {

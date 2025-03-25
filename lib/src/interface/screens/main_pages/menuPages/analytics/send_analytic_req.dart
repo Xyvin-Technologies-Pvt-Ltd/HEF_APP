@@ -347,17 +347,14 @@ class _SendAnalyticRequestPageState
                   ],
                 ),
               const SizedBox(height: 10.0),
-              _buildRequiredLabel('Description'),
+              Text(
+                'Description',
+                style: kSmallTitleB,
+              ),
               CustomTextFormField(
                 textController: descriptionController,
                 labelText: 'Eg - Business closed for purchase of materials',
-                maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
+                maxLines: 4,
               ),
               SizedBox(
                 height: 10,

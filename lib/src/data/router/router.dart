@@ -27,7 +27,9 @@ import 'package:hef/src/interface/screens/main_pages/menuPages/my_events.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_products.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_reviews.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_subscription.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/privacy_policy.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/request_nfc.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/terms.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
 import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/card.dart';
@@ -124,6 +126,12 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
 
     case 'MySubscriptionPage':
       return MaterialPageRoute(builder: (context) => MySubscriptionPage());
+
+    case 'Terms':
+      return MaterialPageRoute(builder: (context) => TermsAndConditionsPage());
+
+    case 'PrivacyPolicy':
+      return MaterialPageRoute(builder: (context) => PrivacyPolicyPage());
 
 
 

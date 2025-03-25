@@ -6,7 +6,7 @@ part of 'analytics_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchAnalyticsHash() => r'6d92f298b8010154584debff5c70e185b0d4550b';
+String _$fetchAnalyticsHash() => r'ec31d34814a83366467253c73dec58dc7a6f43f8';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -44,12 +44,16 @@ class FetchAnalyticsFamily extends Family<AsyncValue<List<AnalyticsModel>>> {
     String? startDate,
     String? endDate,
     String? requestType,
+    int? pageNo,
+    int? limit,
   }) {
     return FetchAnalyticsProvider(
       type: type,
       startDate: startDate,
       endDate: endDate,
       requestType: requestType,
+      pageNo: pageNo,
+      limit: limit,
     );
   }
 
@@ -62,6 +66,8 @@ class FetchAnalyticsFamily extends Family<AsyncValue<List<AnalyticsModel>>> {
       startDate: provider.startDate,
       endDate: provider.endDate,
       requestType: provider.requestType,
+      pageNo: provider.pageNo,
+      limit: provider.limit,
     );
   }
 
@@ -89,6 +95,8 @@ class FetchAnalyticsProvider
     String? startDate,
     String? endDate,
     String? requestType,
+    int? pageNo,
+    int? limit,
   }) : this._internal(
           (ref) => fetchAnalytics(
             ref as FetchAnalyticsRef,
@@ -96,6 +104,8 @@ class FetchAnalyticsProvider
             startDate: startDate,
             endDate: endDate,
             requestType: requestType,
+            pageNo: pageNo,
+            limit: limit,
           ),
           from: fetchAnalyticsProvider,
           name: r'fetchAnalyticsProvider',
@@ -110,6 +120,8 @@ class FetchAnalyticsProvider
           startDate: startDate,
           endDate: endDate,
           requestType: requestType,
+          pageNo: pageNo,
+          limit: limit,
         );
 
   FetchAnalyticsProvider._internal(
@@ -123,12 +135,16 @@ class FetchAnalyticsProvider
     required this.startDate,
     required this.endDate,
     required this.requestType,
+    required this.pageNo,
+    required this.limit,
   }) : super.internal();
 
   final String? type;
   final String? startDate;
   final String? endDate;
   final String? requestType;
+  final int? pageNo;
+  final int? limit;
 
   @override
   Override overrideWith(
@@ -147,6 +163,8 @@ class FetchAnalyticsProvider
         startDate: startDate,
         endDate: endDate,
         requestType: requestType,
+        pageNo: pageNo,
+        limit: limit,
       ),
     );
   }
@@ -162,7 +180,9 @@ class FetchAnalyticsProvider
         other.type == type &&
         other.startDate == startDate &&
         other.endDate == endDate &&
-        other.requestType == requestType;
+        other.requestType == requestType &&
+        other.pageNo == pageNo &&
+        other.limit == limit;
   }
 
   @override
@@ -172,6 +192,8 @@ class FetchAnalyticsProvider
     hash = _SystemHash.combine(hash, startDate.hashCode);
     hash = _SystemHash.combine(hash, endDate.hashCode);
     hash = _SystemHash.combine(hash, requestType.hashCode);
+    hash = _SystemHash.combine(hash, pageNo.hashCode);
+    hash = _SystemHash.combine(hash, limit.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -191,6 +213,12 @@ mixin FetchAnalyticsRef on AutoDisposeFutureProviderRef<List<AnalyticsModel>> {
 
   /// The parameter `requestType` of this provider.
   String? get requestType;
+
+  /// The parameter `pageNo` of this provider.
+  int? get pageNo;
+
+  /// The parameter `limit` of this provider.
+  int? get limit;
 }
 
 class _FetchAnalyticsProviderElement
@@ -206,6 +234,10 @@ class _FetchAnalyticsProviderElement
   String? get endDate => (origin as FetchAnalyticsProvider).endDate;
   @override
   String? get requestType => (origin as FetchAnalyticsProvider).requestType;
+  @override
+  int? get pageNo => (origin as FetchAnalyticsProvider).pageNo;
+  @override
+  int? get limit => (origin as FetchAnalyticsProvider).limit;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

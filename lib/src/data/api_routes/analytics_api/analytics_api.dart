@@ -11,7 +11,14 @@ part 'analytics_api.g.dart';
 
 @riverpod
 Future<List<AnalyticsModel>> fetchAnalytics(
-    Ref ref,{required String? type, String? startDate, String? endDate, String? requestType}) async {
+  Ref ref, {
+  required String? type,
+  String? startDate,
+  String? endDate,
+  String? requestType,
+  int? pageNo,
+  int? limit,
+}) async {
   Map<String, String> queryParams = {};
 
   if (type != null && type.isNotEmpty) {
@@ -26,11 +33,14 @@ Future<List<AnalyticsModel>> fetchAnalytics(
   if (requestType != null && requestType.isNotEmpty) {
     queryParams['requestType'] = requestType;
   }
-
-  Uri url = Uri.parse('$baseUrl/analytic');
-  if (queryParams.isNotEmpty) {
-    url = Uri.parse('$baseUrl/analytic').replace(queryParameters: queryParams);
+  if (pageNo != null) {
+    queryParams['pageNo'] = pageNo.toString();
   }
+  if (limit != null) {
+    queryParams['limit'] = limit.toString();
+  }
+
+  Uri url = Uri.parse('$baseUrl/analytic').replace(queryParameters: queryParams);
 
   print('Requesting URL: $url');
   final response = await http.get(
@@ -53,6 +63,7 @@ Future<List<AnalyticsModel>> fetchAnalytics(
     throw Exception(json.decode(response.body)['message']);
   }
 }
+
 
 
 Future<void> updateAnalyticStatus({

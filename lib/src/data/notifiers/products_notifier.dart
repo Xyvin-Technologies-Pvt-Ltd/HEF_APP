@@ -19,10 +19,9 @@ class ProductsNotifier extends _$ProductsNotifier {
   List<Product> build() {
     return [];
   }
- void removeProductsBySeller(String sellerId) {
-    products = products
-        .where((product) => product.seller != sellerId)
-        .toList();
+
+  void removeProductsBySeller(String sellerId) {
+    products = products.where((product) => product.seller != sellerId).toList();
     state = products;
   }
 
@@ -51,8 +50,9 @@ class ProductsNotifier extends _$ProductsNotifier {
     products = []; // Reset the product list when searching
 
     try {
-      final newProducts = await ref
-          .read(fetchProductsProvider(pageNo: pageNo, limit: limit, search: query).future);
+      final newProducts = await ref.read(
+          fetchProductsProvider(pageNo: pageNo, limit: limit, search: query)
+              .future);
       products = [...newProducts];
       hasMore = newProducts.length == limit;
       state = products;

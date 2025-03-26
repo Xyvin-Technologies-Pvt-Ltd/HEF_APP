@@ -533,6 +533,8 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
     super.dispose();
   }
 
+  bool _isExpanded = false;
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -560,8 +562,7 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 5),
-                Text(widget.business.content!,
-                    style: const TextStyle(fontSize: 14)),
+                _buildExpandableText(widget.business.content!),
                 const SizedBox(height: 16),
                 _buildActionButtons(),
                 GestureDetector(
@@ -646,6 +647,52 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildExpandableText(String text) {
+    final textSpan = TextSpan(
+      text: text,
+      style: const TextStyle(fontSize: 14),
+    );
+
+    final textPainter = TextPainter(
+      text: textSpan,
+      maxLines: 2,
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: MediaQuery.of(context).size.width - 32);
+
+    final isOverflowing = textPainter.didExceedMaxLines;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _isExpanded
+              ? text
+              : textPainter.text!.toPlainText().substring(
+                      0,
+                      textPainter.text!.toPlainText().length > 50
+                          ? 50
+                          : textPainter.text!.toPlainText().length) +
+                  (isOverflowing ? '...' : ''),
+          style: const TextStyle(fontSize: 14),
+          maxLines: _isExpanded ? null : 2,
+          overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+        ),
+        if (isOverflowing)
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _isExpanded = !_isExpanded;
+              });
+            },
+            child: Text(
+              _isExpanded ? 'Read less' : 'Read more',
+              style: const TextStyle(color: kBlue, fontSize: 14),
+            ),
+          ),
+      ],
     );
   }
 

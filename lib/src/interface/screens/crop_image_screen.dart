@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:custom_image_crop/custom_image_crop.dart';
-
+ 
 class CropImageScreen extends StatefulWidget {
   final File imageFile;
 

@@ -6,7 +6,7 @@ import 'package:custom_image_crop/custom_image_crop.dart';
 class CropImageScreen extends StatefulWidget {
   final File imageFile;
 
-  const CropImageScreen({Key? key, required this.imageFile}) : super(key: key);
+  const CropImageScreen({super.key, required this.imageFile});
 
   @override
   _CropImageScreenState createState() => _CropImageScreenState();

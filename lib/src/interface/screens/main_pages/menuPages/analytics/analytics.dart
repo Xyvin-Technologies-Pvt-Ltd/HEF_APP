@@ -6,7 +6,6 @@ import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
-import 'package:hef/src/data/notifiers/analytic_notifier.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/ModalSheets/analytics.dart';
@@ -50,7 +49,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _fetchInitialAnalytics();
+
     // Set initial tab if provided
     if (widget.initialTab != null) {
       _tabController.animateTo(widget.initialTab == 'sent'
@@ -70,10 +69,6 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     if (widget.endDate != null) {
       endDate = DateTime.parse(widget.endDate!);
     }
-  }
-
-  Future<void> _fetchInitialAnalytics() async {
-    await ref.read(analyticNotifierProvider.notifier).fetchMoreAnalytic();
   }
 
   // Add filter modal sheet
@@ -259,8 +254,35 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
 
   @override
   Widget build(BuildContext context) {
-    final analyticsNotifier = ref.watch(analyticNotifierProvider);
-    final notifier = ref.read(analyticNotifierProvider.notifier);
+    final asyncSentAnalytics = ref.watch(fetchAnalyticsProvider(
+      type: 'sent',
+      startDate: startDate != null
+          ? DateFormat('yyyy-MM-dd').format(startDate!)
+          : null,
+      endDate:
+          endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
+      requestType: selectedRequestType,
+    ));
+
+    final asyncReceivedAnalytics = ref.watch(fetchAnalyticsProvider(
+      type: 'received',
+      startDate: startDate != null
+          ? DateFormat('yyyy-MM-dd').format(startDate!)
+          : null,
+      endDate:
+          endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
+      requestType: selectedRequestType,
+    ));
+
+    final asyncHistoryAnalytics = ref.watch(fetchAnalyticsProvider(
+      type: null,
+      startDate: startDate != null
+          ? DateFormat('yyyy-MM-dd').format(startDate!)
+          : null,
+      endDate:
+          endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
+      requestType: selectedRequestType,
+    ));
 
     return Scaffold(
       appBar: PreferredSize(
@@ -318,9 +340,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildRefreshableAnalyticsTab(notifier, analyticsNotifier),
-                _buildRefreshableAnalyticsTab(notifier, analyticsNotifier),
-                _buildRefreshableAnalyticsTab(notifier, analyticsNotifier),
+                _buildRefreshableAnalyticsTab(
+                    asyncReceivedAnalytics, 'received'),
+                _buildRefreshableAnalyticsTab(asyncSentAnalytics, 'sent'),
+                _buildRefreshableAnalyticsTab(asyncHistoryAnalytics, 'history'),
               ],
             ),
           ),
@@ -341,43 +364,29 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   }
 
   Widget _buildRefreshableAnalyticsTab(
-      AnalyticNotifier notifier, List<AnalyticsModel> analytics) {
-    final scrollController = ScrollController();
-
-    scrollController.addListener(() {
-      if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent) {
-        notifier.fetchMoreAnalytic();
-      }
-    });
-
+      AsyncValue<List<AnalyticsModel>> asyncAnalytics, String tabBarType) {
     return RefreshIndicator(
       backgroundColor: kWhite,
       color: kPrimaryColor,
       onRefresh: () async {
-        await notifier.refreshAnalytics();
+        ref.invalidate(fetchAnalyticsProvider);
       },
-      child: analytics.isEmpty
-          ? const Center(child: Text("No data available"))
-          : ListView.builder(
-              controller: scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16.0),
-              itemCount: analytics.length + 1, // +1 for loading indicator
-              itemBuilder: (context, index) {
-                if (index < analytics.length) {
-                  return _buildCard(
-                      analytics[index], 'someType'); // Use tabBarType if needed
-                } else {
-                  return notifier.hasMore
-                      ? const Center(
-                          child: LoadingAnimation(
-                          size: 30,
-                        ))
-                      : const SizedBox.shrink();
-                }
-              },
-            ),
+      child: asyncAnalytics.when(
+          data: (analytics) => analytics.isEmpty
+              ? const Center(child: Text("No data available"))
+              : ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16.0),
+                  itemCount: analytics.length,
+                  itemBuilder: (context, index) {
+                    return _buildCard(analytics[index], tabBarType);
+                  },
+                ),
+          loading: () => const Center(child: LoadingAnimation()),
+          error: (error, stackTrace) {
+            log(error.toString());
+            return Center(child: Text("Error loading data"));
+          }),
     );
   }
 

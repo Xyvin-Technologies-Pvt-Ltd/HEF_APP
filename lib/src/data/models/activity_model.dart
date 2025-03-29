@@ -1,3 +1,5 @@
+import 'package:hef/src/data/models/analytics_model.dart';
+
 class ActivityModel {
   final String? id;
   final String? type;
@@ -5,9 +7,9 @@ class ActivityModel {
   final Sender? sender;
   final String? title;
   final String? description;
-  final String? referral;
+  final Referral? referral;
   final String? contact;
-  final String? amount;
+  final int? amount;
   final String? date;
   final String? time;
   final String? meetingLink;
@@ -45,16 +47,19 @@ class ActivityModel {
       sender: json['sender'] != null ? Sender.fromJson(json['sender']) : null,
       title: json['title'] as String?,
       description: json['description'] as String?,
-      referral: json['referral'] as String?,
+      referral:
+          json['referral'] != null ? Referral.fromJson(json['referral']) : null,
       contact: json['contact'] as String?,
-      amount: json['amount'] as String?,
+      amount: json['amount'] as int?,
       date: json['date'] as String?,
       time: json['time'] as String?,
       meetingLink: json['meetingLink'] as String?,
       location: json['location'] as String?,
       status: json['status'] as String?,
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      createdAt:
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
       v: json['__v'] as int?,
     );
   }
@@ -67,7 +72,7 @@ class ActivityModel {
       'sender': sender?.toJson(),
       'title': title,
       'description': description,
-      'referral': referral,
+      'referral': referral?.toJson(),
       'contact': contact,
       'amount': amount,
       'date': date,
@@ -88,9 +93,9 @@ class ActivityModel {
     Sender? sender,
     String? title,
     String? description,
-    String? referral,
+    Referral? referral,
     String? contact,
-    String? amount,
+    int? amount,
     String? date,
     String? time,
     String? meetingLink,

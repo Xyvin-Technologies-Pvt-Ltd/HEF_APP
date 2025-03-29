@@ -3,7 +3,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/chapters.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/district.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/level_members.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/zones.dart';
 import 'package:hef/src/interface/screens/web_view_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -105,18 +107,18 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ZonesPage(
-                                  stateId: user.levelId ?? '',
-                                  stateName: user.levelName ?? '',
+                            builder: (context) => ChaptersPage(
+                                  districtId: user.levelId ?? '',
+                                  districtName: user.levelName ?? '',
                                 )));
                     break;
                   case 'Chapter Admin':
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ZonesPage(
-                                  stateId: user.levelId ?? '',
-                                  stateName: user.levelName ?? '',
+                            builder: (context) => LevelMembers(
+                                  chapterId: user.levelId ?? '',
+                                  chapterName: user.levelName ?? '',
                                 )));
                     break;
                   default:

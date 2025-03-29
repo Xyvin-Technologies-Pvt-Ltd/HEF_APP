@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,63 +42,66 @@ class LevelMembers extends StatelessWidget {
             iconTheme: IconThemeData(color: Colors.black),
           ),
           body: asyncMembers.when(
-            data: (members) {
-              return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '$chapterName /',
-                            style: TextStyle(
-                                fontSize: 14, color: Colors.grey[600]),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Members',
-                      style: kBodyTitleB.copyWith(color: kBlack54),
-                    ),
-                    SizedBox(height: 16),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: members.length,
-                        itemBuilder: (context, index) {
-                          final member = members[index];
-                          return Card(
-                            elevation: 0.1,
-                            color: kWhite,
-                            margin: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage:
-                                    NetworkImage(member.image ?? ''),
-                              ),
-                              title: Text(member.name ?? ''),
-                              subtitle: Text(member.name ?? ''),
-                              trailing: Icon(Icons.arrow_forward_ios),
-                              onTap: () {
-                                navigationService.pushNamed('ProfileAnalytics',
-                                    arguments: member);
-                              },
+              data: (members) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '$chapterName /',
+                              style: TextStyle(
+                                  fontSize: 14, color: Colors.grey[600]),
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            loading: () => const Center(child: LoadingAnimation()),
-            error: (error, stackTrace) => Center(child: Text('NO MEMBERS')),
-          ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Members',
+                        style: kBodyTitleB.copyWith(color: kBlack54),
+                      ),
+                      SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: members.length,
+                          itemBuilder: (context, index) {
+                            final member = members[index];
+                            return Card(
+                              elevation: 0.1,
+                              color: kWhite,
+                              margin: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage:
+                                      NetworkImage(member.image ?? ''),
+                                ),
+                                title: Text(member.name ?? ''),
+                                subtitle: Text(member.name ?? ''),
+                                trailing: Icon(Icons.arrow_forward_ios),
+                                onTap: () {
+                                  navigationService.pushNamed(
+                                      'ProfileAnalytics',
+                                      arguments: member);
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              loading: () => const Center(child: LoadingAnimation()),
+              error: (error, stackTrace) {
+                log(error.toString(), name: 'Analytic member details');
+                return Center(child: Text('NO MEMBERS'));
+              }),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               navigationService.pushNamed('MemberCreation');

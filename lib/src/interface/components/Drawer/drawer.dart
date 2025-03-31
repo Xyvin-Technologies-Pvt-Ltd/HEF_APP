@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
@@ -212,7 +213,11 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
                   await SharedPreferences.getInstance();
               preferences.remove('token');
               preferences.remove('id');
+
               navigationService.pushNamedAndRemoveUntil('PhoneNumber');
+              await editUser({
+                "fcm":""
+              });
             },
           ),
           _buildDrawerItem(

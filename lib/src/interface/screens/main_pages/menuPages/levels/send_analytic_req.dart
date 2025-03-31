@@ -332,21 +332,24 @@ class _SendAnalyticRequestPageState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 10.0),
-                    _buildRequiredLabel('Amount'),
-                    CustomTextFormField(
-                      textInputType: TextInputType.numberWithOptions(),
-                      textController: amountController,
-                      labelText: 'Eg - 50000',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter an amount';
-                        }
-                        return null;
-                      },
-                    ),
+                    if (selectedRequestType != 'Referral')
+                      _buildRequiredLabel('Amount'),
+                    if (selectedRequestType != 'Referral')
+                      CustomTextFormField(
+                        textInputType: TextInputType.numberWithOptions(),
+                        textController: amountController,
+                        labelText: 'Eg - 50000',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter an amount';
+                          }
+                          return null;
+                        },
+                      ),
                   ],
                 ),
-              const SizedBox(height: 10.0),
+              if (selectedRequestType != 'Referral')
+                const SizedBox(height: 10.0),
               Text(
                 'Description',
                 style: kSmallTitleB,
@@ -706,7 +709,7 @@ class _SendAnalyticRequestPageState
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     CustomTextFormField(
                       textController: referralInfoController,
-                      labelText: 'Enter additional information',
+                      labelText: 'I have a reference for you, Name, Number, purpose',
                       maxLines: 3,
                     ),
                   ],

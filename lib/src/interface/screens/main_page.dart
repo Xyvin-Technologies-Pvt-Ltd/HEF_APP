@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
+import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
@@ -70,7 +71,7 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class _MainPageState extends ConsumerState<MainPage> {
- late final SocketIoClient webSocketClient;
+  late final SocketIoClient webSocketClient;
 
   @override
   void initState() {
@@ -262,6 +263,11 @@ class _MainPageState extends ConsumerState<MainPage> {
                           builder: (context) => PhoneNumberScreen(),
                         ),
                       );
+                      await editUser({
+                        "fcm": "",
+                        "name":user.name,
+                        "phone":user.phone
+                      });
                     },
                     child: Text(
                       'Logout',

@@ -83,7 +83,7 @@ class CustomTextFormField extends StatelessWidget {
     this.enabled,
     this.isAward,
     this.title,
-    this.textInputType = TextInputType. text,
+    this.textInputType = TextInputType.text,
     this.companyIndex,
   });
 
@@ -200,7 +200,8 @@ class CustomTextFormField extends StatelessWidget {
               maxLines: maxLines,
               validator: validator,
               decoration: InputDecoration(
-                labelText: labelText,
+                hintStyle: TextStyle(color: kGreyLight),
+                hintText: labelText,
                 labelStyle: const TextStyle(color: Colors.grey),
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 fillColor: kWhite,

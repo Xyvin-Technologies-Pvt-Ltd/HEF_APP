@@ -6,6 +6,7 @@ import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 
 class LevelMembers extends StatelessWidget {
@@ -61,9 +62,34 @@ class LevelMembers extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 16),
-                      Text(
-                        'Members',
-                        style: kBodyTitleB.copyWith(color: kBlack54),
+                      Row(
+                        children: [
+                          Text(
+                            'Members',
+                            style: kBodyTitleB.copyWith(color: kBlack54),
+                          ),
+                          Spacer(),
+                          SizedBox(
+                            width: 120,
+                            child: Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 10),
+                                child: customButton(
+                                    fontSize: 14,
+                                    buttonHeight: 30,
+                                    labelColor: kPrimaryColor,
+                                    label: 'Activity',
+                                    onPressed: () {
+                                      navigationService.pushNamed(
+                                          'ActivityPage',
+                                          arguments: chapterId);
+                                    },
+                                    buttonColor: kWhite,
+                                    sideColor: kPrimaryColor),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 16),
                       Expanded(

@@ -60,7 +60,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
         children: [
           WebViewWidget(controller: controller),
           if (isLoading)
-            Center(
+            const Center(
               child: LoadingAnimation()
             ),
         ],

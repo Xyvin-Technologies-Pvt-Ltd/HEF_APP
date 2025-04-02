@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/activity_api/activity_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
+import 'package:hef/src/data/notifiers/loading_notifier.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:intl/intl.dart';
 
@@ -27,6 +28,30 @@ class ActivityPage extends StatelessWidget {
                   Navigator.pop(context);
                 },
               ),
+              actions: [
+                Row(
+                  children: [
+                    IconButton(
+                        color: kPrimaryColor,
+                        icon: Icon(Icons.download),
+                        onPressed: () async {
+                          showDialog(
+                            context: context,
+                            barrierDismissible:
+                                false, 
+                            builder: (context) {
+                              return LoadingAnimation();
+                            },
+                          );
+                          try {
+                            await downloadAndSaveExcel(chapterId);
+                          } finally {
+                            Navigator.of(context).pop();
+                          }
+                        }),
+                  ],
+                )
+              ],
               title: Text("Activity"),
               centerTitle: false,
               backgroundColor: Colors.white,
@@ -125,6 +150,50 @@ class ActivityPage extends StatelessWidget {
                                   ),
                                 ],
                               ),
+                              if (activity.type == 'Referral')
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(height: 20),
+                                    Text(
+                                      'Referral',
+                                      style: TextStyle(
+                                        color: kBlack54,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text('Name: '),
+                                            Text(activity.referral?.name ?? ''),
+                                          ],
+                                        ),
+                                        SizedBox(width: 8),
+                                        Row(
+                                          children: [
+                                            Text('Email: '),
+                                            Text(
+                                                activity.referral?.email ?? ''),
+                                          ],
+                                        ),
+                                        SizedBox(width: 8),
+                                        Row(
+                                          children: [
+                                            Text('Phone: '),
+                                            Text(
+                                                activity.referral?.phone ?? ''),
+                                          ],
+                                        ),
+                                        SizedBox(width: 8),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               Divider(
                                 height: 24,
                                 thickness: 1,

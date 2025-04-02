@@ -168,6 +168,7 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
                   child: filteredFeeds.isEmpty
                       ? const Center(child: Text('No FEEDS'))
                       : ListView.builder(
+                          controller: _scrollController,
                           padding: const EdgeInsets.all(16.0),
                           itemCount:
                               filteredFeeds.length + 2, // +2 for Ad and spacer

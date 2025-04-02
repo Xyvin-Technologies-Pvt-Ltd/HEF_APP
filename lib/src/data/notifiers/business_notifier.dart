@@ -9,7 +9,7 @@ class BusinessNotifier extends _$BusinessNotifier {
   List<Business> businesses = [];
   bool isLoading = false;
   int pageNo = 1;
-  final int limit = 10;
+  final int limit = 5;
   bool hasMore = true;
 
   @override

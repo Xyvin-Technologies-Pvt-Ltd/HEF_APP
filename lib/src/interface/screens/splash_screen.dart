@@ -116,11 +116,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       if (!isAppUpdateRequired) {
         print('Logged in : $LoggedIn');
         if (LoggedIn) {
-          // Check for pending deep link
+      
           final pendingDeepLink = _deepLinkService.pendingDeepLink;
           if (pendingDeepLink != null) {
             navigationService.pushNamedReplacement('MainPage').then((_) {
-              // Handle the deep link after main page is loaded
+         
               _deepLinkService.handleDeepLink(pendingDeepLink);
               _deepLinkService.clearPendingDeepLink();
             });

@@ -7,6 +7,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/app_version_model.dart';
 import 'package:hef/src/data/services/deep_link_service.dart';
 import 'package:hef/src/data/services/launch_url.dart';
+import 'package:hef/src/data/utils/secure_storage.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -17,7 +18,7 @@ import 'package:hef/main.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/services/getFcmToken.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:flutter_upgrade_version/flutter_upgrade_version.dart';
 import 'package:flutter_upgrade_version/models/package_info.dart';
 
@@ -135,12 +136,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> checktoken() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? savedtoken = preferences.getString('token');
-    String? savedId = preferences.getString('id');
+
+
+    String? savedtoken = await SecureStorage.read('token') ?? '';
+    String? savedId = await SecureStorage.read('id') ?? '';
     log('token:$savedtoken');
     log('userId:$savedId');
-    if (savedtoken != null && savedtoken.isNotEmpty && savedId != null) {
+    if (savedtoken != '' && savedtoken.isNotEmpty && savedId != '') {
       setState(() {
         LoggedIn = true;
         token = savedtoken;

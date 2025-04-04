@@ -3,10 +3,11 @@ import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/data/utils/secure_storage.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 class ChangeNumberPage extends StatefulWidget {
   @override
@@ -172,11 +173,9 @@ class _ChangeNumberPageState extends State<ChangeNumberPage> {
       // Show success dialog
       await _showSuccessDialog();
 
-      // Clear preferences and navigate
-      final SharedPreferences preferences =
-          await SharedPreferences.getInstance();
-      preferences.remove('token');
-      preferences.remove('id');
+         await SecureStorage.delete('token');
+                   await SecureStorage.delete('id');
+                  
 
       NavigationService navigatorKey = NavigationService();
       navigatorKey.pushNamedAndRemoveUntil('PhoneNumber');
@@ -239,16 +238,14 @@ class _ChangeNumberPageState extends State<ChangeNumberPage> {
       },
     );
 
-    // Wait for 3 seconds before redirecting
+
     await Future.delayed(Duration(seconds: 3));
 
-    // Close the dialog
     Navigator.of(context).pop();
 
-    // Clear preferences and navigate to the login screen
-    final SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.remove('token');
-    preferences.remove('id');
+         await SecureStorage.delete('token');
+                   await SecureStorage.delete('id');
+                  
 
     NavigationService navigatorKey = NavigationService();
     navigatorKey.pushNamedAndRemoveUntil('PhoneNumber');

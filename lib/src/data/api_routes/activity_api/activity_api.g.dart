@@ -6,7 +6,7 @@ part of 'activity_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchActivityHash() => r'3a92380763bf8c7b1f400ed20ef63119f2a3a055';
+String _$fetchActivityHash() => r'6390f9f17254c34760514b06564940c0863fa167';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -39,11 +39,11 @@ class FetchActivityFamily extends Family<AsyncValue<List<ActivityModel>>> {
   const FetchActivityFamily();
 
   /// See also [fetchActivity].
-  FetchActivityProvider call(
-    String? chapterId,
-  ) {
+  FetchActivityProvider call({
+    required String? chapterId,
+  }) {
     return FetchActivityProvider(
-      chapterId,
+      chapterId: chapterId,
     );
   }
 
@@ -52,7 +52,7 @@ class FetchActivityFamily extends Family<AsyncValue<List<ActivityModel>>> {
     covariant FetchActivityProvider provider,
   ) {
     return call(
-      provider.chapterId,
+      chapterId: provider.chapterId,
     );
   }
 
@@ -75,12 +75,12 @@ class FetchActivityFamily extends Family<AsyncValue<List<ActivityModel>>> {
 class FetchActivityProvider
     extends AutoDisposeFutureProvider<List<ActivityModel>> {
   /// See also [fetchActivity].
-  FetchActivityProvider(
-    String? chapterId,
-  ) : this._internal(
+  FetchActivityProvider({
+    required String? chapterId,
+  }) : this._internal(
           (ref) => fetchActivity(
             ref as FetchActivityRef,
-            chapterId,
+            chapterId: chapterId,
           ),
           from: fetchActivityProvider,
           name: r'fetchActivityProvider',

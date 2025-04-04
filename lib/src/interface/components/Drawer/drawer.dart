@@ -4,12 +4,13 @@ import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/data/utils/secure_storage.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/chapters.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/district.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/level_members.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/zones.dart';
 import 'package:hef/src/interface/screens/web_view_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 Widget customDrawer({required UserModel user, required BuildContext context}) {
   NavigationService navigationService = NavigationService();
@@ -209,11 +210,9 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
             icon: 'assets/svg/icons/logout.svg',
             label: 'Logout',
             onTap: () async {
-              final SharedPreferences preferences =
-                  await SharedPreferences.getInstance();
-              preferences.remove('token');
-              preferences.remove('id');
-
+         await SecureStorage.delete('token');
+                   await SecureStorage.delete('id');
+                  
               navigationService.pushNamedAndRemoveUntil('PhoneNumber');
               await editUser({
                 "fcm":""

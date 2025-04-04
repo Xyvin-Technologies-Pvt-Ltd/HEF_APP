@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/firebase_options.dart';
 
@@ -9,7 +10,7 @@ import 'package:hef/src/data/services/notification_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/data/router/router.dart' as router;
 import 'package:firebase_app_check/firebase_app_check.dart';
-
+import 'package:hef/src/data/utils/secure_storage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,13 +18,14 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-   await FirebaseAppCheck.instance.activate(
+  await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.playIntegrity,
-    appleProvider: AppleProvider.debug, 
+    appleProvider: AppleProvider.debug,
   );
+  await loadSecureData();
+  await dotenv.load(fileName: ".env");
   await NotificationService().initialize();
   runApp(ProviderScope(child: MyApp()));
-  
 }
 
 class MyApp extends StatelessWidget {
@@ -47,4 +49,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

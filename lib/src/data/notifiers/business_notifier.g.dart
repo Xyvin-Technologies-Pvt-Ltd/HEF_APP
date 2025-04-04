@@ -6,7 +6,7 @@ part of 'business_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$businessNotifierHash() => r'838ed74dfe254fc992ca25b2980ce7994c9f189e';
+String _$businessNotifierHash() => r'45da48b1c84647eca52ba454c1770e6954a879c2';
 
 /// See also [BusinessNotifier].
 @ProviderFor(BusinessNotifier)

@@ -52,7 +52,6 @@ class _SendAnalyticRequestPageState
   String? selectedMember;
 
   String? selectedMeetingType;
-
   Future<String?> createAnalytic(String countryCode) async {
     final Map<String, dynamic> analytictData = {
       "type": selectedRequestType,
@@ -83,7 +82,9 @@ class _SendAnalyticRequestPageState
         "location": locationController.text,
     };
     log(analytictData.toString(), name: "analytic to be created:");
-    String? response = await postAnalytic(data: analytictData);
+    AnalyticsApiService analyticsApiService = AnalyticsApiService();
+    String? response =
+        await analyticsApiService.postAnalytic(data: analytictData);
     return response;
   }
 
@@ -709,7 +710,8 @@ class _SendAnalyticRequestPageState
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     CustomTextFormField(
                       textController: referralInfoController,
-                      labelText: 'I have a reference for you, Name, Number, purpose',
+                      labelText:
+                          'I have a reference for you, Name, Number, purpose',
                       maxLines: 3,
                     ),
                   ],

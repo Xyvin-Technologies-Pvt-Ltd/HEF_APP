@@ -16,9 +16,12 @@ class ActivityPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+        ActivityApiService activityApiService =
+                                ActivityApiService();
     return Consumer(
       builder: (context, ref, child) {
-        final asyncActivities = ref.watch(fetchActivityProvider(chapterId));
+        final asyncActivities =
+            ref.watch(fetchActivityProvider(chapterId: chapterId));
         return Scaffold(
             appBar: AppBar(
               scrolledUnderElevation: 0,
@@ -37,14 +40,15 @@ class ActivityPage extends StatelessWidget {
                         onPressed: () async {
                           showDialog(
                             context: context,
-                            barrierDismissible:
-                                false, 
+                            barrierDismissible: false,
                             builder: (context) {
                               return LoadingAnimation();
                             },
                           );
                           try {
-                            await downloadAndSaveExcel(chapterId);
+                      
+                            await activityApiService.downloadAndSaveExcel(
+                                chapterId);
                           } finally {
                             Navigator.of(context).pop();
                           }

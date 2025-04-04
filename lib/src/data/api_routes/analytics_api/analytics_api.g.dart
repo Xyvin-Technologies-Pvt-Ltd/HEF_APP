@@ -6,7 +6,7 @@ part of 'analytics_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchAnalyticsHash() => r'ec31d34814a83366467253c73dec58dc7a6f43f8';
+String _$fetchAnalyticsHash() => r'09b4814c1d4658bdc321cdf80369474be2b68e09';
 
 /// Copied from Dart SDK
 class _SystemHash {

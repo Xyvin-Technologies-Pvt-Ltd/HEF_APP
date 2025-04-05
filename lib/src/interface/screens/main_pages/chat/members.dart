@@ -348,7 +348,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                     Consumer(
                                       builder: (context, ref, child) {
                                         final asyncBusinessTags = ref.watch(
-                                          fetchBusinessTagsProvider(
+                                          searchBusinessTagsProvider(
                                               search: businessTagSearch),
                                         );
                                         return asyncBusinessTags.when(

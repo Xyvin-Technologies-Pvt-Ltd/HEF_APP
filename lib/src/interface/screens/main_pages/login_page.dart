@@ -189,7 +189,7 @@ class PhoneNumberScreen extends ConsumerWidget {
     ref.read(loadingProvider.notifier).startLoading();
 
     bool userExists =
-        await checkUser(mobile: '+$countryCode${_mobileController.text}');
+        await UserService. checkUser('+$countryCode${_mobileController.text}');
     if (userExists) {
       try {
         if (countryCode == '971') {

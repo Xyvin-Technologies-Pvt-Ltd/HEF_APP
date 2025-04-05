@@ -32,7 +32,7 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
   Future<void> _fetchUserDetails() async {
     try {
       log('Fetching user details');
-      final user = await ref.read(fetchUserDetailsProvider(id).future);
+      final user = await ref.read( fetchUserDetailsProvider(id).future);
       state = AsyncValue.data(user ?? UserModel());
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);

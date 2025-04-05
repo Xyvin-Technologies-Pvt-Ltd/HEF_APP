@@ -187,7 +187,7 @@ class _ShowPaymentUploadSheetState extends State<ShowPaymentUploadSheet> {
                   widget.paymentImage!.path,
                 );
                 // Attempt to upload the payment details
-                String? success = await uploadPayment(
+                String? success = await UserService.uploadPayment(
                     parentSub: selectedYearId ?? '',
                     catergory: widget.subscriptionType,
                     image: paymentImageUrl);

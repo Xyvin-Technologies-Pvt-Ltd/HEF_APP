@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
-import 'package:hef/src/interface/components/Buttons/primary_button.dart';
+
 class ReportPersonDialog extends StatelessWidget {
   final String? userId;
   final VoidCallback onReportStatusChanged;
@@ -120,7 +120,7 @@ class ReportPersonDialog extends StatelessWidget {
         ElevatedButton(
           onPressed: () async {
         
-             createReport(
+     UserService.        createReport(
                 reportedItemId: reportedItemId,
          
                 reportType: reportType);

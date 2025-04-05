@@ -1025,7 +1025,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                                       (context, ref, child) {
                                                     final asyncBusinessTags =
                                                         ref.watch(
-                                                      fetchBusinessTagsProvider(
+                                                      searchBusinessTagsProvider(
                                                           search:
                                                               businessTagSearch),
                                                     );

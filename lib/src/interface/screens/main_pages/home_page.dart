@@ -90,8 +90,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         final asyncEvents = ref.watch(fetchEventsProvider);
         final asyncNews = ref.watch(fetchNewsProvider);
         final asyncUserDashBoardDetails = ref.watch(
-            fetchUserDashboardDetailsProvider(
-                startDate: startDate, endDate: endDate));
+            getUserDashboardProvider(startDate: startDate, endDate: endDate));
         return RefreshIndicator(
           color: kPrimaryColor,
           onRefresh: () async {
@@ -226,7 +225,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               );
                                             },
                                             loading: () => const Center(
-                                                child: LoadingAnimation()),
+                                                child: Icon(
+                                                    Icons.notifications_none)),
                                             error: (error, stackTrace) =>
                                                 const SizedBox(),
                                           );
@@ -310,7 +310,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                 });
 
                                                 ref.invalidate(
-                                                    fetchUserDashboardDetailsProvider);
+                                                    getUserDashboardProvider);
                                               },
                                             ),
                                           );

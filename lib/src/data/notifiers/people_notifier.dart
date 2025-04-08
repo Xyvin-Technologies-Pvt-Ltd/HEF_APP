@@ -117,7 +117,7 @@ class PeopleNotifier extends _$PeopleNotifier {
 
       users = [...newUsers];
       hasMore = newUsers.length == limit;
-
+isFirstLoad=false;
       state = [...users];
     } catch (e, stackTrace) {
       log(e.toString());

@@ -9,7 +9,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'people_api.g.dart';
 
 class PeopleApiService {
-  /// Fetch active users with optional search, district filter, and tags
+
   Future<List<UserModel>> fetchActiveUsers({
     int pageNo = 1,
     int limit = 20,

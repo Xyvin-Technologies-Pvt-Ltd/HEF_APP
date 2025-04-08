@@ -332,7 +332,7 @@ class _CreateNotificationPageState
 
                         notificationImage!.path);
                   }
-                  createLevelNotification(
+          NotificationApiService.        createLevelNotification(
                       level: widget.level,
                       id: _selectedItemsId,
                       subject: titleController.text,

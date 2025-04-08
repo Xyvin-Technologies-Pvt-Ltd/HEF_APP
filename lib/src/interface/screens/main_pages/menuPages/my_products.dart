@@ -73,8 +73,8 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
                   isEditing: true,
                   product: oldProduct,
                   onEdit: (Product updatedProduct) async {
-                    // Call API to update product
-                    await updateProduct(updatedProduct);
+             final service = ProductApiService();
+                    await service.updateProduct(updatedProduct);
                   },
                 )));
   }

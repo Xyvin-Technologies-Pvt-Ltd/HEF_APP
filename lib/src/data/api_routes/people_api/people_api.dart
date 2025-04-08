@@ -1,55 +1,69 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'dart:convert';
-import 'dart:developer';
-import 'package:http/http.dart' as http;
 part 'people_api.g.dart';
+
+class PeopleApiService {
+  /// Fetch active users with optional search, district filter, and tags
+  Future<List<UserModel>> fetchActiveUsers({
+    int pageNo = 1,
+    int limit = 20,
+    String? query,
+    String? district,
+    List<String>? tags,
+  }) async {
+    final baseUri = Uri.parse('$baseUrl/user/list');
+    
+    final queryParams = {
+      'pageNo': pageNo.toString(),
+      'limit': limit.toString(),
+      if (query != null && query.isNotEmpty) 'search': query,
+      if (district != null && district.isNotEmpty) 'district': district,
+      if (tags != null && tags.isNotEmpty) 'tags': tags.join(','),
+    };
+
+    final fullUri = baseUri.replace(queryParameters: queryParams);
+    log('Requesting URL: $fullUri');
+
+    final response = await http.get(
+      fullUri,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    final responseData = json.decode(response.body);
+    if (response.statusCode == 200) {
+      final usersJson = responseData['data'] as List<dynamic>? ?? [];
+      return usersJson.map((user) => UserModel.fromJson(user)).toList();
+    } else {
+      log(responseData['message']);
+      throw Exception('Failed to load users');
+    }
+  }
+}
+
 @riverpod
-Future<List<UserModel>> fetchActiveUsers(Ref ref,
-    {int pageNo = 1, int limit = 20, String? query, String? district, List<String>? tags}) async {
-  // Construct the base URL
-  Uri url = Uri.parse('$baseUrl/user/list?pageNo=$pageNo&limit=$limit');
-
-  // Append query parameter if provided
-  Map<String, String> queryParams = {};
-  
-  if (query != null && query.isNotEmpty) {
-    queryParams['search'] = query;
-  }
-  
-  if (district != null && district.isNotEmpty) {
-    queryParams['district'] = district;
-  }
-
-  if (tags != null && tags.isNotEmpty) {
-    queryParams['tags'] = tags.join(','); // Convert list to comma-separated string
-  }
-
-  if (queryParams.isNotEmpty) {
-    url = Uri.parse('$baseUrl/user/list?pageNo=$pageNo&limit=$limit&${Uri(queryParameters: queryParams).query}');
-  }
-
-  log('requesting url:$url');
-  
-  final response = await http.get(
-    url,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token"
-    },
+Future<List<UserModel>> fetchActiveUsers(
+  Ref ref, {
+  int pageNo = 1,
+  int limit = 20,
+  String? query,
+  String? district,
+  List<String>? tags,
+}) async {
+  final service = PeopleApiService();
+  return service.fetchActiveUsers(
+    pageNo: pageNo,
+    limit: limit,
+    query: query,
+    district: district,
+    tags: tags,
   );
-
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body);
-    final usersJson = data['data'] as List<dynamic>? ?? [];
-
-    return usersJson.map((user) => UserModel.fromJson(user)).toList();
-  } else {
-    final data = json.decode(response.body);
-    log(data['message']);
-    throw Exception('Failed to load users');
-  }
 }

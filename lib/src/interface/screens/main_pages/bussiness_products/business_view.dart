@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_activities.dart';
 import 'package:hef/src/interface/components/ModalSheets/bussiness_enquiry_modal.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:hef/src/interface/components/textWidgets/expandable_text.dart';
 import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -568,7 +569,7 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 5),
-                _buildExpandableText(widget.business.content!),
+                ExpandableText(text: widget.business.content ?? ''),
                 const SizedBox(height: 16),
                 _buildActionButtons(),
                 GestureDetector(
@@ -588,18 +589,11 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
                     children: [
                       ClipOval(
                         child: Container(
-                          width: 30,
-                          height: 30,
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          child: Image.network(
-                            widget.author.image ?? '',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                  'assets/pngs/dummy_person_small.png');
-                            },
-                          ),
-                        ),
+                            width: 30,
+                            height: 30,
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                            child: SvgPicture.asset(
+                                'assets/svg/icons/dummy_person_small.svg')),
                       ),
                       GestureDetector(
                         onTap: () => _openCommentModal(),
@@ -653,52 +647,6 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildExpandableText(String text) {
-    final textSpan = TextSpan(
-      text: text,
-      style: const TextStyle(fontSize: 14),
-    );
-
-    final textPainter = TextPainter(
-      text: textSpan,
-      maxLines: 2,
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: MediaQuery.of(context).size.width - 32);
-
-    final isOverflowing = textPainter.didExceedMaxLines;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _isExpanded
-              ? text
-              : textPainter.text!.toPlainText().substring(
-                      0,
-                      textPainter.text!.toPlainText().length > 50
-                          ? 50
-                          : textPainter.text!.toPlainText().length) +
-                  (isOverflowing ? '...' : ''),
-          style: const TextStyle(fontSize: 14),
-          maxLines: _isExpanded ? null : 2,
-          overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-        ),
-        if (isOverflowing)
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _isExpanded = !_isExpanded;
-              });
-            },
-            child: Text(
-              _isExpanded ? 'Read less' : 'Read more',
-              style: const TextStyle(color: kBlue, fontSize: 14),
-            ),
-          ),
-      ],
     );
   }
 

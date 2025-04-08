@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/models/business_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:intl/intl.dart';
@@ -23,10 +24,11 @@ Widget buildUserInfo(UserModel user, Business feed, context) {
                   height: 30,
                   color: Colors.white,
                   child: Image.network(
-                    user.image ?? 'https://placehold.co/600x400',
+                    user.image ?? '',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return Image.asset('assets/pngs/dummy_person_small.png');
+                      return SvgPicture.asset(
+                          'assets/svg/icons/dummy_person_small.svg');
                     },
                   ),
                 ),

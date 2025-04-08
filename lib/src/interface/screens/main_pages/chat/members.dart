@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
@@ -612,9 +613,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
             const SizedBox(height: 16),
 
             // Display User List or No Data Message
-      if (isFirstLoad)
-  const Center(child: LoadingAnimation())
-else if (users.isNotEmpty)
+            if (isFirstLoad)
+              const Center(child: LoadingAnimation())
+            else if (users.isNotEmpty)
               ListView.builder(
                 shrinkWrap: true, // Prevents infinite height
                 physics:
@@ -684,8 +685,8 @@ else if (users.isNotEmpty)
                                   user.image ?? '',
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                        'assets/pngs/dummy_person_small.png');
+                                    return SvgPicture.asset(
+                                        'assets/svg/icons/dummy_person_small.svg');
                                   },
                                 ),
                               ),

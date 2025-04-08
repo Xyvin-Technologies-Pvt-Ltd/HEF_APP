@@ -171,9 +171,9 @@ class ProfilePage extends StatelessWidget {
                                                               ),
                                                             ),
                                                           )
-                                                        : Image.asset(
-                                                            scale: 1.5,
-                                                            'assets/pngs/dummy_person_large.png'),
+                                                        : SvgPicture.asset(
+                                                            height: 100,
+                                                            'assets/svg/icons/dummy_person_large.svg'),
                                                   ],
                                                 ),
                                                 SizedBox(width: 10),

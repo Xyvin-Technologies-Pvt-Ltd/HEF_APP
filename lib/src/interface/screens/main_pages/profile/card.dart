@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
@@ -143,8 +144,8 @@ class ProfileCard extends StatelessWidget {
                                                           ),
                                                         ),
                                                       )
-                                                    : Image.asset(
-                                                        'assets/pngs/dummy_person_large.png'),
+                                                    : SvgPicture.asset(
+                                'assets/svg/icons/dummy_person_large.svg'),
                                               ],
                                             ),
                                             SizedBox(width: 10),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
@@ -37,7 +38,8 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   }
 
   void getMessageHistory() async {
-    final messagesette = await ChatApiService. getChatBetweenUsers(widget.receiver.id!);
+    final messagesette =
+        await ChatApiService.getChatBetweenUsers(widget.receiver.id!);
     if (mounted) {
       setState(() {
         messages.addAll(messagesette);
@@ -76,7 +78,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
 
   void sendMessage() {
     if (_controller.text.isNotEmpty && mounted) {
-    ChatApiService.  sendChatMessage(
+      ChatApiService.sendChatMessage(
         Id: widget.receiver.id!,
         content: _controller.text,
       );
@@ -98,22 +100,21 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     });
   }
 
- @override
-Widget build(BuildContext context) {
-  final messageStream = ref.watch(messageStreamProvider);
+  @override
+  Widget build(BuildContext context) {
+    final messageStream = ref.watch(messageStreamProvider);
 
-  messageStream.whenData((newMessage) {
-    bool messageExists = messages.any((message) =>
-        message.createdAt == newMessage.createdAt &&
-        message.content == newMessage.content);
+    messageStream.whenData((newMessage) {
+      bool messageExists = messages.any((message) =>
+          message.createdAt == newMessage.createdAt &&
+          message.content == newMessage.content);
 
-    if (!messageExists) {
-      setState(() {
-        messages.add(newMessage);
-      });
-    }
-  });
-
+      if (!messageExists) {
+        setState(() {
+          messages.add(newMessage);
+        });
+      }
+    });
 
     return GestureDetector(
       onTap: () {
@@ -212,8 +213,8 @@ Widget build(BuildContext context) {
                             widget.receiver.image ?? '',
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                  'assets/pngs/dummy_person_small.png');
+                              return SvgPicture.asset(
+                                  'assets/svg/icons/dummy_person_small.svg');
                             },
                           ),
                         ),

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
@@ -75,8 +76,8 @@ Future<void> captureAndShareWidgetScreenshot(BuildContext context) async {
                                                       ),
                                                     ),
                                                   )
-                                                : Image.asset(
-                                                    'assets/pngs/dummy_person_large.png'),
+                                                : SvgPicture.asset(
+                                'assets/svg/icons/dummy_person_large.svg'),
                                           ],
                                         ),
                                         SizedBox(width: 10),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/review_api/review_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
@@ -203,8 +204,8 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                 user.image ?? '',
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                      'assets/pngs/dummy_person_small.png');
+                                  return SvgPicture.asset(
+                                      'assets/svg/icons/dummy_person_small.svg');
                                 },
                               ),
                             ),

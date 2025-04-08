@@ -150,10 +150,8 @@ class _MainPageState extends ConsumerState<MainPage> {
                             ),
                             radius: 15,
                           )
-                        : Image.asset(
-                            'assets/pngs/dummy_person_small.png',
-                            scale: 1,
-                          )
+                        : SvgPicture.asset(
+                                  'assets/svg/icons/dummy_person_small.svg')
                     : IconResolver(
                         iconPath: _inactiveIcons[index],
                         color: selectedIndex == index
@@ -168,10 +166,8 @@ class _MainPageState extends ConsumerState<MainPage> {
                             ),
                             radius: 15,
                           )
-                        : Image.asset(
-                            'assets/pngs/dummy_person_small.png',
-                            scale: 1.5,
-                          )
+                        : SvgPicture.asset(
+                                  'assets/svg/icons/dummy_person_small.svg')
                     : IconResolver(
                         iconPath: _activeIcons[index], color: kPrimaryColor),
                 label: [

@@ -139,7 +139,8 @@ class ProfilePreview extends ConsumerWidget {
                                   ),
                                 ),
                               )
-                            : Image.asset('assets/pngs/dummy_person_large.png'),
+                            : SvgPicture.asset(
+                                'assets/svg/icons/dummy_person_large.svg'),
                         const SizedBox(height: 10),
                         Text('${user.name ?? ''}', style: kHeadTitleSB),
                         const SizedBox(height: 5),

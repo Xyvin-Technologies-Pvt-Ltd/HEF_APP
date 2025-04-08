@@ -669,9 +669,8 @@ class _EditUserState extends ConsumerState<EditUser> {
                                                           errorBuilder:
                                                               (context, error,
                                                                   stackTrace) {
-                                                            return Image.asset(
-                                                                scale: .7,
-                                                                'assets/pngs/dummy_person_large.png');
+                                                            return SvgPicture.asset(
+                                                                'assets/svg/icons/dummy_person_large.svg');
                                                           },
                                                           user.image ??
                                                               '', // Replace with your image URL

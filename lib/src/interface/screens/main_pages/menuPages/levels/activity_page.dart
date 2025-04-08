@@ -16,8 +16,7 @@ class ActivityPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        ActivityApiService activityApiService =
-                                ActivityApiService();
+    ActivityApiService activityApiService = ActivityApiService();
     return Consumer(
       builder: (context, ref, child) {
         final asyncActivities =
@@ -46,9 +45,8 @@ class ActivityPage extends StatelessWidget {
                             },
                           );
                           try {
-                      
-                            await activityApiService.downloadAndSaveExcel(
-                                chapterId);
+                            await activityApiService
+                                .downloadAndSaveExcel(chapterId);
                           } finally {
                             Navigator.of(context).pop();
                           }
@@ -99,58 +97,79 @@ class ActivityPage extends StatelessWidget {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        activity.type == 'Business'
-                                            ? 'Business Seller'
-                                            : "Host",
-                                        style: TextStyle(
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundColor: Colors.grey[300],
-                                            child: Icon(Icons.person,
-                                                color: Colors.grey),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          activity.type == 'Business'
+                                              ? 'Business Seller'
+                                              : "Host",
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          SizedBox(width: 8),
-                                          Text(activity.sender?.name ?? ''),
-                                        ],
-                                      ),
-                                    ],
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: Colors.grey[300],
+                                              child: Icon(Icons.person,
+                                                  color: Colors.grey),
+                                            ),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                activity.sender?.name ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 5,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        activity.type == 'Business'
-                                            ? 'Business Buyer'
-                                            : "Guest",
-                                        style: TextStyle(
-                                          color: kBlue,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Text(activity.member?.name ?? ''),
-                                          SizedBox(width: 8),
-                                          CircleAvatar(
-                                            backgroundColor: Colors.grey[300],
-                                            child: Icon(Icons.person,
-                                                color: Colors.grey),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          activity.type == 'Business'
+                                              ? 'Business Buyer'
+                                              : "Guest",
+                                          style: TextStyle(
+                                            color: kBlue,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        ],
-                                      ),
-                                    ],
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                activity.member?.name ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 5,
+                                                textAlign: TextAlign.end,
+                                              ),
+                                            ),
+                                            SizedBox(width: 8),
+                                            CircleAvatar(
+                                              backgroundColor: Colors.grey[300],
+                                              child: Icon(Icons.person,
+                                                  color: Colors.grey),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -174,26 +193,41 @@ class ActivityPage extends StatelessWidget {
                                         Row(
                                           children: [
                                             Text('Name: '),
-                                            Text(activity.referral?.name ?? ''),
+                                            Expanded(
+                                              child: Text(
+                                                activity.referral?.name ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 5,
+                                              ),
+                                            ),
                                           ],
                                         ),
-                                        SizedBox(width: 8),
+                                        SizedBox(height: 4),
                                         Row(
                                           children: [
                                             Text('Email: '),
-                                            Text(
-                                                activity.referral?.email ?? ''),
+                                            Expanded(
+                                              child: Text(
+                                                activity.referral?.email ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 5,
+                                              ),
+                                            ),
                                           ],
                                         ),
-                                        SizedBox(width: 8),
+                                        SizedBox(height: 4),
                                         Row(
                                           children: [
                                             Text('Phone: '),
-                                            Text(
-                                                activity.referral?.phone ?? ''),
+                                            Expanded(
+                                              child: Text(
+                                                activity.referral?.phone ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 5,
+                                              ),
+                                            ),
                                           ],
                                         ),
-                                        SizedBox(width: 8),
                                       ],
                                     ),
                                   ],
@@ -205,13 +239,17 @@ class ActivityPage extends StatelessWidget {
                               ),
                               Row(
                                 children: [
-                                  Text(
-                                    activity.title ?? '',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                  Expanded(
+                                    child: Text(
+                                      activity.title ?? '',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 5,
                                     ),
                                   ),
-                                  Spacer(),
+                                  SizedBox(width: 8),
                                   if (activity.type == 'Business')
                                     Text.rich(
                                       TextSpan(
@@ -225,11 +263,14 @@ class ActivityPage extends StatelessWidget {
                                                   color: kBlue)),
                                         ],
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   if (activity.type == 'One v One Meeting')
-                                    Text(formattedDate,
-                                        style:
-                                            kSmallTitleB.copyWith(color: kBlue))
+                                    Text(
+                                      formattedDate,
+                                      style:
+                                          kSmallTitleB.copyWith(color: kBlue),
+                                    )
                                 ],
                               ),
                               SizedBox(height: 8),

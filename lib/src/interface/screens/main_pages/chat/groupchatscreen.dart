@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
-import 'package:hef/src/data/api_routes/group_chat_api/group_chat_api.dart';
+import 'package:hef/src/data/api_routes/group_chat_api/group_api.dart';
+
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/group_chat_model.dart';
@@ -39,7 +40,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
   }
 
   void getMessageHistory() async {
-    final messagesette = await getGroupChatMessages(groupId: widget.group.id!);
+    final messagesette = await GroupApiService. getGroupChatMessages(groupId: widget.group.id!);
     if (mounted) {
       setState(() {
         messages.addAll(messagesette);

@@ -25,6 +25,7 @@ class LevelMembers extends StatelessWidget {
             ref.watch(fetchChapterMemberDataProvider(chapterId, 'user'));
         return Scaffold(
           appBar: AppBar(
+            scrolledUnderElevation: 0,
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
@@ -104,7 +105,7 @@ class LevelMembers extends StatelessWidget {
                                       NetworkImage(member.image ?? ''),
                                 ),
                                 title: Text(member.name ?? ''),
-                                subtitle: Text(member.name ?? ''),
+                                subtitle: Text(member.email ?? ''),
                                 trailing: Icon(Icons.arrow_forward_ios),
                                 onTap: () {
                                   navigationService.pushNamed(

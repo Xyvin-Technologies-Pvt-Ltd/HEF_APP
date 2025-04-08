@@ -6,7 +6,26 @@ part of 'levels_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchStatesHash() => r'40daaabdbb8ad91f2aba464dee208be398869688';
+String _$hierarchyApiServiceHash() =>
+    r'86771487167b63c476c39fdf0a538e6172c4652f';
+
+/// See also [hierarchyApiService].
+@ProviderFor(hierarchyApiService)
+final hierarchyApiServiceProvider =
+    AutoDisposeProvider<HierarchyApiService>.internal(
+  hierarchyApiService,
+  name: r'hierarchyApiServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$hierarchyApiServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef HierarchyApiServiceRef = AutoDisposeProviderRef<HierarchyApiService>;
+String _$fetchStatesHash() => r'a4d68df2d43cdb370c05298a69cdadbcf5df5e06';
 
 /// See also [fetchStates].
 @ProviderFor(fetchStates)
@@ -23,7 +42,7 @@ final fetchStatesProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef FetchStatesRef = AutoDisposeFutureProviderRef<List<LevelModel>>;
-String _$fetchLevelDataHash() => r'a2044fb020ec8b5bf98e38d19c304a819ea54f2b';
+String _$fetchLevelDataHash() => r'ba38d1efdd748c4f28af0b6289e8955d145df547';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -194,7 +213,7 @@ class _FetchLevelDataProviderElement
 }
 
 String _$fetchChapterMemberDataHash() =>
-    r'04d58c689c76606ea82415ba0e4a984a2116aec3';
+    r'c1363a4f60ba681d1a34e759e11740c721568e0f';
 
 /// See also [fetchChapterMemberData].
 @ProviderFor(fetchChapterMemberData)
@@ -345,7 +364,7 @@ class _FetchChapterMemberDataProviderElement
   String get level => (origin as FetchChapterMemberDataProvider).level;
 }
 
-String _$fetchDistrictsHash() => r'4f4979ea3186e4b4dd54715784f6d93b86a5cc24';
+String _$fetchDistrictsHash() => r'baff6dcdadbf579f6b8dd237567957c1910b9499';
 
 /// See also [fetchDistricts].
 @ProviderFor(fetchDistricts)

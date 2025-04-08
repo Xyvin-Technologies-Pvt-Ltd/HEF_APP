@@ -380,7 +380,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                         label: 'Get Quote',
                         onPressed: () async {
                           if (subscriptionType != 'free') {
-                            await sendChatMessage(
+                            await ChatApiService.sendChatMessage(
                                 productId: widget.product.id,
                                 Id: widget.product.seller!,
                                 content:

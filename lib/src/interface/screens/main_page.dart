@@ -72,7 +72,7 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class _MainPageState extends ConsumerState<MainPage> {
-  late final SocketIoClient webSocketClient;
+  late final SocketIoClientService webSocketClient;
 
   @override
   void initState() {

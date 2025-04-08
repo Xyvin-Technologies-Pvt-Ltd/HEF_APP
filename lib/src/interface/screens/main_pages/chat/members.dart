@@ -509,6 +509,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   Widget build(BuildContext context) {
     final users = ref.watch(peopleNotifierProvider);
     final isLoading = ref.read(peopleNotifierProvider.notifier).isLoading;
+    final isFirstLoad = ref.read(peopleNotifierProvider.notifier).isFirstLoad;
+
     final asyncChats = ref.watch(fetchChatThreadProvider);
 
     return Scaffold(
@@ -610,7 +612,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
             const SizedBox(height: 16),
 
             // Display User List or No Data Message
-            if (users.isNotEmpty)
+      if (isFirstLoad)
+  const Center(child: LoadingAnimation())
+else if (users.isNotEmpty)
               ListView.builder(
                 shrinkWrap: true, // Prevents infinite height
                 physics:

@@ -91,7 +91,7 @@ class DeepLinkService {
           if (pathSegments.length > 1) {
             final eventId = pathSegments[1];
             try {
-              final event = await fetchEventById(eventId);
+              final event = await EventApiService. fetchEventById(eventId);
               NavigationService.navigatorKey.currentState
                   ?.pushNamed('ViewMoreEvent', arguments: event);
             } catch (e) {

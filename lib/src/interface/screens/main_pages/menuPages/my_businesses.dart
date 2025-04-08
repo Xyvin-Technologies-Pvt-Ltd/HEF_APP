@@ -207,7 +207,7 @@ class MyBusinessesPage extends StatelessWidget {
                         style: TextButton.styleFrom(
                             backgroundColor: Color(0xFFEB5757)),
                         onPressed: () async {
-                          await deletePost(requirementId, context);
+                          await BusinessApiService. deletePost(requirementId, context);
                           ref.invalidate(fetchMyBusinessesProvider);
                           Navigator.of(context).pop();
                         },

@@ -37,7 +37,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   }
 
   void getMessageHistory() async {
-    final messagesette = await getChatBetweenUsers(widget.receiver.id!);
+    final messagesette = await ChatApiService. getChatBetweenUsers(widget.receiver.id!);
     if (mounted) {
       setState(() {
         messages.addAll(messagesette);
@@ -76,7 +76,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
 
   void sendMessage() {
     if (_controller.text.isNotEmpty && mounted) {
-      sendChatMessage(
+    ChatApiService.  sendChatMessage(
         Id: widget.receiver.id!,
         content: _controller.text,
       );

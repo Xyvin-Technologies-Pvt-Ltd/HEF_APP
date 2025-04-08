@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_activities.dart';
 import 'package:hef/src/interface/components/ModalSheets/bussiness_enquiry_modal.dart';
+import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -135,7 +136,7 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
   Widget build(BuildContext context) {
     final feeds = ref.watch(businessNotifierProvider);
     final isLoading = ref.read(businessNotifierProvider.notifier).isLoading;
-
+    final isFirstLoad = ref.read(businessNotifierProvider.notifier).isFirstLoad;
     List<Business> filteredFeeds = filterFeeds(feeds);
 
     return RefreshIndicator(
@@ -165,36 +166,40 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
                 // ),
                 // Feed list
                 Expanded(
-                  child: filteredFeeds.isEmpty
-                      ? const Center(child: Text('No FEEDS'))
-                      : ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.all(16.0),
-                          itemCount:
-                              filteredFeeds.length + 2, // +2 for Ad and spacer
-                          itemBuilder: (context, index) {
-                            if (index == filteredFeeds.length) {
-                              return isLoading
-                                  ? const ReusableFeedPostSkeleton()
-                                  : const SizedBox.shrink();
-                            }
+                  child: isFirstLoad
+                      ? Center(
+                          child: LoadingAnimation(),
+                        )
+                      : filteredFeeds.isEmpty
+                          ? const Center(child: Text('No FEEDS'))
+                          : ListView.builder(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.all(16.0),
+                              itemCount: filteredFeeds.length +
+                                  2, // +2 for Ad and spacer
+                              itemBuilder: (context, index) {
+                                if (index == filteredFeeds.length) {
+                                  return isLoading
+                                      ? const ReusableFeedPostSkeleton()
+                                      : const SizedBox.shrink();
+                                }
 
-                            if (index == filteredFeeds.length + 1) {
-                              return const SizedBox(height: 80);
-                            }
+                                if (index == filteredFeeds.length + 1) {
+                                  return const SizedBox(height: 80);
+                                }
 
-                            final feed = filteredFeeds[index];
-                            if (feed.status == 'published') {
-                              return _buildPost(
-                                withImage: feed.media != null &&
-                                    feed.media!.isNotEmpty,
-                                feed: feed,
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
+                                final feed = filteredFeeds[index];
+                                if (feed.status == 'published') {
+                                  return _buildPost(
+                                    withImage: feed.media != null &&
+                                        feed.media!.isNotEmpty,
+                                    feed: feed,
+                                  );
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              },
+                            ),
                 ),
               ],
             ),
@@ -817,8 +822,16 @@ class ReusableFeedPostSkeleton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 15),
+                _buildShimmerContainer(height: 12, width: 100),
+                const SizedBox(height: 15),
+              ],
+            ),
             // Image Skeleton
-            _buildShimmerContainer(height: 200.0, width: double.infinity),
+            _buildShimmerContainer(height: 400.0, width: double.infinity),
             const SizedBox(height: 16),
             // Content Text Skeleton
             _buildShimmerContainer(height: 14, width: double.infinity),

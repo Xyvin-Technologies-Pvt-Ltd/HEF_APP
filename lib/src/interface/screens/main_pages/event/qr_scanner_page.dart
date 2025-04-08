@@ -45,7 +45,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
               // Stop the scanner
               scannerController.stop();
 
-              final attendant = await markAttendanceEvent(
+              final attendant = await EventApiService.markAttendanceEvent(
                   eventId: widget.eventId, userId: userId);
               log('attendant:$attendant');
               // Navigate to the next page

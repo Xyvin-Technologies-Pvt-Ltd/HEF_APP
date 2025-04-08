@@ -6,7 +6,24 @@ part of 'group_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getGroupListHash() => r'7415982095e2f03f80451324203adbb097142cd1';
+String _$groupApiServiceHash() => r'd28d349419c771385eade1f4df7641b2abb83453';
+
+/// See also [groupApiService].
+@ProviderFor(groupApiService)
+final groupApiServiceProvider = AutoDisposeProvider<GroupApiService>.internal(
+  groupApiService,
+  name: r'groupApiServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$groupApiServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GroupApiServiceRef = AutoDisposeProviderRef<GroupApiService>;
+String _$getGroupListHash() => r'f1dedff7fb8f2056b2d3e370dd749c5a17fd0c52';
 
 /// See also [getGroupList].
 @ProviderFor(getGroupList)
@@ -23,7 +40,7 @@ final getGroupListProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GetGroupListRef = AutoDisposeFutureProviderRef<List<GroupModel>>;
-String _$fetchGroupInfoHash() => r'e869bd7582a2f215ea5fb0efdd748b596cd31f89';
+String _$fetchGroupInfoHash() => r'4ed721281a813e285aeca62bea134d0bf42ebdf5';
 
 /// Copied from Dart SDK
 class _SystemHash {

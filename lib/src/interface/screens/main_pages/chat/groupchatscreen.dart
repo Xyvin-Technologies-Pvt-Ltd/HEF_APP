@@ -78,7 +78,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
 
   void sendMessage() {
     if (_controller.text.isNotEmpty && mounted) {
-      sendChatMessage(
+    ChatApiService.  sendChatMessage(
         isGroup: true,
         Id: widget.group.id!,
         content: _controller.text,

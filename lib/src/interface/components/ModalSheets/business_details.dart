@@ -156,7 +156,7 @@ class BusinessDetailsModalSheet extends StatelessWidget {
                         return customButton(
                           label: buttonText,
                           onPressed: () async {
-                            await sendChatMessage(
+                            await ChatApiService. sendChatMessage(
                                 Id: business.author ?? '',
                                 content: business.content ?? '',
                                 businessId: business.id);

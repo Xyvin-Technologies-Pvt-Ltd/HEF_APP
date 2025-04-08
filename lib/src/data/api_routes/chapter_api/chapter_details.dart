@@ -9,9 +9,10 @@ import 'package:hef/src/data/models/user_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'chapter_details.g.dart';
-@riverpod
-Future<ChapterDetailsModel> fetchChapterDetails(
-    Ref ref, String chapterId) async {
+class ChapterApiService {
+
+ static Future<ChapterDetailsModel> fetchChapterDetails(
+ String chapterId) async {
   final url = Uri.parse('$baseUrl/hierarchy/chapter/$chapterId');
   print('Requesting URL: $url');
   final response = await http.get(
@@ -31,4 +32,12 @@ Future<ChapterDetailsModel> fetchChapterDetails(
 
     throw Exception(json.decode(response.body)['message']);
   }
+}
+
+}
+
+@riverpod
+Future<ChapterDetailsModel> fetchChapterDetails(Ref ref,
+ String  chapterId) {
+  return ChapterApiService.fetchChapterDetails(chapterId);
 }

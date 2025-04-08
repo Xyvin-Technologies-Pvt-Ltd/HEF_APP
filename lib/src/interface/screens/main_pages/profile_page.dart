@@ -47,11 +47,6 @@ class ProfilePage extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Container(
-                      width: double.infinity, // Width of the line
-                      height: 1, // Thickness of the line
-                      color: kTertiary // Line color
-                      ),
                   Column(
                     children: [
                       SizedBox(

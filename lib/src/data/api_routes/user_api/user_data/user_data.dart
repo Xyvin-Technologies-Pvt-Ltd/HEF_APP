@@ -14,14 +14,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'user_data.g.dart';
 
 class UserService {
-  static final _headers = {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer $token"
-  };
-
+  static Map<String, String> _headers() => {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        'accept': '*/*',
+      };
   static Future<UserModel> fetchUserDetails(String userId) async {
     final url = Uri.parse('$baseUrl/user/single/$userId');
-    final response = await http.get(url, headers: _headers);
+    final response = await http.get(url, headers: _headers());
     log(response.body);
 
     if (response.statusCode == 200) {
@@ -38,7 +38,7 @@ class UserService {
     for (var userId in users) {
       try {
         final url = Uri.parse('$baseUrl/user/single/$userId');
-        final response = await http.get(url, headers: _headers);
+        final response = await http.get(url, headers: _headers());
 
         if (response.statusCode == 200) {
           final data = json.decode(response.body)['data'];
@@ -62,9 +62,9 @@ class UserService {
       url = Uri.parse(
           '$baseUrl/user/dashboard?startDate=$startDate&endDate=$endDate');
     }
-
-    final response = await http.get(url, headers: _headers);
-    log(response.body);
+    log("Token of dashboard:$token");
+    final response = await http.get(url, headers: _headers());
+    log(response.body, name: "USER DASHBOARD DATA");
 
     if (response.statusCode == 200) {
       return UserDashboard.fromJson(json.decode(response.body)['data']);
@@ -85,7 +85,7 @@ class UserService {
 
     try {
       final response =
-          await http.post(url, headers: _headers, body: jsonEncode(body));
+          await http.post(url, headers: _headers(), body: jsonEncode(body));
       if (response.statusCode == 201) {
         SnackbarService().showSnackBar('Reported to admin');
       } else {
@@ -100,7 +100,7 @@ class UserService {
       BuildContext context, WidgetRef ref) async {
     final url = Uri.parse('$baseUrl/user/block/$userId');
     try {
-      final response = await http.put(url, headers: _headers);
+      final response = await http.put(url, headers: _headers());
       if (response.statusCode == 200) {
         ref.read(userProvider.notifier).refreshUser();
         SnackbarService().showSnackBar('Blocked');
@@ -115,7 +115,7 @@ class UserService {
   static Future<void> unBlockUser(String userId) async {
     final url = Uri.parse('$baseUrl/user/unblock/$userId');
     try {
-      final response = await http.put(url, headers: _headers);
+      final response = await http.put(url, headers: _headers());
       if (response.statusCode == 200) {
         SnackbarService().showSnackBar('User unBlocked successfully');
       } else {
@@ -128,7 +128,7 @@ class UserService {
 
   static Future<List<PaymentYearModel>> getPaymentYears() async {
     final url = Uri.parse('$baseUrl/payment/parent-subscription');
-    final response = await http.get(url, headers: _headers);
+    final response = await http.get(url, headers: _headers());
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body)['data'];
@@ -156,7 +156,7 @@ class UserService {
     try {
       final response = await http.post(
         url,
-        headers: _headers,
+        headers: _headers(),
         body: jsonEncode(body),
       );
 
@@ -172,7 +172,7 @@ class UserService {
 
   static Future<List<Subscription>> getSubscription(String id) async {
     final url = Uri.parse('$baseUrl/payment/user/$id');
-    final response = await http.get(url, headers: _headers);
+    final response = await http.get(url, headers: _headers());
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body)['data'];
@@ -190,7 +190,7 @@ class UserService {
       url = Uri.parse('$baseUrl/user/business-tags?search=$search');
     }
 
-    final response = await http.get(url, headers: _headers);
+    final response = await http.get(url, headers: _headers());
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body)['data'];
@@ -205,7 +205,7 @@ class UserService {
     try {
       final response = await http.post(
         url,
-        headers: _headers,
+        headers: _headers(),
         body: jsonEncode({"phone": mobile}),
       );
       return response.statusCode == 200;
@@ -222,8 +222,7 @@ Future<UserModel> fetchUserDetails(Ref ref, String id) {
 }
 
 @riverpod
-Future<List<UserModel>> getMultipleUsers(
-    Ref ref, List<String> userIds) {
+Future<List<UserModel>> getMultipleUsers(Ref ref, List<String> userIds) {
   return UserService.fetchMultipleUsers(userIds);
 }
 
@@ -250,5 +249,3 @@ Future<List<Subscription>> getUserSubscription(Ref ref) {
 Future<List<String>> searchBusinessTags(Ref ref, {String? search}) {
   return UserService.fetchBusinessTags(search: search);
 }
-
-

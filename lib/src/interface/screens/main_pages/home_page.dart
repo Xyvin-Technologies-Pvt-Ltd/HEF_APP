@@ -64,7 +64,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           notice.description!, 14.0); // Font size 14 for description
 
       final double itemHeight =
-          titleHeight + descriptionHeight; // Adding padding
+          titleHeight + descriptionHeight - 20; // Adding padding
       if (itemHeight > maxHeight) {
         maxHeight = itemHeight + MediaQuery.sizeOf(context).width * 0.05;
       }
@@ -1010,11 +1010,15 @@ Widget customNotice({
                       ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  notice.description?.trim() ?? '',
-                  style: const TextStyle(color: kGreyDark // Set the font color
-                      ),
-                ),
+                MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaleFactor: .9),
+                  child: Text(
+                    notice.description?.trim() ?? '',
+                    style:
+                        const TextStyle(color: kGreyDark // Set the font color
+                            ),
+                  ),
+                )
               ],
             ),
           ),

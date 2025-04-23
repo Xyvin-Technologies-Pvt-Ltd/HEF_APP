@@ -210,7 +210,8 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 8),     if (user.company != null)
+                            if (user.company!.isNotEmpty)
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

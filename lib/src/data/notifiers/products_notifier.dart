@@ -56,6 +56,7 @@ class ProductsNotifier extends _$ProductsNotifier {
       products = [...newProducts];
       hasMore = newProducts.length == limit;
       state = products;
+      
     } catch (e, stackTrace) {
       log(e.toString());
       log(stackTrace.toString());

@@ -612,14 +612,14 @@ class _MembersPageState extends ConsumerState<MembersPage> {
             ),
             const SizedBox(height: 16),
 
-            // Display User List or No Data Message
+     
             if (isFirstLoad)
               const Center(child: LoadingAnimation())
             else if (users.isNotEmpty)
               ListView.builder(
-                shrinkWrap: true, // Prevents infinite height
+                shrinkWrap: true, 
                 physics:
-                    const NeverScrollableScrollPhysics(), // Disable scrolling inside Column
+                    const NeverScrollableScrollPhysics(), 
                 itemCount: users.length + (isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == users.length) {

@@ -32,7 +32,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 class BusinessView extends ConsumerStatefulWidget {
-  BusinessView({super.key});
+  const BusinessView({super.key});
 
   @override
   ConsumerState<BusinessView> createState() => _BusinessViewState();

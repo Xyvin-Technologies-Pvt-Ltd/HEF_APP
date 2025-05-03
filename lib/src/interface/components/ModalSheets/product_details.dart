@@ -210,8 +210,8 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),     if (user.company != null)
-                            if (user.company!.isNotEmpty)
+                          const SizedBox(width: 8),    
+                      
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,6 +220,8 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     '${user.name ?? ''}'),
+                                         if (user.company != null)
+                            if (user.company!.isNotEmpty)
                                 Text('${user.company?[0].name ?? ''}'),
                               ],
                             ),

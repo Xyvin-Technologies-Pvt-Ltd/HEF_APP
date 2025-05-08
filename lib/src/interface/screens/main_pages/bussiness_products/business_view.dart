@@ -714,13 +714,13 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
           children: [
             Row(
               children: [
-                IconButton(
-                  icon: Icon(
-                    isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: isLiked ? Colors.red : Colors.black,
-                  ),
-                  onPressed: _toggleLike,
-                ),
+                // IconButton(
+                //   icon: Icon(
+                //     isLiked ? Icons.favorite : Icons.favorite_border,
+                //     color: isLiked ? Colors.red : Colors.black,
+                //   ),
+                //   onPressed: _toggleLike,
+                // ),
                 IconButton(
                   icon: SvgPicture.asset('assets/svg/icons/comment.svg'),
                   onPressed: _openCommentModal,
@@ -732,13 +732,13 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
                   ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10),
-              child: Text(
-                '${widget.business.likes?.length ?? 0} Likes',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 10, right: 10),
+            //   child: Text(
+            //     '${widget.business.likes?.length ?? 0} Likes',
+            //     style: const TextStyle(fontWeight: FontWeight.w600),
+            //   ),
+            // ),
           ],
         ),
         const Spacer(),

@@ -32,7 +32,7 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
   Future<void> _fetchUserDetails() async {
     try {
       log('Fetching user details');
-      final user = await ref.read( fetchUserDetailsProvider(id).future);
+      final user = await ref.read(fetchUserDetailsProvider(id).future);
       state = AsyncValue.data(user ?? UserModel());
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
@@ -52,13 +52,11 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
       final updatedCompanyList = [...?user.company];
 
       // Check if any field has a valid non-empty value
-      bool hasValidData = [
-            updatedCompany.logo,
-            updatedCompany.name,
-            updatedCompany.designation,
-            updatedCompany.email,
-            updatedCompany.phone
-          ].any((field) => field?.trim().isNotEmpty ?? false) ||
+      bool hasValidData = (updatedCompany.logo?.isNotEmpty ?? false) ||
+          (updatedCompany.name?.trim().isNotEmpty ?? false) ||
+          (updatedCompany.designation?.trim().isNotEmpty ?? false) ||
+          (updatedCompany.email?.trim().isNotEmpty ?? false) ||
+          (updatedCompany.phone?.trim().isNotEmpty ?? false) ||
           (updatedCompany.websites?.isNotEmpty ?? false);
 
       if (!hasValidData) {

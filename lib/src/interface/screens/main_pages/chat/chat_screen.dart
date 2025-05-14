@@ -288,9 +288,9 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                               itemBuilder: (context, index) {
                                 final message = messages[messages.length -
                                     1 -
-                                    index]; // Reverse the index to get the latest message first
+                                    index]; 
                                 if (message.from == widget.sender.id) {
-                                  return OwnMessageCard(
+                                  return OwnMessageCard(product: message.product,
                                     requirement: message.feed,
                                     status: message.status!,
                                     message: message.content ?? '',

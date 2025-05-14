@@ -4,6 +4,7 @@ class MessageModel {
   final String? to;
   final String? content;
   final ChatBusiness? feed;
+  final ChatProduct? product;
   final String? status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -15,6 +16,7 @@ class MessageModel {
     this.to,
     this.content,
     this.feed,
+    this.product,
     this.status,
     this.createdAt,
     this.updatedAt,
@@ -29,6 +31,7 @@ class MessageModel {
       to: json['to'] as String?,
       content: json['content'] as String?,
       feed: json['feed'] != null ? ChatBusiness.fromJson(json['feed']) : null,
+      product: json['product'] != null ? ChatProduct.fromJson(json['product']) : null,
       status: json['status'] as String?,
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
@@ -44,6 +47,7 @@ class MessageModel {
       'to': to,
       'content': content,
       'feed': feed?.toJson(),
+      'product': product?.toJson(),
       'status': status,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),

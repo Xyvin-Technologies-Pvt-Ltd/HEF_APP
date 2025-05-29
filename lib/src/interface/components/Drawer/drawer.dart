@@ -212,7 +212,9 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
             onTap: () async {
          await SecureStorage.delete('token');
                    await SecureStorage.delete('id');
-                  
+                        await editUser({
+                "fcm":"","name":user.name,"phone":user.phone
+              });
               navigationService.pushNamedAndRemoveUntil('PhoneNumber');
               await editUser({
                 "fcm":""

@@ -475,6 +475,10 @@ class _MainPageState extends ConsumerState<MainPage> {
           return PhoneNumberScreen();
         },
         data: (user) {
+            if(user.fcm==null || user.fcm==''){
+               
+      editUser({"fcm": fcmToken,"name":user.name,"phone":user.phone});
+          }
           subscriptionType = user.subscription ?? 'free';
           _initialize(user: user);
           return PopScope(

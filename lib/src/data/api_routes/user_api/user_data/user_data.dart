@@ -73,14 +73,15 @@ class UserService {
     }
   }
 
-  static Future<void> createReport({
-    required String reportedItemId,
-    required String reportType,
-  }) async {
+  static Future<void> createReport(
+      {required String reportedItemId,
+      required String reportType,
+      required String reason}) async {
     final url = Uri.parse('$baseUrl/report');
     final body = {
       'content': reportedItemId.isNotEmpty ? reportedItemId : ' ',
       'reportType': reportType,
+      'reason': reason
     };
 
     try {
@@ -89,6 +90,8 @@ class UserService {
       if (response.statusCode == 201) {
         SnackbarService().showSnackBar('Reported to admin');
       } else {
+        final jsonResponse = json.decode(response.body);
+        log(jsonResponse['message']);
         SnackbarService().showSnackBar('Failed to Report');
       }
     } catch (e) {

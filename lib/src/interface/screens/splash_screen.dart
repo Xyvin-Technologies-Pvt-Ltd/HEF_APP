@@ -21,6 +21,7 @@ import 'package:hef/src/data/services/navgitor_service.dart';
 
 import 'package:flutter_upgrade_version/flutter_upgrade_version.dart';
 import 'package:flutter_upgrade_version/models/package_info.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   @override
@@ -32,15 +33,180 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool hasVersionCheckError = false;
   String errorMessage = '';
   final DeepLinkService _deepLinkService = DeepLinkService();
+  // Add a flag to track first launch
+  String isFirstLaunch = 'false';
+  bool isPermissionCheckComplete = false;
+
   @override
   void initState() {
     super.initState();
+    checkFirstLaunch().then((_) {
+      handlePermissions();
+    });
+  }
+
+  Future<void> checkFirstLaunch() async {
+    isFirstLaunch = await SecureStorage.read('has_launched_before') ?? 'false';
+    if (isFirstLaunch == 'true') {
+      await SecureStorage.write('has_launched_before', 'true');
+    }
+  }
+
+  Future<void> handlePermissions() async {
+    if (isFirstLaunch == 'true') {
+      // For first launch, directly request permission using the system dialog
+      await getToken();
+      setState(() {
+        isPermissionCheckComplete = true;
+      });
+      proceedWithAppFlow();
+    } else {
+      // For subsequent launches, check status first
+      final status = await Permission.notification.status;
+      if (status.isGranted) {
+        await getToken();
+        setState(() {
+          isPermissionCheckComplete = true;
+        });
+        proceedWithAppFlow();
+      } else if (status.isPermanentlyDenied) {
+        // Show custom dialog if permission was permanently denied
+        if (mounted) {
+          await showPermissionDialog();
+        }
+      } else {
+        // For other cases (like first denial), try system dialog again
+        await getToken();
+        setState(() {
+          isPermissionCheckComplete = true;
+        });
+        proceedWithAppFlow();
+      }
+    }
+  }
+
+  void proceedWithAppFlow() {
     checkAppVersion(context).then((_) {
-      if (!isAppUpdateRequired && !hasVersionCheckError) {
+      if (!isAppUpdateRequired) {
         initialize();
       }
     });
-    getToken();
+  }
+
+  Future<void> showPermissionDialog() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        elevation: 8,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon at the top
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.notifications_outlined,
+                  color: Colors.blue.shade700,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Title
+              Text(
+                "Enable Notifications",
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade800,
+                    ),
+              ),
+              const SizedBox(height: 12),
+
+              // Content
+              Text(
+                "Would you like to enable notifications to stay updated with important information?",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey.shade700,
+                      height: 1.4,
+                    ),
+              ),
+              const SizedBox(height: 24),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+
+                        setState(() {
+                          isPermissionCheckComplete = true;
+                        });
+
+                        proceedWithAppFlow();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: BorderSide(color: Color(0xFF004797)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "Skip",
+                        style: TextStyle(color: Color(0xFF004797)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        await openAppSettings();
+
+                        final newStatus = await Permission.notification.status;
+                        if (newStatus.isGranted) {
+                          await getToken();
+                        }
+
+                        setState(() {
+                          isPermissionCheckComplete = true;
+                        });
+
+                        proceedWithAppFlow();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        backgroundColor: Color(0xFF004797),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text("Enable"),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> checkAppVersion(context) async {

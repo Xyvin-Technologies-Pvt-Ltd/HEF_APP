@@ -665,19 +665,21 @@ class ProfilePreview extends ConsumerWidget {
                       ),
                     if (user.certificates?.isNotEmpty == true)
                       ListView.builder(
-                        shrinkWrap:
-                            true, // Let ListView take up only as much space as it needs
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Disable ListView's internal scrolling
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: user.certificates!.length,
                         itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4.0), // Space between items
-                            child: CertificateCard(
-                              onEdit: null,
-                              certificate: user.certificates![index],
-                              onRemove: null,
+                          return GestureDetector(
+                            onTap: () => _showCertificateDialog(
+                                context, user.certificates![index]),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4.0),
+                              child: CertificateCard(
+                                onEdit: null,
+                                certificate: user.certificates![index],
+                                onRemove: null,
+                              ),
                             ),
                           );
                         },
@@ -696,22 +698,24 @@ class ProfilePreview extends ConsumerWidget {
                       ),
                     if (user.awards?.isNotEmpty == true)
                       GridView.builder(
-                        shrinkWrap:
-                            true, // Let GridView take up only as much space as it needs
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Disable GridView's internal scrolling
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2, // Number of columns
-                          crossAxisSpacing: 8.0, // Space between columns
-                          mainAxisSpacing: 20.0, // Space between rows
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 20.0,
                         ),
                         itemCount: user.awards!.length,
                         itemBuilder: (context, index) {
-                          return AwardCard(
-                            onEdit: null,
-                            award: user.awards![index],
-                            onRemove: null,
+                          return GestureDetector(
+                            onTap: () =>
+                                _showAwardDialog(context, user.awards![index]),
+                            child: AwardCard(
+                              onEdit: null,
+                              award: user.awards![index],
+                              onRemove: null,
+                            ),
                           );
                         },
                       ),
@@ -780,57 +784,80 @@ class ProfilePreview extends ConsumerWidget {
   }
 
   Widget profileVideo({required BuildContext context, required Link video}) {
-    final videoUrl = video.link;
-
-    final ytController = YoutubePlayerController.fromVideoId(
-      videoId: YoutubePlayerController.convertUrlToId(videoUrl ?? '') ?? '',
-      autoPlay: false,
-      params: const YoutubePlayerParams(
-        enableJavaScript: true,
-        loop: true,
-        mute: false,
-        showControls: true,
-        showFullscreenButton: true,
-      ),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Text(video.name!,
+    return GestureDetector(
+      onTap: () => _showVideoDialog(context, video),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    video.name!,
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 18)),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Container(
-              width:
-                  MediaQuery.of(context).size.width - 32, // Full-screen width
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.transparent, // Transparent background
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16.0),
-                child: YoutubePlayer(
-                  controller: ytController,
-                  aspectRatio: 16 / 9,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Container(
+                width: MediaQuery.of(context).size.width - 32,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16.0),
+                      child: Image.network(
+                        'https://img.youtube.com/vi/${YoutubePlayerController.convertUrlToId(video.link ?? '')}/maxresdefault.jpg',
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: Icon(
+                                Icons.play_circle_outline,
+                                size: 50,
+                                color: Colors.white,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow,
+                          size: 40,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -922,6 +949,186 @@ class ProfilePreview extends ConsumerWidget {
               ],
             )),
       ),
+    );
+  }
+
+  void _showAwardDialog(BuildContext context, Award award) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  child: Image.network(
+                    award.image ?? '',
+                    width: double.infinity,
+                    height: 300,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        award.name ?? '',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        award.authority ?? '',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCertificateDialog(BuildContext context, Link certificate) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  child: Image.network(
+                    certificate.link ?? '',
+                    width: double.infinity,
+                    height: 400,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    certificate.name ?? '',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showVideoDialog(BuildContext context, Link video) {
+    final videoUrl = video.link;
+    final ytController = YoutubePlayerController.fromVideoId(
+      videoId: YoutubePlayerController.convertUrlToId(videoUrl ?? '') ?? '',
+      autoPlay: true,
+      params: const YoutubePlayerParams(
+        enableJavaScript: true,
+        loop: true,
+        mute: false,
+        showControls: true,
+        showFullscreenButton: true,
+      ),
+    );
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.black.withOpacity(0.9),
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height * 0.9,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          video.name ?? '',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 28),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    margin: const EdgeInsets.all(16),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: YoutubePlayer(
+                        controller: ytController,
+                        aspectRatio: 16 / 9,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

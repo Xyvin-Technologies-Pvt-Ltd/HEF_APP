@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 
@@ -119,10 +118,9 @@ class ReportPersonDialog extends StatelessWidget {
         const SizedBox(width: 12),
         ElevatedButton(
           onPressed: () async {
-        
-     UserService.        createReport(
+            UserService.createReport(
+                reason: reasonController.text,
                 reportedItemId: reportedItemId,
-         
                 reportType: reportType);
             Navigator.pop(context);
           },

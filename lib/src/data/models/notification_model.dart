@@ -5,6 +5,7 @@ class NotificationModel {
   final String? media;
   final String? link;
   final String? type;
+  final String? fileUrl;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -15,6 +16,7 @@ class NotificationModel {
     this.media,
     this.link,
     this.type,
+    this.fileUrl,
     this.createdAt,
     this.updatedAt,
   });
@@ -31,6 +33,7 @@ class NotificationModel {
       media: json['media'] as String?,
       link: json['link'] as String?,
       type: json['type'] as String?,
+      fileUrl: json['fileUrl'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'])
           : null,
@@ -48,6 +51,7 @@ class NotificationModel {
       'media': media,
       'link': link,
       'type': type,
+      'fileUrl': fileUrl,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };

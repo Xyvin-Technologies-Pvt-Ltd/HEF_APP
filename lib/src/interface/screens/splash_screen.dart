@@ -87,7 +87,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   void proceedWithAppFlow() {
     checkAppVersion(context).then((_) {
-      if (!isAppUpdateRequired) {
+      if (!isAppUpdateRequired && !hasVersionCheckError) {
         initialize();
       }
     });

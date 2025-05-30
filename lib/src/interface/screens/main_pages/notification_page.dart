@@ -58,6 +58,7 @@ class NotificationPage extends StatelessWidget {
                             subject: notifications[index].subject ?? '',
                             content: notifications[index].content ?? '',
                             dateTime: notifications[index].updatedAt!,
+                            fileUrl: notifications[index].media,
                           );
                         },
                         padding: EdgeInsets.all(0.0),
@@ -84,6 +85,7 @@ class NotificationPage extends StatelessWidget {
     required String subject,
     required String content,
     required DateTime dateTime,
+    String? fileUrl,
   }) {
     String time = timeAgo(dateTime);
     return Padding(
@@ -106,7 +108,6 @@ class NotificationPage extends StatelessWidget {
                     ),
                   SizedBox(width: 8),
                   Expanded(
-                    // Allows subject text to take full space
                     child: Text(
                       subject,
                       style: const TextStyle(
@@ -122,8 +123,57 @@ class NotificationPage extends StatelessWidget {
               Text(
                 content,
                 style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                softWrap: true, // Allows text to wrap
+                softWrap: true,
               ),
+              if (fileUrl != null && fileUrl.isNotEmpty) ...[
+                SizedBox(height: 12),
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      fileUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[200],
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.error_outline, color: Colors.grey[400], size: 40),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Failed to load image',
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: Colors.grey[200],
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
               SizedBox(height: 8),
               Text(
                 time,

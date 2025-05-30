@@ -42,11 +42,9 @@ class _AllocateMemberState extends State<AllocateMember> {
       "status": widget.newUser.status,
       if (widget.newUser.address != null && widget.newUser.address != '')
         "address": widget.newUser.address,
-
-        "businessCatogary": widget.newUser.businessCategory,
-
-        "businessSubCatogary": widget.newUser.businessSubCategory,
-      "company": {
+      "businessCatogary": widget.newUser.businessCategory,
+      "businessSubCatogary": widget.newUser.businessSubCategory,
+      "company": [{
         if (widget.newUser.company?[0].name != null &&
             widget.newUser.company?[0].name != '')
           "name": widget.newUser.company?[0].name ?? '',
@@ -60,9 +58,10 @@ class _AllocateMemberState extends State<AllocateMember> {
             widget.newUser.company?[0].websites != '')
           "websites": widget.newUser.company?[0].websites ?? '',
         if (widget.newUser.company?[0].phone != null &&
-            widget.newUser.company?[0].phone != '')
+            widget.newUser.company?[0].phone != '' &&
+            widget.newUser.company?[0].phone != '+')
           "phone": widget.newUser.company?[0].phone ?? '',
-      }
+      }]
     };
     String response = await createUser(data: profileData);
     if (response.contains('success')) {

@@ -35,9 +35,9 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
   TextEditingController companyDesignationController = TextEditingController();
   TextEditingController companyEmailController = TextEditingController();
   TextEditingController companyWebsiteController = TextEditingController();
+  TextEditingController businessCategoryController = TextEditingController();
+  TextEditingController businessSubCategoryController = TextEditingController();
   String? selectedStatus;
-  String? selectedBusinessCategory;
-  String? selectedSubCategory;
   File? _profileImage;
 
   @override
@@ -251,25 +251,19 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 textEditingController: companyWebsiteController,
                 validator: (value) => null,
               ),
-              CustomDropdown(
+              MemberCreationTextfield(
+                textEditingController: businessCategoryController,
                 label: 'Business Category',
-                items: ['IT', 'Finance', 'Education'],
-                value: selectedBusinessCategory,
-                onChanged: (value) {
-                  setState(() {
-                    selectedBusinessCategory = value;
-                  });
-                },
+                hintText: 'Enter business category',
+                validator: (value) =>
+                    value!.isEmpty ? 'Business category is required' : null,
               ),
-              CustomDropdown(
-                label: 'Sub category',
-                items: ['Software', 'Hardware'],
-                value: selectedSubCategory,
-                onChanged: (value) {
-                  setState(() {
-                    selectedSubCategory = value;
-                  });
-                },
+              MemberCreationTextfield(
+                textEditingController: businessSubCategoryController,
+                label: 'Sub Category',
+                hintText: 'Enter sub category',
+                validator: (value) =>
+                    value!.isEmpty ? 'Sub category is required' : null,
               ),
               CustomDropdown(
                 label: 'Status',
@@ -325,8 +319,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                         websites:
                                             companyWebsiteController.text),
                                   ],
-                                  businessCategory: selectedBusinessCategory,
-                                  businessSubCategory: selectedSubCategory,
+                                  businessCategory: businessCategoryController.text,
+                                  businessSubCategory: businessSubCategoryController.text,
                                   status: selectedStatus));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(

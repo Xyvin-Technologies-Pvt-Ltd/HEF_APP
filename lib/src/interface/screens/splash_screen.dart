@@ -186,51 +186,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
   }
 
 
-
-  void showPermissionDeniedDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Platform.isIOS
-            ? CupertinoAlertDialog(
-                title: Text('Permission Required'),
-                content: Text(
-                    'Please enable notification permissions in Settings to receive important alerts.'),
-                actions: [
-                  CupertinoDialogAction(
-                    child: Text('Open Settings'),
-                    onPressed: () {
-                      openAppSettings();
-                    },
-                  ),
-                  CupertinoDialogAction(
-                    child: Text('Cancel'),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              )
-            : AlertDialog(
-                title: Text('Permission Required'),
-                content: Text(
-                    'Please enable notification permissions in Settings to receive important alerts.'),
-                actions: [
-                  TextButton(
-                    child: Text('Open Settings'),
-                    onPressed: () {
-                      openAppSettings();
-                    },
-                  ),
-                  TextButton(
-                    child: Text('Cancel'),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              );
-      },
-    );
-  }
-
   Future<void> checkAppVersion(context) async {
     try {
       log('Checking app version...');

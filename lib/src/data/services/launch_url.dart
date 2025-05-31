@@ -1,7 +1,7 @@
 import 'package:url_launcher/url_launcher.dart';
 
 void launchURL(String url,
-    {LaunchMode launchMode = LaunchMode.inAppWebView}) async {
+    {LaunchMode launchMode = LaunchMode.inAppBrowserView}) async {
   // Trim any whitespace from the start of the URL
   url = url.trimLeft();
 

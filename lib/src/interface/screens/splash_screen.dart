@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/app_version_model.dart';
@@ -29,10 +28,8 @@ class SplashScreen extends ConsumerStatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindingObserver{
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool isAppUpdateRequired = false;
-  bool isFirstLaunch = false;
-  bool openedAppSettings = false;
   bool hasVersionCheckError = false;
   String errorMessage = '';
   final DeepLinkService _deepLinkService = DeepLinkService();
@@ -90,7 +87,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
 
   void proceedWithAppFlow() {
     checkAppVersion(context).then((_) {
-      if (!isAppUpdateRequired &&!hasVersionCheckError) {
+      if (!isAppUpdateRequired && !hasVersionCheckError) {
         initialize();
       }
     });
@@ -212,7 +209,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
     );
   }
 
-
   Future<void> checkAppVersion(context) async {
     try {
       log('Checking app version...');
@@ -246,6 +242,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
     log('New version: ${response.version}');
 
     if (currentVersion < response.version && response.force) {
+      // Pause initialization and show update dialog
       isAppUpdateRequired = true;
       showUpdateDialog(response, context);
     }
@@ -254,13 +251,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
   void showUpdateDialog(AppVersionResponse response, BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: false, // Force update requirement
       builder: (context) => AlertDialog(
         title: Text('Update Required'),
         content: Text(response.updateMessage),
         actions: [
           TextButton(
             onPressed: () {
+              // Redirect to app store
               launchURL(response.applink);
             },
             child: Text('Update Now'),
@@ -294,10 +292,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
               _deepLinkService.clearPendingDeepLink();
             });
           } else {
-            navigationService.pushNamedReplacement('MainPage');
+        navigationService.pushNamedReplacement( 'MainPage');
           }
         } else {
-          navigationService.pushNamedReplacement('PhoneNumber');
+      navigationService.pushNamedReplacement( 'PhoneNumber');
         }
       }
     });
@@ -319,7 +317,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
     }
   }
 
- 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -328,11 +325,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
         children: [
           Align(
             alignment: Alignment.center,
-            child: SvgPicture.asset('assets/svg/images/flower_full.svg'),
+            child: SvgPicture.asset(
+              'assets/svg/images/flower_full.svg',
+            ),
           ),
           Align(
             alignment: Alignment.center,
-            child: Image.asset('assets/pngs/splash_logo.png'),
+            child: Image.asset(
+              'assets/pngs/splash_logo.png',
+            ),
           ),
           if (hasVersionCheckError)
             Align(
@@ -351,10 +352,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
                       ),
                     ),
                     SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: retryVersionCheck,
-                      child: Text("Retry"),
-                    ),
+                    // customButton(label: 'Retry', onPressed: retryVersionCheck)
                   ],
                 ),
               ),

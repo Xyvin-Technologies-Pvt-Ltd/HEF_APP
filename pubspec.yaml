@@ -74,7 +74,7 @@ dependencies:
   app_links: ^6.4.0
   rename_app: ^1.6.2
   excel: ^4.0.6
-  flutter_secure_storage: ^9.2.4
+  flutter_secure_storage: ^4.2.1
   pod_player: 0.2.2
 
 

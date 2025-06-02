@@ -207,9 +207,13 @@ class _EditUserState extends ConsumerState<EditUser> {
           try {
             String companyUrl = await imageUpload(_companyImageFile!.path);
             _companyImageSource = ImageSource.gallery;
+            final companyList = ref.read(userProvider).value?.company ?? [];
 
-            final existingCompany =
-                ref.read(userProvider).value?.company?[companyIndex];
+            final existingCompany = (companyIndex != null &&
+                    companyIndex >= 0 &&
+                    companyIndex < companyList.length)
+                ? companyList[companyIndex]
+                : null;
             final updatedCompany = Company(
               logo: companyUrl,
               name: existingCompany?.name,
@@ -219,9 +223,12 @@ class _EditUserState extends ConsumerState<EditUser> {
               websites: existingCompany?.websites,
             );
 
+
+            final insertIndex =
+                (existingCompany == null) ? companyList.length : companyIndex;
             ref
                 .read(userProvider.notifier)
-                .updateCompany(updatedCompany, companyIndex);
+                .updateCompany(updatedCompany, insertIndex);
             return _companyImageFile;
           } catch (e) {
             print('Error uploading company logo: $e');
@@ -234,7 +241,7 @@ class _EditUserState extends ConsumerState<EditUser> {
         } else {
           log('Warning: No company index provided for logo update');
         }
-      } else if (imageType == 'award') {
+      }else if (imageType == 'award') {
         _awardImageFIle = File(image.path);
         _awardImageSource = ImageSource.gallery;
         return _awardImageFIle;
@@ -669,9 +676,8 @@ class _EditUserState extends ConsumerState<EditUser> {
                                                           errorBuilder:
                                                               (context, error,
                                                                   stackTrace) {
-                                                            return Image.asset(
-                                                                scale: .7,
-                                                                'assets/pngs/dummy_person_large.png');
+                                                            return SvgPicture.asset(
+                                                                'assets/svg/icons/dummy_person_large.svg');
                                                           },
                                                           user.image ??
                                                               '', // Replace with your image URL
@@ -1025,7 +1031,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                                       (context, ref, child) {
                                                     final asyncBusinessTags =
                                                         ref.watch(
-                                                      fetchBusinessTagsProvider(
+                                                      searchBusinessTagsProvider(
                                                           search:
                                                               businessTagSearch),
                                                     );

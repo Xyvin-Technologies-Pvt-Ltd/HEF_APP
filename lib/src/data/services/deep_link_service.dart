@@ -70,7 +70,8 @@ class DeepLinkService {
           if (pathSegments.length > 1) {
             final userId = pathSegments[1];
             try {
-              final user = await fetchUser(userId);
+       
+              final user = await UserService. fetchUserDetails(userId);
               NavigationService.navigatorKey.currentState
                   ?.pushNamed('IndividualPage', arguments: {
                 'sender': Participant(id: id),
@@ -90,7 +91,7 @@ class DeepLinkService {
           if (pathSegments.length > 1) {
             final eventId = pathSegments[1];
             try {
-              final event = await fetchEventById(eventId);
+              final event = await EventApiService. fetchEventById(eventId);
               NavigationService.navigatorKey.currentState
                   ?.pushNamed('ViewMoreEvent', arguments: event);
             } catch (e) {

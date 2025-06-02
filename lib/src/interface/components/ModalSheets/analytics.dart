@@ -20,6 +20,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    AnalyticsApiService analyticsApiService = AnalyticsApiService();
     NavigationService navigationService = NavigationService();
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 25, top: 10),
@@ -138,7 +139,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                 buttonColor: kRedDark,
                 label: 'Cancel Request',
                 onPressed: () async {
-                  await deleteAnalytic(analyticId: analytic.id ?? '');
+                  await analyticsApiService. deleteAnalytic(analyticId: analytic.id ?? '');
                   ref.invalidate(fetchAnalyticsProvider);
                   navigationService.pop();
                 },
@@ -157,7 +158,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                       buttonColor: kRedDark,
                       label: 'Reject',
                       onPressed: () async {
-                        await updateAnalyticStatus(
+                        await analyticsApiService.updateAnalyticStatus(
                             analyticId: analytic.id ?? '', action: 'rejected');
                         ref.invalidate(fetchAnalyticsProvider);
                         navigationService.pop();
@@ -175,7 +176,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                       buttonColor: kGreen,
                       label: 'Accept',
                       onPressed: () async {
-                        await updateAnalyticStatus(
+                        await analyticsApiService.updateAnalyticStatus(
                             analyticId: analytic.id ?? '', action: 'accepted');
 
                         ref.invalidate(fetchAnalyticsProvider);
@@ -190,7 +191,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                       buttonColor: kBlue,
                       label: 'Schedule',
                       onPressed: () async {
-                        await updateAnalyticStatus(
+                        await analyticsApiService.updateAnalyticStatus(
                             analyticId: analytic.id ?? '',
                             action: 'meeting_scheduled');
 
@@ -205,7 +206,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                       buttonColor: kRedDark,
                       label: 'Reject',
                       onPressed: () async {
-                        await updateAnalyticStatus(
+                        await analyticsApiService.updateAnalyticStatus(
                             analyticId: analytic.id ?? '', action: 'rejected');
 
                         ref.invalidate(fetchAnalyticsProvider);
@@ -223,7 +224,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                       buttonColor: kGreen,
                       label: 'Complete',
                       onPressed: () async {
-                        await updateAnalyticStatus(
+                        await analyticsApiService.updateAnalyticStatus(
                             analyticId: analytic.id ?? '', action: 'completed');
 
                         ref.invalidate(fetchAnalyticsProvider);

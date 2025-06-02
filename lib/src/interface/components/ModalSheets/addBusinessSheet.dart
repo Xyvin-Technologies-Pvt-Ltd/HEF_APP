@@ -185,7 +185,7 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                           );
                         }
 
-                        await uploadBusiness(
+                        await BusinessApiService. uploadBusiness(
                           media: mediaUrl,
                           content: widget.textController.text,
                         );

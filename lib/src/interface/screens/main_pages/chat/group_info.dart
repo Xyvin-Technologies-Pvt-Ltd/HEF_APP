@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/group_chat_api/group_api.dart';
 import 'package:hef/src/data/models/group_info.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -186,17 +187,13 @@ class GroupInfoPage extends StatelessWidget {
                     width: 50, // Match double the radius
                     height: 50,
                     errorBuilder: (context, error, stackTrace) {
-                      return Image.asset(
-                        'assets/pngs/dummy_person_small.png',
-                        fit: BoxFit.cover,
-                      );
+                      return SvgPicture.asset(
+                          'assets/svg/icons/dummy_person_small.svg');
                     },
                   ),
                 )
-              : Image.asset(
-                  'assets/pngs/dummy_person_small.png',
-                  fit: BoxFit.cover,
-                ),
+              : SvgPicture.asset(
+                                  'assets/svg/icons/dummy_person_small.svg')
         ),
 
         title: Text(member.name,

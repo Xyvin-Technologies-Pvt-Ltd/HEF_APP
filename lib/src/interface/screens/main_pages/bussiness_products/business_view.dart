@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_activities.dart';
 import 'package:hef/src/interface/components/ModalSheets/bussiness_enquiry_modal.dart';
+import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:hef/src/interface/components/textWidgets/expandable_text.dart';
 import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,7 +32,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 class BusinessView extends ConsumerStatefulWidget {
-  BusinessView({super.key});
+  const BusinessView({super.key});
 
   @override
   ConsumerState<BusinessView> createState() => _BusinessViewState();
@@ -135,7 +137,7 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
   Widget build(BuildContext context) {
     final feeds = ref.watch(businessNotifierProvider);
     final isLoading = ref.read(businessNotifierProvider.notifier).isLoading;
-
+    final isFirstLoad = ref.read(businessNotifierProvider.notifier).isFirstLoad;
     List<Business> filteredFeeds = filterFeeds(feeds);
 
     return RefreshIndicator(
@@ -165,36 +167,40 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
                 // ),
                 // Feed list
                 Expanded(
-                  child: filteredFeeds.isEmpty
-                      ? const Center(child: Text('No FEEDS'))
-                      : ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.all(16.0),
-                          itemCount:
-                              filteredFeeds.length + 2, // +2 for Ad and spacer
-                          itemBuilder: (context, index) {
-                            if (index == filteredFeeds.length) {
-                              return isLoading
-                                  ? const ReusableFeedPostSkeleton()
-                                  : const SizedBox.shrink();
-                            }
+                  child: isFirstLoad
+                      ? Center(
+                          child: LoadingAnimation(),
+                        )
+                      : filteredFeeds.isEmpty
+                          ? const Center(child: Text('No FEEDS'))
+                          : ListView.builder(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.all(16.0),
+                              itemCount: filteredFeeds.length +
+                                  2, // +2 for Ad and spacer
+                              itemBuilder: (context, index) {
+                                if (index == filteredFeeds.length) {
+                                  return isLoading
+                                      ? const ReusableFeedPostSkeleton()
+                                      : const SizedBox.shrink();
+                                }
 
-                            if (index == filteredFeeds.length + 1) {
-                              return const SizedBox(height: 80);
-                            }
+                                if (index == filteredFeeds.length + 1) {
+                                  return const SizedBox(height: 80);
+                                }
 
-                            final feed = filteredFeeds[index];
-                            if (feed.status == 'published') {
-                              return _buildPost(
-                                withImage: feed.media != null &&
-                                    feed.media!.isNotEmpty,
-                                feed: feed,
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
+                                final feed = filteredFeeds[index];
+                                if (feed.status == 'published') {
+                                  return _buildPost(
+                                    withImage: feed.media != null &&
+                                        feed.media!.isNotEmpty,
+                                    feed: feed,
+                                  );
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              },
+                            ),
                 ),
               ],
             ),
@@ -563,7 +569,7 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 5),
-                _buildExpandableText(widget.business.content!),
+                ExpandableText(text: widget.business.content ?? ''),
                 const SizedBox(height: 16),
                 _buildActionButtons(),
                 GestureDetector(
@@ -583,18 +589,11 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
                     children: [
                       ClipOval(
                         child: Container(
-                          width: 30,
-                          height: 30,
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          child: Image.network(
-                            widget.author.image ?? '',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                  'assets/pngs/dummy_person_small.png');
-                            },
-                          ),
-                        ),
+                            width: 30,
+                            height: 30,
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                            child: SvgPicture.asset(
+                                'assets/svg/icons/dummy_person_small.svg')),
                       ),
                       GestureDetector(
                         onTap: () => _openCommentModal(),
@@ -648,52 +647,6 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildExpandableText(String text) {
-    final textSpan = TextSpan(
-      text: text,
-      style: const TextStyle(fontSize: 14),
-    );
-
-    final textPainter = TextPainter(
-      text: textSpan,
-      maxLines: 2,
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: MediaQuery.of(context).size.width - 32);
-
-    final isOverflowing = textPainter.didExceedMaxLines;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _isExpanded
-              ? text
-              : textPainter.text!.toPlainText().substring(
-                      0,
-                      textPainter.text!.toPlainText().length > 50
-                          ? 50
-                          : textPainter.text!.toPlainText().length) +
-                  (isOverflowing ? '...' : ''),
-          style: const TextStyle(fontSize: 14),
-          maxLines: _isExpanded ? null : 2,
-          overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-        ),
-        if (isOverflowing)
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _isExpanded = !_isExpanded;
-              });
-            },
-            child: Text(
-              _isExpanded ? 'Read less' : 'Read more',
-              style: const TextStyle(color: kBlue, fontSize: 14),
-            ),
-          ),
-      ],
     );
   }
 
@@ -761,13 +714,13 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
           children: [
             Row(
               children: [
-                IconButton(
-                  icon: Icon(
-                    isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: isLiked ? Colors.red : Colors.black,
-                  ),
-                  onPressed: _toggleLike,
-                ),
+                // IconButton(
+                //   icon: Icon(
+                //     isLiked ? Icons.favorite : Icons.favorite_border,
+                //     color: isLiked ? Colors.red : Colors.black,
+                //   ),
+                //   onPressed: _toggleLike,
+                // ),
                 IconButton(
                   icon: SvgPicture.asset('assets/svg/icons/comment.svg'),
                   onPressed: _openCommentModal,
@@ -779,13 +732,13 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
                   ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10),
-              child: Text(
-                '${widget.business.likes?.length ?? 0} Likes',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 10, right: 10),
+            //   child: Text(
+            //     '${widget.business.likes?.length ?? 0} Likes',
+            //     style: const TextStyle(fontWeight: FontWeight.w600),
+            //   ),
+            // ),
           ],
         ),
         const Spacer(),
@@ -817,8 +770,16 @@ class ReusableFeedPostSkeleton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 15),
+                _buildShimmerContainer(height: 12, width: 100),
+                const SizedBox(height: 15),
+              ],
+            ),
             // Image Skeleton
-            _buildShimmerContainer(height: 200.0, width: double.infinity),
+            _buildShimmerContainer(height: 400.0, width: double.infinity),
             const SizedBox(height: 16),
             // Content Text Skeleton
             _buildShimmerContainer(height: 14, width: double.infinity),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/review_api/review_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
@@ -77,8 +78,8 @@ class BusinessDetailsModalSheet extends StatelessWidget {
                                 user.image ?? '',
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                      'assets/pngs/dummy_person_small.png');
+                                  return SvgPicture.asset(
+                                      'assets/svg/icons/dummy_person_small.svg');
                                 },
                               ),
                             ),
@@ -156,7 +157,7 @@ class BusinessDetailsModalSheet extends StatelessWidget {
                         return customButton(
                           label: buttonText,
                           onPressed: () async {
-                            await sendChatMessage(
+                            await ChatApiService.sendChatMessage(
                                 Id: business.author ?? '',
                                 content: business.content ?? '',
                                 businessId: business.id);

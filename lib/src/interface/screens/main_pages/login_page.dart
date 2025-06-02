@@ -12,6 +12,7 @@ import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
+import 'package:hef/src/data/utils/secure_storage.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -23,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/notifiers/loading_notifier.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 TextEditingController _mobileController = TextEditingController();
 TextEditingController _otpController = TextEditingController();
@@ -189,7 +189,7 @@ class PhoneNumberScreen extends ConsumerWidget {
     ref.read(loadingProvider.notifier).startLoading();
 
     bool userExists =
-        await checkUser(mobile: '+$countryCode${_mobileController.text}');
+        await UserService. checkUser('+$countryCode${_mobileController.text}');
     if (userExists) {
       try {
         if (countryCode == '971') {
@@ -455,10 +455,8 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
       String savedId = responseMap['userId'];
 
       if (savedToken.isNotEmpty && savedId.isNotEmpty) {
-        final SharedPreferences preferences =
-            await SharedPreferences.getInstance();
-        await preferences.setString('token', savedToken);
-        await preferences.setString('id', savedId);
+  await SecureStorage.write('token', savedToken);
+  await SecureStorage.write('id', savedId);
         token = savedToken;
         id = savedId;
         log('savedToken: $savedToken');

@@ -6,7 +6,7 @@ part of 'business_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchBusinessHash() => r'83a50addd22739534cc1525a3733ba80ecba80c9';
+String _$fetchBusinessHash() => r'3c5d70fbec1068790b15e692ae2bac6362252698';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -175,7 +175,7 @@ class _FetchBusinessProviderElement
   int get limit => (origin as FetchBusinessProvider).limit;
 }
 
-String _$fetchMyBusinessesHash() => r'911ee304aa62ecc92d28138fb77d202dccc94612';
+String _$fetchMyBusinessesHash() => r'cd28a01b77246696da5e0db33eabc27135b80876';
 
 /// See also [fetchMyBusinesses].
 @ProviderFor(fetchMyBusinesses)

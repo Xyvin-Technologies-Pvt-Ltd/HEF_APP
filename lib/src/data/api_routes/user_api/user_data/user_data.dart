@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/models/dashboard_model.dart';
 import 'package:hef/src/data/models/payment_year_model.dart';
@@ -12,381 +13,242 @@ import 'package:hef/src/data/models/user_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'user_data.g.dart';
 
-@riverpod
-Future<UserModel> fetchUserDetails(Ref ref, String userId) async {
-  final url = Uri.parse('$baseUrl/user/single/$userId');
-  print('Requesting URL: $url');
-  final response = await http.get(
-    url,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token"
-    },
-  );
-
-  log(response.body);
-  if (response.statusCode == 200) {
-    final dynamic data = json.decode(response.body)['data'];
-    return UserModel.fromJson(data);
-  } else {
-    print(json.decode(response.body)['message']);
-
-    throw Exception(json.decode(response.body)['message']);
-  }
-}
-
-
-Future<UserModel> fetchUser( String userId) async {
-  final url = Uri.parse('$baseUrl/user/single/$userId');
-  print('Requesting URL: $url');
-  final response = await http.get(
-    url,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token"
-    },
-  );
-
-  log(response.body);
-  if (response.statusCode == 200) {
-    final dynamic data = json.decode(response.body)['data'];
-    return UserModel.fromJson(data);
-  } else {
-    print(json.decode(response.body)['message']);
-
-    throw Exception(json.decode(response.body)['message']);
-  }
-}
-
-@riverpod
-Future<UserDashboard> fetchUserDashboardDetails(Ref ref,
-    {String? startDate, String? endDate}) async {
-  Uri url = Uri.parse('$baseUrl/user/dashboard');
-
-  if (startDate != null && endDate != null) {
-    url = Uri.parse(
-        '$baseUrl/user/dashboard?startDate=$startDate&endDate=$endDate');
-  }
-  print('Requesting URL: $url');
-  final response = await http.get(
-    url,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token"
-    },
-  );
-
-  log(response.body);
-  if (response.statusCode == 200) {
-    final dynamic data = json.decode(response.body)['data'];
-    return UserDashboard.fromJson(data);
-  } else {
-    print(json.decode(response.body)['message']);
-
-    throw Exception(json.decode(response.body)['message']);
-  }
-}
-
-Future<List<UserModel>> fetchMultipleUsers(
-    {required List<String> users}) async {
-  final List<UserModel> userList = [];
-  log('im inside multiple user ');
-  for (var userId in users) {
-    try {
-      log('im inside multiple user fetching');
-      final url = Uri.parse('$baseUrl/user/single/$userId');
-      print('Requesting URL: $url');
-
-      final response = await http.get(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final user = UserModel.fromJson(data['data']);
-        userList.add(user);
-        print('Fetched user: $user');
-      } else {
-        print(
-            'Failed to fetch user $userId: ${json.decode(response.body)['message']}');
-        throw Exception(json.decode(response.body)['message']);
-      }
-    } catch (e) {
-      print('Error fetching user $userId: $e');
-    }
-  }
-
-  return userList;
-}
-
-@riverpod
-Future<List<Subscription>> getSubscription(GetSubscriptionRef ref) async {
-  final String url = '$baseUrl/payment/user/$id';
-  log('requesting url:$url');
-  try {
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'accept': 'application/json',
+class UserService {
+  static Map<String, String> _headers() => {
+        'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
-      },
-    );
+        'accept': '*/*',
+      };
+  static Future<UserModel> fetchUserDetails(String userId) async {
+    final url = Uri.parse('$baseUrl/user/single/$userId');
+    final response = await http.get(url, headers: _headers());
+    log(response.body);
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body)['data'];
-      log(response.body);
-      List<Subscription> subscriptions = [];
-
-      for (var item in data) {
-        subscriptions.add(Subscription.fromJson(item));
-      }
-      print('subscriptions::::::$subscriptions');
-
-      return subscriptions;
+      final data = json.decode(response.body)['data'];
+      return UserModel.fromJson(data);
     } else {
-      print('Failed to load data. Status code: ${response.statusCode}');
-      return [];
+      throw Exception(json.decode(response.body)['message']);
     }
-  } catch (e) {
-    print('Error in loading subscription details: $e');
-    return [];
   }
-}
 
-Future<void> createReport({
-  required String reportedItemId,
-  required String reportType,
-}) async {
-  SnackbarService snackbarService = SnackbarService();
-  String url = '$baseUrl/report';
-  try {
-    final Map<String, dynamic> body = {
-      'content':
-          reportedItemId != null && reportedItemId != '' ? reportedItemId : ' ',
+  static Future<List<UserModel>> fetchMultipleUsers(List<String> users) async {
+    List<UserModel> userList = [];
+
+    for (var userId in users) {
+      try {
+        final url = Uri.parse('$baseUrl/user/single/$userId');
+        final response = await http.get(url, headers: _headers());
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body)['data'];
+          userList.add(UserModel.fromJson(data));
+        } else {
+          throw Exception(json.decode(response.body)['message']);
+        }
+      } catch (e) {
+        log('Error fetching user $userId: $e');
+      }
+    }
+
+    return userList;
+  }
+
+  static Future<UserDashboard> fetchDashboard(
+      {String? startDate, String? endDate}) async {
+    Uri url = Uri.parse('$baseUrl/user/dashboard');
+
+    if (startDate != null && endDate != null) {
+      url = Uri.parse(
+          '$baseUrl/user/dashboard?startDate=$startDate&endDate=$endDate');
+    }
+    log("Token of dashboard:$token");
+    final response = await http.get(url, headers: _headers());
+    log(response.body, name: "USER DASHBOARD DATA");
+
+    if (response.statusCode == 200) {
+      return UserDashboard.fromJson(json.decode(response.body)['data']);
+    } else {
+      throw Exception(json.decode(response.body)['message']);
+    }
+  }
+
+  static Future<void> createReport(
+      {required String reportedItemId,
+      required String reportType,
+      required String reason}) async {
+    final url = Uri.parse('$baseUrl/report');
+    final body = {
+      'content': reportedItemId.isNotEmpty ? reportedItemId : ' ',
       'reportType': reportType,
+      'reason': reason
     };
 
-    // Send the POST request
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization':
-            'Bearer $token', // Include your token if authentication is required
-      },
-      body: jsonEncode(body),
-    );
-
-    // Handle the response
-    if (response.statusCode == 201) {
-      snackbarService.showSnackBar('Reported to admin');
-      print('Report created successfully');
-    } else {
-      snackbarService.showSnackBar('Failed to Report');
-      print('Failed to create report: ${response.statusCode}');
-      print('Error: ${response.body}');
+    try {
+      final response =
+          await http.post(url, headers: _headers(), body: jsonEncode(body));
+      if (response.statusCode == 201) {
+        SnackbarService().showSnackBar('Reported to admin');
+      } else {
+        final jsonResponse = json.decode(response.body);
+        log(jsonResponse['message']);
+        SnackbarService().showSnackBar('Failed to Report');
+      }
+    } catch (e) {
+      log('Error occurred: $e');
     }
-  } catch (e) {
-    print('Error occurred: $e');
   }
-}
 
-Future<void> blockUser(
-    String userId, String? reason, context, WidgetRef ref) async {
-  final String url = '$baseUrl/user/block/$userId';
-  log('requesting url:$url');
-  SnackbarService snackbarService = SnackbarService();
-  try {
-    final response = await http.put(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+  static Future<void> blockUser(String userId, String? reason,
+      BuildContext context, WidgetRef ref) async {
+    final url = Uri.parse('$baseUrl/user/block/$userId');
+    try {
+      final response = await http.put(url, headers: _headers());
+      if (response.statusCode == 200) {
+        ref.read(userProvider.notifier).refreshUser();
+        SnackbarService().showSnackBar('Blocked');
+      } else {
+        SnackbarService().showSnackBar('Failed to Block');
+      }
+    } catch (e) {
+      log('An error occurred: $e');
+    }
+  }
+
+  static Future<void> unBlockUser(String userId) async {
+    final url = Uri.parse('$baseUrl/user/unblock/$userId');
+    try {
+      final response = await http.put(url, headers: _headers());
+      if (response.statusCode == 200) {
+        SnackbarService().showSnackBar('User unBlocked successfully');
+      } else {
+        SnackbarService().showSnackBar('Failed to UnBlock');
+      }
+    } catch (e) {
+      log('An error occurred: $e');
+    }
+  }
+
+  static Future<List<PaymentYearModel>> getPaymentYears() async {
+    final url = Uri.parse('$baseUrl/payment/parent-subscription');
+    final response = await http.get(url, headers: _headers());
 
     if (response.statusCode == 200) {
-      // Success
-      ref.read(userProvider.notifier).refreshUser();
-
-      print('User Blocked successfully');
-
-      snackbarService.showSnackBar('Blocked');
+      final data = json.decode(response.body)['data'];
+      return List<PaymentYearModel>.from(
+        data.map((item) => PaymentYearModel.fromJson(item)),
+      );
     } else {
-      // Handle error
-      print('Failed to Block: ${response.statusCode}');
-      final dynamic message = json.decode(response.body)['message'];
-      log(message);
-      snackbarService.showSnackBar('Failed to Block');
+      throw Exception(json.decode(response.body)['message']);
     }
-  } catch (e) {
-    // Handle exceptions
-    print('An error occurred: $e');
   }
-}
 
-Future<void> unBlockUser(String userId) async {
-  final String url = '$baseUrl/user/unblock/$userId';
-  SnackbarService snackbarService = SnackbarService();
-  log('requesting url:$url');
-  try {
-    final response = await http.put(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+  static Future<String?> uploadPayment({
+    required String image,
+    required String catergory,
+    required String parentSub,
+  }) async {
+    final url = Uri.parse('$baseUrl/payment/user');
+    final body = {
+      'category': catergory,
+      'receipt': image,
+      'amount': '1000',
+      'parentSub': parentSub,
+    };
 
-    if (response.statusCode == 200) {
-      // Success
-      print('User unBlocked successfully');
-      snackbarService.showSnackBar('User unBlocked successfully');
-    } else {
-      // Handle error
-      print('Failed to unBlock: ${response.statusCode}');
-      final dynamic message = json.decode(response.body)['message'];
-      log(message);
-      snackbarService.showSnackBar('Failed to UnBlock');
-    }
-  } catch (e) {
-    // Handle exceptions
-    print('An error occurred: $e');
-  }
-}
+    try {
+      final response = await http.post(
+        url,
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
 
-@riverpod
-Future<List<PaymentYearModel>> getPaymentYears(Ref ref) async {
-  final url = Uri.parse('$baseUrl/payment/parent-subscription');
-  print('Requesting URL: $url');
-  final response = await http.get(
-    url,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token"
-    },
-  );
-
-  print(json.decode(response.body)['status']);
-  if (response.statusCode == 200) {
-    final List<dynamic> data = json.decode(response.body)['data'];
-    print(response.body);
-    List<PaymentYearModel> paymentYears = [];
-
-    for (var item in data) {
-      paymentYears.add(PaymentYearModel.fromJson(item));
-    }
-    print(paymentYears);
-    return paymentYears;
-  } else {
-    print(json.decode(response.body)['message']);
-
-    throw Exception(json.decode(response.body)['message']);
-  }
-}
-
-Future<String?> uploadPayment({
-  required String image,
-  required String catergory,
-  required String parentSub,
-}) async {
-  SnackbarService snackbarService = SnackbarService();
-  final url = Uri.parse('$baseUrl/payment/user');
-
-  final body = {
-    'category': catergory,
-    'receipt': image,
-    'amount': '1000',
-    'parentSub': parentSub,
-  };
-  log(body.toString());
-  try {
-    final response = await http.post(
-      url,
-      headers: {
-        'accept': 'application/json',
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(body),
-    );
-
-    if (response.statusCode == 201) {
-      print('Payment uploaded successfully');
       final jsonResponse = json.decode(response.body);
-      snackbarService.showSnackBar(jsonResponse['message']);
-      return jsonResponse['message'];
-    } else {
-      final jsonResponse = json.decode(response.body);
-      snackbarService.showSnackBar(jsonResponse['message']);
-      print('Failed to upload Payment: ${response.statusCode}');
+      SnackbarService().showSnackBar(jsonResponse['message']);
+
+      return response.statusCode == 201 ? jsonResponse['message'] : null;
+    } catch (e) {
+      SnackbarService().showSnackBar(e.toString());
       return null;
     }
-  } catch (e) {
-    print('Error occurred: $e');
-    snackbarService.showSnackBar(e.toString());
-    return null;
+  }
+
+  static Future<List<Subscription>> getSubscription(String id) async {
+    final url = Uri.parse('$baseUrl/payment/user/$id');
+    final response = await http.get(url, headers: _headers());
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body)['data'];
+      return List<Subscription>.from(
+        data.map((item) => Subscription.fromJson(item)),
+      );
+    } else {
+      return [];
+    }
+  }
+
+  static Future<List<String>> fetchBusinessTags({String? search}) async {
+    Uri url = Uri.parse('$baseUrl/user/business-tags');
+    if (search != null) {
+      url = Uri.parse('$baseUrl/user/business-tags?search=$search');
+    }
+
+    final response = await http.get(url, headers: _headers());
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body)['data'];
+      return List<String>.from(data.map((e) => e.toString()));
+    } else {
+      throw Exception(json.decode(response.body)['message']);
+    }
+  }
+
+  static Future<bool> checkUser(String mobile) async {
+    final url = Uri.parse('$baseUrl/user/check-user');
+    try {
+      final response = await http.post(
+        url,
+        headers: _headers(),
+        body: jsonEncode({"phone": mobile}),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      log('Error: $e');
+      return false;
+    }
   }
 }
 
 @riverpod
-Future<List<String>> fetchBusinessTags(Ref ref, {String? search}) async {
-  Uri url = Uri.parse('$baseUrl/user/business-tags');
-
-  if (search != null) {
-    url = Uri.parse('$baseUrl/user/business-tags?search=$search');
-  }
-
-  print('Requesting URL: $url');
-  final response = await http.get(
-    url,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token"
-    },
-  );
-
-  log(response.body);
-
-  if (response.statusCode == 200) {
-    final responseData = json.decode(response.body);
-    final List<dynamic> data = responseData['data'];
-
-    final List<String> tags = data.map((e) => e.toString()).toList();
-
-    log('business tags response data: $tags');
-    return tags;
-  } else {
-    final errorMessage = json.decode(response.body)['message'];
-    print(errorMessage);
-    throw Exception(errorMessage);
-  }
+Future<UserModel> fetchUserDetails(Ref ref, String id) {
+  return UserService.fetchUserDetails(id);
 }
 
-Future<bool> checkUser({required String mobile}) async {
-  final String url = '$baseUrl/user/check-user';
-  log('Requesting URL: $url');
+@riverpod
+Future<List<UserModel>> getMultipleUsers(Ref ref, List<String> userIds) {
+  return UserService.fetchMultipleUsers(userIds);
+}
 
-  try {
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'accept': 'application/json',
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({"phone": mobile}),
-    );
+@riverpod
+Future<UserDashboard> getUserDashboard(
+  Ref ref, {
+  String? startDate,
+  String? endDate,
+}) {
+  return UserService.fetchDashboard(startDate: startDate, endDate: endDate);
+}
 
-    log('Response: ${response.body}');
+@riverpod
+Future<List<PaymentYearModel>> getPaymentYears(Ref ref) {
+  return UserService.getPaymentYears();
+}
 
-    return response.statusCode == 200;
-  } catch (e) {
-    log('Error: $e');
-    return false;
-  }
+@riverpod
+Future<List<Subscription>> getUserSubscription(Ref ref) {
+  return UserService.getSubscription(id);
+}
+
+@riverpod
+Future<List<String>> searchBusinessTags(Ref ref, {String? search}) {
+  return UserService.fetchBusinessTags(search: search);
 }

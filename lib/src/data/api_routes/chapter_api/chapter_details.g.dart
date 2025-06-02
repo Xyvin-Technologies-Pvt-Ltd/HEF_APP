@@ -7,7 +7,7 @@ part of 'chapter_details.dart';
 // **************************************************************************
 
 String _$fetchChapterDetailsHash() =>
-    r'94b29c902ce434a3384e5ae6a397ae40ad851e31';
+    r'3088ad1cbb27936c34c67454ed1c152a3009ac96';
 
 /// Copied from Dart SDK
 class _SystemHash {

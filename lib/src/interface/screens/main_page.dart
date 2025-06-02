@@ -13,6 +13,7 @@ import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/router/nav_router.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/data/utils/secure_storage.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/components/shimmers/promotion_shimmers.dart';
@@ -24,7 +25,7 @@ import 'package:hef/src/interface/screens/main_pages/home_page.dart';
 import 'package:hef/src/interface/screens/main_pages/login_page.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
 import 'package:hef/src/interface/screens/no_chapter_condition_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 class IconResolver extends StatelessWidget {
   final String iconPath;
@@ -71,7 +72,7 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class _MainPageState extends ConsumerState<MainPage> {
-  late final SocketIoClient webSocketClient;
+  late final SocketIoClientService webSocketClient;
 
   @override
   void initState() {
@@ -123,9 +124,9 @@ class _MainPageState extends ConsumerState<MainPage> {
       'assets/svg/icons/inactive_news.svg',
       'assets/svg/icons/inactive_chat.svg',
     ];
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString('id', user.uid!);
-    id = preferences.getString('id') ?? '';
+
+    await SecureStorage.write('id', user.uid ?? '');
+    id = user.uid ?? '';
     log('main page user id:$id');
   }
 
@@ -149,10 +150,8 @@ class _MainPageState extends ConsumerState<MainPage> {
                             ),
                             radius: 15,
                           )
-                        : Image.asset(
-                            'assets/pngs/dummy_person_small.png',
-                            scale: 1,
-                          )
+                        : SvgPicture.asset(
+                                  'assets/svg/icons/dummy_person_small.svg')
                     : IconResolver(
                         iconPath: _inactiveIcons[index],
                         color: selectedIndex == index
@@ -167,10 +166,8 @@ class _MainPageState extends ConsumerState<MainPage> {
                             ),
                             radius: 15,
                           )
-                        : Image.asset(
-                            'assets/pngs/dummy_person_small.png',
-                            scale: 1.5,
-                          )
+                        : SvgPicture.asset(
+                                  'assets/svg/icons/dummy_person_small.svg')
                     : IconResolver(
                         iconPath: _activeIcons[index], color: kPrimaryColor),
                 label: [
@@ -253,21 +250,18 @@ class _MainPageState extends ConsumerState<MainPage> {
                   SizedBox(height: 10),
                   TextButton(
                     onPressed: () async {
-                      final SharedPreferences preferences =
-                          await SharedPreferences.getInstance();
-                      preferences.remove('token');
-                      preferences.remove('id');
+                   
+                   await SecureStorage.delete('token');
+                   await SecureStorage.delete('id');
+                  
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => PhoneNumberScreen(),
                         ),
                       );
-                      await editUser({
-                        "fcm": "",
-                        "name":user.name,
-                        "phone":user.phone
-                      });
+                      await editUser(
+                          {"fcm": "", "name": user.name, "phone": user.phone});
                     },
                     child: Text(
                       'Logout',
@@ -332,10 +326,10 @@ class _MainPageState extends ConsumerState<MainPage> {
                   SizedBox(height: 20),
                   TextButton(
                     onPressed: () async {
-                      final SharedPreferences preferences =
-                          await SharedPreferences.getInstance();
-                      preferences.remove('token');
-                      preferences.remove('id');
+                  
+                   await SecureStorage.delete('token');
+                   await SecureStorage.delete('id');
+                  
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -406,10 +400,10 @@ class _MainPageState extends ConsumerState<MainPage> {
                   SizedBox(height: 20),
                   TextButton(
                     onPressed: () async {
-                      final SharedPreferences preferences =
-                          await SharedPreferences.getInstance();
-                      preferences.remove('token');
-                      preferences.remove('id');
+               
+                   await SecureStorage.delete('token');
+                   await SecureStorage.delete('id');
+                  
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -481,6 +475,10 @@ class _MainPageState extends ConsumerState<MainPage> {
           return PhoneNumberScreen();
         },
         data: (user) {
+            if(user.fcm==null || user.fcm==''){
+               
+      editUser({"fcm": fcmToken,"name":user.name,"phone":user.phone});
+          }
           subscriptionType = user.subscription ?? 'free';
           _initialize(user: user);
           return PopScope(

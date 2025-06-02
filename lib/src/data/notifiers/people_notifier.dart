@@ -8,6 +8,7 @@ part 'people_notifier.g.dart';
 class PeopleNotifier extends _$PeopleNotifier {
   List<UserModel> users = [];
   bool isLoading = false;
+  bool isFirstLoad = true;
   int pageNo = 1;
   final int limit = 20;
   bool hasMore = true;
@@ -43,6 +44,7 @@ class PeopleNotifier extends _$PeopleNotifier {
       users = [...users, ...newUsers];
       pageNo++;
       hasMore = newUsers.length == limit;
+      isFirstLoad = false;
 
       Future(() {
         state = [...users];
@@ -61,8 +63,10 @@ class PeopleNotifier extends _$PeopleNotifier {
     }
   }
 
-  Future<void> searchUsers(String query, {String? districtFilter, List<String>? tagsFilter}) async {
+  Future<void> searchUsers(String query,
+      {String? districtFilter, List<String>? tagsFilter}) async {
     isLoading = true;
+    isFirstLoad = true;
     pageNo = 1;
     users = [];
     searchQuery = query;
@@ -82,7 +86,7 @@ class PeopleNotifier extends _$PeopleNotifier {
 
       users = [...newUsers];
       hasMore = newUsers.length == limit;
-
+  isFirstLoad = false;
       state = [...users];
     } catch (e, stackTrace) {
       log(e.toString());
@@ -94,6 +98,7 @@ class PeopleNotifier extends _$PeopleNotifier {
 
   Future<void> refresh() async {
     isLoading = true;
+    isFirstLoad = true;
     pageNo = 1;
     hasMore = true;
     users = [];
@@ -112,7 +117,7 @@ class PeopleNotifier extends _$PeopleNotifier {
 
       users = [...newUsers];
       hasMore = newUsers.length == limit;
-
+isFirstLoad=false;
       state = [...users];
     } catch (e, stackTrace) {
       log(e.toString());

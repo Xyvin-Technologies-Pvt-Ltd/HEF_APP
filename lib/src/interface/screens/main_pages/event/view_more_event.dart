@@ -452,7 +452,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                                   });
 
                                   try {
-                                    await markEventAsRSVP(widget.event.id!);
+                                    await EventApiService.markEventAsRSVP(widget.event.id!);
 
                                     setState(() {
                                       widget.event.rsvp?.add(id);

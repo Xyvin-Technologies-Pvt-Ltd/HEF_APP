@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/activity_api/activity_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
+import 'package:hef/src/data/notifiers/loading_notifier.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:intl/intl.dart';
 
@@ -15,9 +16,11 @@ class ActivityPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ActivityApiService activityApiService = ActivityApiService();
     return Consumer(
       builder: (context, ref, child) {
-        final asyncActivities = ref.watch(fetchActivityProvider(chapterId));
+        final asyncActivities =
+            ref.watch(fetchActivityProvider(chapterId: chapterId));
         return Scaffold(
             appBar: AppBar(
               scrolledUnderElevation: 0,
@@ -27,6 +30,30 @@ class ActivityPage extends StatelessWidget {
                   Navigator.pop(context);
                 },
               ),
+              actions: [
+                Row(
+                  children: [
+                    IconButton(
+                        color: kPrimaryColor,
+                        icon: Icon(Icons.download),
+                        onPressed: () async {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) {
+                              return LoadingAnimation();
+                            },
+                          );
+                          try {
+                            await activityApiService
+                                .downloadAndSaveExcel(chapterId);
+                          } finally {
+                            Navigator.of(context).pop();
+                          }
+                        }),
+                  ],
+                )
+              ],
               title: Text("Activity"),
               centerTitle: false,
               backgroundColor: Colors.white,
@@ -70,61 +97,141 @@ class ActivityPage extends StatelessWidget {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        activity.type == 'Business'
-                                            ? 'Business Seller'
-                                            : "Host",
-                                        style: TextStyle(
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundColor: Colors.grey[300],
-                                            child: Icon(Icons.person,
-                                                color: Colors.grey),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          activity.type == 'Business'
+                                              ? 'Business Seller'
+                                              : "Host",
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          SizedBox(width: 8),
-                                          Text(activity.sender?.name ?? ''),
-                                        ],
-                                      ),
-                                    ],
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: Colors.grey[300],
+                                              child: Icon(Icons.person,
+                                                  color: Colors.grey),
+                                            ),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                activity.sender?.name ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 5,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        activity.type == 'Business'
-                                            ? 'Business Buyer'
-                                            : "Guest",
-                                        style: TextStyle(
-                                          color: kBlue,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Text(activity.member?.name ?? ''),
-                                          SizedBox(width: 8),
-                                          CircleAvatar(
-                                            backgroundColor: Colors.grey[300],
-                                            child: Icon(Icons.person,
-                                                color: Colors.grey),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          activity.type == 'Business'
+                                              ? 'Business Buyer'
+                                              : "Guest",
+                                          style: TextStyle(
+                                            color: kBlue,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        ],
-                                      ),
-                                    ],
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                activity.member?.name ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 5,
+                                                textAlign: TextAlign.end,
+                                              ),
+                                            ),
+                                            SizedBox(width: 8),
+                                            CircleAvatar(
+                                              backgroundColor: Colors.grey[300],
+                                              child: Icon(Icons.person,
+                                                  color: Colors.grey),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
+                              if (activity.type == 'Referral')
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(height: 20),
+                                    Text(
+                                      'Referral',
+                                      style: TextStyle(
+                                        color: kBlack54,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text('Name: '),
+                                            Expanded(
+                                              child: Text(
+                                                activity.referral?.name ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 5,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            Text('Email: '),
+                                            Expanded(
+                                              child: Text(
+                                                activity.referral?.email ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 5,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            Text('Phone: '),
+                                            Expanded(
+                                              child: Text(
+                                                activity.referral?.phone ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 5,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               Divider(
                                 height: 24,
                                 thickness: 1,
@@ -132,13 +239,17 @@ class ActivityPage extends StatelessWidget {
                               ),
                               Row(
                                 children: [
-                                  Text(
-                                    activity.title ?? '',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                  Expanded(
+                                    child: Text(
+                                      activity.title ?? '',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 5,
                                     ),
                                   ),
-                                  Spacer(),
+                                  SizedBox(width: 8),
                                   if (activity.type == 'Business')
                                     Text.rich(
                                       TextSpan(
@@ -152,11 +263,14 @@ class ActivityPage extends StatelessWidget {
                                                   color: kBlue)),
                                         ],
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   if (activity.type == 'One v One Meeting')
-                                    Text(formattedDate,
-                                        style:
-                                            kSmallTitleB.copyWith(color: kBlue))
+                                    Text(
+                                      formattedDate,
+                                      style:
+                                          kSmallTitleB.copyWith(color: kBlue),
+                                    )
                                 ],
                               ),
                               SizedBox(height: 8),

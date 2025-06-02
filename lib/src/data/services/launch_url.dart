@@ -1,21 +1,20 @@
 import 'package:url_launcher/url_launcher.dart';
 
-void launchURL(String url) async {
+void launchURL(String url,
+    {LaunchMode launchMode = LaunchMode.inAppBrowserView}) async {
   // Trim any whitespace from the start of the URL
   url = url.trimLeft();
 
-  // Check if the URL starts with 'http://' or 'https://', if not add 'http://'
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = 'http://' + url;
   }
 
   try {
-    await launchUrl(Uri.parse(url));
+    await launchUrl(Uri.parse(url), mode: launchMode);
   } catch (e) {
     print(e);
   }
 }
-
 
 Future<void> openGoogleMaps(String location) async {
   final Uri googleMapsUrl =
@@ -28,17 +27,14 @@ Future<void> openGoogleMaps(String location) async {
   }
 }
 
+void launchPhone(String phoneNumber) async {
+  final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
 
-  void launchPhone(String phoneNumber) async {
-    final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
+  await launchUrl(uri);
+}
 
-      await launchUrl(uri);
- 
-  }
+void launchEmail(String email) async {
+  final Uri uri = Uri(scheme: 'mailto', path: email);
 
-  void launchEmail(String email) async {
-    final Uri uri = Uri(scheme: 'mailto', path: email);
-    
-      await launchUrl(uri);
-
-  }
+  await launchUrl(uri);
+}

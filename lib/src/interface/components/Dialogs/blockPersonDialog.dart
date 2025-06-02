@@ -210,9 +210,9 @@ class _BlockPersonDialogState extends ConsumerState<BlockPersonDialog> {
 
   Future<void> _toggleBlockStatus(BuildContext context, bool isBlocked) async {
     if (isBlocked) {
-      await unBlockUser(widget.userId);
+      await UserService. unBlockUser(widget.userId);
     } else {
-      await blockUser(
+      await UserService. blockUser(
         widget.userId,
         reasonController.text,
         context,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/review_api/review_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
@@ -145,10 +146,8 @@ class ReviewsCard extends StatelessWidget {
                       radius: 20,
                       backgroundImage: NetworkImage(review.reviewer!.image!),
                     )
-                  : Image.asset(
-                      'assets/pngs/dummy_person_small.png',
-                      scale: .8,
-                    ),
+                  : SvgPicture.asset(
+                                  'assets/svg/icons/dummy_person_small.svg')
             ],
           ),
           const SizedBox(width: 10),

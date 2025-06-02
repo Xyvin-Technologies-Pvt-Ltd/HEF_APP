@@ -64,7 +64,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           notice.description!, 14.0); // Font size 14 for description
 
       final double itemHeight =
-          titleHeight + descriptionHeight; // Adding padding
+          titleHeight + descriptionHeight - 20; // Adding padding
       if (itemHeight > maxHeight) {
         maxHeight = itemHeight + MediaQuery.sizeOf(context).width * 0.05;
       }
@@ -90,8 +90,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         final asyncEvents = ref.watch(fetchEventsProvider);
         final asyncNews = ref.watch(fetchNewsProvider);
         final asyncUserDashBoardDetails = ref.watch(
-            fetchUserDashboardDetailsProvider(
-                startDate: startDate, endDate: endDate));
+            getUserDashboardProvider(startDate: startDate, endDate: endDate));
         return RefreshIndicator(
           color: kPrimaryColor,
           onRefresh: () async {
@@ -226,7 +225,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               );
                                             },
                                             loading: () => const Center(
-                                                child: LoadingAnimation()),
+                                                child: Icon(
+                                                    Icons.notifications_none)),
                                             error: (error, stackTrace) =>
                                                 const SizedBox(),
                                           );
@@ -310,7 +310,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                 });
 
                                                 ref.invalidate(
-                                                    fetchUserDashboardDetailsProvider);
+                                                    getUserDashboardProvider);
                                               },
                                             ),
                                           );
@@ -1010,11 +1010,15 @@ Widget customNotice({
                       ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  notice.description?.trim() ?? '',
-                  style: const TextStyle(color: kGreyDark // Set the font color
-                      ),
-                ),
+                MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaleFactor: .9),
+                  child: Text(
+                    notice.description?.trim() ?? '',
+                    style:
+                        const TextStyle(color: kGreyDark // Set the font color
+                            ),
+                  ),
+                )
               ],
             ),
           ),

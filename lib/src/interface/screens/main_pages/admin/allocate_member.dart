@@ -9,7 +9,6 @@ import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/DropDown/selectionDropdown.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
-import 'package:hef/src/interface/screens/main_pages/admin/member_creation.dart';
 
 class AllocateMember extends StatefulWidget {
   final UserModel newUser;
@@ -28,27 +27,41 @@ class _AllocateMemberState extends State<AllocateMember> {
   Future<void> _createUser() async {
     final Map<String, dynamic> profileData = {
       "name": widget.newUser.name,
-      "bloodgroup": widget.newUser.bloodgroup,
+      if (widget.newUser.bloodgroup != null && widget.newUser.bloodgroup != '')
+        "bloodgroup": widget.newUser.bloodgroup,
       "chapter": selectedChapter,
-      "image": widget.newUser.image,
-      "email": widget.newUser.email,
+      if (widget.newUser.image != null && widget.newUser.image != '')
+        "image": widget.newUser.image,
+      if (widget.newUser.email != null && widget.newUser.email != '')
+        "email": widget.newUser.email,
       "phone": widget.newUser.phone!.startsWith('+91')
           ? widget.newUser.phone
           : '+91${widget.newUser.phone}',
-      "bio": widget.newUser.bio,
+      if (widget.newUser.bio != null && widget.newUser.bio != '')
+        "bio": widget.newUser.bio,
       "status": widget.newUser.status,
-      "address": widget.newUser.address,
+      if (widget.newUser.address != null && widget.newUser.address != '')
+        "address": widget.newUser.address,
       "businessCatogary": widget.newUser.businessCategory,
       "businessSubCatogary": widget.newUser.businessSubCategory,
-      "company": [
-        {
+      "company": [{
+        if (widget.newUser.company?[0].name != null &&
+            widget.newUser.company?[0].name != '')
           "name": widget.newUser.company?[0].name ?? '',
+        if (widget.newUser.company?[0].designation != null &&
+            widget.newUser.company?[0].designation != '')
           "designation": widget.newUser.company?[0].designation ?? '',
+        if (widget.newUser.company?[0].email != null &&
+            widget.newUser.company?[0].email != '')
           "email": widget.newUser.company?[0].email ?? '',
+        if (widget.newUser.company?[0].websites != null &&
+            widget.newUser.company?[0].websites != '')
           "websites": widget.newUser.company?[0].websites ?? '',
+        if (widget.newUser.company?[0].phone != null &&
+            widget.newUser.company?[0].phone != '' &&
+            widget.newUser.company?[0].phone != '+')
           "phone": widget.newUser.company?[0].phone ?? '',
-        }
-      ]
+      }]
     };
     String response = await createUser(data: profileData);
     if (response.contains('success')) {

@@ -20,16 +20,14 @@ class MemberCreationPage extends StatefulWidget {
 }
 
 class _MemberCreationPageState extends State<MemberCreationPage> {
-  final _formKey = GlobalKey<FormState>(); // Add a GlobalKey for the form
+  final _formKey = GlobalKey<FormState>();
 
-  // Controllers remain the same
   TextEditingController nameController = TextEditingController();
-  TextEditingController bloodController = TextEditingController();
-  TextEditingController photoController = TextEditingController();
-  TextEditingController bioController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController phoneCountryController = TextEditingController();
+  TextEditingController bloodController = TextEditingController();
+  TextEditingController bioController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController adressController = TextEditingController();
   TextEditingController companyNameController = TextEditingController();
   TextEditingController companyPhoneController = TextEditingController();
@@ -37,10 +35,10 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
   TextEditingController companyDesignationController = TextEditingController();
   TextEditingController companyEmailController = TextEditingController();
   TextEditingController companyWebsiteController = TextEditingController();
-  File? _profileImage;
-  String? selectedBusinessCategory;
-  String? selectedSubCategory;
+  TextEditingController businessCategoryController = TextEditingController();
+  TextEditingController businessSubCategoryController = TextEditingController();
   String? selectedStatus;
+  File? _profileImage;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +59,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey, // Wrap in a Form widget
+          key: _formKey,
           child: ListView(
             children: [
               MemberCreationTextfield(
@@ -75,8 +73,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 textEditingController: bloodController,
                 label: 'Blood Group',
                 hintText: 'Blood Group',
-                validator: (value) =>
-                    value!.isEmpty ? 'This field is required' : null,
+                validator: (value) => null,
               ),
               UploadPhotoWidget(
                 onPhotoChanged: (File? photo) {
@@ -90,18 +87,16 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 label: 'Bio',
                 hintText: 'Add description',
                 maxLines: 5,
-                validator: (value) =>
-                    value!.isEmpty ? 'This field is required' : null,
+                validator: (value) => null,
               ),
               MemberCreationTextfield(
                 textEditingController: emailController,
                 label: 'Email ID',
                 hintText: 'Email ID',
-                validator: (value) =>
-                    value!.isEmpty ? 'This field is required' : null,
+                validator: (value) => null,
               ),
               Container(
-                width: double.infinity, // Full width container
+                width: double.infinity,
                 child: IntlPhoneField(
                   validator: (phone) {
                     if (phone == null || phone.number.isEmpty) {
@@ -122,7 +117,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: kWhite,
-                    hintText: 'Enter referral phone number',
+                    hintText: 'Enter phone number',
                     hintStyle: const TextStyle(
                       color: Colors.grey,
                       fontSize: 14,
@@ -165,34 +160,24 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 ),
               ),
               SizedBox(
-                height: 10,
+                height: 15,
               ),
               MemberCreationTextfield(
                 textEditingController: adressController,
                 label: 'Personal Address',
                 hintText: 'Personal Address',
-                validator: (value) =>
-                    value!.isEmpty ? 'This field is required' : null,
+                validator: (value) => null,
               ),
               MemberCreationTextfield(
                 label: 'Company Name',
                 hintText: 'Name',
                 textEditingController: companyNameController,
-                validator: (value) =>
-                    value!.isEmpty ? 'This field is required' : null,
+                validator: (value) => null,
               ),
               Container(
-                width: double.infinity, // Full width container
+                width: double.infinity,
                 child: IntlPhoneField(
-                  validator: (phone) {
-                    if (phone == null || phone.number.isEmpty) {
-                      return 'Please enter a phone number';
-                    }
-                    if (phone.number.length != 10) {
-                      return 'Phone number must be 10 digits';
-                    }
-                    return null;
-                  },
+                  validator: (phone) => null,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -203,7 +188,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: kWhite,
-                    hintText: 'Enter referral phone number',
+                    hintText: 'Enter company phone number',
                     hintStyle: const TextStyle(
                       color: Colors.grey,
                       fontSize: 14,
@@ -246,48 +231,39 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 ),
               ),
               SizedBox(
-                height: 10,
+                height: 20,
               ),
               MemberCreationTextfield(
                 textEditingController: companyDesignationController,
                 label: 'Designation',
                 hintText: 'Designation',
-                validator: (value) =>
-                    value!.isEmpty ? 'This field is required' : null,
+                validator: (value) => null,
               ),
               MemberCreationTextfield(
                 label: 'Company Email',
                 hintText: 'email',
                 textEditingController: companyEmailController,
-                validator: (value) =>
-                    value!.isEmpty ? 'This field is required' : null,
+                validator: (value) => null,
               ),
               MemberCreationTextfield(
                 label: 'Website',
                 hintText: 'Link',
                 textEditingController: companyWebsiteController,
-                validator: (value) =>
-                    value!.isEmpty ? 'This field is required' : null,
+                validator: (value) => null,
               ),
-              CustomDropdown(
+              MemberCreationTextfield(
+                textEditingController: businessCategoryController,
                 label: 'Business Category',
-                items: ['IT', 'Finance', 'Education'],
-                value: selectedBusinessCategory,
-                onChanged: (value) {
-                  setState(() {
-                    selectedBusinessCategory = value;
-                  });
-                },
+                hintText: 'Enter business category',
+                validator: (value) =>
+                    value!.isEmpty ? 'Business category is required' : null,
               ),
-              CustomDropdown(
-                label: 'Sub category',
-                items: ['Software', 'Hardware'],
-                value: selectedSubCategory,
-                onChanged: (value) {
-                  setState(() {
-                    selectedSubCategory = value;
-                  });
-                },
+              MemberCreationTextfield(
+                textEditingController: businessSubCategoryController,
+                label: 'Sub Category',
+                hintText: 'Enter sub category',
+                validator: (value) =>
+                    value!.isEmpty ? 'Sub category is required' : null,
               ),
               CustomDropdown(
                 label: 'Status',
@@ -318,12 +294,10 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                       label: 'Save',
                       onPressed: () async {
                         if (_formKey.currentState!.validate() &&
-                            _profileImage != null &&
-                            selectedBusinessCategory != null &&
-                            selectedSubCategory != null &&
                             selectedStatus != null) {
-                          String profileImageUrl =
-                              await imageUpload(_profileImage!.path);
+                          String profileImageUrl = _profileImage != null
+                              ? await imageUpload(_profileImage!.path)
+                              : '';
                           navigationService.pushNamed('MemberAllocation',
                               arguments: UserModel(
                                   name: nameController.text,
@@ -331,7 +305,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                   image: profileImageUrl,
                                   bio: bioController.text,
                                   email: emailController.text,
-                                  phone: '${phoneCountryController.text}${phoneController.text}',
+                                  phone:
+                                      '${phoneCountryController.text}${phoneController.text}',
                                   address: adressController.text,
                                   company: [
                                     Company(
@@ -344,14 +319,14 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                         websites:
                                             companyWebsiteController.text),
                                   ],
-                                  businessCategory: selectedBusinessCategory,
-                                  businessSubCategory: selectedSubCategory,
+                                  businessCategory: businessCategoryController.text,
+                                  businessSubCategory: businessSubCategoryController.text,
                                   status: selectedStatus));
                         } else {
-                          // Show error for missing fields
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Please fill all fields'),
+                              content: Text(
+                                  'Please fill all required fields (Name, Phone, Status)'),
                               backgroundColor: Colors.red,
                             ),
                           );

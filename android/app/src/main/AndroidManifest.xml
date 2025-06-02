@@ -8,7 +8,7 @@
 <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
 <uses-permission android:name="android.permission.READ_CONTACTS"/>  
 <uses-permission android:name="android.permission.WRITE_CONTACTS"/>  
-    <application android:name="${applicationName}" android:icon="@mipmap/ic_launcher" android:label="HEF Connect" android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+    <application android:name="${applicationName}" android:icon="@mipmap/ic_launcher" android:label="HEF Connect" android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" android:allowBackup="false" android:fullBackupContent="false">
         <activity android:name=".MainActivity" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:exported="true" android:hardwareAccelerated="true" android:launchMode="singleTop" android:theme="@style/LaunchTheme" android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user

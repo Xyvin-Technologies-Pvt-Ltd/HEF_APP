@@ -6,7 +6,7 @@ part of 'user_data.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchUserDetailsHash() => r'523ff14cbab1dd068ad7511f0499e666f5b52b10';
+String _$fetchUserDetailsHash() => r'e8c15692ae86a3d890061fa9d6282c9ac4f58195';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -40,10 +40,10 @@ class FetchUserDetailsFamily extends Family<AsyncValue<UserModel>> {
 
   /// See also [fetchUserDetails].
   FetchUserDetailsProvider call(
-    String userId,
+    String id,
   ) {
     return FetchUserDetailsProvider(
-      userId,
+      id,
     );
   }
 
@@ -52,7 +52,7 @@ class FetchUserDetailsFamily extends Family<AsyncValue<UserModel>> {
     covariant FetchUserDetailsProvider provider,
   ) {
     return call(
-      provider.userId,
+      provider.id,
     );
   }
 
@@ -75,11 +75,11 @@ class FetchUserDetailsFamily extends Family<AsyncValue<UserModel>> {
 class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
   /// See also [fetchUserDetails].
   FetchUserDetailsProvider(
-    String userId,
+    String id,
   ) : this._internal(
           (ref) => fetchUserDetails(
             ref as FetchUserDetailsRef,
-            userId,
+            id,
           ),
           from: fetchUserDetailsProvider,
           name: r'fetchUserDetailsProvider',
@@ -90,7 +90,7 @@ class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
           dependencies: FetchUserDetailsFamily._dependencies,
           allTransitiveDependencies:
               FetchUserDetailsFamily._allTransitiveDependencies,
-          userId: userId,
+          id: id,
         );
 
   FetchUserDetailsProvider._internal(
@@ -100,10 +100,10 @@ class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.userId,
+    required this.id,
   }) : super.internal();
 
-  final String userId;
+  final String id;
 
   @override
   Override overrideWith(
@@ -118,7 +118,7 @@ class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        userId: userId,
+        id: id,
       ),
     );
   }
@@ -130,13 +130,13 @@ class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
 
   @override
   bool operator ==(Object other) {
-    return other is FetchUserDetailsProvider && other.userId == userId;
+    return other is FetchUserDetailsProvider && other.id == id;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, userId.hashCode);
+    hash = _SystemHash.combine(hash, id.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -145,8 +145,8 @@ class FetchUserDetailsProvider extends AutoDisposeFutureProvider<UserModel> {
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin FetchUserDetailsRef on AutoDisposeFutureProviderRef<UserModel> {
-  /// The parameter `userId` of this provider.
-  String get userId;
+  /// The parameter `id` of this provider.
+  String get id;
 }
 
 class _FetchUserDetailsProviderElement
@@ -155,36 +155,166 @@ class _FetchUserDetailsProviderElement
   _FetchUserDetailsProviderElement(super.provider);
 
   @override
-  String get userId => (origin as FetchUserDetailsProvider).userId;
+  String get id => (origin as FetchUserDetailsProvider).id;
 }
 
-String _$fetchUserDashboardDetailsHash() =>
-    r'955b0540ffa80d5417f0baa496213692d43c8692';
+String _$getMultipleUsersHash() => r'567ebb5195cfe913dcdca7a82df34cc55255c8f5';
 
-/// See also [fetchUserDashboardDetails].
-@ProviderFor(fetchUserDashboardDetails)
-const fetchUserDashboardDetailsProvider = FetchUserDashboardDetailsFamily();
+/// See also [getMultipleUsers].
+@ProviderFor(getMultipleUsers)
+const getMultipleUsersProvider = GetMultipleUsersFamily();
 
-/// See also [fetchUserDashboardDetails].
-class FetchUserDashboardDetailsFamily
-    extends Family<AsyncValue<UserDashboard>> {
-  /// See also [fetchUserDashboardDetails].
-  const FetchUserDashboardDetailsFamily();
+/// See also [getMultipleUsers].
+class GetMultipleUsersFamily extends Family<AsyncValue<List<UserModel>>> {
+  /// See also [getMultipleUsers].
+  const GetMultipleUsersFamily();
 
-  /// See also [fetchUserDashboardDetails].
-  FetchUserDashboardDetailsProvider call({
+  /// See also [getMultipleUsers].
+  GetMultipleUsersProvider call(
+    List<String> userIds,
+  ) {
+    return GetMultipleUsersProvider(
+      userIds,
+    );
+  }
+
+  @override
+  GetMultipleUsersProvider getProviderOverride(
+    covariant GetMultipleUsersProvider provider,
+  ) {
+    return call(
+      provider.userIds,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'getMultipleUsersProvider';
+}
+
+/// See also [getMultipleUsers].
+class GetMultipleUsersProvider
+    extends AutoDisposeFutureProvider<List<UserModel>> {
+  /// See also [getMultipleUsers].
+  GetMultipleUsersProvider(
+    List<String> userIds,
+  ) : this._internal(
+          (ref) => getMultipleUsers(
+            ref as GetMultipleUsersRef,
+            userIds,
+          ),
+          from: getMultipleUsersProvider,
+          name: r'getMultipleUsersProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$getMultipleUsersHash,
+          dependencies: GetMultipleUsersFamily._dependencies,
+          allTransitiveDependencies:
+              GetMultipleUsersFamily._allTransitiveDependencies,
+          userIds: userIds,
+        );
+
+  GetMultipleUsersProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userIds,
+  }) : super.internal();
+
+  final List<String> userIds;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<UserModel>> Function(GetMultipleUsersRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: GetMultipleUsersProvider._internal(
+        (ref) => create(ref as GetMultipleUsersRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userIds: userIds,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<UserModel>> createElement() {
+    return _GetMultipleUsersProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetMultipleUsersProvider && other.userIds == userIds;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userIds.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin GetMultipleUsersRef on AutoDisposeFutureProviderRef<List<UserModel>> {
+  /// The parameter `userIds` of this provider.
+  List<String> get userIds;
+}
+
+class _GetMultipleUsersProviderElement
+    extends AutoDisposeFutureProviderElement<List<UserModel>>
+    with GetMultipleUsersRef {
+  _GetMultipleUsersProviderElement(super.provider);
+
+  @override
+  List<String> get userIds => (origin as GetMultipleUsersProvider).userIds;
+}
+
+String _$getUserDashboardHash() => r'c2fb8c0fe6a6fa3fc2e403d55ecc45fec2eaaba4';
+
+/// See also [getUserDashboard].
+@ProviderFor(getUserDashboard)
+const getUserDashboardProvider = GetUserDashboardFamily();
+
+/// See also [getUserDashboard].
+class GetUserDashboardFamily extends Family<AsyncValue<UserDashboard>> {
+  /// See also [getUserDashboard].
+  const GetUserDashboardFamily();
+
+  /// See also [getUserDashboard].
+  GetUserDashboardProvider call({
     String? startDate,
     String? endDate,
   }) {
-    return FetchUserDashboardDetailsProvider(
+    return GetUserDashboardProvider(
       startDate: startDate,
       endDate: endDate,
     );
   }
 
   @override
-  FetchUserDashboardDetailsProvider getProviderOverride(
-    covariant FetchUserDashboardDetailsProvider provider,
+  GetUserDashboardProvider getProviderOverride(
+    covariant GetUserDashboardProvider provider,
   ) {
     return call(
       startDate: provider.startDate,
@@ -204,36 +334,36 @@ class FetchUserDashboardDetailsFamily
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'fetchUserDashboardDetailsProvider';
+  String? get name => r'getUserDashboardProvider';
 }
 
-/// See also [fetchUserDashboardDetails].
-class FetchUserDashboardDetailsProvider
+/// See also [getUserDashboard].
+class GetUserDashboardProvider
     extends AutoDisposeFutureProvider<UserDashboard> {
-  /// See also [fetchUserDashboardDetails].
-  FetchUserDashboardDetailsProvider({
+  /// See also [getUserDashboard].
+  GetUserDashboardProvider({
     String? startDate,
     String? endDate,
   }) : this._internal(
-          (ref) => fetchUserDashboardDetails(
-            ref as FetchUserDashboardDetailsRef,
+          (ref) => getUserDashboard(
+            ref as GetUserDashboardRef,
             startDate: startDate,
             endDate: endDate,
           ),
-          from: fetchUserDashboardDetailsProvider,
-          name: r'fetchUserDashboardDetailsProvider',
+          from: getUserDashboardProvider,
+          name: r'getUserDashboardProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$fetchUserDashboardDetailsHash,
-          dependencies: FetchUserDashboardDetailsFamily._dependencies,
+                  : _$getUserDashboardHash,
+          dependencies: GetUserDashboardFamily._dependencies,
           allTransitiveDependencies:
-              FetchUserDashboardDetailsFamily._allTransitiveDependencies,
+              GetUserDashboardFamily._allTransitiveDependencies,
           startDate: startDate,
           endDate: endDate,
         );
 
-  FetchUserDashboardDetailsProvider._internal(
+  GetUserDashboardProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -249,13 +379,12 @@ class FetchUserDashboardDetailsProvider
 
   @override
   Override overrideWith(
-    FutureOr<UserDashboard> Function(FetchUserDashboardDetailsRef provider)
-        create,
+    FutureOr<UserDashboard> Function(GetUserDashboardRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
-      override: FetchUserDashboardDetailsProvider._internal(
-        (ref) => create(ref as FetchUserDashboardDetailsRef),
+      override: GetUserDashboardProvider._internal(
+        (ref) => create(ref as GetUserDashboardRef),
         from: from,
         name: null,
         dependencies: null,
@@ -269,12 +398,12 @@ class FetchUserDashboardDetailsProvider
 
   @override
   AutoDisposeFutureProviderElement<UserDashboard> createElement() {
-    return _FetchUserDashboardDetailsProviderElement(this);
+    return _GetUserDashboardProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is FetchUserDashboardDetailsProvider &&
+    return other is GetUserDashboardProvider &&
         other.startDate == startDate &&
         other.endDate == endDate;
   }
@@ -291,8 +420,7 @@ class FetchUserDashboardDetailsProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin FetchUserDashboardDetailsRef
-    on AutoDisposeFutureProviderRef<UserDashboard> {
+mixin GetUserDashboardRef on AutoDisposeFutureProviderRef<UserDashboard> {
   /// The parameter `startDate` of this provider.
   String? get startDate;
 
@@ -300,37 +428,18 @@ mixin FetchUserDashboardDetailsRef
   String? get endDate;
 }
 
-class _FetchUserDashboardDetailsProviderElement
+class _GetUserDashboardProviderElement
     extends AutoDisposeFutureProviderElement<UserDashboard>
-    with FetchUserDashboardDetailsRef {
-  _FetchUserDashboardDetailsProviderElement(super.provider);
+    with GetUserDashboardRef {
+  _GetUserDashboardProviderElement(super.provider);
 
   @override
-  String? get startDate =>
-      (origin as FetchUserDashboardDetailsProvider).startDate;
+  String? get startDate => (origin as GetUserDashboardProvider).startDate;
   @override
-  String? get endDate => (origin as FetchUserDashboardDetailsProvider).endDate;
+  String? get endDate => (origin as GetUserDashboardProvider).endDate;
 }
 
-String _$getSubscriptionHash() => r'b2ae269a755d077ac256f7f9c2237f6c3a39dd83';
-
-/// See also [getSubscription].
-@ProviderFor(getSubscription)
-final getSubscriptionProvider =
-    AutoDisposeFutureProvider<List<Subscription>>.internal(
-  getSubscription,
-  name: r'getSubscriptionProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$getSubscriptionHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef GetSubscriptionRef = AutoDisposeFutureProviderRef<List<Subscription>>;
-String _$getPaymentYearsHash() => r'7e4cc9f8f5f6d7ef38c31fd7976a18125e9c6112';
+String _$getPaymentYearsHash() => r'0d440c4d5d9e9910e715674fe4c2390cf94d2404';
 
 /// See also [getPaymentYears].
 @ProviderFor(getPaymentYears)
@@ -349,29 +458,50 @@ final getPaymentYearsProvider =
 // ignore: unused_element
 typedef GetPaymentYearsRef
     = AutoDisposeFutureProviderRef<List<PaymentYearModel>>;
-String _$fetchBusinessTagsHash() => r'153f8414b47e9d2bc04b8edba6ec5daab10774c1';
+String _$getUserSubscriptionHash() =>
+    r'e8001bdc2ebca2c6febc1764b84d991de1fc151c';
 
-/// See also [fetchBusinessTags].
-@ProviderFor(fetchBusinessTags)
-const fetchBusinessTagsProvider = FetchBusinessTagsFamily();
+/// See also [getUserSubscription].
+@ProviderFor(getUserSubscription)
+final getUserSubscriptionProvider =
+    AutoDisposeFutureProvider<List<Subscription>>.internal(
+  getUserSubscription,
+  name: r'getUserSubscriptionProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$getUserSubscriptionHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-/// See also [fetchBusinessTags].
-class FetchBusinessTagsFamily extends Family<AsyncValue<List<String>>> {
-  /// See also [fetchBusinessTags].
-  const FetchBusinessTagsFamily();
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetUserSubscriptionRef
+    = AutoDisposeFutureProviderRef<List<Subscription>>;
+String _$searchBusinessTagsHash() =>
+    r'9b4bdf90162c8d87456436c9f64310165656c21d';
 
-  /// See also [fetchBusinessTags].
-  FetchBusinessTagsProvider call({
+/// See also [searchBusinessTags].
+@ProviderFor(searchBusinessTags)
+const searchBusinessTagsProvider = SearchBusinessTagsFamily();
+
+/// See also [searchBusinessTags].
+class SearchBusinessTagsFamily extends Family<AsyncValue<List<String>>> {
+  /// See also [searchBusinessTags].
+  const SearchBusinessTagsFamily();
+
+  /// See also [searchBusinessTags].
+  SearchBusinessTagsProvider call({
     String? search,
   }) {
-    return FetchBusinessTagsProvider(
+    return SearchBusinessTagsProvider(
       search: search,
     );
   }
 
   @override
-  FetchBusinessTagsProvider getProviderOverride(
-    covariant FetchBusinessTagsProvider provider,
+  SearchBusinessTagsProvider getProviderOverride(
+    covariant SearchBusinessTagsProvider provider,
   ) {
     return call(
       search: provider.search,
@@ -390,33 +520,33 @@ class FetchBusinessTagsFamily extends Family<AsyncValue<List<String>>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'fetchBusinessTagsProvider';
+  String? get name => r'searchBusinessTagsProvider';
 }
 
-/// See also [fetchBusinessTags].
-class FetchBusinessTagsProvider
+/// See also [searchBusinessTags].
+class SearchBusinessTagsProvider
     extends AutoDisposeFutureProvider<List<String>> {
-  /// See also [fetchBusinessTags].
-  FetchBusinessTagsProvider({
+  /// See also [searchBusinessTags].
+  SearchBusinessTagsProvider({
     String? search,
   }) : this._internal(
-          (ref) => fetchBusinessTags(
-            ref as FetchBusinessTagsRef,
+          (ref) => searchBusinessTags(
+            ref as SearchBusinessTagsRef,
             search: search,
           ),
-          from: fetchBusinessTagsProvider,
-          name: r'fetchBusinessTagsProvider',
+          from: searchBusinessTagsProvider,
+          name: r'searchBusinessTagsProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$fetchBusinessTagsHash,
-          dependencies: FetchBusinessTagsFamily._dependencies,
+                  : _$searchBusinessTagsHash,
+          dependencies: SearchBusinessTagsFamily._dependencies,
           allTransitiveDependencies:
-              FetchBusinessTagsFamily._allTransitiveDependencies,
+              SearchBusinessTagsFamily._allTransitiveDependencies,
           search: search,
         );
 
-  FetchBusinessTagsProvider._internal(
+  SearchBusinessTagsProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -430,12 +560,12 @@ class FetchBusinessTagsProvider
 
   @override
   Override overrideWith(
-    FutureOr<List<String>> Function(FetchBusinessTagsRef provider) create,
+    FutureOr<List<String>> Function(SearchBusinessTagsRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
-      override: FetchBusinessTagsProvider._internal(
-        (ref) => create(ref as FetchBusinessTagsRef),
+      override: SearchBusinessTagsProvider._internal(
+        (ref) => create(ref as SearchBusinessTagsRef),
         from: from,
         name: null,
         dependencies: null,
@@ -448,12 +578,12 @@ class FetchBusinessTagsProvider
 
   @override
   AutoDisposeFutureProviderElement<List<String>> createElement() {
-    return _FetchBusinessTagsProviderElement(this);
+    return _SearchBusinessTagsProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is FetchBusinessTagsProvider && other.search == search;
+    return other is SearchBusinessTagsProvider && other.search == search;
   }
 
   @override
@@ -467,18 +597,18 @@ class FetchBusinessTagsProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin FetchBusinessTagsRef on AutoDisposeFutureProviderRef<List<String>> {
+mixin SearchBusinessTagsRef on AutoDisposeFutureProviderRef<List<String>> {
   /// The parameter `search` of this provider.
   String? get search;
 }
 
-class _FetchBusinessTagsProviderElement
+class _SearchBusinessTagsProviderElement
     extends AutoDisposeFutureProviderElement<List<String>>
-    with FetchBusinessTagsRef {
-  _FetchBusinessTagsProviderElement(super.provider);
+    with SearchBusinessTagsRef {
+  _SearchBusinessTagsProviderElement(super.provider);
 
   @override
-  String? get search => (origin as FetchBusinessTagsProvider).search;
+  String? get search => (origin as SearchBusinessTagsProvider).search;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

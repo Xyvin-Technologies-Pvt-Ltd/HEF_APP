@@ -47,11 +47,6 @@ class ProfilePage extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Container(
-                      width: double.infinity, // Width of the line
-                      height: 1, // Thickness of the line
-                      color: kTertiary // Line color
-                      ),
                   Column(
                     children: [
                       SizedBox(
@@ -171,9 +166,9 @@ class ProfilePage extends StatelessWidget {
                                                               ),
                                                             ),
                                                           )
-                                                        : Image.asset(
-                                                            scale: 1.5,
-                                                            'assets/pngs/dummy_person_large.png'),
+                                                        : SvgPicture.asset(
+                                                            height: 100,
+                                                            'assets/svg/icons/dummy_person_large.svg'),
                                                   ],
                                                 ),
                                                 SizedBox(width: 10),

@@ -8,6 +8,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/app_version_model.dart';
 import 'package:hef/src/data/services/deep_link_service.dart';
 import 'package:hef/src/data/services/launch_url.dart';
+import 'package:hef/src/data/utils/secure_storage.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -18,10 +19,10 @@ import 'package:hef/main.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/services/getFcmToken.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:flutter_upgrade_version/flutter_upgrade_version.dart';
 import 'package:flutter_upgrade_version/models/package_info.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   @override
@@ -35,145 +36,55 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
   bool hasVersionCheckError = false;
   String errorMessage = '';
   final DeepLinkService _deepLinkService = DeepLinkService();
+  // Add a flag to track first launch
+  String isFirstLaunch = 'false';
+  bool isPermissionCheckComplete = false;
 
   @override
   void initState() {
     super.initState();
-     WidgetsBinding.instance.addObserver(this);
     checkFirstLaunch().then((_) {
       handlePermissions();
     });
   }
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && openedAppSettings) {
-      openedAppSettings = false;
- 
-      handlePermissions();
-    }
-  }
-
 
   Future<void> checkFirstLaunch() async {
-    final prefs = await SharedPreferences.getInstance();
-    isFirstLaunch = !(prefs.getBool('has_launched_before') ?? false);
-    if (isFirstLaunch) {
-      await prefs.setBool('has_launched_before', true);
+    isFirstLaunch = await SecureStorage.read('has_launched_before') ?? 'false';
+    if (isFirstLaunch == 'true') {
+      await SecureStorage.write('has_launched_before', 'true');
     }
   }
 
   Future<void> handlePermissions() async {
-    if (Platform.isIOS) {
-      await handleIOSPermissions();
-    } else {
-      await handleAndroidPermissions();
-    }
-  }
-
-  Future<void> handleIOSPermissions() async {
-    final settings = await FirebaseMessaging.instance.getNotificationSettings();
-
-    if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
-      final newSettings = await FirebaseMessaging.instance.requestPermission();
-      if (newSettings.authorizationStatus == AuthorizationStatus.authorized) {
-        await setupFCM();
-      }
-    } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
-      await showiOSPermissionDialog();
-    } else if (settings.authorizationStatus == AuthorizationStatus.authorized ||
-        settings.authorizationStatus == AuthorizationStatus.provisional) {
-      await setupFCM();
-    }
-
-    proceedWithAppFlow();
-  }
-
-  Future<void> handleAndroidPermissions() async {
-    final status = await Permission.notification.status;
-
-    if (status.isGranted) {
-      await setupFCM();
+    if (isFirstLaunch == 'true') {
+      // For first launch, directly request permission using the system dialog
+      await getToken();
+      setState(() {
+        isPermissionCheckComplete = true;
+      });
       proceedWithAppFlow();
-    } else if (status.isPermanentlyDenied) {
-      await showAndroidPermissionDialog();
     } else {
-      final result = await Permission.notification.request();
-      if (result.isGranted) {
-        await setupFCM();
+      // For subsequent launches, check status first
+      final status = await Permission.notification.status;
+      if (status.isGranted) {
+        await getToken();
+        setState(() {
+          isPermissionCheckComplete = true;
+        });
+        proceedWithAppFlow();
+      } else if (status.isPermanentlyDenied) {
+        // Show custom dialog if permission was permanently denied
+        if (mounted) {
+          await showPermissionDialog();
+        }
+      } else {
+        // For other cases (like first denial), try system dialog again
+        await getToken();
+        setState(() {
+          isPermissionCheckComplete = true;
+        });
+        proceedWithAppFlow();
       }
-      proceedWithAppFlow();
-    }
-  }
-
-  Future<void> showiOSPermissionDialog() async {
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text('Enable Notifications'),
-        content: Text('You have previously denied notification permissions. Please enable them in Settings.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              proceedWithAppFlow();
-            },
-            child: Text('Skip'),
-          ),
-          TextButton(
-           onPressed: () async {
-  Navigator.of(context).pop();
-  openedAppSettings = true; 
-  await openAppSettings();
-},
-            child: Text('Open Settings'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> showAndroidPermissionDialog() async {
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text('Enable Notifications'),
-        content: Text('Please enable notification permissions from app settings.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              proceedWithAppFlow();
-            },
-            child: Text('Skip'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await openAppSettings();
-            },
-            child: Text('Open Settings'),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Future<void> setupFCM() async {
-    try {
-      await getToken(context);
-      print("FCM Token: $token");
-    } catch (e) {
-      print('Error getting FCM token: $e');
-      fcmToken = '';
     }
   }
 
@@ -183,6 +94,122 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
         initialize();
       }
     });
+  }
+
+  Future<void> showPermissionDialog() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        elevation: 8,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon at the top
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.notifications_outlined,
+                  color: Colors.blue.shade700,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Title
+              Text(
+                "Enable Notifications",
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade800,
+                    ),
+              ),
+              const SizedBox(height: 12),
+
+              // Content
+              Text(
+                "Would you like to enable notifications to stay updated with important information?",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey.shade700,
+                      height: 1.4,
+                    ),
+              ),
+              const SizedBox(height: 24),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+
+                        setState(() {
+                          isPermissionCheckComplete = true;
+                        });
+
+                        proceedWithAppFlow();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: BorderSide(color: Color(0xFF004797)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "Skip",
+                        style: TextStyle(color: Color(0xFF004797)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        await openAppSettings();
+
+                        final newStatus = await Permission.notification.status;
+                        if (newStatus.isGranted) {
+                          await getToken();
+                        }
+
+                        setState(() {
+                          isPermissionCheckComplete = true;
+                        });
+
+                        proceedWithAppFlow();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        backgroundColor: Color(0xFF004797),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text("Enable"),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
 
@@ -258,9 +285,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
       if (!isAppUpdateRequired) {
         print('Logged in : $LoggedIn');
         if (LoggedIn) {
+      
           final pendingDeepLink = _deepLinkService.pendingDeepLink;
           if (pendingDeepLink != null) {
             navigationService.pushNamedReplacement('MainPage').then((_) {
+         
               _deepLinkService.handleDeepLink(pendingDeepLink);
               _deepLinkService.clearPendingDeepLink();
             });
@@ -275,12 +304,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>  with WidgetsBindin
   }
 
   Future<void> checktoken() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? savedtoken = preferences.getString('token');
-    String? savedId = preferences.getString('id');
+
+
+    String? savedtoken = await SecureStorage.read('token') ?? '';
+    String? savedId = await SecureStorage.read('id') ?? '';
     log('token:$savedtoken');
     log('userId:$savedId');
-    if (savedtoken != null && savedtoken.isNotEmpty && savedId != null) {
+    if (savedtoken != '' && savedtoken.isNotEmpty && savedId != '') {
       setState(() {
         LoggedIn = true;
         token = savedtoken;

@@ -25,6 +25,7 @@ class LevelMembers extends StatelessWidget {
             ref.watch(fetchChapterMemberDataProvider(chapterId, 'user'));
         return Scaffold(
           appBar: AppBar(
+            scrolledUnderElevation: 0,
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
@@ -63,30 +64,27 @@ class LevelMembers extends StatelessWidget {
                       ),
                       SizedBox(height: 16),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Members',
                             style: kBodyTitleB.copyWith(color: kBlack54),
                           ),
-                          Spacer(),
                           SizedBox(
                             width: 120,
-                            child: Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: customButton(
-                                    fontSize: 14,
-                                    buttonHeight: 30,
-                                    labelColor: kPrimaryColor,
-                                    label: 'Activity',
-                                    onPressed: () {
-                                      navigationService.pushNamed(
-                                          'ActivityPage',
-                                          arguments: chapterId);
-                                    },
-                                    buttonColor: kWhite,
-                                    sideColor: kPrimaryColor),
-                              ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 10),
+                              child: customButton(
+                                  fontSize: 14,
+                                  buttonHeight: 30,
+                                  labelColor: kPrimaryColor,
+                                  label: 'Activity',
+                                  onPressed: () {
+                                    navigationService.pushNamed('ActivityPage',
+                                        arguments: chapterId);
+                                  },
+                                  buttonColor: kWhite,
+                                  sideColor: kPrimaryColor),
                             ),
                           ),
                         ],
@@ -107,7 +105,7 @@ class LevelMembers extends StatelessWidget {
                                       NetworkImage(member.image ?? ''),
                                 ),
                                 title: Text(member.name ?? ''),
-                                subtitle: Text(member.name ?? ''),
+                                subtitle: Text(member.email ?? ''),
                                 trailing: Icon(Icons.arrow_forward_ios),
                                 onTap: () {
                                   navigationService.pushNamed(

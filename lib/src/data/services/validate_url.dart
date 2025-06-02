@@ -1,6 +1,7 @@
 final RegExp _youtubeUrlPattern = RegExp(
-  r"^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w\-]+(\?[\w=&%-]*)?$",
+  r"^(https?:\/\/)?(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w\-]+(\?[\w=&%-]*)?$",
 );
+
 
 String? validateYouTubeUrl(String? value) {
   if (value == null || value.isEmpty) {

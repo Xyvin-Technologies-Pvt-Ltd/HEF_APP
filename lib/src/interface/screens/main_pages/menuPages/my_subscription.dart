@@ -83,7 +83,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
-        final asyncSubscriptions = ref.watch(getSubscriptionProvider);
+        final asyncSubscriptions = ref.watch(getUserSubscriptionProvider);
         return Scaffold(
             appBar: AppBar(
               title: const Text(

@@ -248,7 +248,7 @@ void messageSheet({
                           return customButton(
                             label: buttonText,
                             onPressed: () async {
-                              await sendChatMessage(
+                              await ChatApiService.sendChatMessage(
                                   Id: feed.author ?? '',
                                   content: feed.content!,
                                   businessId: feed.id);
@@ -257,7 +257,7 @@ void messageSheet({
                                         receiver: receiver,
                                         sender: sender,
                                       )));
-                              await sendChatMessage(
+                              await ChatApiService.sendChatMessage(
                                   Id: feed.author ?? '',
                                   content: messageController.text);
                             },

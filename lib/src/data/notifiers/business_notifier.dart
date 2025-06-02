@@ -8,6 +8,7 @@ part 'business_notifier.g.dart';
 class BusinessNotifier extends _$BusinessNotifier {
   List<Business> businesses = [];
   bool isLoading = false;
+  bool isFirstLoad = true;
   int pageNo = 1;
   final int limit = 5;
   bool hasMore = true;
@@ -28,6 +29,7 @@ class BusinessNotifier extends _$BusinessNotifier {
       businesses = [...businesses, ...newBusinesses];
       pageNo++;
       hasMore = newBusinesses.length == limit;
+      isFirstLoad = false;
       state = businesses;
     } catch (e, stackTrace) {
       log(e.toString());
@@ -47,8 +49,8 @@ class BusinessNotifier extends _$BusinessNotifier {
       final refreshedBusinesses = await ref
           .read(fetchBusinessProvider(pageNo: pageNo, limit: limit).future);
       businesses = refreshedBusinesses;
-      hasMore = refreshedBusinesses.length == limit;
-      state = businesses; // Update the state with the refreshed feed\
+      hasMore = refreshedBusinesses.length == limit;  isFirstLoad = false;
+      state = businesses; 
       log('refreshed');
     } catch (e, stackTrace) {
       log(e.toString());

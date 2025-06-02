@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
@@ -348,7 +349,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                     Consumer(
                                       builder: (context, ref, child) {
                                         final asyncBusinessTags = ref.watch(
-                                          fetchBusinessTagsProvider(
+                                          searchBusinessTagsProvider(
                                               search: businessTagSearch),
                                         );
                                         return asyncBusinessTags.when(
@@ -509,6 +510,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   Widget build(BuildContext context) {
     final users = ref.watch(peopleNotifierProvider);
     final isLoading = ref.read(peopleNotifierProvider.notifier).isLoading;
+    final isFirstLoad = ref.read(peopleNotifierProvider.notifier).isFirstLoad;
+
     final asyncChats = ref.watch(fetchChatThreadProvider);
 
     return Scaffold(
@@ -609,12 +612,14 @@ class _MembersPageState extends ConsumerState<MembersPage> {
             ),
             const SizedBox(height: 16),
 
-            // Display User List or No Data Message
-            if (users.isNotEmpty)
+     
+            if (isFirstLoad)
+              const Center(child: LoadingAnimation())
+            else if (users.isNotEmpty)
               ListView.builder(
-                shrinkWrap: true, // Prevents infinite height
+                shrinkWrap: true, 
                 physics:
-                    const NeverScrollableScrollPhysics(), // Disable scrolling inside Column
+                    const NeverScrollableScrollPhysics(), 
                 itemCount: users.length + (isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == users.length) {
@@ -680,8 +685,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                   user.image ?? '',
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                        'assets/pngs/dummy_person_small.png');
+                                    return SvgPicture.asset(
+                                        'assets/svg/icons/dummy_person_small.svg');
                                   },
                                 ),
                               ),

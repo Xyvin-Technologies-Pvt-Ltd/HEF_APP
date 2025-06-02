@@ -1,45 +1,94 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:hef/src/data/services/snackbar_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/notification_model.dart';
+import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'notification_api.g.dart';
 
-@riverpod
-Future<List<NotificationModel>> fetchNotifications(
-    FetchNotificationsRef ref) async {
-  final url = Uri.parse('$baseUrl/notification/user');
-  print('Requesting URL: $url');
-  final response = await http.get(
-    url,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token"
-    },
-  );
-  print('hello');
-  print(json.decode(response.body)['status']);
-  if (response.statusCode == 200) {
-    final List<dynamic> data = json.decode(response.body)['data'];
-    print(response.body);
-    List<NotificationModel> unReadNotifications = [];
+class NotificationApiService {
+  final SnackbarService _snackbarService = SnackbarService();
 
-    for (var item in data) {
-      unReadNotifications.add(NotificationModel.fromJson(item));
+  
+ static Future<List<NotificationModel>> fetchUserNotifications() async {
+    final url = Uri.parse('$baseUrl/notification/user');
+    log('Requesting URL: $url');
+
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    final status = json.decode(response.body)['status'];
+    log('Status: $status');
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body)['data'];
+      log('Response Data: $data');
+
+      final notifications = data
+          .map((item) => NotificationModel.fromJson(item))
+          .toList();
+
+      return notifications;
+    } else {
+      final message = json.decode(response.body)['message'];
+      log('Error: $message');
+      throw Exception(message);
     }
-    print(unReadNotifications);
-    return unReadNotifications;
-  } else {
-    print(json.decode(response.body)['message']);
-
-    throw Exception(json.decode(response.body)['message']);
   }
-}
 
-Future<void> createLevelNotification({
+
+  Future<void> sendLevelNotification({
+    required String level,
+    required List<String> id,
+    required String subject,
+    required String content,
+    String? media,
+  }) async {
+    final url = Uri.parse('$baseUrl/notification/level');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    final body = jsonEncode({
+      'level': level,
+      'id': id,
+      'subject': subject,
+      'content': content,
+      'type': 'in-app',
+      if (media != null) 'media': media,
+    });
+
+    log('Sending notification to IDs: $id');
+    log('Request Body: $body');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      final responseData = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        _snackbarService.showSnackBar(responseData['message']);
+      } else {
+        _snackbarService.showSnackBar(responseData['message']);
+      }
+    } catch (e) {
+      log('Exception occurred: ${e.toString()}');
+    }
+  }
+  
+static Future<void> createLevelNotification({
   required String level,
   required List<String> id,
   required String subject,
@@ -79,4 +128,12 @@ Future<void> createLevelNotification({
   } catch (e) {
     log(e.toString());
   }
+}
+
+}
+
+@riverpod
+Future<List<NotificationModel>> fetchNotifications(
+    Ref ref) async {
+  return await NotificationApiService.fetchUserNotifications();
 }

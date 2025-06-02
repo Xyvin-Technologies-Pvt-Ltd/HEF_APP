@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/review_api/review_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
@@ -203,13 +204,14 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                 user.image ?? '',
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                      'assets/pngs/dummy_person_small.png');
+                                  return SvgPicture.asset(
+                                      'assets/svg/icons/dummy_person_small.svg');
                                 },
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 8),    
+                      
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,6 +220,8 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     '${user.name ?? ''}'),
+                                         if (user.company != null)
+                            if (user.company!.isNotEmpty)
                                 Text('${user.company?[0].name ?? ''}'),
                               ],
                             ),
@@ -380,7 +384,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                         label: 'Get Quote',
                         onPressed: () async {
                           if (subscriptionType != 'free') {
-                            await sendChatMessage(
+                            await ChatApiService.sendChatMessage(
                                 productId: widget.product.id,
                                 Id: widget.product.seller!,
                                 content:

@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/services/image_upload.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class EnterProductsPage extends ConsumerStatefulWidget {
   final bool isEditing;
@@ -104,22 +105,51 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
   }
 
   File? _productImageFIle;
-  Future<File?> _pickFile({required String imageType}) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: [
-        'png',
-        'jpg',
-        'jpeg',
-      ],
-    );
 
-    if (result != null) {
-      _productImageFIle = File(result.files.single.path!);
-      return _productImageFIle;
+
+Future<File?> _pickFile({required String imageType}) async {
+  // iOS-specific: request Photos permission
+  if (Platform.isIOS) {
+    final status = await Permission.photos.request();
+
+    if (status.isDenied || status.isPermanentlyDenied) {
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Permission Required'),
+          content: const Text(
+              'Photo access is required to pick images. Please enable it from Settings.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await openAppSettings();
+              },
+              child: const Text('Open Settings'),
+            ),
+          ],
+        ),
+      );
+      return null;
     }
-    return null;
   }
+
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['png', 'jpg', 'jpeg'],
+  );
+
+  if (result != null && result.files.single.path != null) {
+    _productImageFIle = File(result.files.single.path!);
+    return _productImageFIle;
+  }
+
+  return null;
+}
 
   @override
   Widget build(BuildContext context) {

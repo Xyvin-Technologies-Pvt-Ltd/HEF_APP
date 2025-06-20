@@ -39,29 +39,6 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
 
   String productUrl = '';
 
-  Future<File?> _pickFile({required String imageType}) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['png', 'jpg', 'jpeg', 'pdf'],
-    );
-
-    if (result != null) {
-      // Check if the file size is more than or equal to 1 MB (1 MB = 1024 * 1024 bytes)
-      // if (result.files.single.size >= 1024 * 1024) {
-      //   CustomSnackbar.showSnackbar(context, 'File size cannot exceed 1MB');
-
-      //   return null; // Exit the function if the file is too large
-      // }
-
-      // Set the selected file if it's within the size limit and matches the specified image type
-      if (imageType == 'product') {
-        _productImageFIle = File(result.files.single.path!);
-        return _productImageFIle;
-      }
-    }
-
-    return null;
-  }
 
   Future<void> _editProduct(
       int index, Product oldProduct, BuildContext context) async {

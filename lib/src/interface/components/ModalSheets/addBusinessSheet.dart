@@ -4,6 +4,7 @@ import 'package:hef/src/data/api_routes/business_api/business_api.dart';
 
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/data/services/permissions.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,10 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? mediaUrl;
 
-  Future<void> _handleImagePick() async {
+  Future<void> _handleImagePick(BuildContext context) async {
+    final hasPermission = await ensurePhotoPermission(context);
+    if (!hasPermission) return;
+
     final File? pickedImage = await widget.pickImage();
     if (pickedImage != null) {
       setState(() {
@@ -96,7 +100,7 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                     return Column(
                       children: [
                         GestureDetector(
-                          onTap: _handleImagePick,
+                          onTap: () => _handleImagePick(context),
                           child: Container(
                             width: double.infinity,
                             height: 110,
@@ -185,7 +189,7 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
                           );
                         }
 
-                        await BusinessApiService. uploadBusiness(
+                        await BusinessApiService.uploadBusiness(
                           media: mediaUrl,
                           content: widget.textController.text,
                         );

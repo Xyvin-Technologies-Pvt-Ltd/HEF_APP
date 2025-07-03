@@ -1,6 +1,7 @@
 class News {
   final String? category;
   final String? title;
+  final String? pdf;
   final String? content;
   final String? media;
   final String? status;
@@ -10,6 +11,7 @@ class News {
   News({
     this.category,
     this.title,
+    this.pdf,
     this.content,
     this.media,
     this.status,
@@ -22,6 +24,7 @@ class News {
     return News(
       category: json['category'] as String?,
       title: json['title'] as String?,
+      pdf: json['pdf'] as String?,
       content: json['content'] as String?,
       media: json['media'] as String?,
       status: json['status'] as String?,
@@ -41,6 +44,7 @@ class News {
       'title': title,
       'content': content,
       'media': media,
+      'pdf': pdf,
       'status': status,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),

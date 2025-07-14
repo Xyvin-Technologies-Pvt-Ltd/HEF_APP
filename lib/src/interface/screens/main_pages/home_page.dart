@@ -643,6 +643,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                                 .read(selectedIndexProvider
                                                                     .notifier)
                                                                 .updateIndex(3);
+                                                            ref
+                                                                .read(currentNewsIndexProvider
+                                                                    .notifier)
+                                                                .state = index;
                                                           },
                                                           imageUrl:
                                                               individualNews

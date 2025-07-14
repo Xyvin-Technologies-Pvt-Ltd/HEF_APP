@@ -71,7 +71,7 @@ class ProductCard extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Row(
-                          children: [
+                          children: [  if(product.price!=null&&product.price!=''&& product.price!='null')
                             Flexible(
                               child: Text(
                                 '₹ ${product.price}',
@@ -91,7 +91,7 @@ class ProductCard extends StatelessWidget {
                             const SizedBox(
                               width: 8,
                             ),
-                            if (product.offerPrice != null)
+                        if(product.offerPrice!=null&&product.offerPrice!=''&& product.offerPrice!='null')
                               Flexible(
                                 child: Text(
                                   '₹ ${product.offerPrice}',
@@ -107,6 +107,7 @@ class ProductCard extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if(product.moq!=null&&product.moq!=''&& product.moq!='null'&&product.moq!=0)
                       Text(
                         'MOQ: ${product.moq}',
                         style: const TextStyle(

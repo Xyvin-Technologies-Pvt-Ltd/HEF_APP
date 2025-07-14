@@ -9,10 +9,12 @@ import 'package:hef/src/data/api_routes/products_api/products_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
+import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/product_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/interface/components/Cards/product_card.dart';
+import 'package:hef/src/interface/components/ModalSheets/product_details.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/add_product.dart';
 import 'package:path/path.dart';
@@ -39,7 +41,6 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
 
   String productUrl = '';
 
-
   Future<void> _editProduct(
       int index, Product oldProduct, BuildContext context) async {
     Navigator.push(
@@ -50,14 +51,14 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
                   isEditing: true,
                   product: oldProduct,
                   onEdit: (Product updatedProduct) async {
-             final service = ProductApiService();
+                    final service = ProductApiService();
                     await service.updateProduct(updatedProduct);
                   },
                 )));
   }
 
   void _removeProduct(String productId) async {
-    deleteProduct(productId);
+    await deleteProduct(productId);
     ref.invalidate(fetchMyProductsProvider);
   }
 
@@ -118,9 +119,7 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
                               const SizedBox(height: 16),
                               Expanded(
                                 child: GridView.builder(
-                                  shrinkWrap:
-                                      true, // Let GridView take up only as much space as it needs
-                                  // Disable GridView's internal scrolling
+                                  shrinkWrap: true,
                                   gridDelegate:
                                       const SliverGridDelegateWithFixedCrossAxisCount(
                                     mainAxisExtent: 212,
@@ -130,12 +129,19 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
                                   ),
                                   itemCount: products.length,
                                   itemBuilder: (context, index) {
-                                    return ProductCard(
-                                        onEdit: () => _editProduct(
-                                            index, products[index], context),
-                                        product: products[index],
-                                        onRemove: () => _removeProduct(
-                                            products[index].id ?? ''));
+                                    return GestureDetector(
+                                      onTap: () => showProductDetails(
+                                          receiver: Participant(id: id),
+                                          sender: Participant(id: id),
+                                          context: context,
+                                          product: products[index]),
+                                      child: ProductCard(
+                                          onEdit: () => _editProduct(
+                                              index, products[index], context),
+                                          product: products[index],
+                                          onRemove: () => _removeProduct(
+                                              products[index].id ?? '')),
+                                    );
                                   },
                                 ),
                               ),
@@ -159,10 +165,10 @@ class _MyProductPageState extends ConsumerState<MyProductPage> {
                     onPressed: () {
                       _openModalSheet(sheet: 'product');
                     },
-                    label: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: const Text(
-                        'Add Product',
+                    label: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Add Product/Service',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

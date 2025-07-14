@@ -39,9 +39,7 @@ Future<String> changeNumber(String phone) async {
       'Content-type': 'application/json',
       'Authorization': 'Bearer $token',
     },
-    body: jsonEncode({
-      "phone": phone
-    }),
+    body: jsonEncode({"phone": phone}),
   );
 
   if (response.statusCode == 200) {
@@ -69,17 +67,26 @@ Future<Product?> uploadProduct({
   SnackbarService snackbarService = SnackbarService();
   final url = Uri.parse('$baseUrl/product/user');
 
-  final body = {
-    'name': name,
-    'price': price,
-    'offerPrice': offerPrice,
-    'description': description,
-    'seller': id,
-    'moq': moq,
-    'status': 'pending',
-    'units': productPriceType,
-    'image': productImage,
-  };
+  final body = <String, dynamic>{};
+
+  void addIfValid(String key, dynamic value) {
+    if (value != null &&
+        !(value is String && (value.trim().isEmpty || value == 'null'))) {
+      body[key] = value;
+    }
+  }
+
+// Add only if value is not null, not 'null' string, not empty string
+  addIfValid('name', name);
+  addIfValid('price', price);
+  addIfValid('offerPrice', offerPrice);
+  addIfValid('description', description);
+  addIfValid('seller', id);
+  addIfValid('moq', moq);
+  addIfValid('status', 'pending');
+  addIfValid('units', productPriceType);
+  addIfValid('image', productImage);
+
   log(body.toString());
   try {
     final response = await http.post(

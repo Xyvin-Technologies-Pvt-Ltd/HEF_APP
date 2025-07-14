@@ -83,13 +83,11 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                   width: double.infinity,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(
-                          20), // Set the desired radius for the top left corner
-                      topRight: Radius.circular(
-                          20), // Set the desired radius for the top right corner
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
                     ),
                     child: Image.network(
-                      widget.product.image!, // Replace with your image URL
+                      widget.product.image!,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Shimmer.fromColors(
@@ -110,15 +108,23 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                   padding: const EdgeInsets.only(left: 10),
                   child: Row(
                     children: [
-                      Text(
-                        widget.product.name!,
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                      Expanded(
+                        child: Text(
+                          widget.product.name ?? '',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                widget.product.offerPrice != null
+                widget.product.offerPrice != null &&
+                        widget.product.offerPrice != 0 &&
+                        widget.product.offerPrice != 'null'
                     ? Padding(
                         padding: const EdgeInsets.only(left: 10),
                         child: Row(
@@ -154,14 +160,18 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                           ],
                         ),
                       )
-                    : Text(
-                        'INR ${widget.product.price} / piece',
-                        style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                      ),
-                if (widget.product.moq != null)
+                    : widget.product.price != null
+                        ? Text(
+                            'INR ${widget.product.price} / piece',
+                            style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                          )
+                        : SizedBox.shrink(),
+                if (widget.product.moq != null &&
+                    widget.product.moq != '' &&
+                    widget.product.moq != 0)
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Row(
@@ -174,21 +184,24 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                     ),
                   ),
                 const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        // Wrap the Text widget in Expanded to prevent overflow issues
-                        child: Text(
-                          widget.product.description ?? '',
-                          style:
-                              const TextStyle(fontSize: 16, color: Colors.grey),
+                if (widget.product.description != null &&
+                    widget.product.description != '' &&
+                    widget.product.description != 'null')
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          // Wrap the Text widget in Expanded to prevent overflow issues
+                          child: Text(
+                            widget.product.description ?? '',
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.grey),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
                 const SizedBox(height: 16),
                 asyncUser.when(
                   data: (user) {
@@ -210,8 +223,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),    
-                      
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,9 +232,9 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     '${user.name ?? ''}'),
-                                         if (user.company != null)
-                            if (user.company!.isNotEmpty)
-                                Text('${user.company?[0].name ?? ''}'),
+                                if (user.company != null)
+                                  if (user.company!.isNotEmpty)
+                                    Text('${user.company?[0].name ?? ''}'),
                               ],
                             ),
                           ),
@@ -290,8 +302,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                       if (id != widget.product.seller)
                         SizedBox(
                             height: 40,
-                            width:
-                                210, // Increase this value to expand the horizontal width
+                            width: 210,
                             child: TextField(
                               style: const TextStyle(
                                   color: kPrimaryColor,
@@ -331,7 +342,6 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                   ),
                                 ),
 
-                                // Border when an error is present (e.g., validation failed)
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
                                   borderSide: const BorderSide(
@@ -341,12 +351,10 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                   ),
                                 ),
 
-                                // Border when the field is both focused and has an error
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
                                   borderSide: const BorderSide(
-                                    color: Colors
-                                        .red, // Red border when focused and has an error
+                                    color: Colors.red,
                                     width: 2.0,
                                   ),
                                 ),

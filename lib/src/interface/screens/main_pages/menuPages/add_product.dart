@@ -37,7 +37,6 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
   File? productImage;
   final _formKey = GlobalKey<FormState>();
 
-  // Initialize controllers
   late TextEditingController productPriceType;
   late TextEditingController productNameController;
   late TextEditingController productDescriptionController;
@@ -48,7 +47,6 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize controllers with existing data if editing
     productPriceType = TextEditingController(
         text: widget.isEditing
             ? widget.product?.productPriceType
@@ -76,7 +74,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
     super.dispose();
   }
 
-  Future<void> _addNewProduct() async {
+  Future<bool> _addNewProduct() async {
     final createdProduct = await uploadProduct(
       name: productNameController.text,
       price: productActualPriceController.text,
@@ -86,70 +84,145 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
       productImage: await imageUpload(productImage!.path),
       productPriceType: productPriceType.text,
     );
+
     if (createdProduct == null) {
       print('couldnt create new product');
+      return false;
     } else {
       final newProduct = Product(
         id: createdProduct.id,
         name: productNameController.text,
         image: await imageUpload(productImage!.path),
         description: productDescriptionController.text,
-        moq: int.parse(productMoqController.text),
-        offerPrice: double.parse(productOfferPriceController.text),
-        price: double.parse(productActualPriceController.text),
+        moq: int.tryParse(productMoqController.text),
+        offerPrice: double.tryParse(productOfferPriceController.text),
+        price: double.tryParse(productActualPriceController.text),
         seller: id,
         productPriceType: productPriceType.text,
         status: 'pending',
       );
     }
+    return true;
   }
 
-  File? _productImageFIle;
+  Future<File?> _pickFile({required String imageType}) async {
+    if (Platform.isIOS) {
+      final status = await Permission.photos.request();
+      if (status.isDenied || status.isPermanentlyDenied) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Photo access is required to pick images. Please enable it from Settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+        return null;
+      }
+    }
 
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['png', 'jpg', 'jpeg'],
+    );
 
-Future<File?> _pickFile({required String imageType}) async {
-  // iOS-specific: request Photos permission
-  if (Platform.isIOS) {
-    final status = await Permission.photos.request();
+    if (result != null && result.files.single.path != null) {
+      return File(result.files.single.path!);
+    }
 
-    if (status.isDenied || status.isPermanentlyDenied) {
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Permission Required'),
-          content: const Text(
-              'Photo access is required to pick images. Please enable it from Settings.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await openAppSettings();
-              },
-              child: const Text('Open Settings'),
-            ),
-          ],
-        ),
-      );
-      return null;
+    return null;
+  }
+
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  void _validateAndSubmit() async {
+    if (productImage == null && !widget.isEditing) {
+      _showSnack('Please upload an image');
+      return;
+    }
+
+    if (productNameController.text.trim().isEmpty) {
+      _showSnack('Please enter a product name');
+      return;
+    }
+
+    final offer = productOfferPriceController.text.trim();
+    final actual = productActualPriceController.text.trim();
+
+    if (offer.isNotEmpty && actual.isEmpty) {
+      _showSnack('Please enter actual price when offer price is provided');
+      return;
+    }
+
+    if (offer.isNotEmpty && actual.isNotEmpty) {
+      double offerVal = double.tryParse(offer) ?? 0;
+      double actualVal = double.tryParse(actual) ?? 0;
+      if (offerVal >= actualVal) {
+        _showSnack('Actual price must be greater than offer price');
+        return;
+      }
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: LoadingAnimation()),
+    );
+
+    try {
+      if (widget.isEditing && widget.onEdit != null) {
+        final updatedProduct = Product(
+          id: widget.product!.id,
+          name: productNameController.text,
+          description: productDescriptionController.text,
+          moq: int.tryParse(productMoqController.text),
+          price: double.tryParse(productActualPriceController.text),
+          offerPrice: double.tryParse(productOfferPriceController.text),
+          productPriceType: productPriceType.text,
+          image: productImage != null
+              ? await imageUpload(productImage!.path)
+              : widget.product?.image,
+          seller: widget.product?.seller,
+          status: "pending",
+        );
+
+        await widget.onEdit!(updatedProduct);
+        ref.invalidate(fetchMyProductsProvider);
+      } else {
+        await _addNewProduct();
+      }
+
+      productNameController.clear();
+      productDescriptionController.clear();
+      productMoqController.clear();
+      productActualPriceController.clear();
+      productOfferPriceController.clear();
+      productPriceType.clear();
+      setState(() {
+        productImage = null;
+      });
+    } finally {
+      Navigator.of(context).pop();
+      Navigator.pop(context);
     }
   }
-
-  FilePickerResult? result = await FilePicker.platform.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: ['png', 'jpg', 'jpeg'],
-  );
-
-  if (result != null && result.files.single.path != null) {
-    _productImageFIle = File(result.files.single.path!);
-    return _productImageFIle;
-  }
-
-  return null;
-}
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +277,7 @@ Future<File?> _pickFile({required String imageType}) async {
                           ),
                           SizedBox(width: 10),
                           Text(
-                            'Add Product',
+                            'Add Product/Service',
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600),
                           )
@@ -346,24 +419,14 @@ Future<File?> _pickFile({required String imageType}) async {
                       textController: productDescriptionController,
                       label: 'Add description',
                       maxLines: 4,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a description';
-                        }
-                        return null;
-                      },
+                      // No validator
                     ),
                     const SizedBox(height: 10),
                     ModalSheetTextFormField(
                       textInputType: const TextInputType.numberWithOptions(),
                       textController: productMoqController,
                       label: 'Add MOQ',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter the MOQ';
-                        }
-                        return null;
-                      },
+                      // No validator
                     ),
                     const SizedBox(height: 10),
                     Row(
@@ -374,12 +437,7 @@ Future<File?> _pickFile({required String imageType}) async {
                                 const TextInputType.numberWithOptions(),
                             textController: productActualPriceController,
                             label: 'Actual price',
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter the actual price';
-                              }
-                              return null;
-                            },
+                            // No validator
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -389,24 +447,7 @@ Future<File?> _pickFile({required String imageType}) async {
                                 const TextInputType.numberWithOptions(),
                             textController: productOfferPriceController,
                             label: 'Offer price',
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter the offer price';
-                              }
-                              if (double.parse(
-                                      productOfferPriceController.text) >
-                                  double.parse(
-                                      productActualPriceController.text)) {
-                                return 'Make actual price higher';
-                              }
-                              if (double.parse(
-                                      productActualPriceController.text) ==
-                                  double.parse(
-                                      productOfferPriceController.text)) {
-                                return 'Prices should be different';
-                              }
-                              return null;
-                            },
+                            // No validator
                           ),
                         ),
                       ],
@@ -455,6 +496,24 @@ Future<File?> _pickFile({required String imageType}) async {
                       label: widget.isEditing ? 'UPDATE' : 'SAVE',
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
+                          // Custom validation for offer/actual price
+                          final offer = productOfferPriceController.text.trim();
+                          final actual =
+                              productActualPriceController.text.trim();
+                          if (offer.isNotEmpty && actual.isEmpty) {
+                            _showSnack(
+                                'Please enter actual price when offer price is provided');
+                            return;
+                          }
+                          if (offer.isNotEmpty && actual.isNotEmpty) {
+                            double offerVal = double.tryParse(offer) ?? 0;
+                            double actualVal = double.tryParse(actual) ?? 0;
+                            if (offerVal >= actualVal) {
+                              _showSnack(
+                                  'Actual price must be greater than offer price');
+                              return;
+                            }
+                          }
                           if (widget.isEditing) {
                             // Show confirmation dialog before updating the product
                             final bool confirmUpdate = await showDialog(
@@ -488,32 +547,31 @@ Future<File?> _pickFile({required String imageType}) async {
                             builder: (context) =>
                                 const Center(child: LoadingAnimation()),
                           );
-
+                          bool success = false;
                           try {
                             if (widget.isEditing && widget.onEdit != null) {
-                              // Create updated product
                               final updatedProduct = Product(
                                 id: widget.product!.id,
                                 name: productNameController.text,
                                 description: productDescriptionController.text,
-                                moq: int.parse(productMoqController.text),
-                                price: double.parse(
+                                moq: int.tryParse(productMoqController.text),
+                                price: double.tryParse(
                                     productActualPriceController.text),
-                                offerPrice: double.parse(
+                                offerPrice: double.tryParse(
                                     productOfferPriceController.text),
                                 productPriceType: productPriceType.text,
                                 image: productImage != null
                                     ? await imageUpload(productImage!.path)
                                     : widget.product?.image,
                                 seller: widget.product?.seller,
-                                status:
-                                    "pending", // Ensure status is set to pending
+                                status: "pending",
                               );
 
                               await widget.onEdit!(updatedProduct);
                               ref.invalidate(fetchMyProductsProvider);
                             } else {
-                              await _addNewProduct();
+                              success = await _addNewProduct();
+                              ref.invalidate(fetchMyProductsProvider);
                             }
 
                             // Clear form
@@ -527,8 +585,9 @@ Future<File?> _pickFile({required String imageType}) async {
                               productImage = null;
                             });
                           } finally {
-                            Navigator.of(context).pop(); // Close loader
-                            Navigator.pop(context); // Go back
+                            if (success)
+                              Navigator.of(context).pop(); // Close loader
+                            Navigator.pop(context);
                           }
                         }
                       },
@@ -560,27 +619,19 @@ Future<String?> _showProductPriceTypeDialog(BuildContext context) {
           children: [
             ListTile(
               title: const Text('Kilogram (kg)'),
-              onTap: () {
-                Navigator.of(context).pop('kg');
-              },
+              onTap: () => Navigator.of(context).pop('kg'),
             ),
             ListTile(
               title: const Text('Gram (g)'),
-              onTap: () {
-                Navigator.of(context).pop('g');
-              },
+              onTap: () => Navigator.of(context).pop('g'),
             ),
             ListTile(
               title: const Text('Per Piece'),
-              onTap: () {
-                Navigator.of(context).pop('piece');
-              },
+              onTap: () => Navigator.of(context).pop('piece'),
             ),
             ListTile(
               title: const Text('Litre (L)'),
-              onTap: () {
-                Navigator.of(context).pop('L');
-              },
+              onTap: () => Navigator.of(context).pop('L'),
             ),
           ],
         ),

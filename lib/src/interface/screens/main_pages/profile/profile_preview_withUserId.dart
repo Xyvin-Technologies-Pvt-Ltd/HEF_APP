@@ -21,7 +21,7 @@ import 'package:hef/src/interface/components/shimmers/preview_shimmer.dart';
 import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class ReviewsState extends StateNotifier<int> {
   ReviewsState() : super(1);
@@ -887,7 +887,7 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16.0),
                       child: Image.network(
-                        'https://img.youtube.com/vi/${YoutubePlayerController.convertUrlToId(video.link ?? '')}/maxresdefault.jpg',
+                        'https://img.youtube.com/vi/${YoutubePlayer.convertUrlToId(video.link ?? '')}/maxresdefault.jpg',
                         fit: BoxFit.cover,
                         width: double.infinity,
                         height: double.infinity,
@@ -1120,15 +1120,16 @@ class ProfilePreviewUsingId extends ConsumerWidget {
 
   void _showVideoDialog(BuildContext context, Link video) {
     final videoUrl = video.link;
-    final ytController = YoutubePlayerController.fromVideoId(
-      videoId: YoutubePlayerController.convertUrlToId(videoUrl ?? '') ?? '',
-      autoPlay: true,
-      params: const YoutubePlayerParams(
-        enableJavaScript: true,
+    final videoId = YoutubePlayer.convertUrlToId(videoUrl ?? '');
+    
+    final controller = YoutubePlayerController(
+      initialVideoId: videoId ?? '',
+      flags: const YoutubePlayerFlags(
+        autoPlay: true,
         loop: true,
         mute: false,
-        showControls: true,
-        showFullscreenButton: true,
+        enableCaption: true,
+        isLive: false,
       ),
     );
 
@@ -1185,8 +1186,14 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: YoutubePlayer(
-                        controller: ytController,
+                        controller: controller,
                         aspectRatio: 16 / 9,
+                        showVideoProgressIndicator: true,
+                        progressIndicatorColor: Colors.red,
+                        progressColors: const ProgressBarColors(
+                          playedColor: Colors.red,
+                          handleColor: Colors.redAccent,
+                        ),
                       ),
                     ),
                   ),

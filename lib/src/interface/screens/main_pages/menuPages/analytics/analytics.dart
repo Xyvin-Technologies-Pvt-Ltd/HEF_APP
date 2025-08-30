@@ -1,13 +1,18 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
+import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
+import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
+import 'package:hef/src/data/notifiers/people_notifier.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/ModalSheets/analytics.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:intl/intl.dart';
@@ -33,6 +38,16 @@ class AnalyticsPage extends ConsumerStatefulWidget {
 
 class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     with SingleTickerProviderStateMixin {
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _tagController = TextEditingController();
+  FocusNode _searchFocus = FocusNode();
+  Timer? _debounce;
+  String? selectedDistrictId;
+  String? selectedDistrictName;
+  String? businessTagSearch;
+  List<String> selectedTags = [];
+
   late TabController _tabController;
 
   // Add filter state variables
@@ -48,6 +63,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
+    _fetchInitialUsers();
     _tabController = TabController(length: 3, vsync: this);
 
     // Set initial tab if provided
@@ -70,6 +87,31 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       endDate = DateTime.parse(widget.endDate!);
     }
   }
+
+  Future<void> _fetchInitialUsers() async {
+    await ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
+    }
+  }
+
+  void _onSearchChanged(String query) {
+    // if (_debounce?.isActive ?? false) _debounce?.cancel();
+    // _debounce = Timer(const Duration(milliseconds: 300), () {
+    //   ref.read(peopleNotifierProvider.notifier).searchUsers(query);
+    // });
+    setState(() {});
+  }
+
+  void _onSearchSubmitted(String query) {
+    ref.read(peopleNotifierProvider.notifier).searchUsers(query);
+  }
+
+
 
   // Add filter modal sheet
   void _showFilterModal() {
@@ -336,6 +378,96 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
               ],
             ),
           ),
+          //search bar
+          Container(
+              padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          focusNode: _searchFocus,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            prefixIcon: const Icon(Icons.search),
+                            hintText: 'Search Members',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 216, 211, 211),
+                              ),
+                            ),
+                          ),
+                          onChanged: _onSearchChanged,
+                          onSubmitted: _onSearchSubmitted,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     border: Border.all(
+                      //       color: const Color.fromARGB(255, 216, 211, 211),
+                      //     ),
+                      //     borderRadius: BorderRadius.circular(8.0),
+                      //   ),
+                      //   child: IconButton(
+                      //     icon: Icon(
+                      //       Icons.filter_list,
+                      //       color: selectedDistrictName != null
+                      //           ? Colors.blue
+                      //           : Colors.grey,
+                      //     ),
+                      //     onPressed: _showFilterBottomSheet,
+                      //   ),
+                      // ),
+                    ],
+                  ),
+                  if (selectedDistrictName != null || selectedTags.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              if (selectedDistrictName != null)
+                                Chip(
+                                  label: Text(selectedDistrictName!),
+                                  onDeleted: () {
+                                    setState(() {
+                                      selectedDistrictId = null;
+                                      selectedDistrictName = null;
+                                    });
+                                    ref
+                                        .read(peopleNotifierProvider.notifier)
+                                        .setDistrict(null);
+                                  },
+                                ),
+                              ...selectedTags.map((tag) => Chip(
+                                    label: Text(tag),
+                                    onDeleted: () {
+                                      setState(() {
+                                        selectedTags.remove(tag);
+                                      });
+                                      ref
+                                          .read(peopleNotifierProvider.notifier)
+                                          .setTags(selectedTags);
+                                    },
+                                  )),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -364,31 +496,76 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   }
 
   Widget _buildRefreshableAnalyticsTab(
-      AsyncValue<List<AnalyticsModel>> asyncAnalytics, String tabBarType) {
-    return RefreshIndicator(
-      backgroundColor: kWhite,
-      color: kPrimaryColor,
-      onRefresh: () async {
-        ref.invalidate(fetchAnalyticsProvider);
+    AsyncValue<List<AnalyticsModel>> asyncAnalytics, String tabBarType) {
+  return RefreshIndicator(
+    backgroundColor: kWhite,
+    color: kPrimaryColor,
+    onRefresh: () async {
+      ref.invalidate(fetchAnalyticsProvider);
+    },
+    child: asyncAnalytics.when(
+      data: (analytics) {
+        if (analytics.isEmpty) {
+          return const Center(child: Text("No data available"));
+        }
+
+        //  Filter based on search input
+        final searchQuery = _searchController.text.trim().toLowerCase();
+        List<AnalyticsModel> filtered = analytics.where((analytic) {
+          final username = analytic.username?.toLowerCase() ?? '';
+          final title = analytic.title?.toLowerCase() ?? '';
+          return username.contains(searchQuery) || title.contains(searchQuery);
+        }).toList();
+
+        // Sort alphabetically by username
+        filtered.sort((a, b) =>
+            (a.username ?? '').toLowerCase().compareTo((b.username ?? '').toLowerCase()));
+
+        return ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16.0),
+          itemCount: filtered.length,
+          itemBuilder: (context, index) {
+            return _buildCard(filtered[index], tabBarType);
+          },
+        );
       },
-      child: asyncAnalytics.when(
-          data: (analytics) => analytics.isEmpty
-              ? const Center(child: Text("No data available"))
-              : ListView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: analytics.length,
-                  itemBuilder: (context, index) {
-                    return _buildCard(analytics[index], tabBarType);
-                  },
-                ),
-          loading: () => const Center(child: LoadingAnimation()),
-          error: (error, stackTrace) {
-            log(error.toString());
-            return Center(child: Text("Error loading data"));
-          }),
-    );
-  }
+      loading: () => const Center(child: LoadingAnimation()),
+      error: (error, stackTrace) {
+        log(error.toString());
+        return const Center(child: Text("Error loading data"));
+      },
+    ),
+  );
+}
+
+
+  // Widget _buildRefreshableAnalyticsTab(
+  //     AsyncValue<List<AnalyticsModel>> asyncAnalytics, String tabBarType) {
+  //   return RefreshIndicator(
+  //     backgroundColor: kWhite,
+  //     color: kPrimaryColor,
+  //     onRefresh: () async {
+  //       ref.invalidate(fetchAnalyticsProvider);
+  //     },
+  //     child: asyncAnalytics.when(
+  //         data: (analytics) => analytics.isEmpty
+  //             ? const Center(child: Text("No data available"))
+  //             : ListView.builder(
+  //                 physics: const AlwaysScrollableScrollPhysics(),
+  //                 padding: const EdgeInsets.all(16.0),
+  //                 itemCount: analytics.length,
+  //                 itemBuilder: (context, index) {
+  //                   return _buildCard(analytics[index], tabBarType);
+  //                 },
+  //               ),
+  //         loading: () => const Center(child: LoadingAnimation()),
+  //         error: (error, stackTrace) {
+  //           log(error.toString());
+  //           return Center(child: Text("Error loading data"));
+  //         }),
+  //   );
+  // }
 
   Widget _buildCard(AnalyticsModel analytic, String tabBarType) {
     log(analytic.userImage ?? '', name: 'User image of analytic');

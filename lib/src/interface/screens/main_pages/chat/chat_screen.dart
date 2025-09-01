@@ -14,6 +14,8 @@ import 'package:hef/src/interface/components/common/own_message_card.dart';
 import 'package:hef/src/interface/components/common/reply_card.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/profile_preview.dart';
 import 'package:intl/intl.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+
 
 class IndividualPage extends ConsumerStatefulWidget {
   IndividualPage({required this.receiver, required this.sender, super.key});
@@ -26,6 +28,8 @@ class IndividualPage extends ConsumerStatefulWidget {
 class _IndividualPageState extends ConsumerState<IndividualPage> {
   bool isBlocked = false;
   bool show = false;
+  bool _showEmojiPicker = false;
+
   FocusNode focusNode = FocusNode();
   List<MessageModel> messages = [];
   TextEditingController _controller = TextEditingController();
@@ -67,6 +71,8 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     );
   }
 
+
+
   @override
   void dispose() {
     focusNode.unfocus();
@@ -75,6 +81,8 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     focusNode.dispose();
     super.dispose();
   }
+
+
 
   void sendMessage() {
     if (_controller.text.isNotEmpty && mounted) {
@@ -86,6 +94,58 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
       _controller.clear();
     }
   }
+
+  
+  // Emoji picker functionality
+  void _onEmojiSelected(Category? category, Emoji emoji) {
+    setState(() {
+      _controller.text += emoji.emoji;
+    });
+  }
+
+
+//emoji
+   void _toggleEmojiPicker() {
+    setState(() {
+      _showEmojiPicker = !_showEmojiPicker;
+    });
+
+    // Hide keyboard when emoji picker is shown
+    if (_showEmojiPicker) {
+      focusNode.unfocus();
+    }
+  }
+
+    Widget _buildEmojiPicker() {
+    if (!_showEmojiPicker) return SizedBox.shrink();
+
+    return Expanded(
+      child: EmojiPicker(
+        onEmojiSelected: _onEmojiSelected,
+        config: const Config(
+          categoryViewConfig: CategoryViewConfig(
+            backgroundColor: kWhite,
+            dividerColor: kPrimaryLightColor,
+            indicatorColor: kPrimaryColor,
+            iconColor: kGrey,
+            iconColorSelected: kPrimaryColor,
+            backspaceColor: kPrimaryColor,
+            categoryIcons: CategoryIcons(),
+            tabIndicatorAnimDuration: Duration(milliseconds: 300),
+          ),
+          skinToneConfig: SkinToneConfig(
+            dialogBackgroundColor: kWhite,
+            indicatorColor: kWhite,
+          ),
+          height: 200,
+          bottomActionBarConfig: BottomActionBarConfig(
+              backgroundColor: kPrimaryLightColor, buttonColor: kPrimaryColor),
+          checkPlatformCompatibility: true,
+        ),
+      ),
+    );
+  }
+
 
   void setMessage(String type, String message, String fromId) {
     final messageModel = MessageModel(
@@ -398,23 +458,35 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                               scrollDirection: Axis.vertical,
                                               reverse:
                                                   true, // Start from bottom
-                                              child: TextField(
-                                                controller: _controller,
-                                                focusNode: focusNode,
-                                                keyboardType:
-                                                    TextInputType.multiline,
-                                                maxLines:
-                                                    null, // Allows for unlimited lines
-                                                minLines:
-                                                    1, // Starts with a single line
-                                                decoration:
-                                                    const InputDecoration(
-                                                  border: InputBorder.none,
-                                                  hintText: "Type a message",
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: 10),
-                                                ),
+                                              child: Row(
+                                                children: [
+                                                  IconButton(
+                                                    icon: const Icon(Icons.emoji_emotions_outlined,
+                                                        color: kInputFieldcolor),
+                                                    onPressed: _toggleEmojiPicker,
+                                                  ),
+                                                  Expanded(
+                                                    child: TextField(
+                                                      controller: _controller,
+                                                      focusNode: focusNode,
+                                                      keyboardType:
+                                                          TextInputType.multiline,
+                                                      maxLines:
+                                                          null, // Allows for unlimited lines
+                                                      minLines:
+                                                          1, // Starts with a single line
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        border: InputBorder.none,
+                                                        hintText: "Type a message",
+                                                        contentPadding:
+                                                            EdgeInsets.symmetric(
+                                                                horizontal: 10),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  
+                                                ],
                                               ),
                                             ),
                                           ),
@@ -445,8 +517,11 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                   ),
                                 ],
                               ),
+
                             ),
-                          )
+                          ),
+                          // Emoji picker
+                          _buildEmojiPicker(),
                   ],
                 ),
                 onPopInvoked: (didPop) {

@@ -78,6 +78,7 @@ dependencies:
   pod_player: 0.2.2
   syncfusion_flutter_pdfviewer: ^28.1.39
   youtube_player_flutter: ^9.1.1
+  emoji_picker_flutter: ^4.3.0
 
 dev_dependencies:
   flutter_test:

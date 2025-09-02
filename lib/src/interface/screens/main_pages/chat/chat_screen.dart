@@ -146,6 +146,8 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     );
   }
 
+  
+
 
   void setMessage(String type, String message, String fromId) {
     final messageModel = MessageModel(
@@ -484,6 +486,18 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                                                 horizontal: 10),
                                                       ),
                                                     ),
+                                                  ),
+                                                  // Attachment button
+                                                  IconButton(
+                                                    icon: const Icon(Icons.attach_file, color: Colors.grey),
+                                                    onPressed: () {
+                                                      
+                                                    },
+                                                  ),
+                                                  // Camera button
+                                                  IconButton(
+                                                    icon: const Icon(Icons.camera_alt, color: Colors.grey),
+                                                    onPressed: (){},
                                                   ),
                                                   
                                                 ],

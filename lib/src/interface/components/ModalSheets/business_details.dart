@@ -160,7 +160,7 @@ class BusinessDetailsModalSheet extends StatelessWidget {
                             await ChatApiService.sendChatMessage(
                                 Id: business.author ?? '',
                                 content: business.content ?? '',
-                                businessId: business.id);
+                                businessId: business.id, type: '');
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => IndividualPage(
                                       receiver: receiver,

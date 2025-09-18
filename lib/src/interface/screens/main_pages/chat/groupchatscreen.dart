@@ -82,7 +82,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
     ChatApiService.  sendChatMessage(
         isGroup: true,
         Id: widget.group.id!,
-        content: _controller.text,
+        content: _controller.text, type: '',
       );
       setMessage("sent", _controller.text, widget.sender.id!);
       _controller.clear();
@@ -101,7 +101,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
       from: fromId,
       status: type,
       content: message,
-      createdAt: DateTime.now(),
+      createdAt: DateTime.now(), type: '',
     );
 
     setState(() {

@@ -251,7 +251,7 @@ void messageSheet({
                               await ChatApiService.sendChatMessage(
                                   Id: feed.author ?? '',
                                   content: feed.content!,
-                                  businessId: feed.id);
+                                  businessId: feed.id, type: '');
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => IndividualPage(
                                         receiver: receiver,
@@ -259,7 +259,7 @@ void messageSheet({
                                       )));
                               await ChatApiService.sendChatMessage(
                                   Id: feed.author ?? '',
-                                  content: messageController.text);
+                                  content: messageController.text, type: '');
                             },
                             fontSize: 16,
                           );

@@ -20,7 +20,7 @@ class MessageModel {
     this.status,
     this.createdAt,
     this.updatedAt,
-    this.v,
+    this.v, required String type,
   });
 
   // fromJson method
@@ -35,7 +35,7 @@ class MessageModel {
       status: json['status'] as String?,
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
-      v: json['__v'] as int?,
+      v: json['__v'] as int?, type: '',
     );
   }
 

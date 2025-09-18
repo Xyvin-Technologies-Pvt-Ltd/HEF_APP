@@ -29,7 +29,7 @@ class ProfilePage extends StatelessWidget {
               ),
         ),
         backgroundColor: kScaffoldColor,
-        title: Text(
+        title: const Text(
           'Profile',
           style: kSubHeadingL,
         ),

@@ -396,7 +396,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                 productId: widget.product.id,
                                 Id: widget.product.seller!,
                                 content:
-                                    '''I need ${_quantityController.text}\nLet\'s Connect!''');
+                                    '''I need ${_quantityController.text}\nLet\'s Connect!''', type: '');
 
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => IndividualPage(

@@ -100,7 +100,7 @@ class ChatApiService {
     String? content,
     String? productId,
     bool isGroup = false,
-    String? businessId,
+    String? businessId, required String type,
   }) async {
     final url = Uri.parse('$baseUrl/chat/send-message/$Id');
     final headers = {

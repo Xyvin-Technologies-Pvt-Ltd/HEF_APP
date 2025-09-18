@@ -15,6 +15,10 @@ import 'package:hef/src/interface/components/common/reply_card.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/profile_preview.dart';
 import 'package:intl/intl.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:hef/src/data/services/image_upload.dart';
+
 
 
 class IndividualPage extends ConsumerStatefulWidget {
@@ -71,8 +75,6 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     );
   }
 
-
-
   @override
   void dispose() {
     focusNode.unfocus();
@@ -82,20 +84,46 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     super.dispose();
   }
 
-
-
   void sendMessage() {
     if (_controller.text.isNotEmpty && mounted) {
       ChatApiService.sendChatMessage(
         Id: widget.receiver.id!,
-        content: _controller.text,
+        content: _controller.text, type: '',
       );
       setMessage("sent", _controller.text, widget.sender.id!);
       _controller.clear();
     }
   }
 
-  
+
+final ImagePicker _picker = ImagePicker();
+
+Future<void> _takePicture() async {
+  final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+
+  if (photo != null) {
+    File imageFile = File(photo.path);
+
+    try {
+      // ✅ Use your existing uploader
+      String imageUrl = await imageUpload(imageFile.path);
+
+      // Now handle what happens after upload:
+      // 1. Send as chat message
+      // 2. Save in DB, etc.
+      print("Image uploaded successfully: $imageUrl");
+
+      // Example: send as a message
+      // _sendMessage(imageUrl, type: MessageType.image);
+
+    } catch (e) {
+      print("Error uploading image: $e");
+    }
+  }
+}
+
+
+
   // Emoji picker functionality
   void _onEmojiSelected(Category? category, Emoji emoji) {
     setState(() {
@@ -103,9 +131,8 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     });
   }
 
-
 //emoji
-   void _toggleEmojiPicker() {
+  void _toggleEmojiPicker() {
     setState(() {
       _showEmojiPicker = !_showEmojiPicker;
     });
@@ -116,7 +143,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     }
   }
 
-    Widget _buildEmojiPicker() {
+  Widget _buildEmojiPicker() {
     if (!_showEmojiPicker) return SizedBox.shrink();
 
     return Expanded(
@@ -146,15 +173,12 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     );
   }
 
-  
-
-
   void setMessage(String type, String message, String fromId) {
     final messageModel = MessageModel(
       from: fromId,
       status: type,
       content: message,
-      createdAt: DateTime.now(),
+      createdAt: DateTime.now(), type: '',
     );
 
     setState(() {
@@ -348,11 +372,11 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                               controller: _scrollController,
                               itemCount: messages.length,
                               itemBuilder: (context, index) {
-                                final message = messages[messages.length -
-                                    1 -
-                                    index]; 
+                                final message =
+                                    messages[messages.length - 1 - index];
                                 if (message.from == widget.sender.id) {
-                                  return OwnMessageCard(product: message.product,
+                                  return OwnMessageCard(
+                                    product: message.product,
                                     requirement: message.feed,
                                     status: message.status!,
                                     message: message.content ?? '',
@@ -463,43 +487,53 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                               child: Row(
                                                 children: [
                                                   IconButton(
-                                                    icon: const Icon(Icons.emoji_emotions_outlined,
-                                                        color: kInputFieldcolor),
-                                                    onPressed: _toggleEmojiPicker,
+                                                    icon: const Icon(
+                                                        Icons
+                                                            .emoji_emotions_outlined,
+                                                        color:
+                                                            kInputFieldcolor),
+                                                    onPressed:
+                                                        _toggleEmojiPicker,
                                                   ),
                                                   Expanded(
                                                     child: TextField(
                                                       controller: _controller,
                                                       focusNode: focusNode,
                                                       keyboardType:
-                                                          TextInputType.multiline,
+                                                          TextInputType
+                                                              .multiline,
                                                       maxLines:
                                                           null, // Allows for unlimited lines
                                                       minLines:
                                                           1, // Starts with a single line
                                                       decoration:
                                                           const InputDecoration(
-                                                        border: InputBorder.none,
-                                                        hintText: "Type a message",
+                                                        border:
+                                                            InputBorder.none,
+                                                        hintText:
+                                                            "Type a message",
                                                         contentPadding:
-                                                            EdgeInsets.symmetric(
-                                                                horizontal: 10),
+                                                            EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        10),
                                                       ),
                                                     ),
                                                   ),
                                                   // Attachment button
                                                   IconButton(
-                                                    icon: const Icon(Icons.attach_file, color: Colors.grey),
-                                                    onPressed: () {
-                                                      
-                                                    },
+                                                    icon: const Icon(
+                                                        Icons.attach_file,
+                                                        color: Colors.grey),
+                                                    onPressed: () {},
                                                   ),
                                                   // Camera button
                                                   IconButton(
-                                                    icon: const Icon(Icons.camera_alt, color: Colors.grey),
-                                                    onPressed: (){},
+                                                    icon: const Icon(
+                                                        Icons.camera_alt,
+                                                        color: Colors.grey),
+                                                    onPressed: _takePicture,
                                                   ),
-                                                  
                                                 ],
                                               ),
                                             ),
@@ -531,11 +565,10 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                   ),
                                 ],
                               ),
-
                             ),
                           ),
-                          // Emoji picker
-                          _buildEmojiPicker(),
+                    // Emoji picker
+                    _buildEmojiPicker(),
                   ],
                 ),
                 onPopInvoked: (didPop) {

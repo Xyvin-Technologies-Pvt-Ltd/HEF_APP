@@ -12,6 +12,50 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'events_api.g.dart';
 
 class EventApiService {
+  static Future<void> addGuestToEvent({
+    required String eventId,
+    required String name,
+    required String contact,
+    required String category,
+  }) async {
+    final url = Uri.parse('$baseUrl/event/$eventId/guests/add');
+    final snackbarService = SnackbarService();
+
+    final body = {
+      "name": name,
+      "contact": contact,
+      "category": category,
+    };
+
+    try {
+      log("API URL: $url");
+      log("Request Body: ${jsonEncode(body)}");
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+      log('$baseUrl/$eventId/guests/add');
+      
+
+      if (response.statusCode == 200) {
+        log(' Guest added successfully');
+        snackbarService.showSnackBar("Guest added successfully!");
+      } else {
+        final error = json.decode(response.body)['message'];
+        log(' Failed to add guest: $error');
+        snackbarService.showSnackBar(error);
+      }
+    } catch (e) {
+      log('Error adding guest: $e');
+      snackbarService.showSnackBar("Something went wrong!");
+    }
+  }
+
   static Future<List<Event>> fetchEvents() async {
     final url = Uri.parse('$baseUrl/event/list');
 
@@ -66,7 +110,8 @@ class EventApiService {
     }
   }
 
-  static Future<AttendanceUserListModel> fetchEventAttendance(String eventId) async {
+  static Future<AttendanceUserListModel> fetchEventAttendance(
+      String eventId) async {
     final url = Uri.parse('$baseUrl/event/attend/$eventId');
 
     try {
@@ -187,7 +232,8 @@ Future<Event> fetchEventById(Ref ref, {required String id}) async {
 }
 
 @riverpod
-Future<AttendanceUserListModel> fetchEventAttendance(Ref ref, {required String eventId}) async {
+Future<AttendanceUserListModel> fetchEventAttendance(Ref ref,
+    {required String eventId}) async {
   return EventApiService.fetchEventAttendance(eventId);
 }
 

@@ -21,28 +21,32 @@ class Event {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final int? limit;
-  Event( {this.eventDate,
-    this.id,
-    this.eventName,
-    this.description,
-    this.type,
-    this.image,
-    this.startDate,
-    this.startTime,
-    this.endDate,
-    this.endTime,
-    this.platform,
-    this.link,
-    this.venue,
-    this.organiserName,
-    this.coordinator,
-    this.speakers,
-    this.status,
-    this.rsvp,
-    this.attended,
-    this.createdAt,
-    this.updatedAt,this.limit
-  });
+  final bool? allowGuestResgistration;
+  Event(
+      {this.eventDate,
+      this.id,
+      this.eventName,
+      this.description,
+      this.type,
+      this.image,
+      this.startDate,
+      this.startTime,
+      this.endDate,
+      this.endTime,
+      this.platform,
+      this.link,
+      this.venue,
+      this.organiserName,
+      this.coordinator,
+      this.speakers,
+      this.status,
+      this.rsvp,
+      this.attended,
+      this.createdAt,
+      this.updatedAt,
+      this.limit,
+      this.allowGuestResgistration,
+      });
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
@@ -68,7 +72,9 @@ class Event {
       link: json['link'] as String?,
       venue: json['venue'] as String?,
       organiserName: json['organiserName'] as String?,
-      coordinator:  (json['coordinator'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      coordinator: (json['coordinator'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       speakers: (json['speakers'] as List<dynamic>?)
           ?.map((e) => Speaker.fromJson(e))
           .toList(),
@@ -83,7 +89,9 @@ class Event {
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'])
           : null,
-                limit: json['limit'] as int?,
+      limit: json['limit'] as int?,
+      allowGuestResgistration: json['allowGuestRegistration'] as bool?,
+      
     );
   }
 
@@ -110,11 +118,11 @@ class Event {
       'attended': attended,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
-      'limit':limit
+      'limit': limit,
+      'allowGuestRegistration' :allowGuestResgistration,
     };
   }
 }
-
 
 class Speaker {
   final String? name;

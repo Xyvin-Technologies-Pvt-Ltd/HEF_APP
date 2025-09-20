@@ -668,6 +668,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                       SizedBox(
                         height: 20,
                       ),
+                      if (widget.event.allowGuestResgistration == true)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [

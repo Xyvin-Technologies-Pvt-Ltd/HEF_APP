@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,8 +20,6 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:hef/src/data/services/image_upload.dart';
 
-
-
 class IndividualPage extends ConsumerStatefulWidget {
   IndividualPage({required this.receiver, required this.sender, super.key});
   final Participant receiver;
@@ -32,12 +31,13 @@ class IndividualPage extends ConsumerStatefulWidget {
 class _IndividualPageState extends ConsumerState<IndividualPage> {
   bool isBlocked = false;
   bool show = false;
-  bool _showEmojiPicker = false;
+  bool _showEmojiKeyboard = false;
 
   FocusNode focusNode = FocusNode();
   List<MessageModel> messages = [];
   TextEditingController _controller = TextEditingController();
   ScrollController _scrollController = ScrollController();
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -58,7 +58,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _loadBlockStatus(); // Now safe to call
+    _loadBlockStatus();
   }
 
   Future<void> _loadBlockStatus() async {
@@ -88,41 +88,69 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     if (_controller.text.isNotEmpty && mounted) {
       ChatApiService.sendChatMessage(
         Id: widget.receiver.id!,
-        content: _controller.text, type: '',
+        content: _controller.text,
+        type: 'text',
       );
-      setMessage("sent", _controller.text, widget.sender.id!);
+      setMessage("sent", _controller.text, widget.sender.id!, msgType: "text");
       _controller.clear();
     }
   }
 
+  Future<void> _pickFromGallery() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
 
-final ImagePicker _picker = ImagePicker();
-
-Future<void> _takePicture() async {
-  final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-
-  if (photo != null) {
-    File imageFile = File(photo.path);
-
-    try {
-      // ✅ Use your existing uploader
-      String imageUrl = await imageUpload(imageFile.path);
-
-      // Now handle what happens after upload:
-      // 1. Send as chat message
-      // 2. Save in DB, etc.
-      print("Image uploaded successfully: $imageUrl");
-
-      // Example: send as a message
-      // _sendMessage(imageUrl, type: MessageType.image);
-
-    } catch (e) {
-      print("Error uploading image: $e");
+    if (photo != null) {
+      try {
+        String imageUrl = await imageUpload(photo.path);
+        ChatApiService.sendChatMessage(
+          Id: widget.receiver.id!,
+          content: imageUrl,
+          type: 'image',
+        );
+        setMessage("sent", imageUrl, widget.sender.id!, msgType: "image");
+      } catch (e) {
+        print("Error uploading image: $e");
+      }
     }
   }
-}
 
+  Future<void> _takePicture() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
 
+    if (photo != null) {
+      try {
+        String imageUrl = await imageUpload(photo.path);
+        ChatApiService.sendChatMessage(
+          Id: widget.receiver.id!,
+          content: imageUrl,
+          type: 'image',
+        );
+        setMessage("sent", imageUrl, widget.sender.id!, msgType: "image");
+      } catch (e) {
+        print("Error uploading image: $e");
+      }
+    }
+  }
+
+  Future<void> _pickDocument() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null && result.files.single.path != null) {
+      File file = File(result.files.single.path!);
+      try {
+        String fileUrl = await imageUpload(file.path); // reuse uploader
+        ChatApiService.sendChatMessage(
+          Id: widget.receiver.id!,
+          content: fileUrl,
+          type: 'document',
+        );
+
+        setMessage("sent", fileUrl, widget.sender.id!, msgType: "document");
+      } catch (e) {
+        print("Error uploading document: $e");
+      }
+    }
+  }
 
   // Emoji picker functionality
   void _onEmojiSelected(Category? category, Emoji emoji) {
@@ -131,20 +159,20 @@ Future<void> _takePicture() async {
     });
   }
 
-//emoji
-  void _toggleEmojiPicker() {
-    setState(() {
-      _showEmojiPicker = !_showEmojiPicker;
-    });
+// //emoji
+//   void _toggleEmojiPicker() {
+//     setState(() {
+//       _showEmojiPicker = !_showEmojiPicker;
+//     });
 
-    // Hide keyboard when emoji picker is shown
-    if (_showEmojiPicker) {
-      focusNode.unfocus();
-    }
-  }
+//     // Hide keyboard when emoji picker is shown
+//     if (_showEmojiPicker) {
+//       focusNode.unfocus();
+//     }
+//   }
 
   Widget _buildEmojiPicker() {
-    if (!_showEmojiPicker) return SizedBox.shrink();
+    if (!_showEmojiKeyboard) return SizedBox.shrink();
 
     return Expanded(
       child: EmojiPicker(
@@ -173,12 +201,14 @@ Future<void> _takePicture() async {
     );
   }
 
-  void setMessage(String type, String message, String fromId) {
+  void setMessage(String statusType, String message, String fromId,
+      {String msgType = 'text'}) {
     final messageModel = MessageModel(
       from: fromId,
-      status: type,
+      status: statusType,
       content: message,
-      createdAt: DateTime.now(), type: '',
+      createdAt: DateTime.now(),
+      type: msgType,
     );
 
     setState(() {
@@ -487,13 +517,27 @@ Future<void> _takePicture() async {
                                               child: Row(
                                                 children: [
                                                   IconButton(
-                                                    icon: const Icon(
-                                                        Icons
-                                                            .emoji_emotions_outlined,
-                                                        color:
-                                                            kInputFieldcolor),
-                                                    onPressed:
-                                                        _toggleEmojiPicker,
+                                                    icon: Icon(_showEmojiKeyboard
+                                                        ? Icons.keyboard
+                                                        : Icons
+                                                            .emoji_emotions_outlined),
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _showEmojiKeyboard =
+                                                            !_showEmojiKeyboard;
+                                                      });
+
+                                                      if (_showEmojiKeyboard) {
+                                                        // Hide system keyboard when showing emoji keyboard
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                      } else {
+                                                        // Show system keyboard when emoji keyboard is hidden
+                                                        FocusScope.of(context)
+                                                            .requestFocus(
+                                                                focusNode);
+                                                      }
+                                                    },
                                                   ),
                                                   Expanded(
                                                     child: TextField(
@@ -525,7 +569,7 @@ Future<void> _takePicture() async {
                                                     icon: const Icon(
                                                         Icons.attach_file,
                                                         color: Colors.grey),
-                                                    onPressed: () {},
+                                                    onPressed: _pickDocument,
                                                   ),
                                                   // Camera button
                                                   IconButton(

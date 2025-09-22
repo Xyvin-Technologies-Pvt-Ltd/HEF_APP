@@ -207,6 +207,10 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/models/msg_model.dart';
+import 'package:hef/src/interface/components/common/attachment_viewer.dart';
+import 'package:hef/src/interface/components/common/voice_message_player.dart';
+import 'package:hef/src/data/services/document_service.dart';
+import 'package:hef/src/data/constants/color_constants.dart';
 
 class OwnMessageCard extends StatelessWidget {
   const OwnMessageCard({
@@ -230,60 +234,101 @@ class OwnMessageCard extends StatelessWidget {
   final String? fileUrl;
   final List<Attachment>? attachments;
 
+  void _openAttachmentViewer(BuildContext context, Attachment attachment, String heroTag) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AttachmentViewer(
+          attachment: attachment,
+          heroTag: heroTag,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget buildAttachment() {
       if (attachments != null && attachments!.isNotEmpty) {
         final attachment = attachments!.first;
+        final heroTag = 'own_${attachment.url}_${time}';
+        
         switch (attachment.type) {
           case "image":
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                attachment.url,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
+            return GestureDetector(
+              onTap: () => _openAttachmentViewer(context, attachment, heroTag),
+              child: Hero(
+                tag: heroTag,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    attachment.url,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             );
           case "file":
-            return Row(
-              children: [
-                const Icon(Icons.insert_drive_file, color: Colors.blue),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    attachment.url.split('/').last,
-                    style: const TextStyle(
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
+            return GestureDetector(
+              onTap: () => _openAttachmentViewer(context, attachment, heroTag),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: kBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: kBlue.withOpacity(0.3)),
                 ),
-              ],
+                child: Row(
+                  children: [
+                    const Icon(Icons.insert_drive_file, color: kBlue),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        attachment.url.split('/').last,
+                        style: const TextStyle(
+                          color: kBlue,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.download, color: kBlue, size: 20),
+                      onPressed: () => DocumentService.downloadAndOpenDocument(
+                        url: attachment.url,
+                        context: context,
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+              ),
             );
-          case "audio":
-            return Row(
-              children: [
-                Icon(Icons.audiotrack, color: Colors.green[700]),
-                const SizedBox(width: 8),
-                const Text("Voice message"),
-              ],
+          case "voice":
+            return VoiceMessagePlayer(
+              audioUrl: attachment.url,
+              backgroundColor: kWhite.withOpacity(0.8),
+              iconColor: kPrimaryColor,
             );
           case "video":
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 200,
-                  color: Colors.black12,
-                  child: const Center(
-                    child: Icon(Icons.play_circle_fill, size: 50, color: Colors.black54),
+            return GestureDetector(
+              onTap: () => _openAttachmentViewer(context, attachment, heroTag),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 200,
+                    color: Colors.black12,
+                    child: const Center(
+                      child: Icon(Icons.play_circle_fill, size: 50, color: Colors.black54),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                const Text("Video message"),
-              ],
+                  const SizedBox(height: 4),
+                  const Text("Video message"),
+                ],
+              ),
             );
           default:
             return Text(message);

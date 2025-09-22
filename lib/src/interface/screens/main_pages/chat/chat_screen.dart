@@ -64,6 +64,15 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
       _recordedFile = file;
     };
 
+    // Add focus listener to hide emoji picker when text field is focused
+    focusNode.addListener(() {
+      if (focusNode.hasFocus && _showEmojiKeyboard) {
+        setState(() {
+          _showEmojiKeyboard = false;
+        });
+      }
+    });
+
     getMessageHistory();
   }
 
@@ -213,12 +222,119 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
 //     }
 //   }
 
-  Widget _buildEmojiPicker() {
-    if (!_showEmojiKeyboard) return SizedBox.shrink();
+  // Attachment modal
+  void _showAttachmentModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: 200,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _attachmentOption(
+                    icon: Icons.insert_drive_file,
+                    label: 'Document',
+                    color: Colors.blue,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickDocument();
+                    },
+                  ),
+                  _attachmentOption(
+                    icon: Icons.photo,
+                    label: 'Gallery',
+                    color: Colors.green,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickFromGallery();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-    return Expanded(
+  Widget _attachmentOption({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: color.withOpacity(0.3)),
+            ),
+            child: Icon(
+              icon,
+              size: 30,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[700],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmojiPicker() {
+    if (!_showEmojiKeyboard) return const SizedBox.shrink();
+
+    return SizedBox(
+      height: 250,
       child: EmojiPicker(
         onEmojiSelected: _onEmojiSelected,
+        onBackspacePressed: () {
+          // Handle backspace - remove last character
+          final text = _controller.text;
+          if (text.isNotEmpty) {
+            final newText = text.characters.skipLast(1).toString();
+            _controller.text = newText;
+            _controller.selection = TextSelection.fromPosition(
+              TextPosition(offset: newText.length),
+            );
+          }
+        },
         config: const Config(
           categoryViewConfig: CategoryViewConfig(
             backgroundColor: kWhite,
@@ -234,9 +350,11 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
             dialogBackgroundColor: kWhite,
             indicatorColor: kWhite,
           ),
-          height: 200,
+          height: 250,
           bottomActionBarConfig: BottomActionBarConfig(
-              backgroundColor: kPrimaryLightColor, buttonColor: kPrimaryColor),
+            backgroundColor: kPrimaryLightColor,
+            buttonColor: kPrimaryColor,
+          ),
           checkPlatformCompatibility: true,
         ),
       ),
@@ -574,29 +692,43 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                                     true, // Start from bottom
                                                 child: Row(
                                                   children: [
-                                                    IconButton(
-                                                      icon: Icon(_showEmojiKeyboard
-                                                          ? Icons.keyboard
-                                                          : Icons
-                                                              .emoji_emotions_outlined),
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          _showEmojiKeyboard =
-                                                              !_showEmojiKeyboard;
-                                                        });
+                                                    // Emoji button
+                                                    SizedBox(
+                                                      width: 40,
+                                                      child: IconButton(
+                                                        padding:
+                                                            EdgeInsets.zero,
+                                                        constraints:
+                                                            BoxConstraints(),
+                                                        icon: Icon(
+                                                          _showEmojiKeyboard
+                                                              ? Icons.keyboard
+                                                              : Icons
+                                                                  .emoji_emotions_outlined,
+                                                          size: 22,
+                                                          color:
+                                                              Colors.grey[600],
+                                                        ),
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            _showEmojiKeyboard =
+                                                                !_showEmojiKeyboard;
+                                                          });
 
-                                                        if (_showEmojiKeyboard) {
-                                                          // Hide system keyboard when showing emoji keyboard
-                                                          FocusScope.of(context)
-                                                              .unfocus();
-                                                        } else {
-                                                          // Show system keyboard when emoji keyboard is hidden
-                                                          FocusScope.of(context)
-                                                              .requestFocus(
-                                                                  focusNode);
-                                                        }
-                                                      },
+                                                          if (_showEmojiKeyboard) {
+                                                            FocusScope.of(
+                                                                    context)
+                                                                .unfocus();
+                                                          } else {
+                                                            FocusScope.of(
+                                                                    context)
+                                                                .requestFocus(
+                                                                    focusNode);
+                                                          }
+                                                        },
+                                                      ),
                                                     ),
+                                                    // Text field
                                                     Expanded(
                                                       child: TextField(
                                                         controller: _controller,
@@ -604,10 +736,8 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                                         keyboardType:
                                                             TextInputType
                                                                 .multiline,
-                                                        maxLines:
-                                                            null, // Allows for unlimited lines
-                                                        minLines:
-                                                            1, // Starts with a single line
+                                                        maxLines: null,
+                                                        minLines: 1,
                                                         decoration:
                                                             const InputDecoration(
                                                           border:
@@ -618,27 +748,53 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                                               EdgeInsets
                                                                   .symmetric(
                                                                       horizontal:
-                                                                          10),
+                                                                          8),
                                                         ),
                                                         onChanged: (text) {
-                                                          setState(
-                                                              () {}); // COMMAND: rebuild to toggle mic/send icon
+                                                          setState(() {});
                                                         },
                                                       ),
                                                     ),
-                                                    // Attachment button
-                                                    IconButton(
-                                                      icon: const Icon(
-                                                          Icons.attach_file,
-                                                          color: Colors.grey),
-                                                      onPressed: _pickDocument,
-                                                    ),
-                                                    // Camera button
-                                                    IconButton(
-                                                      icon: const Icon(
-                                                          Icons.camera_alt,
-                                                          color: Colors.grey),
-                                                      onPressed: _takePicture,
+                                                    // Simplified attachment options
+                                                    Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        SizedBox(
+                                                          width: 32,
+                                                          child: IconButton(
+                                                            padding:
+                                                                EdgeInsets.zero,
+                                                            constraints:
+                                                                BoxConstraints(),
+                                                            icon: const Icon(
+                                                                Icons
+                                                                    .attach_file,
+                                                                size: 20,
+                                                                color: Colors
+                                                                    .grey),
+                                                            onPressed:
+                                                                _showAttachmentModal,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 32,
+                                                          child: IconButton(
+                                                            padding:
+                                                                EdgeInsets.zero,
+                                                            constraints:
+                                                                BoxConstraints(),
+                                                            icon: const Icon(
+                                                                Icons
+                                                                    .camera_alt,
+                                                                size: 20,
+                                                                color: Colors
+                                                                    .grey),
+                                                            onPressed:
+                                                                _takePicture,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
@@ -686,7 +842,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                                 });
                                                 String audioUrl =
                                                     await audioUpload(
-                                                        _recordedFile as String);
+                                                        _recordedFile!.path);
                                                 sendMessage(
                                                   attachments: [
                                                     Attachment(
@@ -728,39 +884,20 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                       });
                                     },
                                     onSend: () async {
-                                      // final file = _recordedFile;
-                                      // if (file != null) {
-                                      //   final url =
-                                      //       await audioUpload(file.path);
-
-                                      //   // Send as attachment
-                                      //   final attachment =
-                                      //       Attachment(url: url, type: 'voice');
-                                      //   sendMessage(attachments: [attachment]);
-                                      // }
-                                      // setState(() {
-                                      //   _isRecording = false;
-                                      //   _recordDuration = Duration.zero;
-                                      //   _recordedFile = null;
-                                      // });
-
                                       File recordedFile =
-                                                    await _voiceRecorder
-                                                        .stopRecording();
-                                                setState(() {
-                                                  _isRecording = false;
-                                                  _recordedFile = recordedFile;
-                                                });
-                                                String audioUrl =
-                                                    await audioUpload(
-                                                        _recordedFile as String);
-                                                sendMessage(
-                                                  attachments: [
-                                                    Attachment(
-                                                        url: audioUrl,
-                                                        type: 'voice')
-                                                  ],
-                                                );
+                                          await _voiceRecorder.stopRecording();
+                                      setState(() {
+                                        _isRecording = false;
+                                        _recordedFile = recordedFile;
+                                      });
+                                      String audioUrl = await audioUpload(
+                                          _recordedFile!.path);
+                                      sendMessage(
+                                        attachments: [
+                                          Attachment(
+                                              url: audioUrl, type: 'voice')
+                                        ],
+                                      );
                                     },
                                     onLock: () =>
                                         setState(() => _isLocked = true),
@@ -770,7 +907,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                 ),
                             ]),
                           ),
-                    // Emoji picker
+                    // Emoji picker (normal keyboard replacement)
                     _buildEmojiPicker(),
                   ],
                 ),

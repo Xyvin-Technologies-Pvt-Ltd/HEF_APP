@@ -1,14 +1,38 @@
+class Attachment {
+      final String url;
+      final String type; // image, voice, file, video
+
+      Attachment({required this.url, required this.type});
+
+      factory Attachment.fromJson(Map<String, dynamic> json) {
+        return Attachment(
+          url: json['url'] ?? '',
+          type: json['type'] ?? '',
+        );
+      }
+
+      Map<String, dynamic> toJson() {
+        return {
+          'url': url,
+          'type': type,
+        };
+      }
+    }
+
 class MessageModel {
   final String? id;
   final String? from;
   final String? to;
   final String? content;
+  final List<Attachment>? attachments;
   final ChatBusiness? feed;
   final ChatProduct? product;
   final String? status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final int? v;
+  // final int? v;
+  // final String? type;
+  
 
   MessageModel({
     this.id,
@@ -17,10 +41,10 @@ class MessageModel {
     this.content,
     this.feed,
     this.product,
+    required this.attachments,
     this.status,
     this.createdAt,
     this.updatedAt,
-    this.v, required String type,
   });
 
   // fromJson method
@@ -35,7 +59,11 @@ class MessageModel {
       status: json['status'] as String?,
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
-      v: json['__v'] as int?, type: '',
+      attachments: (json['attachments'] as List<dynamic>?)
+              ?.map((e) => Attachment.fromJson(e))
+              .toList() ??
+          [],
+
     );
   }
 
@@ -46,12 +74,12 @@ class MessageModel {
       'from': from,
       'to': to,
       'content': content,
+      'attachments': attachments!.map((a) => a.toJson()).toList(),
       'feed': feed?.toJson(),
       'product': product?.toJson(),
       'status': status,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
-      '__v': v,
     };
   }
 }

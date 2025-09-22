@@ -100,7 +100,9 @@ class ChatApiService {
     String? content,
     String? productId,
     bool isGroup = false,
-    String? businessId, required String type,
+    String? businessId, 
+    required String type,
+    List<Attachment>? attachments,
   }) async {
     final url = Uri.parse('$baseUrl/chat/send-message/$Id');
     final headers = {
@@ -112,6 +114,12 @@ class ChatApiService {
       if (content != null) 'content': content,
       if (productId != null) 'product': productId,
       if (businessId != null) 'feed': businessId,
+      if (attachments != null && attachments.isNotEmpty)
+  'attachments': attachments
+      .where((e) => e != null) // filter out nulls
+      .map((e) => e!.toJson()) // safely call toJson
+      .toList(),
+
       'isGroup': isGroup,
     });
 

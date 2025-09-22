@@ -1,25 +1,298 @@
+// import 'package:flutter/material.dart';
+// import 'package:hef/src/data/models/msg_model.dart';
+
+
+// class OwnMessageCard extends StatelessWidget {
+//   const OwnMessageCard(
+//       {Key? key,
+//       required this.message,
+//       required this.time,
+//       required this.status,
+//       this.product,
+//       this.type = "text",
+//       this.fileUrl, 
+//       this.requirement,
+//       this.attachments,
+//       })
+//       : super(key: key);
+
+//   final String message;
+//   final String time;
+//   final ChatProduct? product;
+//   final String status;
+//   final ChatBusiness? requirement;
+
+//    final String type;      // "text", "image", "document", "audio", "video"
+//   final String? fileUrl;
+//   final List<Attachment>? attachments;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.all(8.0),
+//       child: Align(
+//         alignment: Alignment.centerRight,
+//         child: ConstrainedBox(
+//           constraints: BoxConstraints(
+//             maxWidth: MediaQuery.of(context).size.width * 0.7,
+//           ),
+//           child: Container(
+//             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+//             decoration: BoxDecoration(
+//               color: Color(0xFFE6FFE2),
+//               borderRadius: BorderRadius.circular(15),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Colors.grey.withOpacity(0.3),
+//                   spreadRadius: 1,
+//                   blurRadius: 5,
+//                   offset: Offset(0, 3),
+//                 ),
+//               ],
+//             ),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 if (product?.image != null)
+//                   ClipRRect(
+//                     borderRadius: BorderRadius.circular(15),
+//                     child: Image.network(
+//                       product!.image!,
+//                       height: 160, // Adjusted height to fit better
+//                       width: double.infinity,
+//                       fit: BoxFit.cover,
+//                     ),
+//                   ),
+//                 if (requirement?.image != null)
+//                   ClipRRect(
+//                     borderRadius: BorderRadius.circular(15),
+//                     child: Image.network(
+//                       requirement!.image!,
+//                       height: 160, // Adjusted height to fit better
+//                       width: double.infinity,
+//                       fit: BoxFit.cover,
+//                     ),
+//                   ),
+//                 if (product != null)
+//                   Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         product?.name ?? '',
+//                         style: TextStyle(
+//                           fontSize: 18,
+//                           fontWeight: FontWeight.bold,
+//                           color: Color(
+//                               0xFF004797), // Using the provided color for emphasis
+//                         ),
+//                       ),
+//                       SizedBox(height: 4), // Add spacing between name and price
+//                       Text(
+//                         'PRICE INR ${product?.price?.toStringAsFixed(2) ?? ''}', // Format price to two decimals
+//                         style: TextStyle(
+//                           fontSize: 16,
+//                           fontWeight: FontWeight.w500,
+//                           color:
+//                               Colors.black87, // Subtle color for the price text
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 // Padding(
+//                 //   padding: const EdgeInsets.only(top: 5),
+//                 //   child: Text(
+//                 //     message,
+//                 //     style: TextStyle(
+//                 //       fontSize: 16,
+//                 //       color: Colors.black87,
+//                 //     ),
+//                 //   ),
+//                 // ),
+
+//                 Padding(
+//                   padding: const EdgeInsets.only(top: 5),
+//                   child: Builder(
+//                     builder: (context) {
+//                       switch (type) {
+//                         case "image":
+//                           return ClipRRect(
+//                             borderRadius: BorderRadius.circular(12),
+//                             child: Image.network(
+//                               fileUrl ?? message,
+//                               height: 200,
+//                               width: double.infinity,
+//                               fit: BoxFit.cover,
+//                             ),
+//                           );
+
+//                         case "document":
+//                           return Row(
+//                             children: [
+//                               const Icon(Icons.insert_drive_file, color: Colors.blue),
+//                               const SizedBox(width: 8),
+//                               Expanded(
+//                                 child: Text(
+//                                   message,
+//                                   style: const TextStyle(
+//                                     color: Colors.blue,
+//                                     decoration: TextDecoration.underline,
+//                                   ),
+//                                 ),
+//                               ),
+//                             ],
+//                           );
+
+//                         case "audio":
+//                           return Row(
+//                             children: [
+//                               Icon(Icons.audiotrack, color: Colors.green[700]),
+//                               const SizedBox(width: 8),
+//                               Text("Voice message"),
+//                               // 👉 Later: add an AudioPlayer package (just_audio / audioplayers)
+//                             ],
+//                           );
+
+//                         case "video":
+//                           return Column(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               Container(
+//                                 height: 200,
+//                                 color: Colors.black12,
+//                                 child: const Center(
+//                                   child: Icon(Icons.play_circle_fill, size: 50, color: Colors.black54),
+//                                 ),
+//                               ),
+//                               const SizedBox(height: 4),
+//                               Text("Video message"),
+//                             ],
+//                           );
+
+//                         default:
+//                           return Text(
+//                             message,
+//                             style: const TextStyle(fontSize: 16, color: Colors.black87),
+//                           );
+//                       }
+//                     },
+//                   ),
+//                 ),
+
+//                 // Spacing between message and time row
+//                 Row(
+//                   mainAxisSize: MainAxisSize.min,
+//                   children: [
+//                     Text(
+//                       time,
+//                       style: TextStyle(
+//                         fontSize: 13,
+//                         color: Colors.grey[600],
+//                       ),
+//                     ),
+//                     SizedBox(width: 5),
+//                     Icon(
+//                       Icons.done_all,
+//                       size: 20,
+//                       color: status == 'seen' ? Colors.blue[300] : Colors.grey,
+//                     ),
+//                   ],
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/models/msg_model.dart';
 
-
 class OwnMessageCard extends StatelessWidget {
-  const OwnMessageCard(
-      {Key? key,
-      required this.message,
-      required this.time,
-      required this.status,
-      this.product,
-      this.requirement})
-      : super(key: key);
+  const OwnMessageCard({
+    Key? key,
+    required this.message,
+    required this.time,
+    required this.status,
+    this.product,
+    this.type = "text",
+    this.fileUrl,
+    this.requirement,
+    this.attachments,
+  }) : super(key: key);
 
   final String message;
   final String time;
   final ChatProduct? product;
-  final String status;
   final ChatBusiness? requirement;
+  final String status;
+  final String type; // "text", "image", "document", "audio", "video"
+  final String? fileUrl;
+  final List<Attachment>? attachments;
 
   @override
   Widget build(BuildContext context) {
+    Widget buildAttachment() {
+      if (attachments != null && attachments!.isNotEmpty) {
+        final attachment = attachments!.first;
+        switch (attachment.type) {
+          case "image":
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                attachment.url,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            );
+          case "file":
+            return Row(
+              children: [
+                const Icon(Icons.insert_drive_file, color: Colors.blue),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    attachment.url.split('/').last,
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          case "audio":
+            return Row(
+              children: [
+                Icon(Icons.audiotrack, color: Colors.green[700]),
+                const SizedBox(width: 8),
+                const Text("Voice message"),
+              ],
+            );
+          case "video":
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 200,
+                  color: Colors.black12,
+                  child: const Center(
+                    child: Icon(Icons.play_circle_fill, size: 50, color: Colors.black54),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text("Video message"),
+              ],
+            );
+          default:
+            return Text(message);
+        }
+      } else {
+        return Text(message, style: const TextStyle(fontSize: 16, color: Colors.black87));
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Align(
@@ -31,14 +304,14 @@ class OwnMessageCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             decoration: BoxDecoration(
-              color: Color(0xFFE6FFE2),
+              color: const Color(0xFFE6FFE2),
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.3),
                   spreadRadius: 1,
                   blurRadius: 5,
-                  offset: Offset(0, 3),
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -50,7 +323,7 @@ class OwnMessageCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                     child: Image.network(
                       product!.image!,
-                      height: 160, // Adjusted height to fit better
+                      height: 160,
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
@@ -60,7 +333,7 @@ class OwnMessageCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                     child: Image.network(
                       requirement!.image!,
-                      height: 160, // Adjusted height to fit better
+                      height: 160,
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
@@ -71,36 +344,27 @@ class OwnMessageCard extends StatelessWidget {
                     children: [
                       Text(
                         product?.name ?? '',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(
-                              0xFF004797), // Using the provided color for emphasis
+                          color: Color(0xFF004797),
                         ),
                       ),
-                      SizedBox(height: 4), // Add spacing between name and price
+                      const SizedBox(height: 4),
                       Text(
-                        'PRICE INR ${product?.price?.toStringAsFixed(2) ?? ''}', // Format price to two decimals
-                        style: TextStyle(
+                        'PRICE INR ${product?.price?.toStringAsFixed(2) ?? ''}',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color:
-                              Colors.black87, // Subtle color for the price text
+                          color: Colors.black87,
                         ),
                       ),
                     ],
                   ),
                 Padding(
                   padding: const EdgeInsets.only(top: 5),
-                  child: Text(
-                    message,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
-                  ),
+                  child: buildAttachment(),
                 ),
-                // Spacing between message and time row
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -111,7 +375,7 @@ class OwnMessageCard extends StatelessWidget {
                         color: Colors.grey[600],
                       ),
                     ),
-                    SizedBox(width: 5),
+                    const SizedBox(width: 5),
                     Icon(
                       Icons.done_all,
                       size: 20,

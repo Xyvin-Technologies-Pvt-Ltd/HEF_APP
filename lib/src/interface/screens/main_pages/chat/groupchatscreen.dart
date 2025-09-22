@@ -101,7 +101,8 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
       from: fromId,
       status: type,
       content: message,
-      createdAt: DateTime.now(), type: '',
+      createdAt: DateTime.now(),
+       attachments: [],
     );
 
     setState(() {

@@ -84,73 +84,89 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     super.dispose();
   }
 
-  void sendMessage() {
-    if (_controller.text.isNotEmpty && mounted) {
-      ChatApiService.sendChatMessage(
-        Id: widget.receiver.id!,
-        content: _controller.text,
-        type: 'text',
-      );
-      setMessage("sent", _controller.text, widget.sender.id!, msgType: "text");
-      _controller.clear();
+  // void sendMessage() {
+  //   if (_controller.text.isNotEmpty && mounted) {
+  //     ChatApiService.sendChatMessage(
+  //       Id: widget.receiver.id!,
+  //       content: _controller.text,
+  //       type: 'text',
+  //     );
+  //     setMessage("sent", _controller.text, widget.sender.id!, msgType: "text");
+  //     _controller.clear();
+  //   }
+  // }
+  void sendMessage({List<Attachment>? attachments}) {
+  final text = _controller.text;
+  if ((text.isNotEmpty || (attachments != null && attachments.isNotEmpty)) && mounted) {
+    ChatApiService.sendChatMessage(
+      Id: widget.receiver.id!,
+      content: text.isNotEmpty ? text : null,
+      attachments: attachments, // pass attachments
+      type: attachments != null && attachments.isNotEmpty ? attachments.first.type : 'text',
+    );
+
+    setMessage(
+      "sent",
+      text,
+      widget.sender.id!,
+      msgType: attachments != null && attachments.isNotEmpty ? attachments.first.type : "text",
+      attachments: attachments,
+    );
+
+    _controller.clear();
+  }
+}
+
+
+Future<void> _pickFromGallery() async {
+  final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
+
+  if (photo != null) {
+    try {
+      String imageUrl = await imageUpload(photo.path);
+
+      final attachment = Attachment(url: imageUrl, type: 'image');
+
+      sendMessage(attachments: [attachment]); // Use updated sendMessage
+    } catch (e) {
+      print("Error uploading image: $e");
     }
   }
+}
 
-  Future<void> _pickFromGallery() async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
+Future<void> _takePicture() async {
+  final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
 
-    if (photo != null) {
-      try {
-        String imageUrl = await imageUpload(photo.path);
-        ChatApiService.sendChatMessage(
-          Id: widget.receiver.id!,
-          content: imageUrl,
-          type: 'image',
-        );
-        setMessage("sent", imageUrl, widget.sender.id!, msgType: "image");
-      } catch (e) {
-        print("Error uploading image: $e");
-      }
+  if (photo != null) {
+    try {
+      String imageUrl = await imageUpload(photo.path);
+
+      final attachment = Attachment(url: imageUrl, type: 'image');
+
+      sendMessage(attachments: [attachment]);
+    } catch (e) {
+      print("Error uploading image: $e");
     }
   }
+}
 
-  Future<void> _takePicture() async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
 
-    if (photo != null) {
-      try {
-        String imageUrl = await imageUpload(photo.path);
-        ChatApiService.sendChatMessage(
-          Id: widget.receiver.id!,
-          content: imageUrl,
-          type: 'image',
-        );
-        setMessage("sent", imageUrl, widget.sender.id!, msgType: "image");
-      } catch (e) {
-        print("Error uploading image: $e");
-      }
+Future<void> _pickDocument() async {
+  FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+  if (result != null && result.files.single.path != null) {
+    File file = File(result.files.single.path!);
+    try {
+      String fileUrl = await imageUpload(file.path); // reuse uploader
+
+      final attachment = Attachment(url: fileUrl, type: 'file');
+
+      sendMessage(attachments: [attachment]);
+    } catch (e) {
+      print("Error uploading document: $e");
     }
   }
-
-  Future<void> _pickDocument() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-    if (result != null && result.files.single.path != null) {
-      File file = File(result.files.single.path!);
-      try {
-        String fileUrl = await imageUpload(file.path); // reuse uploader
-        ChatApiService.sendChatMessage(
-          Id: widget.receiver.id!,
-          content: fileUrl,
-          type: 'document',
-        );
-
-        setMessage("sent", fileUrl, widget.sender.id!, msgType: "document");
-      } catch (e) {
-        print("Error uploading document: $e");
-      }
-    }
-  }
+}
 
   // Emoji picker functionality
   void _onEmojiSelected(Category? category, Emoji emoji) {
@@ -202,13 +218,14 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   }
 
   void setMessage(String statusType, String message, String fromId,
-      {String msgType = 'text'}) {
+      {String msgType = 'text',List<Attachment>? attachments}) {
     final messageModel = MessageModel(
       from: fromId,
       status: statusType,
       content: message,
-      createdAt: DateTime.now(),
-      type: msgType,
+      createdAt: DateTime.now(), 
+      attachments: attachments ?? [],
+      
     );
 
     setState(() {
@@ -404,17 +421,31 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                               itemBuilder: (context, index) {
                                 final message =
                                     messages[messages.length - 1 - index];
+
                                 if (message.from == widget.sender.id) {
                                   return OwnMessageCard(
                                     product: message.product,
                                     requirement: message.feed,
                                     status: message.status!,
                                     message: message.content ?? '',
+                                    // 🔹 UPDATE: Determine type from attachments if available
+                                    type: message.attachments?.isNotEmpty == true
+                                        ? message.attachments!.first.type
+                                        : 'text',
+                                    // 🔹 UPDATE: Pass fileUrl from first attachment
+                                    fileUrl: message.attachments?.isNotEmpty == true
+                                        ? message.attachments!.first.url
+                                        : null,
+                                    // 🔹 UPDATE: Pass the attachments list
+                                    attachments: message.attachments,
                                     time: DateFormat('h:mm a').format(
                                       DateTime.parse(
                                               message.createdAt.toString())
                                           .toLocal(),
                                     ),
+                                    
+                                    
+                                    
                                   );
                                 } else {
                                   return GestureDetector(
@@ -428,6 +459,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                     child: ReplyCard(
                                       business: message.feed,
                                       message: message.content ?? '',
+                                       attachments: message.attachments,
                                       time: DateFormat('h:mm a').format(
                                         DateTime.parse(
                                                 message.createdAt.toString())

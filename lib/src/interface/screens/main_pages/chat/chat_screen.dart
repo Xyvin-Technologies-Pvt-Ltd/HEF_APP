@@ -9,14 +9,18 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/msg_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
+import 'package:hef/src/data/services/audio_upload.dart';
+import 'package:hef/src/data/services/voice_recorder.dart';
 import 'package:hef/src/interface/components/Dialogs/blockPersonDialog.dart';
 import 'package:hef/src/interface/components/Dialogs/report_dialog.dart';
 import 'package:hef/src/interface/components/common/own_message_card.dart';
 import 'package:hef/src/interface/components/common/reply_card.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/profile_preview.dart';
+import 'package:hef/src/interface/screens/main_pages/chat/voice_recorder_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'dart:io';
 import 'package:hef/src/data/services/image_upload.dart';
 
@@ -32,16 +36,34 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   bool isBlocked = false;
   bool show = false;
   bool _showEmojiKeyboard = false;
+  bool _isRecording = false;
+  bool _isLocked = false;
+  Duration _recordDuration = Duration.zero;
 
   FocusNode focusNode = FocusNode();
   List<MessageModel> messages = [];
   TextEditingController _controller = TextEditingController();
   ScrollController _scrollController = ScrollController();
   final ImagePicker _picker = ImagePicker();
+  final VoiceRecorder _voiceRecorder = VoiceRecorder();
+
+  File? _recordedFile;
 
   @override
   void initState() {
     super.initState();
+    // Initialize recorder
+    _voiceRecorder.init();
+    // Listen to recording progress
+    _voiceRecorder.onProgress = (duration) {
+      setState(() {
+        _recordDuration = duration;
+      });
+    };
+    _voiceRecorder.onStop = (file) {
+      _recordedFile = file;
+    };
+
     getMessageHistory();
   }
 
@@ -79,6 +101,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   void dispose() {
     focusNode.unfocus();
     _controller.dispose();
+    _voiceRecorder.dispose();
     _scrollController.dispose();
     focusNode.dispose();
     super.dispose();
@@ -96,77 +119,80 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   //   }
   // }
   void sendMessage({List<Attachment>? attachments}) {
-  final text = _controller.text;
-  if ((text.isNotEmpty || (attachments != null && attachments.isNotEmpty)) && mounted) {
-    ChatApiService.sendChatMessage(
-      Id: widget.receiver.id!,
-      content: text.isNotEmpty ? text : null,
-      attachments: attachments, // pass attachments
-      type: attachments != null && attachments.isNotEmpty ? attachments.first.type : 'text',
-    );
+    final text = _controller.text;
+    if ((text.isNotEmpty || (attachments != null && attachments.isNotEmpty)) &&
+        mounted) {
+      ChatApiService.sendChatMessage(
+        Id: widget.receiver.id!,
+        content: text.isNotEmpty ? text : null,
+        attachments: attachments, // pass attachments
+        type: attachments != null && attachments.isNotEmpty
+            ? attachments.first.type
+            : 'text',
+      );
 
-    setMessage(
-      "sent",
-      text,
-      widget.sender.id!,
-      msgType: attachments != null && attachments.isNotEmpty ? attachments.first.type : "text",
-      attachments: attachments,
-    );
+      setMessage(
+        "sent",
+        text,
+        widget.sender.id!,
+        msgType: attachments != null && attachments.isNotEmpty
+            ? attachments.first.type
+            : "text",
+        attachments: attachments,
+      );
 
-    _controller.clear();
-  }
-}
-
-
-Future<void> _pickFromGallery() async {
-  final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
-
-  if (photo != null) {
-    try {
-      String imageUrl = await imageUpload(photo.path);
-
-      final attachment = Attachment(url: imageUrl, type: 'image');
-
-      sendMessage(attachments: [attachment]); // Use updated sendMessage
-    } catch (e) {
-      print("Error uploading image: $e");
+      _controller.clear();
     }
   }
-}
 
-Future<void> _takePicture() async {
-  final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+  Future<void> _pickFromGallery() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
 
-  if (photo != null) {
-    try {
-      String imageUrl = await imageUpload(photo.path);
+    if (photo != null) {
+      try {
+        String imageUrl = await imageUpload(photo.path);
 
-      final attachment = Attachment(url: imageUrl, type: 'image');
+        final attachment = Attachment(url: imageUrl, type: 'image');
 
-      sendMessage(attachments: [attachment]);
-    } catch (e) {
-      print("Error uploading image: $e");
+        sendMessage(attachments: [attachment]); // Use updated sendMessage
+      } catch (e) {
+        print("Error uploading image: $e");
+      }
     }
   }
-}
 
+  Future<void> _takePicture() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
 
-Future<void> _pickDocument() async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (photo != null) {
+      try {
+        String imageUrl = await imageUpload(photo.path);
 
-  if (result != null && result.files.single.path != null) {
-    File file = File(result.files.single.path!);
-    try {
-      String fileUrl = await imageUpload(file.path); // reuse uploader
+        final attachment = Attachment(url: imageUrl, type: 'image');
 
-      final attachment = Attachment(url: fileUrl, type: 'file');
-
-      sendMessage(attachments: [attachment]);
-    } catch (e) {
-      print("Error uploading document: $e");
+        sendMessage(attachments: [attachment]);
+      } catch (e) {
+        print("Error uploading image: $e");
+      }
     }
   }
-}
+
+  Future<void> _pickDocument() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null && result.files.single.path != null) {
+      File file = File(result.files.single.path!);
+      try {
+        String fileUrl = await imageUpload(file.path); // reuse uploader
+
+        final attachment = Attachment(url: fileUrl, type: 'file');
+
+        sendMessage(attachments: [attachment]);
+      } catch (e) {
+        print("Error uploading document: $e");
+      }
+    }
+  }
 
   // Emoji picker functionality
   void _onEmojiSelected(Category? category, Emoji emoji) {
@@ -218,14 +244,13 @@ Future<void> _pickDocument() async {
   }
 
   void setMessage(String statusType, String message, String fromId,
-      {String msgType = 'text',List<Attachment>? attachments}) {
+      {String msgType = 'text', List<Attachment>? attachments}) {
     final messageModel = MessageModel(
       from: fromId,
       status: statusType,
       content: message,
-      createdAt: DateTime.now(), 
+      createdAt: DateTime.now(),
       attachments: attachments ?? [],
-      
     );
 
     setState(() {
@@ -429,13 +454,15 @@ Future<void> _pickDocument() async {
                                     status: message.status!,
                                     message: message.content ?? '',
                                     // 🔹 UPDATE: Determine type from attachments if available
-                                    type: message.attachments?.isNotEmpty == true
-                                        ? message.attachments!.first.type
-                                        : 'text',
+                                    type:
+                                        message.attachments?.isNotEmpty == true
+                                            ? message.attachments!.first.type
+                                            : 'text',
                                     // 🔹 UPDATE: Pass fileUrl from first attachment
-                                    fileUrl: message.attachments?.isNotEmpty == true
-                                        ? message.attachments!.first.url
-                                        : null,
+                                    fileUrl:
+                                        message.attachments?.isNotEmpty == true
+                                            ? message.attachments!.first.url
+                                            : null,
                                     // 🔹 UPDATE: Pass the attachments list
                                     attachments: message.attachments,
                                     time: DateFormat('h:mm a').format(
@@ -443,9 +470,6 @@ Future<void> _pickDocument() async {
                                               message.createdAt.toString())
                                           .toLocal(),
                                     ),
-                                    
-                                    
-                                    
                                   );
                                 } else {
                                   return GestureDetector(
@@ -459,7 +483,7 @@ Future<void> _pickDocument() async {
                                     child: ReplyCard(
                                       business: message.feed,
                                       message: message.content ?? '',
-                                       attachments: message.attachments,
+                                      attachments: message.attachments,
                                       time: DateFormat('h:mm a').format(
                                         DateTime.parse(
                                                 message.createdAt.toString())
@@ -514,134 +538,237 @@ Future<void> _pickDocument() async {
                           )
                         : Align(
                             alignment: Alignment.bottomCenter,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0, vertical: 12.0),
-                              color: kScaffoldColor,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Card(
-                                      elevation: 1,
-                                      color: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        side: const BorderSide(
-                                          color: Color.fromARGB(
-                                              255, 220, 215, 215),
-                                          width: 0.5,
-                                        ),
-                                        borderRadius:
-                                            BorderRadius.circular(15.0),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0, vertical: 5.0),
-                                        child: Container(
-                                          constraints: const BoxConstraints(
-                                            maxHeight: 150, // Limit the height
+                            child: Stack(children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 12.0),
+                                color: kScaffoldColor,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Card(
+                                        elevation: 1,
+                                        color: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          side: const BorderSide(
+                                            color: Color.fromARGB(
+                                                255, 220, 215, 215),
+                                            width: 0.5,
                                           ),
-                                          child: Scrollbar(
-                                            thumbVisibility: true,
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.vertical,
-                                              reverse:
-                                                  true, // Start from bottom
-                                              child: Row(
-                                                children: [
-                                                  IconButton(
-                                                    icon: Icon(_showEmojiKeyboard
-                                                        ? Icons.keyboard
-                                                        : Icons
-                                                            .emoji_emotions_outlined),
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        _showEmojiKeyboard =
-                                                            !_showEmojiKeyboard;
-                                                      });
+                                          borderRadius:
+                                              BorderRadius.circular(15.0),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0, vertical: 5.0),
+                                          child: Container(
+                                            constraints: const BoxConstraints(
+                                              maxHeight:
+                                                  150, // Limit the height
+                                            ),
+                                            child: Scrollbar(
+                                              thumbVisibility: true,
+                                              child: SingleChildScrollView(
+                                                scrollDirection: Axis.vertical,
+                                                reverse:
+                                                    true, // Start from bottom
+                                                child: Row(
+                                                  children: [
+                                                    IconButton(
+                                                      icon: Icon(_showEmojiKeyboard
+                                                          ? Icons.keyboard
+                                                          : Icons
+                                                              .emoji_emotions_outlined),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          _showEmojiKeyboard =
+                                                              !_showEmojiKeyboard;
+                                                        });
 
-                                                      if (_showEmojiKeyboard) {
-                                                        // Hide system keyboard when showing emoji keyboard
-                                                        FocusScope.of(context)
-                                                            .unfocus();
-                                                      } else {
-                                                        // Show system keyboard when emoji keyboard is hidden
-                                                        FocusScope.of(context)
-                                                            .requestFocus(
-                                                                focusNode);
-                                                      }
-                                                    },
-                                                  ),
-                                                  Expanded(
-                                                    child: TextField(
-                                                      controller: _controller,
-                                                      focusNode: focusNode,
-                                                      keyboardType:
-                                                          TextInputType
-                                                              .multiline,
-                                                      maxLines:
-                                                          null, // Allows for unlimited lines
-                                                      minLines:
-                                                          1, // Starts with a single line
-                                                      decoration:
-                                                          const InputDecoration(
-                                                        border:
-                                                            InputBorder.none,
-                                                        hintText:
-                                                            "Type a message",
-                                                        contentPadding:
-                                                            EdgeInsets
-                                                                .symmetric(
-                                                                    horizontal:
-                                                                        10),
+                                                        if (_showEmojiKeyboard) {
+                                                          // Hide system keyboard when showing emoji keyboard
+                                                          FocusScope.of(context)
+                                                              .unfocus();
+                                                        } else {
+                                                          // Show system keyboard when emoji keyboard is hidden
+                                                          FocusScope.of(context)
+                                                              .requestFocus(
+                                                                  focusNode);
+                                                        }
+                                                      },
+                                                    ),
+                                                    Expanded(
+                                                      child: TextField(
+                                                        controller: _controller,
+                                                        focusNode: focusNode,
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .multiline,
+                                                        maxLines:
+                                                            null, // Allows for unlimited lines
+                                                        minLines:
+                                                            1, // Starts with a single line
+                                                        decoration:
+                                                            const InputDecoration(
+                                                          border:
+                                                              InputBorder.none,
+                                                          hintText:
+                                                              "Type a message",
+                                                          contentPadding:
+                                                              EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          10),
+                                                        ),
+                                                        onChanged: (text) {
+                                                          setState(
+                                                              () {}); // COMMAND: rebuild to toggle mic/send icon
+                                                        },
                                                       ),
                                                     ),
-                                                  ),
-                                                  // Attachment button
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                        Icons.attach_file,
-                                                        color: Colors.grey),
-                                                    onPressed: _pickDocument,
-                                                  ),
-                                                  // Camera button
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                        Icons.camera_alt,
-                                                        color: Colors.grey),
-                                                    onPressed: _takePicture,
-                                                  ),
-                                                ],
+                                                    // Attachment button
+                                                    IconButton(
+                                                      icon: const Icon(
+                                                          Icons.attach_file,
+                                                          color: Colors.grey),
+                                                      onPressed: _pickDocument,
+                                                    ),
+                                                    // Camera button
+                                                    IconButton(
+                                                      icon: const Icon(
+                                                          Icons.camera_alt,
+                                                          color: Colors.grey),
+                                                      onPressed: _takePicture,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 2,
-                                      left: 2,
-                                    ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          color: kPrimaryColor,
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      child: IconButton(
-                                        icon: const Icon(
-                                          Icons.send,
-                                          color: Colors.white,
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        right: 2,
+                                        left: 2,
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color: kPrimaryColor,
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        child: IconButton(
+                                          icon: _controller.text.isEmpty
+                                              ? Icon(Icons.mic,
+                                                  color: Colors
+                                                      .white) // COMMAND: mic icon when text empty
+                                              : Icon(Icons.send,
+                                                  color: Colors
+                                                      .white), // COMMAND: send icon when typing
+                                          onPressed: () async {
+                                            if (_controller.text.isEmpty) {
+                                              if (!_isRecording) {
+                                                await _voiceRecorder.init();
+                                                await _voiceRecorder
+                                                    .startRecording();
+                                                setState(() {
+                                                  _isRecording = true;
+                                                });
+                                              } else {
+                                                //stop recording
+                                                File recordedFile =
+                                                    await _voiceRecorder
+                                                        .stopRecording();
+                                                setState(() {
+                                                  _isRecording = false;
+                                                  _recordedFile = recordedFile;
+                                                });
+                                                String audioUrl =
+                                                    await audioUpload(
+                                                        _recordedFile as String);
+                                                sendMessage(
+                                                  attachments: [
+                                                    Attachment(
+                                                        url: audioUrl,
+                                                        type: 'voice')
+                                                  ],
+                                                );
+                                              }
+                                            } else {
+                                              // COMMAND: send text message
+                                              sendMessage();
+                                              _controller.clear();
+                                              setState(
+                                                  () {}); // refresh to toggle back to mic icon
+                                            }
+                                          },
                                         ),
-                                        onPressed: () {
-                                          sendMessage();
-                                        },
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
+
+                              // COMMAND: VoiceRecorder overlay
+                              if (_isRecording)
+                                Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: VoiceRecorderWidget(
+                                    isRecording: _isRecording,
+                                    isLocked: _isLocked,
+                                    duration: _recordDuration,
+                                    onCancel: () async {
+                                      await _voiceRecorder.cancel();
+                                      setState(() {
+                                        _isRecording = false;
+                                        _recordDuration = Duration.zero;
+                                      });
+                                    },
+                                    onSend: () async {
+                                      // final file = _recordedFile;
+                                      // if (file != null) {
+                                      //   final url =
+                                      //       await audioUpload(file.path);
+
+                                      //   // Send as attachment
+                                      //   final attachment =
+                                      //       Attachment(url: url, type: 'voice');
+                                      //   sendMessage(attachments: [attachment]);
+                                      // }
+                                      // setState(() {
+                                      //   _isRecording = false;
+                                      //   _recordDuration = Duration.zero;
+                                      //   _recordedFile = null;
+                                      // });
+
+                                      File recordedFile =
+                                                    await _voiceRecorder
+                                                        .stopRecording();
+                                                setState(() {
+                                                  _isRecording = false;
+                                                  _recordedFile = recordedFile;
+                                                });
+                                                String audioUrl =
+                                                    await audioUpload(
+                                                        _recordedFile as String);
+                                                sendMessage(
+                                                  attachments: [
+                                                    Attachment(
+                                                        url: audioUrl,
+                                                        type: 'voice')
+                                                  ],
+                                                );
+                                    },
+                                    onLock: () =>
+                                        setState(() => _isLocked = true),
+                                    onUnlock: () =>
+                                        setState(() => _isLocked = false),
+                                  ),
+                                ),
+                            ]),
                           ),
                     // Emoji picker
                     _buildEmojiPicker(),

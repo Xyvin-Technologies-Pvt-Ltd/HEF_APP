@@ -12,9 +12,9 @@ Widget eventWidget({
 }) {
   String formattedDate = '';
   
-  if (event.eventDate != null) {
+  if (event.startDate != null) {
     try {
-      DateTime date = DateTime.parse(event.eventDate.toString()).toLocal();
+      DateTime date = DateTime.parse(event.startDate.toString()).toLocal();
       formattedDate = DateFormat('yyyy-MM-dd').format(date);
     } catch (e) {
       formattedDate = 'Invalid date';

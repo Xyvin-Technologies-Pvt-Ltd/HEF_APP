@@ -228,7 +228,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                       final guestName = _nameController.text.trim();
                       final category = _categoryController.text.trim();
                       final phone = _numberController.text.trim();
-                       Navigator.pop(context);
+                      Navigator.pop(context);
 
                       if (guestName.isEmpty ||
                           category.isEmpty ||
@@ -237,30 +237,28 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                             .showSnackBar("All fields are required!");
                         return;
                       }
-                      
-                        try {
-                          await EventApiService.addGuestToEvent(
-                            eventId: widget.event.id!,
-                            name: guestName,
-                            contact: phone,
-                            category: category,
-                           
-                          );
 
-                          ref.invalidate(fetchEventsProvider);
+                      try {
+                        await EventApiService.addGuestToEvent(
+                          eventId: widget.event.id!,
+                          name: guestName,
+                          contact: phone,
+                          category: category,
+                        );
 
-                          _nameController.clear();
-                          _categoryController.clear();
-                          _numberController.clear();
+                        ref.invalidate(fetchEventsProvider);
 
-                          Navigator.pop(context);
-                          SnackbarService().showSnackBar(
-                              "Guest added successfully by ");
-                        } catch (e) {
-                          SnackbarService()
-                              .showSnackBar("Failed to add guest: $e");
-                        }
-                     
+                        _nameController.clear();
+                        _categoryController.clear();
+                        _numberController.clear();
+
+                        Navigator.pop(context);
+                        SnackbarService()
+                            .showSnackBar("Guest added successfully by ");
+                      } catch (e) {
+                        SnackbarService()
+                            .showSnackBar("Failed to add guest: $e");
+                      }
                     })
               ],
             ),
@@ -276,7 +274,16 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
     DateTime dateTime =
         DateTime.parse(widget.event.startTime.toString()).toLocal();
     String formattedTime = DateFormat('hh:mm a').format(dateTime);
-    String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
+    DateTime dateDate =
+        DateTime.parse(widget.event.startDate.toString()).toLocal();
+    String formattedDate = DateFormat('yyyy-MM-dd').format(dateDate);
+
+    log('event visibility start:     ${widget.event.startDate}');
+    log('event visibility end:       ${widget.event.endDate}');
+    log('event visibility event date:${widget.event.eventDate}');
+
+
+
 
     log('rsvp : ${widget.event.rsvp}');
     log('my id : ${id}');
@@ -669,15 +676,15 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                         height: 20,
                       ),
                       if (widget.event.allowGuestResgistration == true)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: showAddGuestSheet,
-                            child: Text('Add guest'),
-                          ),
-                        ],
-                      ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            GestureDetector(
+                              onTap: showAddGuestSheet,
+                              child: Text('Add guest'),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 );

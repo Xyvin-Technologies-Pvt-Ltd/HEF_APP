@@ -97,6 +97,30 @@ class AnalyticsApiService {
     }
   }
 
+  /// Update Analytic
+  Future<String?> updateAnalytic({
+    required String analyticId,
+    required Map<String, dynamic> data,
+  }) async {
+    final url = Uri.parse('$_baseUrl/$analyticId');
+
+    try {
+      final response = await http.put(url,
+          headers: _headers(), body: jsonEncode(data));
+      final decoded = json.decode(response.body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        log('Analytics updated successfully: ${response.body}');
+        return 'success';
+      } else {
+        return decoded['message'];
+      }
+    } catch (e) {
+      log('Exception in updating analytics: $e');
+      return e.toString();
+    }
+  }
+
   /// Delete Analytic
   Future<void> deleteAnalytic({required String analyticId}) async {
     final url = Uri.parse('$_baseUrl/$analyticId');

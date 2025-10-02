@@ -7,24 +7,29 @@ import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
+import 'package:hef/src/data/models/analytics_model.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/DropDown/selectionDropdown.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
-import 'package:hef/src/interface/screens/main_pages/admin/allocate_member.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 
-class SendAnalyticRequestPage extends ConsumerStatefulWidget {
+class EditAnalyticRequestPage extends ConsumerStatefulWidget {
+  final AnalyticsModel analytic;
+
+  const EditAnalyticRequestPage({Key? key, required this.analytic})
+      : super(key: key);
+
   @override
-  _SendAnalyticRequestPageState createState() =>
-      _SendAnalyticRequestPageState();
+  _EditAnalyticRequestPageState createState() =>
+      _EditAnalyticRequestPageState();
 }
 
-class _SendAnalyticRequestPageState
-    extends ConsumerState<SendAnalyticRequestPage> {
+class _EditAnalyticRequestPageState
+    extends ConsumerState<EditAnalyticRequestPage> {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers
@@ -35,29 +40,77 @@ class _SendAnalyticRequestPageState
   TextEditingController linkController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   TextEditingController amountController = TextEditingController();
-  TextEditingController referralName = TextEditingController();
 
   TextEditingController referralNameController = TextEditingController();
   TextEditingController referralEmailController = TextEditingController();
-
   TextEditingController referralAddressController = TextEditingController();
   TextEditingController referralInfoController = TextEditingController();
   TextEditingController referralPhoneController = TextEditingController();
 
   String? selectedRequestType;
-  String? selectedStateId;
-  String? selectedZone;
-  String? selectedDistrict;
-  String? selectedChapter;
-  String? selectedMember;
-
   String? selectedMeetingType;
-  bool isReceived = false;
-  Future<String?> createAnalytic(String countryCode) async {
+
+  final countryCodeProvider = StateProvider<String?>((ref) => '91');
+
+  @override
+  void initState() {
+    super.initState();
+    _populateFields();
+  }
+
+  void _populateFields() {
+    // Populate fields with existing data
+    selectedRequestType = widget.analytic.type;
+    titleController.text = widget.analytic.title ?? '';
+    descriptionController.text = widget.analytic.description ?? '';
+    
+    if (widget.analytic.amount != null) {
+      amountController.text = widget.analytic.amount.toString();
+    }
+    
+    if (widget.analytic.date != null) {
+      dateController.text =
+          DateFormat('yyyy-MM-dd').format(widget.analytic.date!);
+    }
+    
+    if (widget.analytic.time != null) {
+      timeController.text = widget.analytic.time!;
+    }
+    
+    if (widget.analytic.meetingLink != null) {
+      linkController.text = widget.analytic.meetingLink!;
+      selectedMeetingType = 'Online';
+    }
+    
+    if (widget.analytic.location != null) {
+      locationController.text = widget.analytic.location!;
+      selectedMeetingType = 'Offline';
+    }
+    
+    // Populate referral data if exists
+    if (widget.analytic.referral != null) {
+      referralNameController.text = widget.analytic.referral?.name ?? '';
+      referralEmailController.text = widget.analytic.referral?.email ?? '';
+      referralAddressController.text = widget.analytic.referral?.address ?? '';
+      referralInfoController.text = widget.analytic.referral?.info ?? '';
+      
+      // Extract phone number without country code
+      String? phone = widget.analytic.referral?.phone;
+      if (phone != null && phone.isNotEmpty) {
+        // Remove '+' and country code, keeping only the number
+        String cleanPhone = phone.replaceAll('+', '');
+        if (cleanPhone.length > 10) {
+          referralPhoneController.text = cleanPhone.substring(cleanPhone.length - 10);
+        } else {
+          referralPhoneController.text = cleanPhone;
+        }
+      }
+    }
+  }
+
+  Future<String?> updateAnalytic(String countryCode) async {
     final Map<String, dynamic> analytictData = {
       "type": selectedRequestType,
-      "member": isReceived ? id : selectedMember,
-      "sender": isReceived ? selectedMember : id,
       if (amountController.text != '')
         "amount": int.parse(amountController.text),
       "title": titleController.text,
@@ -82,31 +135,12 @@ class _SendAnalyticRequestPageState
       if (selectedMeetingType == 'Offline' && locationController.text != '')
         "location": locationController.text,
     };
-    log(analytictData.toString(), name: "analytic to be created:");
+    log(analytictData.toString(), name: "analytic to be updated:");
     AnalyticsApiService analyticsApiService = AnalyticsApiService();
-    String? response =
-        await analyticsApiService.postAnalytic(data: analytictData);
+    String? response = await analyticsApiService.updateAnalytic(
+        analyticId: widget.analytic.id ?? '', data: analytictData);
     return response;
   }
-
-  // void onChecked() {
-  //   print('Checkbox is checked!');
-  //   setState(() {
-  //     isReferral = true;
-  //   });
-  // }
-
-  // void onUnchecked() {
-  //   setState(() {
-  //     isReferral = false;
-  //     selectedRefferalDistrict = null;
-  //     selectedRefferalStateId = null;
-  //     selectedRefferalChapter = null;
-  //     selectedRefferalZone = null;
-  //     selectedRefferalMember = null;
-  //   });
-  //   print('Checkbox is unchecked!');
-  // }
 
   Widget _buildRequiredLabel(String label) {
     return RichText(
@@ -131,34 +165,16 @@ class _SendAnalyticRequestPageState
     );
   }
 
-  final countryCodeProvider = StateProvider<String?>((ref) => '91');
-
   @override
   Widget build(BuildContext context) {
     final countryCode = ref.watch(countryCodeProvider);
-    final asyncStates = ref.watch(fetchStatesProvider);
-    final asyncZones =
-        ref.watch(fetchLevelDataProvider(selectedStateId ?? '', 'state'));
-    final asyncDistricts =
-        ref.watch(fetchLevelDataProvider(selectedZone ?? '', 'zone'));
-    final asyncChapters =
-        ref.watch(fetchLevelDataProvider(selectedDistrict ?? '', 'district'));
-    final asyncMembers =
-        ref.watch(fetchLevelDataProvider(selectedChapter ?? '', 'user'));
-    // final asyncReferralZones = ref
-    //     .watch(fetchLevelDataProvider(selectedRefferalStateId ?? '', 'state'));
-    // final asyncReferralDistricts =
-    //     ref.watch(fetchLevelDataProvider(selectedRefferalZone ?? '', 'zone'));
-    // final asyncReferralChapters = ref.watch(
-    //     fetchLevelDataProvider(selectedRefferalDistrict ?? '', 'district'));
-    // final asyncReferralMembers = ref
-    //     .watch(fetchLevelDataProvider(selectedRefferalChapter ?? '', 'user'));
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
         title: const Text(
-          "Send Request",
+          "Edit Request",
           style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
         ),
         elevation: 0,
@@ -171,9 +187,7 @@ class _SendAnalyticRequestPageState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildRequiredLabel('Request Type'),
-              SizedBox(
-                height: 10,
-              ),
+              SizedBox(height: 10),
               SelectionDropDown(
                 hintText: 'Choose Type',
                 value: selectedRequestType,
@@ -196,136 +210,6 @@ class _SendAnalyticRequestPageState
                 },
               ),
               const SizedBox(height: 16.0),
-              SwitchListTile(
-                title: Text('Log as Received (on behalf of sender)'),
-                value: isReceived,
-                onChanged: (val) {
-                  setState(() {
-                    isReceived = val;
-                  });
-                },
-              ),
-              _buildRequiredLabel(isReceived ? 'Sender' : 'Member'),
-              SizedBox(
-                height: 10,
-              ),
-              asyncStates.when(
-                data: (states) => SelectionDropDown(
-                  hintText: 'Choose State',
-                  value: selectedStateId,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a state';
-                    }
-                    return null;
-                  },
-                  label: null,
-                  items: states.map((state) {
-                    return DropdownMenuItem<String>(
-                      value: state.id,
-                      child: Text(state.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedStateId = value;
-                      selectedZone = null;
-                      selectedDistrict = null;
-                      selectedChapter = null;
-                    });
-                  },
-                ),
-                loading: () => const Center(child: LoadingAnimation()),
-                error: (error, stackTrace) => const SizedBox(),
-              ),
-              asyncZones.when(
-                data: (zones) => SelectionDropDown(
-                  hintText: 'Choose Zone',
-                  value: selectedZone,
-                  label: null,
-                  items: zones.map((zone) {
-                    return DropdownMenuItem<String>(
-                      value: zone.id,
-                      child: Text(zone.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedZone = value;
-                      selectedDistrict = null;
-                      selectedChapter = null;
-                    });
-                  },
-                ),
-                loading: () => const Center(child: LoadingAnimation()),
-                error: (error, stackTrace) => const SizedBox(),
-              ),
-              asyncDistricts.when(
-                data: (districts) => SelectionDropDown(
-                  hintText: 'Choose District',
-                  value: selectedDistrict,
-                  label: null,
-                  items: districts.map((district) {
-                    return DropdownMenuItem<String>(
-                      value: district.id,
-                      child: Text(district.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedDistrict = value;
-                      selectedChapter = null;
-                    });
-                  },
-                ),
-                loading: () => const Center(child: LoadingAnimation()),
-                error: (error, stackTrace) => const SizedBox(),
-              ),
-              asyncChapters.when(
-                data: (chapters) => SelectionDropDown(
-                  hintText: 'Choose Chapter',
-                  value: selectedChapter,
-                  label: null,
-                  items: chapters.map((chapter) {
-                    return DropdownMenuItem<String>(
-                      value: chapter.id,
-                      child: Text(chapter.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedChapter = value;
-                    });
-                  },
-                ),
-                loading: () => const Center(child: LoadingAnimation()),
-                error: (error, stackTrace) => const SizedBox(),
-              ),
-              asyncMembers.when(
-                data: (members) {
-                  final filteredMembers =
-                      members.where((member) => member.id != id).toList();
-                  return SelectionDropDown(
-                    hintText: 'Choose Member',
-                    value: selectedMember,
-                    label: null,
-                    items: filteredMembers.map((member) {
-                      return DropdownMenuItem<String>(
-                        value: member.id,
-                        child: Text(member.name),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedMember = value;
-                      });
-                    },
-                  );
-                },
-                loading: () => const Center(child: LoadingAnimation()),
-                error: (error, stackTrace) => const SizedBox(),
-              ),
-              const SizedBox(height: 10.0),
               _buildRequiredLabel('Title'),
               CustomTextFormField(
                 textController: titleController,
@@ -361,18 +245,13 @@ class _SendAnalyticRequestPageState
                 ),
               if (selectedRequestType != 'Referral')
                 const SizedBox(height: 10.0),
-              Text(
-                'Description',
-                style: kSmallTitleB,
-              ),
+              Text('Description', style: kSmallTitleB),
               CustomTextFormField(
                 textController: descriptionController,
                 labelText: 'Eg - Business closed for purchase of materials',
                 maxLines: 4,
               ),
-              SizedBox(
-                height: 10,
-              ),
+              SizedBox(height: 10),
               if (selectedRequestType == 'Business')
                 _buildRequiredLabel('Date'),
               if (selectedRequestType == 'Business')
@@ -395,14 +274,12 @@ class _SendAnalyticRequestPageState
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(
-                          color: Color.fromARGB(
-                              255, 212, 209, 209)), // Unfocused border color
+                          color: Color.fromARGB(255, 212, 209, 209)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(
-                          color: Color.fromARGB(
-                              255, 223, 220, 220)), // Focused border color
+                          color: Color.fromARGB(255, 223, 220, 220)),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
@@ -440,9 +317,7 @@ class _SendAnalyticRequestPageState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildRequiredLabel('Meeting Type'),
-                    SizedBox(
-                      height: 10,
-                    ),
+                    SizedBox(height: 10),
                     SelectionDropDown(
                       hintText: 'Choose Meeting Type',
                       value: selectedMeetingType,
@@ -461,7 +336,6 @@ class _SendAnalyticRequestPageState
                       onChanged: (value) {
                         setState(() {
                           selectedMeetingType = value;
-                          // Clear the fields when switching types
                           if (value == 'Online') {
                             locationController.clear();
                           } else {
@@ -490,14 +364,12 @@ class _SendAnalyticRequestPageState
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 212, 209,
-                                  209)), // Unfocused border color
+                              color: Color.fromARGB(255, 212, 209, 209)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: const BorderSide(
-                              color: Color.fromARGB(
-                                  255, 223, 220, 220)), // Focused border color
+                              color: Color.fromARGB(255, 223, 220, 220)),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
@@ -549,26 +421,22 @@ class _SendAnalyticRequestPageState
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 212, 209,
-                                  209)), // Unfocused border color
+                              color: Color.fromARGB(255, 212, 209, 209)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: const BorderSide(
-                              color: Color.fromARGB(
-                                  255, 223, 220, 220)), // Focused border color
+                              color: Color.fromARGB(255, 223, 220, 220)),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 212, 209,
-                                  209)), // Same as enabled border
+                              color: Color.fromARGB(255, 212, 209, 209)),
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 223, 220,
-                                  220)), // Same as focused border
+                              color: Color.fromARGB(255, 223, 220, 220)),
                         ),
                         labelText: 'Time',
                         suffixIcon: IconButton(
@@ -587,8 +455,7 @@ class _SendAnalyticRequestPageState
                                         alwaysUse24HourFormat: false);
 
                                 setState(() {
-                                  timeController.text =
-                                      formattedTime; // This will show time in "hh:mm AM/PM" format
+                                  timeController.text = formattedTime;
                                 });
                               }
                             }),
@@ -643,7 +510,7 @@ class _SendAnalyticRequestPageState
                     const SizedBox(height: 10.0),
                     _buildRequiredLabel('Phone'),
                     Container(
-                      width: double.infinity, // Full width container
+                      width: double.infinity,
                       child: IntlPhoneField(
                         validator: (phone) {
                           if (phone == null || phone.number.isEmpty) {
@@ -728,17 +595,16 @@ class _SendAnalyticRequestPageState
                 ),
               const SizedBox(height: 20.0),
               customButton(
-                label: 'Send Request',
+                label: 'Update Request',
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     String? response =
-                        await createAnalytic(countryCode ?? '91');
+                        await updateAnalytic(countryCode ?? '91');
                     if (response != null && response.contains('success')) {
                       Navigator.pop(context);
                       ref.invalidate(fetchAnalyticsProvider);
                     } else {
                       SnackbarService service = SnackbarService();
-
                       service.showSnackBar(response ?? 'Error');
                     }
                     print('Form Submitted');

@@ -80,6 +80,7 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
           builder: (context) => AllocateMember(
                 newUser: newUser,
               ));
+    
     case 'EventMemberList':
       Event event = settings?.arguments as Event;
       return MaterialPageRoute(

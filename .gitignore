@@ -9,6 +9,7 @@ ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
 
 # Miscellaneous
+.gradle
 *.class
 *.log
 *.pyc

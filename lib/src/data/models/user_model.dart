@@ -35,7 +35,12 @@ class UserChapterModel {
   final UserDistrictModel? district;
   final String? shortCode;
 
-  UserChapterModel( {this.id, this.name, this.district,this.shortCode,});
+  UserChapterModel({
+    this.id,
+    this.name,
+    this.district,
+    this.shortCode,
+  });
 
   factory UserChapterModel.fromJson(Map<String, dynamic> json) {
     return UserChapterModel(
@@ -44,7 +49,7 @@ class UserChapterModel {
       district: json['districtId'] != null
           ? UserDistrictModel.fromJson(json['districtId'])
           : null,
-          shortCode:json['shortCode'] as String?,
+      shortCode: json['shortCode'] as String?,
     );
   }
 
@@ -136,6 +141,8 @@ class UserModel {
   final String? uid;
   final String? memberId;
   final String? bloodgroup;
+  //role
+  final String? role;
   final bool? isAdmin;
   final UserChapterModel? chapter;
   final String? image;
@@ -168,6 +175,7 @@ class UserModel {
   final List<String>? businessTags;
 
   UserModel({
+    this.role,
     this.name,
     this.uid,
     this.memberId,
@@ -217,6 +225,7 @@ class UserModel {
       image: json['image'] as String? ?? '',
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
+      role: json['role'] as String? ?? '',
       secondaryPhone: json['secondaryPhone'] != null
           ? SecondaryPhone.fromJson(json['secondaryPhone'])
           : null,
@@ -280,6 +289,7 @@ class UserModel {
       'name': name,
       'uid': uid,
       'memberId': memberId,
+      'role' : role,
       'bloodgroup': bloodgroup,
       'isAdmin': isAdmin,
       'chapter': chapter?.toJson(),
@@ -352,6 +362,7 @@ class UserModel {
     return UserModel(
       name: name ?? this.name,
       uid: uid ?? this.uid,
+      role: role ?? this.role,
       memberId: memberId ?? this.memberId,
       bloodgroup: bloodgroup ?? this.bloodgroup,
       isAdmin: isAdmin ?? this.isAdmin,
@@ -420,7 +431,8 @@ class Company {
     this.designation,
     this.email,
     this.websites,
-    this.phone,this.logo, 
+    this.phone,
+    this.logo,
   });
 
   factory Company.fromJson(Map<String, dynamic> json) {
@@ -430,7 +442,7 @@ class Company {
       email: json['email'] as String?,
       websites: json['websites'] as String?,
       phone: json['phone'] as String?,
-      logo : json['logo'] as String?,
+      logo: json['logo'] as String?,
     );
   }
 
@@ -463,6 +475,7 @@ class Company {
     );
   }
 }
+
 class Award {
   final String? image;
   final String? name;

@@ -132,107 +132,152 @@ class AnalyticsModalSheet extends ConsumerWidget {
             SizedBox(
               height: 20,
             ),
+            // Show edit button for sent requests (only sender can edit)
+            if ((tabBarType == 'sent' || analytic.user_id == id) &&
+                analytic.status != 'completed' &&
+                analytic.status != 'rejected')
+              Flexible(
+                child: customButton(
+                  sideColor: Colors.blue,
+                  buttonColor: Colors.blue,
+                  label: 'Edit Request',
+                  onPressed: () {
+                    navigationService.pop();
+                    navigationService.pushNamed(
+                      'EditAnalyticRequest',
+                      arguments: analytic,
+                    );
+                  },
+                ),
+              ),
+            if ((tabBarType == 'sent' || analytic.user_id == id) &&
+                analytic.status != 'completed' &&
+                analytic.status != 'rejected')
+              SizedBox(height: 10),
+            // Cancel/Delete button - only for sender
             if (tabBarType == 'sent' || analytic.user_id == id)
               Flexible(
-                  child: customButton(
-                sideColor: kRedDark,
-                buttonColor: kRedDark,
-                label: 'Cancel Request',
-                onPressed: () async {
-                  await analyticsApiService. deleteAnalytic(analyticId: analytic.id ?? '');
-                  ref.invalidate(fetchAnalyticsProvider);
-                  navigationService.pop();
-                },
-              )),
-            if (tabBarType != 'sent' &&
-                tabBarType != 'history' &&
+                child: customButton(
+                  sideColor: kRedDark,
+                  buttonColor: kRedDark,
+                  label: 'Cancel Request',
+                  onPressed: () async {
+                    await analyticsApiService.deleteAnalytic(
+                        analyticId: analytic.id ?? '');
+                    ref.invalidate(fetchAnalyticsProvider);
+                    navigationService.pop();
+                  },
+                ),
+              ),
+            // Status change buttons - Available for both sender and receiver
+            if (tabBarType != 'history' &&
                 analytic.status != 'rejected' &&
-                analytic.status != 'completed' &&
-                analytic.user_id != id)
+                analytic.status != 'completed')
               Row(
                 children: [
+                  // Reject button
                   if (analytic.status != 'meeting_scheduled')
                     Flexible(
-                        child: customButton(
-                      sideColor: kRedDark,
-                      buttonColor: kRedDark,
-                      label: 'Reject',
-                      onPressed: () async {
-                        await analyticsApiService.updateAnalyticStatus(
-                            analyticId: analytic.id ?? '', action: 'rejected');
-                        ref.invalidate(fetchAnalyticsProvider);
-                        navigationService.pop();
-                      },
-                    )),
-                  if (analytic.status != 'meeting_scheduled')
-                    SizedBox(
-                      width: 20,
+                      child: customButton(
+                        sideColor: kRedDark,
+                        buttonColor: kRedDark,
+                        label: 'Reject',
+                        onPressed: () async {
+                          await analyticsApiService.updateAnalyticStatus(
+                              analyticId: analytic.id ?? '',
+                              action: 'rejected');
+                          ref.invalidate(fetchAnalyticsProvider);
+                          navigationService.pop();
+                        },
+                      ),
                     ),
+                  if (analytic.status != 'meeting_scheduled')
+                    SizedBox(width: 20),
+                  // Accept button (for non-meeting types)
                   if (analytic.type != 'One v One Meeting' &&
                       analytic.status != 'accepted')
                     Flexible(
-                        child: customButton(
-                      sideColor: kGreen,
-                      buttonColor: kGreen,
-                      label: 'Accept',
-                      onPressed: () async {
-                        await analyticsApiService.updateAnalyticStatus(
-                            analyticId: analytic.id ?? '', action: 'accepted');
-
-                        ref.invalidate(fetchAnalyticsProvider);
-                        navigationService.pop();
-                      },
-                    )),
+                      child: customButton(
+                        sideColor: kGreen,
+                        buttonColor: kGreen,
+                        label: 'Accept',
+                        onPressed: () async {
+                          await analyticsApiService.updateAnalyticStatus(
+                              analyticId: analytic.id ?? '',
+                              action: 'accepted');
+                          ref.invalidate(fetchAnalyticsProvider);
+                          navigationService.pop();
+                        },
+                      ),
+                    ),
+                  // Schedule button (for meeting types)
                   if (analytic.type == 'One v One Meeting' &&
                       analytic.status != 'meeting_scheduled')
                     Flexible(
-                        child: customButton(
-                      sideColor: kGreen,
-                      buttonColor: kBlue,
-                      label: 'Schedule',
-                      onPressed: () async {
-                        await analyticsApiService.updateAnalyticStatus(
-                            analyticId: analytic.id ?? '',
-                            action: 'meeting_scheduled');
-
-                        ref.invalidate(fetchAnalyticsProvider);
-                        navigationService.pop();
-                      },
-                    )),
+                      child: customButton(
+                        sideColor: kBlue,
+                        buttonColor: kBlue,
+                        label: 'Schedule',
+                        onPressed: () async {
+                          await analyticsApiService.updateAnalyticStatus(
+                              analyticId: analytic.id ?? '',
+                              action: 'meeting_scheduled');
+                          ref.invalidate(fetchAnalyticsProvider);
+                          navigationService.pop();
+                        },
+                      ),
+                    ),
+                  // Reject and Complete buttons for scheduled meetings
                   if (analytic.status == 'meeting_scheduled')
                     Flexible(
-                        child: customButton(
-                      sideColor: kRedDark,
-                      buttonColor: kRedDark,
-                      label: 'Reject',
-                      onPressed: () async {
-                        await analyticsApiService.updateAnalyticStatus(
-                            analyticId: analytic.id ?? '', action: 'rejected');
-
-                        ref.invalidate(fetchAnalyticsProvider);
-                        navigationService.pop();
-                      },
-                    )),
-                  if (analytic.status == 'meeting_scheduled')
-                    SizedBox(
-                      width: 10,
+                      child: customButton(
+                        sideColor: kRedDark,
+                        buttonColor: kRedDark,
+                        label: 'Reject',
+                        onPressed: () async {
+                          await analyticsApiService.updateAnalyticStatus(
+                              analyticId: analytic.id ?? '',
+                              action: 'rejected');
+                          ref.invalidate(fetchAnalyticsProvider);
+                          navigationService.pop();
+                        },
+                      ),
                     ),
                   if (analytic.status == 'meeting_scheduled')
+                    SizedBox(width: 10),
+                  if (analytic.status == 'meeting_scheduled')
                     Flexible(
-                        child: customButton(
-                      sideColor: kGreen,
-                      buttonColor: kGreen,
-                      label: 'Complete',
-                      onPressed: () async {
-                        await analyticsApiService.updateAnalyticStatus(
-                            analyticId: analytic.id ?? '', action: 'completed');
-
-                        ref.invalidate(fetchAnalyticsProvider);
-                        navigationService.pop();
-                      },
-                    )),
+                      child: customButton(
+                        sideColor: kGreen,
+                        buttonColor: kGreen,
+                        label: 'Complete',
+                        onPressed: () async {
+                          await analyticsApiService.updateAnalyticStatus(
+                              analyticId: analytic.id ?? '',
+                              action: 'completed');
+                          ref.invalidate(fetchAnalyticsProvider);
+                          navigationService.pop();
+                        },
+                      ),
+                    ),
                 ],
-              )
+              ),
+            // Complete button for accepted status (both parties can mark as complete)
+            if (analytic.status == 'accepted' &&
+                analytic.type != 'One v One Meeting')
+              Flexible(
+                child: customButton(
+                  sideColor: kGreen,
+                  buttonColor: kGreen,
+                  label: 'Mark as Completed',
+                  onPressed: () async {
+                    await analyticsApiService.updateAnalyticStatus(
+                        analyticId: analytic.id ?? '', action: 'completed');
+                    ref.invalidate(fetchAnalyticsProvider);
+                    navigationService.pop();
+                  },
+                ),
+              ),
           ],
         ),
       ),

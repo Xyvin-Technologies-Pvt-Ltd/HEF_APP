@@ -43,6 +43,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   final TextEditingController _tagController = TextEditingController();
   FocusNode _searchFocus = FocusNode();
   Timer? _debounce;
+  Timer? _autoRefreshTimer;
   String? selectedDistrictId;
   String? selectedDistrictName;
   String? businessTagSearch;
@@ -86,6 +87,12 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     if (widget.endDate != null) {
       endDate = DateTime.parse(widget.endDate!);
     }
+    // Periodic refresh for near real-time updates
+    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (mounted) {
+        ref.invalidate(fetchAnalyticsProvider);
+      }
+    });
   }
 
   Future<void> _fetchInitialUsers() async {
@@ -292,6 +299,18 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _autoRefreshTimer?.cancel();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _tabController.dispose();
+    _searchController.dispose();
+    _tagController.dispose();
+    _searchFocus.dispose();
+    super.dispose();
   }
 
   @override

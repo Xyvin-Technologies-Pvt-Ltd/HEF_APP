@@ -238,6 +238,18 @@ Future<File?> _pickFile({required String imageType, int? companyIndex}) async {
 }
 
 
+void _removeProfilePicture() {
+  setState(() {
+    _profileImageFile = null;
+    _profileImageSource = null;
+  });
+
+  // Update the backend / provider
+  ref.read(userProvider.notifier).updateProfilePicture('');
+}
+
+
+
   // void _addAwardCard() async {
   // await api.createFileUrl(file: _awardImageFIle!).then((url) {
   //   awardUrl = url;
@@ -348,7 +360,16 @@ Future<File?> _pickFile({required String imageType, int? companyIndex}) async {
       "name": user.name ?? '',
       "email": user.email,
       "phone": user.phone,
-      if (user.image != null && user.image != '') "image": user.image ?? '',
+
+      // if (user.image != null && user.image != '') 
+      // "image": user.image ?? '',
+
+      // ✅ Include image always, even if null
+      "image": (user.image != null && user.image!.isNotEmpty) 
+      ? user.image 
+      : null,
+
+
       if (user.address != null && user.address != '')
         "address": user.address ?? '',
       if (user.bio != null && user.bio != '') "bio": user.bio ?? '',
@@ -636,73 +657,162 @@ Future<File?> _pickFile({required String imageType, int? companyIndex}) async {
                                   return Center(
                                     child: Column(
                                       children: [
+                                        // Stack(
+                                        //   children: [
+                                        //     DottedBorder(
+                                        //       borderType: BorderType.Circle,
+                                        //       dashPattern: [6, 3],
+                                        //       color: Colors.grey,
+                                        //       strokeWidth: 2,
+                                        //       child: ClipOval(
+                                        //         child: Container(
+                                        //           width: 120,
+                                        //           height: 120,
+                                        //           color: const Color.fromARGB(
+                                        //               255, 255, 255, 255),
+                                        //           child: _isProfileImageLoading
+                                        //               ? const Center(
+                                        //                   child:
+                                        //                       LoadingAnimation())
+                                        //               : Image.network(
+                                        //                   errorBuilder:
+                                        //                       (context, error,
+                                        //                           stackTrace) {
+                                        //                     return SvgPicture.asset(
+                                        //                         'assets/svg/icons/dummy_person_large.svg');
+                                        //                   },
+                                        //                   user.image ??
+                                        //                       '', // Replace with your image URL
+                                        //                   fit: BoxFit.cover,
+                                        //                 ),
+                                        //         ),
+                                        //       ),
+                                        //     ),
+                                        //     Positioned(
+                                        //       bottom: 4,
+                                        //       right: 4,
+                                        //       child: InkWell(
+                                        //         onTap: () {
+                                        //           _pickFile(
+                                        //               imageType: 'profile');
+                                        //         },
+                                        //         child: Container(
+                                        //           decoration: BoxDecoration(
+                                        //             boxShadow: [
+                                        //               BoxShadow(
+                                        //                 color: Colors.black
+                                        //                     .withOpacity(0.2),
+                                        //                 offset:
+                                        //                     const Offset(2, 2),
+                                        //                 blurRadius: 4,
+                                        //               ),
+                                        //             ],
+                                        //             shape: BoxShape.circle,
+                                        //           ),
+                                        //           child: const CircleAvatar(
+                                        //             radius: 17,
+                                        //             backgroundColor:
+                                        //                 Colors.white,
+                                        //             child: Icon(
+                                        //               Icons.edit,
+                                        //               color: kPrimaryColor,
+                                        //               size: 16,
+                                        //             ),
+                                        //           ),
+                                        //         ),
+                                        //       ),
+                                        //     ),
+                                        //   ],
+                                        // ),
                                         Stack(
-                                          children: [
-                                            DottedBorder(
-                                              borderType: BorderType.Circle,
-                                              dashPattern: [6, 3],
-                                              color: Colors.grey,
-                                              strokeWidth: 2,
-                                              child: ClipOval(
-                                                child: Container(
-                                                  width: 120,
-                                                  height: 120,
-                                                  color: const Color.fromARGB(
-                                                      255, 255, 255, 255),
-                                                  child: _isProfileImageLoading
-                                                      ? const Center(
-                                                          child:
-                                                              LoadingAnimation())
-                                                      : Image.network(
-                                                          errorBuilder:
-                                                              (context, error,
-                                                                  stackTrace) {
-                                                            return SvgPicture.asset(
-                                                                'assets/svg/icons/dummy_person_large.svg');
-                                                          },
-                                                          user.image ??
-                                                              '', // Replace with your image URL
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                ),
-                                              ),
-                                            ),
-                                            Positioned(
-                                              bottom: 4,
-                                              right: 4,
-                                              child: InkWell(
-                                                onTap: () {
-                                                  _pickFile(
-                                                      imageType: 'profile');
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.black
-                                                            .withOpacity(0.2),
-                                                        offset:
-                                                            const Offset(2, 2),
-                                                        blurRadius: 4,
-                                                      ),
-                                                    ],
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: const CircleAvatar(
-                                                    radius: 17,
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                    child: Icon(
-                                                      Icons.edit,
-                                                      color: kPrimaryColor,
-                                                      size: 16,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+  children: [
+    DottedBorder(
+      borderType: BorderType.Circle,
+      dashPattern: [6, 3],
+      color: Colors.grey,
+      strokeWidth: 2,
+      child: ClipOval(
+        child: Container(
+          width: 120,
+          height: 120,
+          color: Colors.white,
+          child: _isProfileImageLoading
+              ? const Center(child: LoadingAnimation())
+              : Image.network(
+                  user.image ?? '',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return SvgPicture.asset(
+                      'assets/svg/icons/dummy_person_large.svg',
+                    );
+                  },
+                ),
+        ),
+      ),
+    ),
+    // Edit button
+    Positioned(
+      bottom: 4,
+      right: 4,
+      child: InkWell(
+        onTap: () {
+          _pickFile(imageType: 'profile');
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                offset: const Offset(2, 2),
+                blurRadius: 4,
+              ),
+            ],
+            shape: BoxShape.circle,
+          ),
+          child: const CircleAvatar(
+            radius: 17,
+            backgroundColor: Colors.white,
+            child: Icon(
+              Icons.edit,
+              color: kPrimaryColor,
+              size: 16,
+            ),
+          ),
+        ),
+      ),
+    ),
+    // Delete button
+    Positioned(
+      bottom: 4,
+      left: 4,
+      child: InkWell(
+        onTap: _removeProfilePicture, // <-- call the function I suggested earlier
+        child: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                offset: const Offset(2, 2),
+                blurRadius: 4,
+              ),
+            ],
+            shape: BoxShape.circle,
+          ),
+          child: const CircleAvatar(
+            radius: 17,
+            backgroundColor: Colors.white,
+            child: Icon(
+              Icons.delete,
+              color: Colors.red,
+              size: 16,
+            ),
+          ),
+        ),
+      ),
+    ),
+  ],
+),
+
                                         if (state.hasError)
                                           Padding(
                                             padding:

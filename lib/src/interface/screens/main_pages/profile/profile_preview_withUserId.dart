@@ -260,6 +260,10 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                                 ],
                                               ),
                                             ),
+
+                                            //for showing roll
+                                            if(user.role != null )
+                                            Text(user.role!),
                                         const SizedBox(height: 10),
                                         Wrap(
                                           alignment: WrapAlignment.center,

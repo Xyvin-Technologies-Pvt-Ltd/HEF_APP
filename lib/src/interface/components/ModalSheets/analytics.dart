@@ -169,6 +169,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                   },
                 ),
               ),
+              SizedBox(height: 10,),
             // Status change buttons - Available for both sender and receiver
             if (tabBarType != 'history' &&
                 analytic.status != 'rejected' &&
@@ -243,6 +244,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                         },
                       ),
                     ),
+                    SizedBox(height: 10,),
                   if (analytic.status == 'meeting_scheduled')
                     SizedBox(width: 10),
                   if (analytic.status == 'meeting_scheduled')

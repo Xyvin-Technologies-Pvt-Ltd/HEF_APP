@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hef/src/data/models/analytics_model.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/events_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
@@ -12,6 +13,7 @@ import 'package:hef/src/interface/screens/main_pages/login_page.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/about_us.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/add_product.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/edit_analytic_req.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/send_analytic_req.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/change_number.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/activity_page.dart';
@@ -80,6 +82,13 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
           builder: (context) => AllocateMember(
                 newUser: newUser,
               ));
+    case 'EditAnalyticRequest':
+  final analytic = settings?.arguments as AnalyticsModel;
+  return MaterialPageRoute(
+    builder: (context) => EditAnalyticRequestPage(
+      analytic: analytic,
+    ),
+  );
     
     case 'EventMemberList':
       Event event = settings?.arguments as Event;

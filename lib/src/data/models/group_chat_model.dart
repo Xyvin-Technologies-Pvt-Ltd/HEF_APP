@@ -1,9 +1,12 @@
 
+import 'package:hef/src/data/models/msg_model.dart';
+
 class GroupChatModel {
   final String? id;
   final GroupChatUserModel? from;
   final String? to;
   final String? content;
+  final List<Attachment>? attachments;
   final String? status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -14,6 +17,7 @@ class GroupChatModel {
     this.from,
     this.to,
     this.content,
+    this.attachments,
     this.status,
     this.createdAt,
     this.updatedAt,
@@ -29,6 +33,10 @@ class GroupChatModel {
           : null,
       to: json['to'] as String?,
       content: json['content'] as String?,
+      attachments: (json['attachments'] as List<dynamic>?)
+              ?.map((e) => Attachment.fromJson(e))
+              .toList() ??
+          [],
       status: json['status'] as String?,
       createdAt:
           json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
@@ -45,6 +53,7 @@ class GroupChatModel {
       'from': from?.toJson(),
       'to': to,
       'content': content,
+      'attachments': attachments?.map((a) => a.toJson()).toList(),
       'status': status,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),

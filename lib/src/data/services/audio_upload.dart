@@ -11,7 +11,7 @@ Future<String> audioUpload(String audioPath) async {
     'POST',
     Uri.parse('$baseUrl/upload/'),
   );
-  request.files.add(await http.MultipartFile.fromPath('image', audioFile.path));
+  request.files.add(await http.MultipartFile.fromPath('audio', audioFile.path));
 
   var response = await request.send();
 

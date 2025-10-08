@@ -49,6 +49,13 @@ class _EditAnalyticRequestPageState
 
   String? selectedRequestType;
   String? selectedMeetingType;
+   String? selectedStateId;
+  String? selectedZone;
+  String? selectedDistrict;
+  String? selectedChapter;
+  String? selectedMember;
+  bool isReceived = false;
+
 
   final countryCodeProvider = StateProvider<String?>((ref) => '91');
 
@@ -111,6 +118,9 @@ class _EditAnalyticRequestPageState
   Future<String?> updateAnalytic(String countryCode) async {
     final Map<String, dynamic> analytictData = {
       "type": selectedRequestType,
+       "member": isReceived ? id : selectedMember,
+       "sender": isReceived ? selectedMember : id,
+
       if (amountController.text != '')
         "amount": int.parse(amountController.text),
       "title": titleController.text,
@@ -168,6 +178,15 @@ class _EditAnalyticRequestPageState
   @override
   Widget build(BuildContext context) {
     final countryCode = ref.watch(countryCodeProvider);
+     final asyncStates = ref.watch(fetchStatesProvider);
+    final asyncZones =
+        ref.watch(fetchLevelDataProvider(selectedStateId ?? '', 'state'));
+    final asyncDistricts =
+        ref.watch(fetchLevelDataProvider(selectedZone ?? '', 'zone'));
+    final asyncChapters =
+        ref.watch(fetchLevelDataProvider(selectedDistrict ?? '', 'district'));
+    final asyncMembers =
+        ref.watch(fetchLevelDataProvider(selectedChapter ?? '', 'user'));
 
     return Scaffold(
       appBar: AppBar(
@@ -208,6 +227,136 @@ class _EditAnalyticRequestPageState
                     selectedRequestType = value;
                   });
                 },
+              ),
+              SwitchListTile(
+                title: Text('Switch on if you are receiver (on behalf of sender)'),
+                value: isReceived,
+                onChanged: (val) {
+                  setState(() {
+                    isReceived = val;
+                  });
+                },
+              ),
+               _buildRequiredLabel(isReceived ? 'Sender' : 'Member'),
+
+              SizedBox(
+                height: 10,
+              ),
+              asyncStates.when(
+                data: (states) => SelectionDropDown(
+                  hintText: 'Choose State',
+                  value: selectedStateId,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a state';
+                    }
+                    return null;
+                  },
+                  label: null,
+                  items: states.map((state) {
+                    return DropdownMenuItem<String>(
+                      value: state.id,
+                      child: Text(state.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedStateId = value;
+                      selectedZone = null;
+                      selectedDistrict = null;
+                      selectedChapter = null;
+                    });
+                  },
+                ),
+                loading: () => const Center(child: LoadingAnimation()),
+                error: (error, stackTrace) => const SizedBox(),
+              ),
+              asyncZones.when(
+                data: (zones) => SelectionDropDown(
+                  hintText: 'Choose Zone',
+                  value: selectedZone,
+                  label: null,
+                  items: zones.map((zone) {
+                    return DropdownMenuItem<String>(
+                      value: zone.id,
+                      child: Text(zone.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedZone = value;
+                      selectedDistrict = null;
+                      selectedChapter = null;
+                    });
+                  },
+                ),
+                loading: () => const Center(child: LoadingAnimation()),
+                error: (error, stackTrace) => const SizedBox(),
+              ),
+              asyncDistricts.when(
+                data: (districts) => SelectionDropDown(
+                  hintText: 'Choose District',
+                  value: selectedDistrict,
+                  label: null,
+                  items: districts.map((district) {
+                    return DropdownMenuItem<String>(
+                      value: district.id,
+                      child: Text(district.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedDistrict = value;
+                      selectedChapter = null;
+                    });
+                  },
+                ),
+                loading: () => const Center(child: LoadingAnimation()),
+                error: (error, stackTrace) => const SizedBox(),
+              ),
+              asyncChapters.when(
+                data: (chapters) => SelectionDropDown(
+                  hintText: 'Choose Chapter',
+                  value: selectedChapter,
+                  label: null,
+                  items: chapters.map((chapter) {
+                    return DropdownMenuItem<String>(
+                      value: chapter.id,
+                      child: Text(chapter.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedChapter = value;
+                    });
+                  },
+                ),
+                loading: () => const Center(child: LoadingAnimation()),
+                error: (error, stackTrace) => const SizedBox(),
+              ),
+              asyncMembers.when(
+                data: (members) {
+                  final filteredMembers =
+                      members.where((member) => member.id != id).toList();
+                  return SelectionDropDown(
+                    hintText: 'Choose Member',
+                    value: selectedMember,
+                    label: null,
+                    items: filteredMembers.map((member) {
+                      return DropdownMenuItem<String>(
+                        value: member.id,
+                        child: Text(member.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedMember = value;
+                      });
+                    },
+                  );
+                },
+                loading: () => const Center(child: LoadingAnimation()),
+                error: (error, stackTrace) => const SizedBox(),
               ),
               const SizedBox(height: 16.0),
               _buildRequiredLabel('Title'),

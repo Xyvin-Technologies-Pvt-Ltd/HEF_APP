@@ -537,8 +537,14 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         }).toList();
 
         // Sort alphabetically by username
-        filtered.sort((a, b) =>
-            (a.username ?? '').toLowerCase().compareTo((b.username ?? '').toLowerCase()));
+        // filtered.sort((a, b) =>
+        //     (a.username ?? '').toLowerCase().compareTo((b.username ?? '').toLowerCase()));
+
+        filtered.sort((a, b) {
+          final aDate = a.date ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final bDate = b.date ?? DateTime.fromMillisecondsSinceEpoch(0);
+          return bDate.compareTo(aDate); // Latest date first
+        });
 
         return ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),

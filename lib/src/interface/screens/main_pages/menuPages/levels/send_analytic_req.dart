@@ -197,7 +197,7 @@ class _SendAnalyticRequestPageState
               ),
               const SizedBox(height: 16.0),
               SwitchListTile(
-                title: Text('Log as Received (on behalf of sender)'),
+                title: Text('Switch on if you are receiver (on behalf of sender)'),
                 value: isReceived,
                 onChanged: (val) {
                   setState(() {

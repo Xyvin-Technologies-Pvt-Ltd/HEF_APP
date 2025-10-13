@@ -345,48 +345,59 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
 
                                 Navigator.of(context).pop();
                               },
-                              child: Container(
-                                height: 110,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: state.hasError
-                                      ? Border.all(color: Colors.red)
-                                      : null,
-                                ),
-                                child: productImage == null
-                                    ? widget.imageUrl != null
-                                        ? Center(
-                                            child: Image.network(
-                                                widget.imageUrl ?? ''),
-                                          )
-                                        : const Center(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(Icons.add,
-                                                    size: 27,
-                                                    color: Color(0xFF004797)),
-                                                SizedBox(height: 10),
-                                                Text(
-                                                  'Upload Image',
-                                                  style: TextStyle(
-                                                      color: Color.fromARGB(
-                                                          255, 102, 101, 101)),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                    : Center(
-                                        child: Image.file(
-                                          productImage!,
-                                          fit: BoxFit.cover,
-                                          width: 120,
-                                          height: 120,
+                              child: AspectRatio(
+                                aspectRatio: 3/1,
+                                child: Container(
+                                  
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: state.hasError
+                                        ? Border.all(color: Colors.red)
+                                        : null,
+                                  ),
+                                  child: productImage == null
+                                      ? widget.imageUrl != null
+                                          ? Center(
+                                              child: Image.network(
+                                                  widget.imageUrl ?? ''),
+                                            )
+                                          : const Center(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(Icons.add,
+                                                      size: 27,
+                                                      color: Color(0xFF004797)),
+                                                  SizedBox(height: 10),
+                                                  Text(
+                                                    'Upload Image',
+                                                    style: TextStyle(
+                                                        color: Color.fromARGB(
+                                                            255, 102, 101, 101)),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                      : Center(
+                                          child: Image.file(
+                                            productImage!,
+                                            fit: BoxFit.cover,
+                                            width: 120,
+                                            height: 120,
+                                          ),
                                         ),
-                                      ),
+                                ),
                               ),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            const Text(
+                              'Accepted formats: JPG, PNG / Max size: 5MB\nRecommended dimensions: 3:1 for best quality',
+                              style:
+                                  TextStyle(fontSize: 10, color: Colors.grey),
                             ),
                             if (state.hasError)
                               Padding(
@@ -406,7 +417,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                     const SizedBox(height: 20),
                     ModalSheetTextFormField(
                       textController: productNameController,
-                      label: 'Add name',
+                      label: 'Add name *',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a product name';
@@ -417,7 +428,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                     const SizedBox(height: 10),
                     ModalSheetTextFormField(
                       textController: productDescriptionController,
-                      label: 'Add description',
+                      label: 'Add description * ',
                       maxLines: 4,
                       // No validator
                     ),

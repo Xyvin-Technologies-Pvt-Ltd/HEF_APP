@@ -64,16 +64,17 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
             children: [
               MemberCreationTextfield(
                 textEditingController: nameController,
-                label: 'Full Name',
+                label: 'Full Name *',
                 hintText: 'Enter full name',
                 validator: (value) =>
                     value!.isEmpty ? 'This field is required' : null,
               ),
               MemberCreationTextfield(
                 textEditingController: bloodController,
-                label: 'Blood Group',
+                label: 'Blood Group *',
                 hintText: 'Blood Group',
-                validator: (value) => null,
+                validator: (value) => 
+                value!.isEmpty ? 'This field is required' : null,
               ),
               UploadPhotoWidget(
                 onPhotoChanged: (File? photo) {
@@ -84,17 +85,20 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
               ),
               MemberCreationTextfield(
                 textEditingController: bioController,
-                label: 'Bio',
+                label: 'Bio *',
                 hintText: 'Add description',
                 maxLines: 5,
                 validator: (value) => null,
               ),
               MemberCreationTextfield(
                 textEditingController: emailController,
-                label: 'Email ID',
+                label: 'Email ID *',
                 hintText: 'Email ID',
-                validator: (value) => null,
+                validator: (value) => 
+                value!.isEmpty ? 'This field is required' : null,
               ),
+              Text('Phone *',style: const TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 5,),
               Container(
                 width: double.infinity,
                 child: IntlPhoneField(
@@ -164,12 +168,12 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
               ),
               MemberCreationTextfield(
                 textEditingController: adressController,
-                label: 'Personal Address',
+                label: 'Personal Address ',
                 hintText: 'Personal Address',
                 validator: (value) => null,
               ),
               MemberCreationTextfield(
-                label: 'Company Name',
+                label: 'Company Name ',
                 hintText: 'Name',
                 textEditingController: companyNameController,
                 validator: (value) => null,
@@ -235,35 +239,37 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
               ),
               MemberCreationTextfield(
                 textEditingController: companyDesignationController,
-                label: 'Designation',
+                label: 'Designation ',
                 hintText: 'Designation',
                 validator: (value) => null,
               ),
               MemberCreationTextfield(
-                label: 'Company Email',
+                label: 'Company Email ',
                 hintText: 'email',
                 textEditingController: companyEmailController,
                 validator: (value) => null,
               ),
               MemberCreationTextfield(
-                label: 'Website',
+                label: 'Website ',
                 hintText: 'Link',
                 textEditingController: companyWebsiteController,
                 validator: (value) => null,
               ),
               MemberCreationTextfield(
                 textEditingController: businessCategoryController,
-                label: 'Business Category',
+                label: 'Business Category ',
                 hintText: 'Enter business category',
-                validator: (value) =>
-                    value!.isEmpty ? 'Business category is required' : null,
+                validator: (value) => null,
+                // validator: (value) =>
+                //     value!.isEmpty ? 'Business category is required' : null,
               ),
               MemberCreationTextfield(
                 textEditingController: businessSubCategoryController,
-                label: 'Sub Category',
+                label: 'Sub Category ',
                 hintText: 'Enter sub category',
-                validator: (value) =>
-                    value!.isEmpty ? 'Sub category is required' : null,
+                validator: (value) => null,
+                // validator: (value) =>
+                //     value!.isEmpty ? 'Sub category is required' : null,
               ),
               CustomDropdown(
                 label: 'Status',

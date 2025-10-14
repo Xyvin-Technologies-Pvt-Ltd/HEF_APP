@@ -134,7 +134,7 @@ class _CreateNotificationPageState
           children: [
             // Dropdown
             const Text(
-              'Send to',
+              'Send to *',
               style: TextStyle(color: Colors.orange, fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -189,7 +189,7 @@ class _CreateNotificationPageState
                       _selectedItems.map((item) => item.id).toList();
                 });
               },
-              icon: const Icon(Icons.close),
+              // icon: const Icon(Icons.close),
               chipColor: const Color.fromARGB(255, 224, 224, 224),
               textStyle: const TextStyle(color: Colors.black),
             ),
@@ -198,7 +198,7 @@ class _CreateNotificationPageState
 
             // Title Field
             const Text(
-              'Title',
+              'Title *',
               style: TextStyle(color: Colors.orange, fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -210,7 +210,7 @@ class _CreateNotificationPageState
 
             // Message Field
             const Text(
-              'Message',
+              'Message *',
               style: TextStyle(color: Colors.orange, fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -223,7 +223,7 @@ class _CreateNotificationPageState
 
             // Upload Image
             const Text(
-              'Upload Image',
+              'Upload Image *',
               style: TextStyle(color: Colors.orange, fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -311,7 +311,7 @@ class _CreateNotificationPageState
 
             // Add Link
             const Text(
-              'Add Link',
+              'Add Link *',
               style: TextStyle(color: Colors.orange, fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -348,3 +348,4 @@ class _CreateNotificationPageState
     );
   }
 }
+

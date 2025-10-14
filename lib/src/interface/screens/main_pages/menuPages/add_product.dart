@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/services/image_upload.dart';
+import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class EnterProductsPage extends ConsumerStatefulWidget {
@@ -428,7 +429,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                     const SizedBox(height: 10),
                     ModalSheetTextFormField(
                       textController: productDescriptionController,
-                      label: 'Add description * ',
+                      label: 'Add description *',
                       maxLines: 4,
                       // No validator
                     ),
@@ -436,7 +437,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                     ModalSheetTextFormField(
                       textInputType: const TextInputType.numberWithOptions(),
                       textController: productMoqController,
-                      label: 'Add MOQ',
+                      label: 'Add MOQ *',
                       // No validator
                     ),
                     const SizedBox(height: 10),
@@ -447,7 +448,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                             textInputType:
                                 const TextInputType.numberWithOptions(),
                             textController: productActualPriceController,
-                            label: 'Actual price',
+                            label: 'Actual price *',
                             // No validator
                           ),
                         ),
@@ -457,7 +458,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                             textInputType:
                                 const TextInputType.numberWithOptions(),
                             textController: productOfferPriceController,
-                            label: 'Offer price',
+                            label: 'Offer price *',
                             // No validator
                           ),
                         ),
@@ -535,13 +536,18 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                                     "If you update this product, you will need to wait for admin approval again. Do you want to proceed?"),
                                 actions: [
                                   TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false), // Cancel
+                                    onPressed: () {
+                                      NavigationService.navigatorKey.currentState!
+                                          .popUntil((route) => route.settings.name == 'MyProducts');
+                                    }, // Cancel
                                     child: const Text("Cancel"),
                                   ),
                                   TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, true), // Confirm
+                                    onPressed: () {
+                                      Navigator.pop(context, true); // Confirm and close dialog
+                                      NavigationService.navigatorKey.currentState!
+                                          .popUntil((route) => route.settings.name == 'MyProducts');
+                                    }, // Confirm
                                     child: const Text("Proceed"),
                                   ),
                                 ],

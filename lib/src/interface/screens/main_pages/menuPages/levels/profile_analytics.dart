@@ -114,19 +114,89 @@ class ProfileAnalyticsPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16),
-            // Statistics Section
+            // Refresh button for statistics
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Expanded(
-                  child: _buildStatCard(
-                      'Business', '${user.feedCount}', kPrimaryColor),
-                ),
-                SizedBox(width: 8), // Optional spacing between cards
-                Expanded(
-                  child: _buildStatCard(
-                      'Products', '${user.productCount}', Colors.grey),
+                Consumer(
+                  builder: (context, ref, child) {
+                    return TextButton.icon(
+                      onPressed: () {
+                        ref.invalidate(fetchUserDetailsProvider(user.uid ?? ''));
+                      },
+                      icon: Icon(Icons.refresh, size: 16),
+                      label: Text('Refresh'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: kPrimaryColor,
+                        textStyle: TextStyle(fontSize: 12),
+                      ),
+                    );
+                  },
                 ),
               ],
+            ),
+            SizedBox(height: 8),
+            // Statistics Section
+            Consumer(
+              builder: (context, ref, child) {
+                return FutureBuilder<UserModel>(
+                  future: ref.read(fetchUserDetailsProvider(user.uid ?? '').future),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: _buildStatCard('Business', 'Loading...', kPrimaryColor),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: _buildStatCard('Products', 'Loading...', Colors.grey),
+                          ),
+                        ],
+                      );
+                    } else if (snapshot.hasError) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: _buildStatCard('Business', 'Error', kPrimaryColor),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: _buildStatCard('Products', 'Error', Colors.grey),
+                          ),
+                        ],
+                      );
+                    } else if (snapshot.hasData) {
+                      final userData = snapshot.data!;
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: _buildStatCard(
+                                'Business', '${userData.feedCount ?? 0}', kPrimaryColor),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: _buildStatCard(
+                                'Products', '${userData.productCount ?? 0}', Colors.grey),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: _buildStatCard('Business', '0', kPrimaryColor),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: _buildStatCard('Products', '0', Colors.grey),
+                          ),
+                        ],
+                      );
+                    }
+                  },
+                );
+              },
             ),
             SizedBox(height: 16),
             // Reviews Section

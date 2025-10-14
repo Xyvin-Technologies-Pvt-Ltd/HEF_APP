@@ -11,6 +11,7 @@ import 'package:hef/src/data/models/chat_model.dart';
 import 'dart:async';
 
 import 'package:hef/src/data/notifiers/products_notifier.dart';
+import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Cards/product_card.dart';
 import 'package:hef/src/interface/components/ModalSheets/product_details.dart';
 import 'package:hef/src/interface/components/shimmers/product_card_shimmer.dart';
@@ -61,6 +62,13 @@ class _ProductViewState extends ConsumerState<ProductView> {
   void _onSearchSubmitted(String query) {
     // Perform search when search is submitted
     ref.read(productsNotifierProvider.notifier).searchProducts(query);
+  }
+
+    void _openModalSheet({required String sheet}) {
+    if (sheet == 'product') {
+      NavigationService navigationService = NavigationService();
+      navigationService.pushNamed('EnterProductsPage');
+    }
   }
 
   // void _showProductDetails(
@@ -205,7 +213,26 @@ class _ProductViewState extends ConsumerState<ProductView> {
                 ),
             ],
           ),
-        )),
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+                    onPressed: () {
+                      _openModalSheet(sheet: 'product');
+                    },
+                    label: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Add Product/Service',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    icon: const Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 27,
+                    ),
+                    backgroundColor: kPrimaryColor,
+                  ),
+        ),
       );
     });
   }

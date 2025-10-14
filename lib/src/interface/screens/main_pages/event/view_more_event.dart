@@ -92,6 +92,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       context: context,
+      isScrollControlled: true,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => Padding(
           padding: EdgeInsets.only(
@@ -100,10 +101,12 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
           child: Container(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
+              maxHeight: MediaQuery.of(context).size.height * 0.9,
             ),
-            child: Column(
-              children: [
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                 // Handle bar
                 Center(
                   child: Container(
@@ -293,13 +296,14 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                             .showSnackBar("Failed to add guest: $e");
                       }
                     })
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+               ],
+             ),
+           ),
+         ),
+       ),
+     ),
+   );
+ }
 
   @override
   Widget build(BuildContext context) {

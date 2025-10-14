@@ -229,10 +229,44 @@ Future<File?> _pickFile({required String imageType, int? companyIndex}) async {
         _isProfileImageLoading = false;
       });
     }
-  }
+  } else if (imageType == 'company' && companyIndex != null) {
+    setState(() {
+      _companyLogoLoadingStates[companyIndex] = true;
+      _companyImageFile = file;
+    });
+    try {
+      String companyLogoUrl = await imageUpload(file.path);
+      _companyImageSource = ImageSource.gallery;
 
-  // Your existing logic for 'company', 'award', etc. can remain the same here...
-  // Simply assign and upload based on imageType
+      // Update the company logo in the existing company data
+      final user = ref.read(userProvider).value;
+      if (user != null && user.company != null && companyIndex < user.company!.length) {
+        final existingCompany = user.company![companyIndex];
+        final updatedCompany = existingCompany.copyWith(logo: companyLogoUrl);
+        ref.read(userProvider.notifier).updateCompany(updatedCompany, companyIndex);
+      }
+      return file;
+    } catch (e) {
+      print('Error uploading company logo: $e');
+      snackbarService.showSnackBar('Failed to upload company logo');
+    } finally {
+      setState(() {
+        _companyLogoLoadingStates[companyIndex] = false;
+      });
+    }
+  } else if (imageType == 'award') {
+    setState(() {
+      _awardImageSource = ImageSource.gallery;
+      _awardImageFIle = file;
+    });
+    return file;
+  } else if (imageType == 'certificate') {
+    setState(() {
+      _certificateSource = ImageSource.gallery;
+      _certificateImageFIle = file;
+    });
+    return file;
+  }
 
   return null;
 }

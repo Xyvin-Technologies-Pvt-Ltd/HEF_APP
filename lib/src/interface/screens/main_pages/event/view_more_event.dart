@@ -230,11 +230,44 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                       final phone = _numberController.text.trim();
                       Navigator.pop(context);
 
-                      if (guestName.isEmpty ||
-                          category.isEmpty ||
-                          phone.isEmpty) {
+                      // Validation for name field
+                      if (guestName.isEmpty) {
                         SnackbarService()
-                            .showSnackBar("All fields are required!");
+                            .showSnackBar("Guest name is required!");
+                        return;
+                      }
+                      if (guestName.length < 2) {
+                        SnackbarService()
+                            .showSnackBar("Guest name must be at least 2 characters long!");
+                        return;
+                      }
+
+                      // Validation for category field
+                      if (category.isEmpty) {
+                        SnackbarService()
+                            .showSnackBar("Category is required!");
+                        return;
+                      }
+                      if (category.length < 2) {
+                        SnackbarService()
+                            .showSnackBar("Category must be at least 2 characters long!");
+                        return;
+                      }
+
+                      // Validation for phone field
+                      if (phone.isEmpty) {
+                        SnackbarService()
+                            .showSnackBar("Phone number is required!");
+                        return;
+                      }
+                      if (phone.length < 10) {
+                        SnackbarService()
+                            .showSnackBar("Phone number must be at least 10 digits!");
+                        return;
+                      }
+                      if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
+                        SnackbarService()
+                            .showSnackBar("Phone number must contain only digits!");
                         return;
                       }
 

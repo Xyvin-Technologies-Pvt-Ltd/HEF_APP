@@ -527,6 +527,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                                   .size
                                                                   .width *
                                                               0.95,
+                                                      height: 
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width * 
+                                                                  0.95 * 9 / 16
+,
                                                       child: GestureDetector(
                                                         onTap: () {
                                                           navigationService
@@ -544,7 +550,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                     );
                                                   }).toList(),
                                                   options: CarouselOptions(
-                                                    height: 268,
+                                                    height: 300,
                                                     scrollPhysics: events
                                                                 .length >
                                                             1

@@ -41,7 +41,7 @@ Widget eventWidget({
                   Container(
                     padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
                     width: MediaQuery.sizeOf(context).width * .95,
-                    height: 190,
+                    height: MediaQuery.of(context).size.width * 0.95 * 9 / 16,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                     ),

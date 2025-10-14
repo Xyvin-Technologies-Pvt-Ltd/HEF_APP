@@ -396,7 +396,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                               height: 5,
                             ),
                             const Text(
-                              'Accepted formats: JPG, PNG / Max size: 5MB\nRecommended dimensions: 3:1 for best quality',
+                              'Accepted formats: JPG, PNG / Max size: 1MB\nRecommended dimensions: 3:1 for best quality',
                               style:
                                   TextStyle(fontSize: 10, color: Colors.grey),
                             ),

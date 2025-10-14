@@ -138,6 +138,12 @@ class _ShowAddCertificateSheetState extends State<ShowAddCertificateSheet> {
                                 ),
                         ),
                       ),
+                      SizedBox(height: 5,),
+                      const Text(
+                              'Accepted formats: JPG, PNG / Max size: 1MB\nRecommended dimensions: 3:1 for best quality',
+                              style:
+                                  TextStyle(fontSize: 10, color: Colors.grey),
+                            ),
                       if (state.hasError)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),

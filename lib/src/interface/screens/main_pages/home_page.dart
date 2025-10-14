@@ -35,6 +35,7 @@ import 'package:hef/src/interface/components/shimmers/dashboard_shimmer.dart';
 import 'package:hef/src/interface/components/ModalSheets/date_filter_sheet.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
 import 'package:hef/src/interface/screens/web_view_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   final UserModel user;
@@ -1022,7 +1023,28 @@ Widget customNotice({
                         const TextStyle(color: kGreyDark // Set the font color
                             ),
                   ),
-                )
+                ),
+                const SizedBox(height: 8),
+
+                GestureDetector(
+                    onTap: () async {
+                      // CHANGE: add async function
+                      final Uri url = Uri.parse(
+                          notice.link ?? ''); // CHANGE: parse the link
+                      if (await canLaunchUrl(url)) {
+                        // CHANGE: check if the link can be launched
+                        await launchUrl(url,
+                            mode: LaunchMode
+                                .externalApplication); // CHANGE: open in browser
+                      } else {
+                        // Optionally show an error/snackbar
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Could not launch link')),
+                        );
+                      }
+                    },
+                    child: Text('Know more >'))
               ],
             ),
           ),

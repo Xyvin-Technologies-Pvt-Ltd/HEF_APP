@@ -173,7 +173,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 validator: (value) => null,
               ),
               MemberCreationTextfield(
-                label: 'Company Name ',
+                label: 'Company Name *',
                 hintText: 'Name',
                 textEditingController: companyNameController,
                 validator: (value) => null,
@@ -239,12 +239,12 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
               ),
               MemberCreationTextfield(
                 textEditingController: companyDesignationController,
-                label: 'Designation ',
+                label: 'Designation *',
                 hintText: 'Designation',
                 validator: (value) => null,
               ),
               MemberCreationTextfield(
-                label: 'Company Email ',
+                label: 'Company Email *',
                 hintText: 'email',
                 textEditingController: companyEmailController,
                 validator: (value) => null,
@@ -257,7 +257,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
               ),
               MemberCreationTextfield(
                 textEditingController: businessCategoryController,
-                label: 'Business Category ',
+                label: 'Business Category *',
                 hintText: 'Enter business category',
                 validator: (value) => null,
                 // validator: (value) =>
@@ -265,7 +265,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
               ),
               MemberCreationTextfield(
                 textEditingController: businessSubCategoryController,
-                label: 'Sub Category ',
+                label: 'Sub Category *',
                 hintText: 'Enter sub category',
                 validator: (value) => null,
                 // validator: (value) =>

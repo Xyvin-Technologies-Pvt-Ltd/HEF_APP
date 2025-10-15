@@ -207,22 +207,51 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                               user.userId ==
                                                               id) ??
                                                       false);
-                                              return IconButton(
-                                                icon: userExists
-                                                    ? const Icon(
-                                                        Icons
-                                                            .notification_add_outlined,
-                                                        color: kRed)
-                                                    : const Icon(Icons
-                                                        .notifications_none_outlined),
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            const NotificationPage()),
-                                                  );
-                                                },
+                                              return Stack(
+                                                children: [
+                                                  IconButton(
+                                                    icon: userExists
+                                                        ? const Icon(
+                                                            Icons
+                                                                .notification_add_outlined,
+                                                            color: kRed)
+                                                        : const Icon(Icons
+                                                            .notifications_none_outlined),
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                const NotificationPage()),
+                                                      );
+                                                    },
+                                                  ),
+                                                  if (notifications.isNotEmpty)
+                                                    Positioned(
+                                                      right: 0,
+                                                      top: 0,
+                                                      child: Container(
+                                                        padding: const EdgeInsets.all(2),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.red,
+                                                          borderRadius: BorderRadius.circular(10),
+                                                        ),
+                                                        constraints: const BoxConstraints(
+                                                          minWidth: 18,
+                                                          minHeight: 18,
+                                                        ),
+                                                        child: Text(
+                                                          '${notifications.length}',
+                                                          style: const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 12,
+                                                            fontWeight: FontWeight.bold,
+                                                          ),
+                                                          textAlign: TextAlign.center,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
                                               );
                                             },
                                             loading: () => const Center(

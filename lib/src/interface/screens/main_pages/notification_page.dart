@@ -36,6 +36,63 @@ class NotificationPage extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
               ),
+              actions: [
+                Consumer(
+                  builder: (context, ref, child) {
+                    final asyncNotifications = ref.watch(fetchNotificationsProvider);
+                    final hasNotifications = asyncNotifications.maybeWhen(
+                      data: (notifications) => notifications.isNotEmpty,
+                      orElse: () => false,
+                    );
+
+                    if (!hasNotifications) return SizedBox();
+
+                    return TextButton(
+                      onPressed: () async {
+                        try {
+                          // Show confirmation dialog
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Clear All Notifications'),
+                                content: Text('Are you sure you want to clear all notifications?'),
+                                actions: [
+                                  TextButton(
+                                    child: Text('Cancel'),
+                                    onPressed: () => Navigator.of(context).pop(false),
+                                  ),
+                                  TextButton(
+                                    child: Text('Clear All'),
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
+                          if (confirm == true) {
+                            await NotificationApiService.clearAllNotifications();
+                            // Refresh the notifications list
+                            ref.invalidate(fetchNotificationsProvider);
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to clear notifications')),
+                          );
+                        }
+                      },
+                      child: Text(
+                        'Clear All',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             body: SingleChildScrollView(
               child: Column(
@@ -59,6 +116,9 @@ class NotificationPage extends StatelessWidget {
                             content: notifications[index].content ?? '',
                             dateTime: notifications[index].updatedAt!,
                             fileUrl: notifications[index].media,
+                            notificationId: '${notifications[index].subject}_${notifications[index].updatedAt?.millisecondsSinceEpoch}_${index}', // Create unique ID from subject, timestamp, and index
+                            ref: ref,
+                            context: context,
                           );
                         },
                         padding: EdgeInsets.all(0.0),
@@ -86,6 +146,9 @@ class NotificationPage extends StatelessWidget {
     required String content,
     required DateTime dateTime,
     String? fileUrl,
+    required String notificationId,
+    required WidgetRef ref,
+    required BuildContext context,
   }) {
     String time = timeAgo(dateTime);
     return Padding(
@@ -116,6 +179,45 @@ class NotificationPage extends StatelessWidget {
                       ),
                       softWrap: true,
                     ),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      try {
+                        // Show confirmation dialog
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Clear Notification'),
+                              content: Text('Are you sure you want to clear this notification?'),
+                              actions: [
+                                TextButton(
+                                  child: Text('Cancel'),
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                ),
+                                TextButton(
+                                  child: Text('Clear'),
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                        if (confirm == true) {
+                          await NotificationApiService.clearNotification(notificationId);
+                          // Refresh the notifications list
+                          ref.invalidate(fetchNotificationsProvider);
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to clear notification')),
+                        );
+                      }
+                    },
+                    icon: Icon(Icons.clear, size: 20, color: Colors.grey),
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
                   ),
                 ],
               ),

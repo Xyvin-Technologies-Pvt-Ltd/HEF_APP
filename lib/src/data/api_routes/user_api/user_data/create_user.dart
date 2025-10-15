@@ -9,7 +9,7 @@ import 'package:http/http.dart'as http;
 
 Future<void> createUser(
     {required UserModel user}) async {
-  final url = Uri.parse('$baseUrl/feeds');
+  final url = Uri.parse('$baseUrl/');
 
   final headers = {
     'accept': '*/*',
@@ -20,19 +20,19 @@ Future<void> createUser(
   final body = jsonEncode({
 {
   "name": user.name,
-  "uid": user.name,
-  "memberId": user.name,
-  "bloodgroup": user.name,
-  "role":user.name,
-  "chapter": user.name,
-  "image": user.name,
-  "email": user.name,
-  "phone":user.name,
-  "bio": user.name,
-  "status": user.name,
-  "address": user.name,
-  "businessCatogary":user.name,
-  "businessSubCatogary": user.name,
+  "uid": user.uid,
+  "memberId": user.memberId,
+  "bloodgroup": user.bloodgroup,
+  "role":user.role,
+  "chapter": user.chapter,
+  "image": user.image,
+  "email": user.email,
+  "phone":user.phone,
+  "bio": user.bio,
+  "status": user.status,
+  "address": user.address,
+  "businessCatogary":user.businessCategory,
+  "businessSubCatogary": user.businessSubCategory,
   "company": {
     "name": user.company?[0].name,
     "designation":user.company?[0].designation,

@@ -89,44 +89,100 @@ class NotificationApiService {
   }
   
 static Future<void> createLevelNotification({
-  required String level,
-  required List<String> id,
-  required String subject,
-  required String content,
-  String? media,
+ required String level,
+ required List<String> id,
+ required String subject,
+ required String content,
+ String? media,
 }) async {
-  final url = Uri.parse('$baseUrl/notification/level');
-  SnackbarService snackbarService = SnackbarService();
-  final headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $token',
-  };
-  log('Notification sending ids:$id');
-  final body = jsonEncode({
-    'level': level,
-    'id': id,
-    'subject': subject,
-    'content': content,
-    'type': 'in-app',
-    if (media != null) 'media': media,
-  });
-  log('Notification body:$body');
+ final url = Uri.parse('$baseUrl/notification/level');
+ SnackbarService snackbarService = SnackbarService();
+ final headers = {
+   'Content-Type': 'application/json',
+   'Authorization': 'Bearer $token',
+ };
+ log('Notification sending ids:$id');
+ final body = jsonEncode({
+   'level': level,
+   'id': id,
+   'subject': subject,
+   'content': content,
+   'type': 'in-app',
+   if (media != null) 'media': media,
+ });
+ log('Notification body:$body');
+ try {
+   final response = await http.post(
+     url,
+     headers: headers,
+     body: body,
+   );
+
+   if (response.statusCode == 200) {
+     final data = jsonDecode(response.body);
+     snackbarService.showSnackBar(data['message']);
+   } else {
+     final error = jsonDecode(response.body);
+     snackbarService.showSnackBar(error['message']);
+   }
+ } catch (e) {
+   log(e.toString());
+ }
+}
+
+/// Clear individual notification by marking as read/dismissed
+static Future<void> clearNotification(String notificationId) async {
+  final url = Uri.parse('$baseUrl/notification/user/$notificationId');
+  log('Clearing notification: $notificationId');
+
   try {
-    final response = await http.post(
+    final response = await http.delete(
       url,
-      headers: headers,
-      body: body,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      snackbarService.showSnackBar(data['message']);
+      final data = json.decode(response.body);
+      log('Notification cleared: ${data['message']}');
     } else {
-      final error = jsonDecode(response.body);
-      snackbarService.showSnackBar(error['message']);
+      final error = json.decode(response.body);
+      log('Error clearing notification: ${error['message']}');
+      throw Exception(error['message']);
     }
   } catch (e) {
-    log(e.toString());
+    log('Exception clearing notification: ${e.toString()}');
+    throw Exception('Failed to clear notification');
+  }
+}
+
+/// Clear all notifications for the user
+static Future<void> clearAllNotifications() async {
+  final url = Uri.parse('$baseUrl/notification/user/all');
+  log('Clearing all notifications');
+
+  try {
+    final response = await http.delete(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      log('All notifications cleared: ${data['message']}');
+    } else {
+      final error = json.decode(response.body);
+      log('Error clearing all notifications: ${error['message']}');
+      throw Exception(error['message']);
+    }
+  } catch (e) {
+    log('Exception clearing all notifications: ${e.toString()}');
+    throw Exception('Failed to clear all notifications');
   }
 }
 
@@ -136,4 +192,16 @@ static Future<void> createLevelNotification({
 Future<List<NotificationModel>> fetchNotifications(
     Ref ref) async {
   return await NotificationApiService.fetchUserNotifications();
+}
+
+@riverpod
+Future<void> clearNotification(
+    Ref ref,
+    String notificationId) async {
+  return await NotificationApiService.clearNotification(notificationId);
+}
+
+@riverpod
+Future<void> clearAllNotifications(Ref ref) async {
+  return await NotificationApiService.clearAllNotifications();
 }

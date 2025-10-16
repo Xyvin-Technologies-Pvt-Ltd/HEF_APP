@@ -10,6 +10,7 @@ import 'package:hef/src/data/api_routes/news_api/news_api.dart';
 import 'package:hef/src/data/api_routes/notification_api/notification_api.dart';
 import 'package:hef/src/data/api_routes/promotion_api/promotion_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
+import 'package:hef/src/data/models/notification_model.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
@@ -200,17 +201,28 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               fetchNotificationsProvider);
                                           return asyncNotifications.when(
                                             data: (notifications) {
-                                              bool userExists = notifications
-                                                  .any((notification) =>
-                                                      notification.users?.any(
-                                                          (user) =>
-                                                              user.userId ==
-                                                              id) ??
-                                                      false);
+                                              // Filter out cleared notifications for the current user
+                                              final visibleNotifications = notifications.where((notification) {
+                                                final userNotification = notification.users?.firstWhere(
+                                                  (user) => user.userId == id,
+                                                  orElse: () => UserNotification(userId: '', read: false, cleared: false),
+                                                );
+                                                return !(userNotification?.cleared ?? false);
+                                              }).toList();
+
+                                              bool hasUnread = visibleNotifications
+                                                  .any((notification) {
+                                                    final userNotification = notification.users?.firstWhere(
+                                                      (user) => user.userId == id,
+                                                      orElse: () => UserNotification(userId: '', read: false, cleared: false),
+                                                    );
+                                                    return userNotification?.read ?? false;
+                                                  });
+
                                               return Stack(
                                                 children: [
                                                   IconButton(
-                                                    icon: userExists
+                                                    icon: hasUnread
                                                         ? const Icon(
                                                             Icons
                                                                 .notification_add_outlined,
@@ -226,7 +238,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                       );
                                                     },
                                                   ),
-                                                  if (notifications.isNotEmpty)
+                                                  if (visibleNotifications.isNotEmpty)
                                                     Positioned(
                                                       right: 0,
                                                       top: 0,
@@ -241,7 +253,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                           minHeight: 18,
                                                         ),
                                                         child: Text(
-                                                          '${notifications.length}',
+                                                          '${visibleNotifications.length}',
                                                           style: const TextStyle(
                                                             color: Colors.white,
                                                             fontSize: 12,

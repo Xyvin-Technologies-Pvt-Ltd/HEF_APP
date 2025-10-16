@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:hef/src/data/api_routes/notification_api/notification_api.dart';
 import 'package:hef/src/data/globals.dart';
+import 'package:hef/src/data/models/notification_model.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 
 class NotificationPage extends StatelessWidget {
@@ -99,24 +100,54 @@ class NotificationPage extends StatelessWidget {
                 children: [
                   asyncNotification.when(
                     data: (notifications) {
+                      // Filter out notifications that are cleared for the current user
+                      final visibleNotifications = notifications.where((notification) {
+                        final userNotification = notification.users?.firstWhere(
+                          (user) => user.userId == id,
+                          orElse: () => UserNotification(userId: '', read: false, cleared: false),
+                        );
+                        return !(userNotification?.cleared ?? false);
+                      }).toList();
+
+                      if (visibleNotifications.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.notifications_none, size: 64, color: Colors.grey),
+                              SizedBox(height: 16),
+                              Text(
+                                'No notifications',
+                                style: TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
                       return ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
-                        itemCount: notifications.length,
+                        itemCount: visibleNotifications.length,
                         itemBuilder: (context, index) {
-                          bool userExists =
-                              notifications[index].users?.any((user) {
-                                    return user.userId == id;
-                                  }) ??
-                                  false;
-                          log(userExists.toString());
+                          final notification = visibleNotifications[index];
+                          final userNotification = notification.users?.firstWhere(
+                            (user) => user.userId == id,
+                            orElse: () => UserNotification(userId: '', read: false, cleared: false),
+                          );
+
+                          bool isRead = userNotification?.read ?? false;
+                          bool isCleared = userNotification?.cleared ?? false;
+
+                          log('Notification ${index}: read=$isRead, cleared=$isCleared');
+
                           return _buildNotificationCard(
-                            readed: userExists,
-                            subject: notifications[index].subject ?? '',
-                            content: notifications[index].content ?? '',
-                            dateTime: notifications[index].updatedAt!,
-                            fileUrl: notifications[index].media,
-                            notificationId: '${notifications[index].subject}_${notifications[index].updatedAt?.millisecondsSinceEpoch}_${index}', // Create unique ID from subject, timestamp, and index
+                            readed: isRead,
+                            subject: notification.subject ?? '',
+                            content: notification.content ?? '',
+                            dateTime: notification.updatedAt!,
+                            fileUrl: notification.media,
+                            notificationId: '${notification.subject}_${notification.updatedAt?.millisecondsSinceEpoch}_${index}',
                             ref: ref,
                             context: context,
                           );

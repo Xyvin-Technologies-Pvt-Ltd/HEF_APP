@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 class Link {
   final String? name;
   final String? link;
@@ -266,7 +268,7 @@ class UserModel {
               ?.map((e) => e as UserModel)
               .toList() ??
           [],
-      feedCount: json['feedCount'] as int? ?? 0,
+      feedCount: json['feedsCount'] as int? ?? json['feedCount'] as int? ?? 0,
       productCount: json['productCount'] as int? ?? 0,
       subscription: json['subscription'] as String? ?? '',
       fcm: json['fcm'] as String? ?? '',
@@ -282,6 +284,9 @@ class UserModel {
               .toList() ??
           [],
     );
+
+    // Debug logging to see what values are being parsed
+    log('UserModel Debug - feedCount from JSON: ${json['feedsCount']}, productCount from JSON: ${json['productCount']}');
   }
 
   Map<String, dynamic> toJson() {

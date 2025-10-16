@@ -25,10 +25,25 @@ class UserService {
     log(response.body);
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body)['data'];
+      final responseBody = json.decode(response.body);
+      final data = responseBody['data'];
+      log('=== USER DETAILS API DEBUG ===', name: 'USER_DETAILS_DEBUG');
+      log('Full API Response: ${responseBody}', name: 'USER_DETAILS_DEBUG');
+      log('User Data Section: $data', name: 'USER_DETAILS_DEBUG');
+      log('feedsCount field exists: ${data.containsKey('feedsCount')}', name: 'USER_DETAILS_DEBUG');
+      log('productCount field exists: ${data.containsKey('productCount')}', name: 'USER_DETAILS_DEBUG');
+      if (data.containsKey('feedsCount')) {
+        log('feedsCount value: ${data['feedsCount']}', name: 'USER_DETAILS_DEBUG');
+      }
+      if (data.containsKey('productCount')) {
+        log('productCount value: ${data['productCount']}', name: 'USER_DETAILS_DEBUG');
+      }
+      log('=== END DEBUG ===', name: 'USER_DETAILS_DEBUG');
       return UserModel.fromJson(data);
     } else {
-      throw Exception(json.decode(response.body)['message']);
+      final responseBody = json.decode(response.body);
+      log('API Error Response: ${responseBody}', name: 'USER_DETAILS_DEBUG');
+      throw Exception(responseBody['message']);
     }
   }
 

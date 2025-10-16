@@ -61,13 +61,15 @@ class NotificationModel {
 class UserNotification {
   final String? userId;
   final bool? read;
+  final bool? cleared;
 
-  UserNotification({this.userId, this.read});
+  UserNotification({this.userId, this.read, this.cleared});
 
   factory UserNotification.fromJson(Map<String, dynamic> json) {
     return UserNotification(
       userId: json['user'] as String?,
       read: json['read'] as bool? ?? false,
+      cleared: json['cleared'] as bool? ?? false,
     );
   }
 
@@ -75,6 +77,7 @@ class UserNotification {
     return {
       'user': userId,
       'read': read,
+      'cleared': cleared,
     };
   }
 }

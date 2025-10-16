@@ -130,13 +130,13 @@ static Future<void> createLevelNotification({
  }
 }
 
-/// Clear individual notification by marking as read/dismissed
+/// Clear individual notification by marking as cleared
 static Future<void> clearNotification(String notificationId) async {
-  final url = Uri.parse('$baseUrl/notification/user/$notificationId');
+  final url = Uri.parse('$baseUrl/notification/clear/$notificationId');
   log('Clearing notification: $notificationId');
 
   try {
-    final response = await http.delete(
+    final response = await http.patch(
       url,
       headers: {
         "Content-Type": "application/json",
@@ -160,11 +160,11 @@ static Future<void> clearNotification(String notificationId) async {
 
 /// Clear all notifications for the user
 static Future<void> clearAllNotifications() async {
-  final url = Uri.parse('$baseUrl/notification/user/all');
+  final url = Uri.parse('$baseUrl/notification/clear-all');
   log('Clearing all notifications');
 
   try {
-    final response = await http.delete(
+    final response = await http.patch(
       url,
       headers: {
         "Content-Type": "application/json",

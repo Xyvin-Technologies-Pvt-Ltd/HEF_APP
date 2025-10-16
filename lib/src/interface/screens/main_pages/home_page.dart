@@ -335,28 +335,49 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     children: [
                                       Text('DASHBOARD', style: kSmallTitleR),
                                       const Spacer(),
-                                      IconButton(
-                                        icon: const Icon(Icons.filter_list),
-                                        onPressed: () {
-                                          showModalBottomSheet(
-                                            context: context,
-                                            isScrollControlled: true,
-                                            backgroundColor: Colors.transparent,
-                                            builder: (context) =>
-                                                DateFilterSheet(
-                                              onApply: (String? newStartDate,
-                                                  String? newEndDate) {
-                                                setState(() {
-                                                  startDate = newStartDate;
-                                                  endDate = newEndDate;
-                                                });
+                                      Stack(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.filter_list),
+                                            onPressed: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                isScrollControlled: true,
+                                                backgroundColor: Colors.transparent,
+                                                builder: (context) =>
+                                                    DateFilterSheet(
+                                                  onApply: (String? newStartDate,
+                                                      String? newEndDate) {
+                                                    setState(() {
+                                                      startDate = newStartDate;
+                                                      endDate = newEndDate;
+                                                    });
 
-                                                ref.invalidate(
-                                                    getUserDashboardProvider);
-                                              },
+                                                    ref.invalidate(
+                                                        getUserDashboardProvider);
+                                                  },
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          if (startDate != null || endDate != null)
+                                            Positioned(
+                                              right: 12,
+                                              top: 12,
+                                              
+                                              child: Container(
+                                                padding: const EdgeInsets.all(2),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red,
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                constraints: const BoxConstraints(
+                                                  minWidth: 8,
+                                                  minHeight: 8,
+                                                ),
+                                              ),
                                             ),
-                                          );
-                                        },
+                                        ],
                                       ),
                                     ],
                                   ),

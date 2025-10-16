@@ -50,28 +50,26 @@ class _ChatDashState extends ConsumerState<ChatDash> {
         children: [
          
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Expanded(
-              child: TextField(
-                controller: _searchController,
-                focusNode: _searchFocus,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: 'Search Chats',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 216, 211, 211),
-                    ),
-                  ),
-                ),
-                onChanged: _onSearchChanged,
-                onSubmitted: _onSearchSubmitted,
-              ),
-            ),
-          ),
+             padding: const EdgeInsets.all(8.0),
+             child: TextField(
+               controller: _searchController,
+               focusNode: _searchFocus,
+               decoration: InputDecoration(
+                 filled: true,
+                 fillColor: Colors.white,
+                 prefixIcon: const Icon(Icons.search),
+                 hintText: 'Search Chats',
+                 border: OutlineInputBorder(
+                   borderRadius: BorderRadius.circular(8.0),
+                   borderSide: const BorderSide(
+                     color: Color.fromARGB(255, 216, 211, 211),
+                   ),
+                 ),
+               ),
+               onChanged: _onSearchChanged,
+               onSubmitted: _onSearchSubmitted,
+             ),
+           ),
 
         
           Expanded(

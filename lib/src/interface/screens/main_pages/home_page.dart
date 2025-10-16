@@ -541,7 +541,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 // Events Carousel
                                 asyncEvents.when(
                                     data: (events) {
-                                      return events.isNotEmpty
+                                      // Filter out completed events
+                                      final activeEvents = events
+                                          .where((event) => event.status?.toLowerCase() != 'completed')
+                                          .toList();
+
+                                      return activeEvents.isNotEmpty
                                           ? Column(
                                               children: [
                                                 Row(
@@ -561,17 +566,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                   ],
                                                 ),
                                                 CarouselSlider(
-                                                  items: events.map((event) {
+                                                  items: activeEvents.map((event) {
                                                     return Container(
                                                       width:
                                                           MediaQuery.of(context)
                                                                   .size
                                                                   .width *
                                                               0.95,
-                                                      height: 
+                                                      height:
                                                           MediaQuery.of(context)
                                                                   .size
-                                                                  .width * 
+                                                                  .width *
                                                                   0.95 * 9 / 16
 ,
                                                       child: GestureDetector(

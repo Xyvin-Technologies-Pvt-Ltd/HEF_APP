@@ -35,13 +35,19 @@ class MyEventsPage extends StatelessWidget {
           body: asyncEvents.when(
             data: (registeredEvents) {
               print(registeredEvents);
+
+              // Filter out completed events
+              final activeEvents = registeredEvents
+                  .where((event) => event.status?.toLowerCase() != 'completed')
+                  .toList();
+
               return ListView.builder(
-                itemCount: registeredEvents.length,
+                itemCount: activeEvents.length,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: eventCard(
-                        context: context, event: registeredEvents[index]),
+                        context: context, event: activeEvents[index]),
                   );
                 },
               );

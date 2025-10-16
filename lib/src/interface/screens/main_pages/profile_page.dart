@@ -256,6 +256,9 @@ class ProfilePage extends StatelessWidget {
                                                               ],
                                                             ),
                                                           ),
+                                                          SizedBox(height: 5,),
+                                                          if(user.role != null)
+                                                          Text(user.role!.toUpperCase())
                                                     ],
                                                   ),
                                                 ),

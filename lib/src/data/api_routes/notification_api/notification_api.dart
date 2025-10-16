@@ -136,7 +136,7 @@ static Future<void> clearNotification(String notificationId) async {
   log('Clearing notification: $notificationId');
 
   try {
-    final response = await http.patch(
+    final response = await http.put(
       url,
       headers: {
         "Content-Type": "application/json",
@@ -164,7 +164,7 @@ static Future<void> clearAllNotifications() async {
   log('Clearing all notifications');
 
   try {
-    final response = await http.patch(
+    final response = await http.put(
       url,
       headers: {
         "Content-Type": "application/json",

@@ -56,6 +56,16 @@ class ProfilePreview extends ConsumerWidget {
     PageController _videoCountController = PageController();
     String joinedDate = DateFormat('dd/MM/yyyy').format(user.createdAt!);
     Map<String, String> levelData = extractLevelDetails(user.level ?? '');
+
+    // Debug logging for role field in current user's profile
+    log('=== CURRENT USER PROFILE DEBUG ===');
+    log('Current User ID: $id');
+    log('Profile User ID: ${user.uid}');
+    log('User Role: "${user.role}"');
+    log('Role is null: ${user.role == null}');
+    log('Role is empty: ${user.role?.isEmpty ?? true}');
+    log('=== END CURRENT USER PROFILE DEBUG ===');
+
     _videoCountController.addListener(() {
       _currentVideo.value = _videoCountController.page!.round();
     });
@@ -144,6 +154,9 @@ class ProfilePreview extends ConsumerWidget {
                         const SizedBox(height: 10),
                         Text('${user.name ?? ''}', style: kHeadTitleSB),
                         const SizedBox(height: 5),
+                        // Display role if available
+                        if (user.role != null && user.role!.isNotEmpty)
+                          Text(user.role!.toUpperCase()),
                         if (user.company != null)
                           Column(
                             children: [

@@ -109,6 +109,17 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                 Map<String, String> levelData =
                     extractLevelDetails(user.level ?? '');
                 log(levelData.toString());
+
+                // Debug logging for role field
+                log('=== PROFILE DEBUG ===');
+                log('User ID: ${user.uid}');
+                log('User Name: ${user.name}');
+                log('User Role: "${user.role}"');
+                log('Role is null: ${user.role == null}');
+                log('Role is empty: ${user.role?.isEmpty ?? true}');
+                log('Current user ID: $id');
+                log('Is own profile: ${user.uid == id}');
+                log('=== END PROFILE DEBUG ===');
                 return Stack(
                   children: [
                     Positioned(
@@ -261,8 +272,8 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                               ),
                                             ),
 
-                                            //for showing roll
-                                            if(user.role != null )
+                                            //for showing role
+                                            if(user.role != null && user.role!.isNotEmpty)
                                             Text(user.role!.toUpperCase()),
                                         const SizedBox(height: 10),
                                         Wrap(

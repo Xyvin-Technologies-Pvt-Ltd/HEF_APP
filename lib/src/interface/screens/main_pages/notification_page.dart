@@ -141,13 +141,22 @@ class NotificationPage extends StatelessWidget {
 
                           log('Notification ${index}: read=$isRead, cleared=$isCleared');
 
+                          // Use the real notification ID from the database
+                          final realNotificationId = notification.id;
+                          log('Notification ID: $realNotificationId, Subject: ${notification.subject}');
+
+                          if (realNotificationId == null || realNotificationId.isEmpty) {
+                            log('ERROR: Notification ID is null or empty!');
+                            return SizedBox(); // Skip this notification if no ID
+                          }
+
                           return _buildNotificationCard(
                             readed: isRead,
                             subject: notification.subject ?? '',
                             content: notification.content ?? '',
                             dateTime: notification.updatedAt!,
                             fileUrl: notification.media,
-                            notificationId: '${notification.subject}_${notification.updatedAt?.millisecondsSinceEpoch}_${index}',
+                            notificationId: realNotificationId,
                             ref: ref,
                             context: context,
                           );
@@ -236,6 +245,7 @@ class NotificationPage extends StatelessWidget {
                         );
 
                         if (confirm == true) {
+                          log('About to clear notification with ID: $notificationId');
                           await NotificationApiService.clearNotification(notificationId);
                           // Refresh the notifications list
                           ref.invalidate(fetchNotificationsProvider);

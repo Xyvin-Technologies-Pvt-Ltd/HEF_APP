@@ -1,28 +1,31 @@
 class NotificationModel {
-  final List<UserNotification>? users;
-  final String? subject;
-  final String? content;
-  final String? media;
-  final String? link;
-  final String? type;
-  final String? fileUrl;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
+   final String? id;
+   final List<UserNotification>? users;
+   final String? subject;
+   final String? content;
+   final String? media;
+   final String? link;
+   final String? type;
+   final String? fileUrl;
+   final DateTime? createdAt;
+   final DateTime? updatedAt;
 
-  NotificationModel({
-    this.users,
-    this.subject,
-    this.content,
-    this.media,
-    this.link,
-    this.type,
-    this.fileUrl,
-    this.createdAt,
-    this.updatedAt,
-  });
+   NotificationModel({
+     this.id,
+     this.users,
+     this.subject,
+     this.content,
+     this.media,
+     this.link,
+     this.type,
+     this.fileUrl,
+     this.createdAt,
+     this.updatedAt,
+   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
+      id: json['_id'] as String? ?? json['id'] as String?,
       users: json['users'] != null
           ? (json['users'] as List)
               .map((user) => UserNotification.fromJson(user))

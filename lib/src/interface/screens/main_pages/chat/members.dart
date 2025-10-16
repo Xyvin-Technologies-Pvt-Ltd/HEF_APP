@@ -512,6 +512,10 @@ class _MembersPageState extends ConsumerState<MembersPage> {
     final isLoading = ref.read(peopleNotifierProvider.notifier).isLoading;
     final isFirstLoad = ref.read(peopleNotifierProvider.notifier).isFirstLoad;
 
+    // Sort users alphabetically by name (case-insensitive)
+    final sortedUsers = users.toList()
+      ..sort((a, b) => (a.name ?? '').toLowerCase().compareTo((b.name ?? '').toLowerCase()));
+
     final asyncChats = ref.watch(fetchChatThreadProvider);
 
     return Scaffold(
@@ -615,17 +619,17 @@ class _MembersPageState extends ConsumerState<MembersPage> {
      
             if (isFirstLoad)
               const Center(child: LoadingAnimation())
-            else if (users.isNotEmpty)
+            else if (sortedUsers.isNotEmpty)
               ListView.builder(
-                shrinkWrap: true, 
+                shrinkWrap: true,
                 physics:
-                    const NeverScrollableScrollPhysics(), 
-                itemCount: users.length + (isLoading ? 1 : 0),
+                    const NeverScrollableScrollPhysics(),
+                itemCount: sortedUsers.length + (isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
-                  if (index == users.length) {
+                  if (index == sortedUsers.length) {
                     return Center(child: LoadingAnimation());
                   }
-                  final user = users[index];
+                  final user = sortedUsers[index];
                   final asyncUserChat = asyncChats.when(
                     data: (chats) {
                       final chatForUser = chats.firstWhere(

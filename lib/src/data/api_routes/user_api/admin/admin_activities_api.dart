@@ -8,7 +8,7 @@ import 'package:hef/src/data/globals.dart';
 
 Future<String> createUser({Map<String, dynamic>? data}) async {
   SnackbarService snackbarService = SnackbarService();
-  final url = Uri.parse('$baseUrl/user/member');
+  final url = Uri.parse('$baseUrl/user/admin');
   log(data.toString());
   final response = await http.post(url,
       headers: {

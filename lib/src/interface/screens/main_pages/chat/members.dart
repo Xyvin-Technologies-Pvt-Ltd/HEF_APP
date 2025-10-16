@@ -14,10 +14,13 @@ import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/chat_screen.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/profile_preview.dart';
+import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
+import 'package:hef/src/data/models/user_model.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/scheduler.dart';
 
 class MembersPage extends ConsumerStatefulWidget {
   const MembersPage({super.key});
@@ -734,10 +737,32 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                   );
 
                   return GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      // Navigate immediately with current user data
+                      final profilePreview = ProfilePreview(user: user);
+
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => ProfilePreview(user: user),
+                          builder: (context) {
+                            // Fetch complete user data in background
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              ref.read(fetchUserDetailsProvider(user.uid ?? '').future).then((completeUser) {
+                                if (context.mounted && Navigator.canPop(context)) {
+                                  // Update the profile preview with complete data
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (context) => ProfilePreview(user: completeUser),
+                                    ),
+                                  );
+                                }
+                              }).catchError((error) {
+                                // Silently handle error - keep original data
+                                print('Error fetching complete user data: $error');
+                              });
+                            });
+
+                            return profilePreview;
+                          },
                         ),
                       );
                     },

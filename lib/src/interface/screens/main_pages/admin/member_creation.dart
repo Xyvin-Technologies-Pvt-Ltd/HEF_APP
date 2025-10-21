@@ -25,7 +25,6 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController phoneCountryController = TextEditingController();
-  TextEditingController bloodController = TextEditingController();
   TextEditingController bioController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController adressController = TextEditingController();
@@ -69,13 +68,6 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 validator: (value) =>
                     value!.isEmpty ? 'This field is required' : null,
               ),
-              MemberCreationTextfield(
-                textEditingController: bloodController,
-                label: 'Blood Group *',
-                hintText: 'Blood Group',
-                validator: (value) => 
-                value!.isEmpty ? 'This field is required' : null,
-              ),
               UploadPhotoWidget(
                 onPhotoChanged: (File? photo) {
                   setState(() {
@@ -88,14 +80,23 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 label: 'Bio *',
                 hintText: 'Add description',
                 maxLines: 5,
-                validator: (value) => null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Bio is required' : null,
               ),
               MemberCreationTextfield(
                 textEditingController: emailController,
                 label: 'Email ID *',
                 hintText: 'Email ID',
-                validator: (value) => 
-                value!.isEmpty ? 'This field is required' : null,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Email is required';
+                  }
+                  if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                      .hasMatch(value)) {
+                    return 'Enter a valid email address';
+                  }
+                  return null;
+                },
               ),
               Text('Phone *',style: const TextStyle(fontWeight: FontWeight.bold)),
               SizedBox(height: 5,),
@@ -176,12 +177,20 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 label: 'Company Name *',
                 hintText: 'Name',
                 textEditingController: companyNameController,
-                validator: (value) => null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Company name is required' : null,
               ),
               Container(
                 width: double.infinity,
                 child: IntlPhoneField(
-                  validator: (phone) => null,
+                  validator: (phone) {
+                    if (phone != null && phone.number.isNotEmpty) {
+                      if (phone.number.length != 10) {
+                        return 'Phone number must be 10 digits';
+                      }
+                    }
+                    return null;
+                  },
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -241,35 +250,44 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 textEditingController: companyDesignationController,
                 label: 'Designation *',
                 hintText: 'Designation',
-                validator: (value) => null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Designation is required' : null,
               ),
               MemberCreationTextfield(
                 label: 'Company Email *',
                 hintText: 'email',
                 textEditingController: companyEmailController,
-                validator: (value) => null,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Company email is required';
+                  }
+                  if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                      .hasMatch(value)) {
+                    return 'Enter a valid email address';
+                  }
+                  return null;
+                },
               ),
               MemberCreationTextfield(
                 label: 'Website ',
                 hintText: 'Link',
                 textEditingController: companyWebsiteController,
-                validator: (value) => null,
+                validator: (value) => 
+                value!.isEmpty ? 'Website is required' : null,
               ),
               MemberCreationTextfield(
                 textEditingController: businessCategoryController,
                 label: 'Business Category *',
                 hintText: 'Enter business category',
-                validator: (value) => null,
-                // validator: (value) =>
-                //     value!.isEmpty ? 'Business category is required' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Business category is required' : null,
               ),
               MemberCreationTextfield(
                 textEditingController: businessSubCategoryController,
                 label: 'Sub Category *',
                 hintText: 'Enter sub category',
-                validator: (value) => null,
-                // validator: (value) =>
-                //     value!.isEmpty ? 'Sub category is required' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Sub category is required' : null,
               ),
               CustomDropdown(
                 label: 'Status',
@@ -316,7 +334,6 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                           navigationService.pushNamed('MemberAllocation',
                               arguments: UserModel(
                                   name: nameController.text,
-                                  bloodgroup: bloodController.text,
                                   image: profileImageUrl,
                                   bio: bioController.text,
                                   email: emailController.text,
@@ -339,14 +356,14 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                   status: selectedStatus,
                                   dateOfJoining: dateOfJoining));
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Please fill all required fields (Name, Phone, Status)'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
+                           ScaffoldMessenger.of(context).showSnackBar(
+                             const SnackBar(
+                               content: Text(
+                                   'Please fill all required fields (Name, Bio, Email, Phone, Company Name, Designation, Company Email, Business Category, Sub Category, Status)'),
+                               backgroundColor: Colors.red,
+                             ),
+                           );
+                         }
                       },
                     ),
                   ),

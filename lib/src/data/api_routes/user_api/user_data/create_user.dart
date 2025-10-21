@@ -9,7 +9,7 @@ import 'package:http/http.dart'as http;
 
 Future<void> createUser(
     {required UserModel user}) async {
-  final url = Uri.parse('$baseUrl/new-member');
+  final url = Uri.parse('$baseUrl/');
 
   final headers = {
     'accept': '*/*',

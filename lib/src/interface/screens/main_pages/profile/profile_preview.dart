@@ -427,6 +427,55 @@ class ProfilePreview extends ConsumerWidget {
                     const SizedBox(
                       height: 50,
                     ),
+                    // Business Tags Section
+                    if (user.businessTags != null && user.businessTags!.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(left: 10, bottom: 15),
+                            child: Text(
+                              'Business Tags',
+                              style: TextStyle(
+                                color: Color(0xFF2C2829),
+                                fontSize: 17,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+                            child: Wrap(
+                              spacing: 8.0,
+                              runSpacing: 8.0,
+                              children: user.businessTags!.map((tag) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: kPrimaryColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: kPrimaryColor,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    tag,
+                                    style: TextStyle(
+                                      color: kPrimaryColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
+                      ),
                     Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Consumer(

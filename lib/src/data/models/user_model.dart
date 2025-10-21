@@ -175,6 +175,7 @@ class UserModel {
   final String? levelName;
   final String? adminType;
   final List<String>? businessTags;
+  final DateTime? dateOfJoining;
 
   UserModel({
     this.role,
@@ -212,6 +213,7 @@ class UserModel {
     this.adminType,
     this.levelId,
     this.businessTags,
+    this.dateOfJoining,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -283,6 +285,9 @@ class UserModel {
               ?.map((e) => e as String)
               .toList() ??
           [],
+      dateOfJoining: json['dateOfJoining'] != null
+          ? DateTime.tryParse(json['dateOfJoining'] as String)
+          : null,
     );
 
     // Debug logging to see what values are being parsed
@@ -326,6 +331,7 @@ class UserModel {
       'adminType': adminType,
       'levelId': levelId,
       'businessTags': businessTags,
+      'dateOfJoining': dateOfJoining?.toIso8601String(),
     };
   }
 
@@ -363,6 +369,7 @@ class UserModel {
     String? levelId,
     String? adminType,
     List<String>? businessTags,
+    DateTime? dateOfJoining,
   }) {
     return UserModel(
       name: name ?? this.name,
@@ -398,6 +405,7 @@ class UserModel {
       levelId: levelId ?? this.levelId,
       adminType: level ?? this.adminType,
       businessTags: businessTags ?? this.businessTags,
+      dateOfJoining: dateOfJoining ?? this.dateOfJoining,
     );
   }
 }

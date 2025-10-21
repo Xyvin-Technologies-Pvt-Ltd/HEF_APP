@@ -44,6 +44,7 @@ class _AllocateMemberState extends State<AllocateMember> {
         "address": widget.newUser.address,
       "businessCatogary": widget.newUser.businessCategory,
       "businessSubCatogary": widget.newUser.businessSubCategory,
+      "dateOfJoining": widget.newUser.dateOfJoining?.toIso8601String(),
       "company": [{
         if (widget.newUser.company?[0].name != null &&
             widget.newUser.company?[0].name != '')

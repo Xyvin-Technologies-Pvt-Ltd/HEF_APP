@@ -304,6 +304,15 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                           String profileImageUrl = _profileImage != null
                               ? await imageUpload(_profileImage!.path)
                               : '';
+
+                          // Set joining date to current time
+                          DateTime dateOfJoining = DateTime.now();
+
+                          print('=== USER MODEL CREATION ===');
+                          print('Member Name: ${nameController.text}');
+                          print('Joining Date: ${dateOfJoining.toIso8601String()}');
+                          print('===========================');
+
                           navigationService.pushNamed('MemberAllocation',
                               arguments: UserModel(
                                   name: nameController.text,
@@ -327,7 +336,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                   ],
                                   businessCategory: businessCategoryController.text,
                                   businessSubCategory: businessSubCategoryController.text,
-                                  status: selectedStatus));
+                                  status: selectedStatus,
+                                  dateOfJoining: dateOfJoining));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -349,6 +359,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
     );
   }
 }
+
 
 class CustomDropdown extends StatelessWidget {
   final String label;

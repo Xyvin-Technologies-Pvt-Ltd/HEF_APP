@@ -10,7 +10,7 @@ class AnalyticsModel {
   final String? description;
   final Referral? referral;
   final String? contact;
-  final int? amount;
+  final double? amount;
   final DateTime? date;
   final String? meetingLink;
   final String? location;
@@ -47,7 +47,7 @@ class AnalyticsModel {
       referral:
           json['referral'] != null ? Referral.fromJson(json['referral']) : null,
       contact: json['contact'] as String?,
-      amount: json['amount'] as int?,
+      amount: json['amount'] != null ? (json['amount'] as num).toDouble() : null,
       date: json['date'] != null ? DateTime.tryParse(json['date']) : null,
       meetingLink: json['meetingLink'] as String?,
       location: json['location'] as String?,
@@ -85,7 +85,7 @@ class AnalyticsModel {
     String? description,
     Referral? referral,
     String? contact,
-    int? amount,
+    double? amount,
     DateTime? date,
     String? meetingLink,
     String? location,

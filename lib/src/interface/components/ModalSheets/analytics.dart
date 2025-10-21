@@ -139,26 +139,6 @@ class AnalyticsModalSheet extends ConsumerWidget {
                 analytic.status != 'completed')
               _buildStatusActionButtons(analyticsApiService, navigationService, ref),
 
-            // Complete button for accepted status (both parties can mark as complete)
-            if (analytic.status == 'accepted' &&
-                analytic.type != 'One v One Meeting')
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: customButton(
-                    sideColor: kGreen,
-                    buttonColor: kGreen,
-                    label: 'Mark as Completed',
-                    onPressed: () async {
-                      await analyticsApiService.updateAnalyticStatus(
-                          analyticId: analytic.id ?? '', action: 'completed');
-                      ref.invalidate(fetchAnalyticsProvider);
-                      navigationService.pop();
-                    },
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -297,9 +277,6 @@ class AnalyticsModalSheet extends ConsumerWidget {
                     },
                   ),
                 ),
-
-              if (analytic.status != 'meeting_scheduled')
-                const SizedBox(width: 12),
 
               // Accept button (for non-meeting types) or Schedule button (for meetings)
               if (analytic.type != 'One v One Meeting' && analytic.status != 'accepted')

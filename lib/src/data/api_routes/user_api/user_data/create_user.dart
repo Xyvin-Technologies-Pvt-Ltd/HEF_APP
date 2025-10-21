@@ -9,7 +9,7 @@ import 'package:http/http.dart'as http;
 
 Future<void> createUser(
     {required UserModel user}) async {
-  final url = Uri.parse('$baseUrl/');
+  final url = Uri.parse('$baseUrl/new-member');
 
   final headers = {
     'accept': '*/*',
@@ -17,31 +17,40 @@ Future<void> createUser(
     'Content-Type': 'application/json',
   };
 
-  final body = jsonEncode({
-{
-  "name": user.name,
-  "uid": user.uid,
-  "memberId": user.memberId,
-  "bloodgroup": user.bloodgroup,
-  "role":user.role,
-  "chapter": user.chapter,
-  "image": user.image,
-  "email": user.email,
-  "phone":user.phone,
-  "bio": user.bio,
-  "status": user.status,
-  "address": user.address,
-  "businessCatogary":user.businessCategory,
-  "businessSubCatogary": user.businessSubCategory,
-  "company": {
-    "name": user.company?[0].name,
-    "designation":user.company?[0].designation,
-    "email": user.company?[0].email,
-    "websites": user.company?[0].websites,
-    "phone": user.company?[0].phone,
-  }
-}
-  });
+  // Prepare the payload
+  final Map<String, dynamic> payload = {
+    "name": user.name,
+    "uid": user.uid,
+    "memberId": user.memberId,
+    "bloodgroup": user.bloodgroup,
+    "role": user.role,
+    "chapter": user.chapter,
+    "image": user.image,
+    "email": user.email,
+    "phone": user.phone,
+    "bio": user.bio,
+    "status": user.status,
+    "address": user.address,
+    "businessCatogary": user.businessCategory,
+    "businessSubCatogary": user.businessSubCategory,
+    "dateOfJoining": user.dateOfJoining?.toIso8601String(),
+    "company": {
+      "name": user.company?[0].name,
+      "designation": user.company?[0].designation,
+      "email": user.company?[0].email,
+      "websites": user.company?[0].websites,
+      "phone": user.company?[0].phone,
+    }
+  };
+
+  // Log the entire payload being sent to backend
+  print('=== MEMBER CREATION PAYLOAD ===');
+  print('URL: $url');
+  print('Headers: $headers');
+  print('Payload: ${const JsonEncoder.withIndent('  ').convert(payload)}');
+  print('================================');
+
+  final body = jsonEncode(payload);
 
   try {
     final response = await http.post(
@@ -50,14 +59,21 @@ Future<void> createUser(
       body: body,
     );
 
+    // Log the response
+    print('=== BACKEND RESPONSE ===');
+    print('Status Code: ${response.statusCode}');
+    print('Response Headers: ${response.headers}');
+    print('Response Body: ${response.body}');
+    print('========================');
+
     if (response.statusCode == 201 || response.statusCode == 200) {
-      print('Feed created successfully');
+      print('✅ Member created successfully');
     } else {
-      print('Failed to create user: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      print('❌ Failed to create member: ${response.statusCode}');
+      print('❌ Response body: ${response.body}');
     }
   } catch (e) {
-    print('Error: $e');
+    print('❌ Error creating member: $e');
   }
 }
 

@@ -59,7 +59,7 @@ class _SendAnalyticRequestPageState
       "member": isReceived ? id : selectedMember,
       "sender": isReceived ? selectedMember : id,
       if (amountController.text != '')
-        "amount": int.parse(amountController.text),
+        "amount": double.parse(amountController.text),
       "title": titleController.text,
       "description": descriptionController.text,
       if (selectedRequestType == 'Referral')

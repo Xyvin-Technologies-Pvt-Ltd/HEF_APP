@@ -143,33 +143,67 @@ class _MainPageState extends ConsumerState<MainPage> {
               return BottomNavigationBarItem(
                 backgroundColor: Colors.white,
                 icon: index == 2 // Assuming profile is the third item
-                    ? user.image != null && user.image != ''
-                        ? CircleAvatar(
-                            backgroundImage: NetworkImage(
-                              user.image ?? '',
-                            ),
-                            radius: 15,
-                          )
-                        : SvgPicture.asset(
-                                  'assets/svg/icons/dummy_person_small.svg')
-                    : IconResolver(
-                        iconPath: _inactiveIcons[index],
-                        color: selectedIndex == index
-                            ? kPrimaryColor
-                            : Colors.grey,
-                      ),
+                     ? user.image != null && user.image != ''
+                         ? Container(
+                             padding: EdgeInsets.all(2),
+                             decoration: BoxDecoration(
+                               shape: BoxShape.circle,
+                               border: Border.all(color: Colors.grey, width: 2),
+                             ),
+                             child: CircleAvatar(
+                               backgroundImage: NetworkImage(
+                                 user.image ?? '',
+                               ),
+                               radius: 13,
+                             ),
+                           )
+                         : Container(
+                             padding: EdgeInsets.all(2),
+                             decoration: BoxDecoration(
+                               shape: BoxShape.circle,
+                               border: Border.all(color: Colors.grey, width: 2),
+                             ),
+                             child: SvgPicture.asset(
+                               'assets/svg/icons/dummy_person_small.svg',
+                               height: 26,
+                               width: 26,
+                             ),
+                           )
+                     : IconResolver(
+                         iconPath: _inactiveIcons[index],
+                         color: selectedIndex == index
+                             ? kPrimaryColor
+                             : Colors.grey,
+                       ),
                 activeIcon: index == 2
-                    ? user.image != null && user.image != ''
-                        ? CircleAvatar(
-                            backgroundImage: NetworkImage(
-                              user.image ?? '',
-                            ),
-                            radius: 15,
-                          )
-                        : SvgPicture.asset(
-                                  'assets/svg/icons/dummy_person_small.svg')
-                    : IconResolver(
-                        iconPath: _activeIcons[index], color: kPrimaryColor),
+                     ? user.image != null && user.image != ''
+                         ? Container(
+                             padding: EdgeInsets.all(2),
+                             decoration: BoxDecoration(
+                               shape: BoxShape.circle,
+                               border: Border.all(color: Colors.grey, width: 2),
+                             ),
+                             child: CircleAvatar(
+                               backgroundImage: NetworkImage(
+                                 user.image ?? '',
+                               ),
+                               radius: 13,
+                             ),
+                           )
+                         : Container(
+                             padding: EdgeInsets.all(2),
+                             decoration: BoxDecoration(
+                               shape: BoxShape.circle,
+                               border: Border.all(color: Colors.grey, width: 2),
+                             ),
+                             child: SvgPicture.asset(
+                               'assets/svg/icons/dummy_person_small.svg',
+                               height: 26,
+                               width: 26,
+                             ),
+                           )
+                     : IconResolver(
+                         iconPath: _activeIcons[index], color: kPrimaryColor),
                 label: [
                   'Home',
                   'Business',

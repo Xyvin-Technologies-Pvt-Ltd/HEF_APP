@@ -1,20 +1,29 @@
 
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/models/promotion_model.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+
 Widget customVideo({required BuildContext context, required Promotion video}) {
   final videoUrl = video.link;
+  final videoId = YoutubePlayer.convertUrlToId(videoUrl ?? '') ?? '';
 
-  final ytController = YoutubePlayerController.fromVideoId(
-    videoId: YoutubePlayerController.convertUrlToId(videoUrl ?? '')!,
-    autoPlay: false,
-    params: const YoutubePlayerParams(
-      enableJavaScript: true,
+  final ytController = YoutubePlayerController(
+    initialVideoId: videoId,
+    flags: const YoutubePlayerFlags(
+      disableDragSeek: true,
+      autoPlay: false,
       loop: true,
       mute: false,
-      showControls: true,
-      showFullscreenButton: true,
+      controlsVisibleAtStart: true,
+      enableCaption: true,
+      isLive: false,
     ),
+  );
+
+  log(
+    name: 'Video ID:',
+    videoId,
   );
 
   return Column(
@@ -40,6 +49,7 @@ Widget customVideo({required BuildContext context, required Promotion video}) {
           child: ClipRRect(
             child: YoutubePlayer(
               controller: ytController,
+              showVideoProgressIndicator: true,
               aspectRatio: 16 / 9,
             ),
           ),

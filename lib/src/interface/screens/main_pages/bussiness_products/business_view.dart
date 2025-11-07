@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+import 'package:hef/src/data/api_routes/business_api/business_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_activities.dart';
 import 'package:hef/src/interface/components/ModalSheets/bussiness_enquiry_modal.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -485,6 +486,66 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
     );
   }
 
+  void _showDeleteDialog(String postId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.question_mark_rounded,
+                size: 70,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Delete Post?',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              Text(
+                'Are you sure?',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child:
+                        Text('No', style: TextStyle(color: Color(0xFF0E1877))),
+                  ),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      return TextButton(
+                        style: TextButton.styleFrom(
+                            backgroundColor: Color(0xFFEB5757)),
+                        onPressed: () async {
+                          await BusinessApiService.deletePost(postId, context);
+                          ref
+                              .read(businessNotifierProvider.notifier)
+                              .refreshFeed();
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Yes, Delete',
+                            style: TextStyle(color: Colors.white)),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildCommentInputField() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -729,6 +790,14 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
                   IconButton(
                     icon: SvgPicture.asset('assets/svg/icons/share.svg'),
                     onPressed: () => widget.onShare(),
+                  ),
+                SizedBox(
+                  width: 190,
+                ),
+                if (widget.business.author == id)
+                  IconButton(
+                    icon: Icon(Icons.delete_outline),
+                    onPressed: () => _showDeleteDialog(widget.business.id!),
                   ),
               ],
             ),

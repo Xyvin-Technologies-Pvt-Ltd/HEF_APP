@@ -118,8 +118,6 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     ref.read(peopleNotifierProvider.notifier).searchUsers(query);
   }
 
-
-
   // Add filter modal sheet
   void _showFilterModal() {
     showModalBottomSheet(
@@ -399,93 +397,93 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
           ),
           //search bar
           Container(
-              padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          focusNode: _searchFocus,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            prefixIcon: const Icon(Icons.search),
-                            hintText: 'Search Members',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 216, 211, 211),
-                              ),
+            padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        focusNode: _searchFocus,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          prefixIcon: const Icon(Icons.search),
+                          hintText: 'Search Members',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 216, 211, 211),
                             ),
                           ),
-                          onChanged: _onSearchChanged,
-                          onSubmitted: _onSearchSubmitted,
                         ),
+                        onChanged: _onSearchChanged,
+                        onSubmitted: _onSearchSubmitted,
                       ),
-                      const SizedBox(width: 8),
-                      // Container(
-                      //   decoration: BoxDecoration(
-                      //     border: Border.all(
-                      //       color: const Color.fromARGB(255, 216, 211, 211),
-                      //     ),
-                      //     borderRadius: BorderRadius.circular(8.0),
-                      //   ),
-                      //   child: IconButton(
-                      //     icon: Icon(
-                      //       Icons.filter_list,
-                      //       color: selectedDistrictName != null
-                      //           ? Colors.blue
-                      //           : Colors.grey,
-                      //     ),
-                      //     onPressed: _showFilterBottomSheet,
-                      //   ),
-                      // ),
-                    ],
-                  ),
-                  if (selectedDistrictName != null || selectedTags.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              if (selectedDistrictName != null)
-                                Chip(
-                                  label: Text(selectedDistrictName!),
+                    ),
+                    const SizedBox(width: 8),
+                    // Container(
+                    //   decoration: BoxDecoration(
+                    //     border: Border.all(
+                    //       color: const Color.fromARGB(255, 216, 211, 211),
+                    //     ),
+                    //     borderRadius: BorderRadius.circular(8.0),
+                    //   ),
+                    //   child: IconButton(
+                    //     icon: Icon(
+                    //       Icons.filter_list,
+                    //       color: selectedDistrictName != null
+                    //           ? Colors.blue
+                    //           : Colors.grey,
+                    //     ),
+                    //     onPressed: _showFilterBottomSheet,
+                    //   ),
+                    // ),
+                  ],
+                ),
+                if (selectedDistrictName != null || selectedTags.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (selectedDistrictName != null)
+                              Chip(
+                                label: Text(selectedDistrictName!),
+                                onDeleted: () {
+                                  setState(() {
+                                    selectedDistrictId = null;
+                                    selectedDistrictName = null;
+                                  });
+                                  ref
+                                      .read(peopleNotifierProvider.notifier)
+                                      .setDistrict(null);
+                                },
+                              ),
+                            ...selectedTags.map((tag) => Chip(
+                                  label: Text(tag),
                                   onDeleted: () {
                                     setState(() {
-                                      selectedDistrictId = null;
-                                      selectedDistrictName = null;
+                                      selectedTags.remove(tag);
                                     });
                                     ref
                                         .read(peopleNotifierProvider.notifier)
-                                        .setDistrict(null);
+                                        .setTags(selectedTags);
                                   },
-                                ),
-                              ...selectedTags.map((tag) => Chip(
-                                    label: Text(tag),
-                                    onDeleted: () {
-                                      setState(() {
-                                        selectedTags.remove(tag);
-                                      });
-                                      ref
-                                          .read(peopleNotifierProvider.notifier)
-                                          .setTags(selectedTags);
-                                    },
-                                  )),
-                            ],
-                          ),
-                        ],
-                      ),
+                                )),
+                          ],
+                        ),
+                      ],
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
+          ),
 
           Expanded(
             child: TabBarView(
@@ -503,7 +501,20 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           NavigationService navigationService = NavigationService();
-          navigationService.pushNamed('SendAnalyticRequest');
+          //received tab
+          bool isReceivedValue = _tabController.index == 0;
+
+          // Log the navigation details
+          log('AnalyticsPage - Current tab index: ${_tabController.index}',
+              name: 'Analytics Navigation');
+          log('AnalyticsPage - isReceivedValue: $isReceivedValue',
+              name: 'Analytics Navigation');
+          log(
+              'AnalyticsPage - Tab name: ${_tabController.index == 0 ? "Received" : _tabController.index == 1 ? "Sent" : "History"}',
+              name: 'Analytics Navigation');
+
+          navigationService.pushNamed('SendAnalyticRequest',
+              arguments: {'isReceived': isReceivedValue});
         },
         backgroundColor: kPrimaryColor,
         child: const Icon(
@@ -515,55 +526,55 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   }
 
   Widget _buildRefreshableAnalyticsTab(
-    AsyncValue<List<AnalyticsModel>> asyncAnalytics, String tabBarType) {
-  return RefreshIndicator(
-    backgroundColor: kWhite,
-    color: kPrimaryColor,
-    onRefresh: () async {
-      ref.invalidate(fetchAnalyticsProvider);
-    },
-    child: asyncAnalytics.when(
-      data: (analytics) {
-        if (analytics.isEmpty) {
-          return const Center(child: Text("No data available"));
-        }
-
-        //  Filter based on search input
-        final searchQuery = _searchController.text.trim().toLowerCase();
-        List<AnalyticsModel> filtered = analytics.where((analytic) {
-          final username = analytic.username?.toLowerCase() ?? '';
-          final title = analytic.title?.toLowerCase() ?? '';
-          return username.contains(searchQuery) || title.contains(searchQuery);
-        }).toList();
-
-        // Sort alphabetically by username
-        // filtered.sort((a, b) =>
-        //     (a.username ?? '').toLowerCase().compareTo((b.username ?? '').toLowerCase()));
-
-        filtered.sort((a, b) {
-          final aDate = a.date ?? DateTime.fromMillisecondsSinceEpoch(0);
-          final bDate = b.date ?? DateTime.fromMillisecondsSinceEpoch(0);
-          return bDate.compareTo(aDate); // Latest date first
-        });
-
-        return ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16.0),
-          itemCount: filtered.length,
-          itemBuilder: (context, index) {
-            return _buildCard(filtered[index], tabBarType);
-          },
-        );
+      AsyncValue<List<AnalyticsModel>> asyncAnalytics, String tabBarType) {
+    return RefreshIndicator(
+      backgroundColor: kWhite,
+      color: kPrimaryColor,
+      onRefresh: () async {
+        ref.invalidate(fetchAnalyticsProvider);
       },
-      loading: () => const Center(child: LoadingAnimation()),
-      error: (error, stackTrace) {
-        log(error.toString());
-        return const Center(child: Text("Error loading data"));
-      },
-    ),
-  );
-}
+      child: asyncAnalytics.when(
+        data: (analytics) {
+          if (analytics.isEmpty) {
+            return const Center(child: Text("No data available"));
+          }
 
+          //  Filter based on search input
+          final searchQuery = _searchController.text.trim().toLowerCase();
+          List<AnalyticsModel> filtered = analytics.where((analytic) {
+            final username = analytic.username?.toLowerCase() ?? '';
+            final title = analytic.title?.toLowerCase() ?? '';
+            return username.contains(searchQuery) ||
+                title.contains(searchQuery);
+          }).toList();
+
+          // Sort alphabetically by username
+          // filtered.sort((a, b) =>
+          //     (a.username ?? '').toLowerCase().compareTo((b.username ?? '').toLowerCase()));
+
+          filtered.sort((a, b) {
+            final aDate = a.date ?? DateTime.fromMillisecondsSinceEpoch(0);
+            final bDate = b.date ?? DateTime.fromMillisecondsSinceEpoch(0);
+            return bDate.compareTo(aDate); // Latest date first
+          });
+
+          return ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16.0),
+            itemCount: filtered.length,
+            itemBuilder: (context, index) {
+              return _buildCard(filtered[index], tabBarType);
+            },
+          );
+        },
+        loading: () => const Center(child: LoadingAnimation()),
+        error: (error, stackTrace) {
+          log(error.toString());
+          return const Center(child: Text("Error loading data"));
+        },
+      ),
+    );
+  }
 
   // Widget _buildRefreshableAnalyticsTab(
   //     AsyncValue<List<AnalyticsModel>> asyncAnalytics, String tabBarType) {

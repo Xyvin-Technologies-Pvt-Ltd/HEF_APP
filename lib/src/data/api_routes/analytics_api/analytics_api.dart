@@ -55,8 +55,17 @@ class AnalyticsApiService {
   /// Post Analytics
   Future<String?> postAnalytic({required Map<String, dynamic> data}) async {
     try {
-      final response = await http.post(_baseUrl,
-          headers: _headers(), body: jsonEncode(data));
+      // Log the request body before making the API call
+      log('========================================');
+      log('========================================');
+
+      // Encode data as JSON for logging
+      final jsonData = jsonEncode(data);
+      log('Posting analytics with request body (JSON format for Postman):\n$jsonData',
+          name: 'Analytics API Request');
+
+      final response =
+          await http.post(_baseUrl, headers: _headers(), body: jsonData);
       final decoded = json.decode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -105,8 +114,8 @@ class AnalyticsApiService {
     final url = Uri.parse('$_baseUrl/$analyticId');
 
     try {
-      final response = await http.put(url,
-          headers: _headers(), body: jsonEncode(data));
+      final response =
+          await http.put(url, headers: _headers(), body: jsonEncode(data));
       final decoded = json.decode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {

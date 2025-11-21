@@ -125,7 +125,9 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
     case 'AnalyticsPage':
       return MaterialPageRoute(builder: (context) => AnalyticsPage());
     case 'SendAnalyticRequest':
-      return MaterialPageRoute(builder: (context) => SendAnalyticRequestPage());
+      final args = settings?.arguments as Map<String, dynamic>?;
+  final bool isReceived = args?['isReceived'] as bool? ?? false;
+      return MaterialPageRoute(builder: (context) => SendAnalyticRequestPage(isReceived: isReceived,));
 
     case 'RequestNFC':
       return MaterialPageRoute(builder: (context) => RequestNFCPage());

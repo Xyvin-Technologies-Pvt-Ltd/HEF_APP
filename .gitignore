@@ -2,6 +2,15 @@
 .env
 *.env
 
+#personal files
+.backend_compatibility_analysis.md
+.bidirectional_request_bug_fix.md
+.bidirectional_request_complete_fix.md
+.comprehensive_technical_analysis.md
+.corrected_backend_analysis.md
+.flutter_backend_alignment_analysis.md
+
+
 
 # Firebase configuration files
 android/app/google-services.json

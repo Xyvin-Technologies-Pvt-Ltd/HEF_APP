@@ -18,6 +18,17 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 
 class SendAnalyticRequestPage extends ConsumerStatefulWidget {
+  final bool isReceived;
+
+  SendAnalyticRequestPage({
+    super.key,
+     required this.isReceived, // Default to false
+  }) {
+    // Log the isReceived value in constructor
+    log('SendAnalyticRequestPage - Constructor isReceived: $isReceived',
+        name: 'Analytics Navigation');
+  }
+
   @override
   _SendAnalyticRequestPageState createState() =>
       _SendAnalyticRequestPageState();
@@ -25,6 +36,12 @@ class SendAnalyticRequestPage extends ConsumerStatefulWidget {
 
 class _SendAnalyticRequestPageState
     extends ConsumerState<SendAnalyticRequestPage> {
+  //      @override
+  // void initState() {
+  //   super.initState();
+  //   // Initialize isReceived with the value passed from analytics page
+  //   isReceived = widget.isReceived;
+  // }
   final _formKey = GlobalKey<FormState>();
 
   // Controllers
@@ -52,12 +69,16 @@ class _SendAnalyticRequestPageState
   String? selectedMember;
 
   String? selectedMeetingType;
-  bool isReceived = false;
+  bool? isReceived;
   Future<String?> createAnalytic(String countryCode) async {
+    // Log isReceived value when form is submitted
+    log('SendAnalyticRequestPage - createAnalytic isReceived: ${widget.isReceived}',
+        name: 'Analytics Navigation');
+
     final Map<String, dynamic> analytictData = {
       "type": selectedRequestType,
-      "member": isReceived ? id : selectedMember,
-      "sender": isReceived ? selectedMember : id,
+      "member": widget.isReceived ? id : selectedMember,
+      "sender": widget.isReceived ? selectedMember : id,
       if (amountController.text != '')
         "amount": double.parse(amountController.text),
       "title": titleController.text,
@@ -135,6 +156,10 @@ class _SendAnalyticRequestPageState
 
   @override
   Widget build(BuildContext context) {
+    // Log isReceived value when build is called
+    log('SendAnalyticRequestPage - Build method isReceived: ${widget.isReceived}',
+        name: 'Analytics Navigation');
+
     final countryCode = ref.watch(countryCodeProvider);
     final asyncStates = ref.watch(fetchStatesProvider);
     final asyncZones =
@@ -195,17 +220,17 @@ class _SendAnalyticRequestPageState
                   });
                 },
               ),
-              const SizedBox(height: 16.0),
-              SwitchListTile(
-                title: Text('Switch on if you are receiver (on behalf of sender)'),
-                value: isReceived,
-                onChanged: (val) {
-                  setState(() {
-                    isReceived = val;
-                  });
-                },
-              ),
-              _buildRequiredLabel(isReceived ? 'Sender' : 'Member'),
+              // const SizedBox(height: 16.0),
+              // SwitchListTile(
+              //   title: Text('Switch on if you are receiver (on behalf of sender)'),
+              //   value: isReceived,
+              //   onChanged: (val) {
+              //     setState(() {
+              //       isReceived = val;
+              //     });
+              //   },
+              // ),
+              _buildRequiredLabel(widget.isReceived ? 'Sender' : 'Member'),
               SizedBox(
                 height: 10,
               ),

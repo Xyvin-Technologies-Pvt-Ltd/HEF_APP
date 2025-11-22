@@ -517,7 +517,20 @@ class _MembersPageState extends ConsumerState<MembersPage> {
 
     // Sort users alphabetically by name (case-insensitive)
     final sortedUsers = users.toList()
-      ..sort((a, b) => (a.name ?? '').toLowerCase().compareTo((b.name ?? '').toLowerCase()));
+      ..sort((a, b) {
+        // Handle null/empty names by treating them as empty strings
+        final nameA = (a.name ?? '').trim().toLowerCase();
+        final nameB = (b.name ?? '').trim().toLowerCase();
+
+        // If both names are empty, they are equal
+        if (nameA.isEmpty && nameB.isEmpty) return 0;
+
+        // Empty names should come last
+        if (nameA.isEmpty) return 1;
+        if (nameB.isEmpty) return -1;
+
+        return nameA.compareTo(nameB);
+      });
 
     final asyncChats = ref.watch(fetchChatThreadProvider);
 
@@ -619,14 +632,12 @@ class _MembersPageState extends ConsumerState<MembersPage> {
             ),
             const SizedBox(height: 16),
 
-     
             if (isFirstLoad)
               const Center(child: LoadingAnimation())
             else if (sortedUsers.isNotEmpty)
               ListView.builder(
                 shrinkWrap: true,
-                physics:
-                    const NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: sortedUsers.length + (isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == sortedUsers.length) {
@@ -746,18 +757,24 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                           builder: (context) {
                             // Fetch complete user data in background
                             WidgetsBinding.instance.addPostFrameCallback((_) {
-                              ref.read(fetchUserDetailsProvider(user.uid ?? '').future).then((completeUser) {
-                                if (context.mounted && Navigator.canPop(context)) {
+                              ref
+                                  .read(fetchUserDetailsProvider(user.uid ?? '')
+                                      .future)
+                                  .then((completeUser) {
+                                if (context.mounted &&
+                                    Navigator.canPop(context)) {
                                   // Update the profile preview with complete data
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
-                                      builder: (context) => ProfilePreview(user: completeUser),
+                                      builder: (context) =>
+                                          ProfilePreview(user: completeUser),
                                     ),
                                   );
                                 }
                               }).catchError((error) {
                                 // Silently handle error - keep original data
-                                print('Error fetching complete user data: $error');
+                                print(
+                                    'Error fetching complete user data: $error');
                               });
                             });
 

@@ -22,7 +22,7 @@ class SendAnalyticRequestPage extends ConsumerStatefulWidget {
 
   SendAnalyticRequestPage({
     super.key,
-     required this.isReceived, // Default to false
+    required this.isReceived, // Default to false
   }) {
     // Log the isReceived value in constructor
     log('SendAnalyticRequestPage - Constructor isReceived: $isReceived',
@@ -82,7 +82,8 @@ class _SendAnalyticRequestPageState
       if (amountController.text != '')
         "amount": double.parse(amountController.text),
       "title": titleController.text,
-      "description": descriptionController.text,
+      if (descriptionController.text != '')
+        "description": descriptionController.text,
       if (selectedRequestType == 'Referral')
         "referral": {
           if (referralNameController.text != '')

@@ -58,8 +58,11 @@ class _SendAnalyticRequestPageState
 
   String? selectedRequestType;
   String? selectedMember;
+  String? selectedMemberName;
   String? selectedMeetingType;
   bool? isReceived;
+  bool _isSearchFieldFocused = false;
+  final FocusNode _searchFocusNode = FocusNode();
 
   Timer? _debounce;
 
@@ -135,6 +138,13 @@ class _SendAnalyticRequestPageState
     // Initialize people notifier
     ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
     memberSearchController.addListener(_onMemberSearchChanged);
+    _searchFocusNode.addListener(_onSearchFocusChanged);
+  }
+
+  void _onSearchFocusChanged() {
+    setState(() {
+      _isSearchFieldFocused = _searchFocusNode.hasFocus;
+    });
   }
 
   void _onMemberSearchChanged() {
@@ -227,86 +237,126 @@ class _SendAnalyticRequestPageState
               const SizedBox(height: 10),
 
               // Search Field
-              TextFormField(
-                controller: memberSearchController,
-                decoration: const InputDecoration(
-                  hintText: 'Search Members',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              Focus(
+                focusNode: _searchFocusNode,
+                child: TextFormField(
+                  controller: memberSearchController,
+                  decoration: InputDecoration(
+                    hintText: selectedMember != null
+                        ? 'Tap to change member'
+                        : 'Search Members',
+                    prefixIcon: const Icon(Icons.search),
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 16),
+                    suffixIcon: selectedMember != null
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                selectedMemberName ?? '',
+                                style: const TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedMember = null;
+                                    selectedMemberName = null;
+                                    memberSearchController.clear();
+                                  });
+                                },
+                              ),
+                            ],
+                          )
+                        : null,
+                  ),
                 ),
               ),
 
               const SizedBox(height: 10),
 
-              // Member List
-              if (isFirstLoad)
-                const Center(child: CircularProgressIndicator())
-              else if (sortedUsers.isNotEmpty)
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ListView.builder(
-                    itemCount: sortedUsers.length + (isLoading ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == sortedUsers.length) {
-                        return const Center(
-                            child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: CircularProgressIndicator(),
-                        ));
-                      }
+              // Member List (Only show when search field is focused and has input)
+              if (_isSearchFieldFocused &&
+                  memberSearchController.text.trim().isNotEmpty)
+                if (isFirstLoad)
+                  const Center(child: CircularProgressIndicator())
+                else if (sortedUsers.isNotEmpty)
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListView.builder(
+                      itemCount: sortedUsers.length + (isLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == sortedUsers.length) {
+                          return const Center(
+                              child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ));
+                        }
 
-                      final user = sortedUsers[index];
-                      final isSelected = selectedMember == user.uid;
+                        final user = sortedUsers[index];
+                        final isSelected = selectedMember == user.uid;
 
-                      return ListTile(
-                        leading: SizedBox(
-                          height: 40,
-                          width: 40,
-                          child: ClipOval(
-                            child: user.image != null && user.image!.isNotEmpty
-                                ? Image.network(
-                                    user.image!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return SvgPicture.asset(
-                                          'assets/svg/icons/dummy_person_small.svg');
-                                    },
-                                  )
-                                : SvgPicture.asset(
-                                    'assets/svg/icons/dummy_person_small.svg'),
+                        return ListTile(
+                          leading: SizedBox(
+                            height: 40,
+                            width: 40,
+                            child: ClipOval(
+                              child: user.image != null &&
+                                      user.image!.isNotEmpty
+                                  ? Image.network(
+                                      user.image!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return SvgPicture.asset(
+                                            'assets/svg/icons/dummy_person_small.svg');
+                                      },
+                                    )
+                                  : SvgPicture.asset(
+                                      'assets/svg/icons/dummy_person_small.svg'),
+                            ),
                           ),
-                        ),
-                        title: Text(
-                          user.name ?? '',
-                          style: TextStyle(
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected ? Colors.blue : Colors.black,
+                          title: Text(
+                            user.name ?? '',
+                            style: TextStyle(
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: isSelected ? Colors.blue : Colors.black,
+                            ),
                           ),
-                        ),
-                        subtitle: Text('${user.chapter?.name ?? ''}',
-                            style: const TextStyle(color: Colors.grey)),
-                        trailing: isSelected
-                            ? const Icon(Icons.check_circle, color: Colors.blue)
-                            : null,
-                        onTap: () {
-                          setState(() {
-                            selectedMember = user.uid;
-                          });
-                        },
-                      );
-                    },
-                  ),
-                )
+                          subtitle: Text('${user.chapter?.name ?? ''}',
+                              style: const TextStyle(color: Colors.grey)),
+                          trailing: isSelected
+                              ? const Icon(Icons.check_circle,
+                                  color: Colors.blue)
+                              : null,
+                          onTap: () {
+                            setState(() {
+                              selectedMember = user.uid;
+                              selectedMemberName = user.name;
+                              memberSearchController.text = user.name ?? '';
+                            });
+                            // Clear focus to hide the list
+                            _searchFocusNode.unfocus();
+                          },
+                        );
+                      },
+                    ),
+                  )
+                else
+                  const Text('No members found')
               else
-                const Text('No members found'),
+                const SizedBox.shrink(),
 
               const SizedBox(height: 16.0),
 
@@ -654,7 +704,9 @@ class _SendAnalyticRequestPageState
   @override
   void dispose() {
     memberSearchController.removeListener(_onMemberSearchChanged);
+    _searchFocusNode.removeListener(_onSearchFocusChanged);
     memberSearchController.dispose();
+    _searchFocusNode.dispose();
     _debounce?.cancel();
     super.dispose();
   }

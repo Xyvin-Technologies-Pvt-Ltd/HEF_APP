@@ -79,7 +79,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
-                  height: 200,
+                  height: 300,
                   width: double.infinity,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.only(

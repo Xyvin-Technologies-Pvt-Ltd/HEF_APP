@@ -262,8 +262,31 @@ class _EditAnalyticRequestPageState
                     selectedRequestType = value;
                   });
                 },
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelStyle: const TextStyle(color: Colors.grey),
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                  fillColor: Colors.white,
+                  filled: true,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 212, 209, 209)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 223, 220, 220)),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 212, 209, 209)),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 223, 220, 220)),
+                  ),
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 ),
@@ -559,8 +582,31 @@ class _EditAnalyticRequestPageState
                         return null;
                       },
                       decoration: InputDecoration(
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                        fillColor: Colors.white,
+                        filled: true,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 212, 209, 209)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 223, 220, 220)),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 212, 209, 209)),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 223, 220, 220)),
+                        ),
                         labelText: 'Date',
-                        border: OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.calendar_today),
                           onPressed: () async {
@@ -578,8 +624,6 @@ class _EditAnalyticRequestPageState
                             }
                           },
                         ),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
                     ),
                     const SizedBox(height: 10.0),
@@ -595,8 +639,31 @@ class _EditAnalyticRequestPageState
                         return null;
                       },
                       decoration: InputDecoration(
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                        fillColor: Colors.white,
+                        filled: true,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 212, 209, 209)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 223, 220, 220)),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 212, 209, 209)),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 223, 220, 220)),
+                        ),
                         labelText: 'Time',
-                        border: OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.access_time),
                           onPressed: () async {
@@ -612,8 +679,6 @@ class _EditAnalyticRequestPageState
                             }
                           },
                         ),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
                     ),
                     const SizedBox(height: 20.0),

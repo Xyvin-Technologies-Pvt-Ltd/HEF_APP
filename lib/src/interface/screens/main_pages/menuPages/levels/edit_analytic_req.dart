@@ -1,21 +1,24 @@
 import 'dart:developer';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
-import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
+import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/notifiers/people_notifier.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
-import 'package:hef/src/interface/components/DropDown/selectionDropdown.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
+import 'package:shimmer/shimmer.dart';
 
 class EditAnalyticRequestPage extends ConsumerStatefulWidget {
   final AnalyticsModel analytic;
@@ -33,29 +36,30 @@ class _EditAnalyticRequestPageState
   final _formKey = GlobalKey<FormState>();
 
   // Controllers
-  TextEditingController dateController = TextEditingController();
-  TextEditingController timeController = TextEditingController();
-  TextEditingController titleController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
-  TextEditingController linkController = TextEditingController();
-  TextEditingController locationController = TextEditingController();
-  TextEditingController amountController = TextEditingController();
-
-  TextEditingController referralNameController = TextEditingController();
-  TextEditingController referralEmailController = TextEditingController();
-  TextEditingController referralAddressController = TextEditingController();
-  TextEditingController referralInfoController = TextEditingController();
-  TextEditingController referralPhoneController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
+  final TextEditingController timeController = TextEditingController();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController linkController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController referralNameController = TextEditingController();
+  final TextEditingController referralEmailController = TextEditingController();
+  final TextEditingController referralAddressController =
+      TextEditingController();
+  final TextEditingController referralInfoController = TextEditingController();
+  final TextEditingController referralPhoneController = TextEditingController();
+  final TextEditingController memberSearchController = TextEditingController();
 
   String? selectedRequestType;
-  String? selectedMeetingType;
-   String? selectedStateId;
-  String? selectedZone;
-  String? selectedDistrict;
-  String? selectedChapter;
   String? selectedMember;
-  bool isReceived = false;
+  String? selectedMemberName;
+  String? selectedMeetingType;
+  bool? isReceived = false ;
+  bool _isSearchFieldFocused = false;
+  final FocusNode _searchFocusNode = FocusNode();
 
+  Timer? _debounce;
 
   final countryCodeProvider = StateProvider<String?>((ref) => '91');
 
@@ -63,6 +67,25 @@ class _EditAnalyticRequestPageState
   void initState() {
     super.initState();
     _populateFields();
+    // Initialize people notifier
+    ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
+    memberSearchController.addListener(_onMemberSearchChanged);
+    _searchFocusNode.addListener(_onSearchFocusChanged);
+  }
+
+  void _onSearchFocusChanged() {
+    setState(() {
+      _isSearchFieldFocused = _searchFocusNode.hasFocus;
+    });
+  }
+
+  void _onMemberSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      ref
+          .read(peopleNotifierProvider.notifier)
+          .searchUsers(memberSearchController.text);
+    });
   }
 
   void _populateFields() {
@@ -70,44 +93,45 @@ class _EditAnalyticRequestPageState
     selectedRequestType = widget.analytic.type;
     titleController.text = widget.analytic.title ?? '';
     descriptionController.text = widget.analytic.description ?? '';
-    
+
     if (widget.analytic.amount != null) {
       amountController.text = widget.analytic.amount.toString();
     }
-    
+
     if (widget.analytic.date != null) {
       dateController.text =
           DateFormat('yyyy-MM-dd').format(widget.analytic.date!);
     }
-    
+
     if (widget.analytic.time != null) {
       timeController.text = widget.analytic.time!;
     }
-    
+
     if (widget.analytic.meetingLink != null) {
       linkController.text = widget.analytic.meetingLink!;
       selectedMeetingType = 'Online';
     }
-    
+
     if (widget.analytic.location != null) {
       locationController.text = widget.analytic.location!;
       selectedMeetingType = 'Offline';
     }
-    
+
     // Populate referral data if exists
     if (widget.analytic.referral != null) {
       referralNameController.text = widget.analytic.referral?.name ?? '';
       referralEmailController.text = widget.analytic.referral?.email ?? '';
       referralAddressController.text = widget.analytic.referral?.address ?? '';
       referralInfoController.text = widget.analytic.referral?.info ?? '';
-      
+
       // Extract phone number without country code
       String? phone = widget.analytic.referral?.phone;
       if (phone != null && phone.isNotEmpty) {
         // Remove '+' and country code, keeping only the number
         String cleanPhone = phone.replaceAll('+', '');
         if (cleanPhone.length > 10) {
-          referralPhoneController.text = cleanPhone.substring(cleanPhone.length - 10);
+          referralPhoneController.text =
+              cleanPhone.substring(cleanPhone.length - 10);
         } else {
           referralPhoneController.text = cleanPhone;
         }
@@ -118,12 +142,12 @@ class _EditAnalyticRequestPageState
   Future<String?> updateAnalytic(String countryCode) async {
     final Map<String, dynamic> analytictData = {
       "type": selectedRequestType,
-       "member": isReceived ? id : selectedMember,
-       "sender": isReceived ? selectedMember : id,
-
+      "member": isReceived! ? id : selectedMember,
+      "sender": isReceived! ? selectedMember : id,
       if (amountController.text != '')
         "amount": double.parse(amountController.text),
       "title": titleController.text,
+      if (descriptionController.text != '')
       "description": descriptionController.text,
       if (selectedRequestType == 'Referral')
         "referral": {
@@ -178,23 +202,34 @@ class _EditAnalyticRequestPageState
   @override
   Widget build(BuildContext context) {
     final countryCode = ref.watch(countryCodeProvider);
-     final asyncStates = ref.watch(fetchStatesProvider);
-    final asyncZones =
-        ref.watch(fetchLevelDataProvider(selectedStateId ?? '', 'state'));
-    final asyncDistricts =
-        ref.watch(fetchLevelDataProvider(selectedZone ?? '', 'zone'));
-    final asyncChapters =
-        ref.watch(fetchLevelDataProvider(selectedDistrict ?? '', 'district'));
-    final asyncMembers =
-        ref.watch(fetchLevelDataProvider(selectedChapter ?? '', 'user'));
+    final users = ref.watch(peopleNotifierProvider);
+    final isLoading = ref.read(peopleNotifierProvider.notifier).isLoading;
+    final isFirstLoad = ref.read(peopleNotifierProvider.notifier).isFirstLoad;
+
+    // Sort users alphabetically by name (case-insensitive)
+    final sortedUsers = users.where((user) => user.uid != id).toList()
+      ..sort((a, b) {
+        // Handle null/empty names by treating them as empty strings
+        final nameA = (a.name ?? '').trim().toLowerCase();
+        final nameB = (b.name ?? '').trim().toLowerCase();
+
+        // If both names are empty, they are equal
+        if (nameA.isEmpty && nameB.isEmpty) return 0;
+
+        // Empty names should come last
+        if (nameA.isEmpty) return 1;
+        if (nameB.isEmpty) return -1;
+
+        return nameA.compareTo(nameB);
+      });
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Edit Request",
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
         ),
         elevation: 0,
       ),
@@ -206,9 +241,9 @@ class _EditAnalyticRequestPageState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildRequiredLabel('Request Type'),
-              SizedBox(height: 10),
-              SelectionDropDown(
-                hintText: 'Choose Type',
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                hint: const Text('Choose Type'),
                 value: selectedRequestType,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -227,138 +262,141 @@ class _EditAnalyticRequestPageState
                     selectedRequestType = value;
                   });
                 },
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                ),
               ),
-              SwitchListTile(
-                title: Text('Switch on if you are receiver (on behalf of sender)'),
-                value: isReceived,
-                onChanged: (val) {
-                  setState(() {
-                    isReceived = val;
-                  });
-                },
-              ),
-               _buildRequiredLabel(isReceived ? 'Sender' : 'Member'),
+              const SizedBox(height: 10),
 
-              SizedBox(
-                height: 10,
-              ),
-              asyncStates.when(
-                data: (states) => SelectionDropDown(
-                  hintText: 'Choose State',
-                  value: selectedStateId,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a state';
-                    }
-                    return null;
-                  },
-                  label: null,
-                  items: states.map((state) {
-                    return DropdownMenuItem<String>(
-                      value: state.id,
-                      child: Text(state.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedStateId = value;
-                      selectedZone = null;
-                      selectedDistrict = null;
-                      selectedChapter = null;
-                    });
-                  },
+              // Direct Member Selection
+              _buildRequiredLabel(isReceived! ? 'Sender' : 'Member'),
+              const SizedBox(height: 10),
+
+              // Search Field
+              Focus(
+                focusNode: _searchFocusNode,
+                child: TextFormField(
+                  controller: memberSearchController,
+                  decoration: InputDecoration(
+                    hintText: selectedMember != null
+                        ? 'Tap to change member'
+                        : 'Search Members',
+                    prefixIcon: const Icon(Icons.search),
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 16),
+                    suffixIcon: selectedMember != null
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                selectedMemberName ?? '',
+                                style: const TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedMember = null;
+                                    selectedMemberName = null;
+                                    memberSearchController.clear();
+                                  });
+                                },
+                              ),
+                            ],
+                          )
+                        : null,
+                  ),
                 ),
-                loading: () => const Center(child: LoadingAnimation()),
-                error: (error, stackTrace) => const SizedBox(),
               ),
-              asyncZones.when(
-                data: (zones) => SelectionDropDown(
-                  hintText: 'Choose Zone',
-                  value: selectedZone,
-                  label: null,
-                  items: zones.map((zone) {
-                    return DropdownMenuItem<String>(
-                      value: zone.id,
-                      child: Text(zone.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedZone = value;
-                      selectedDistrict = null;
-                      selectedChapter = null;
-                    });
-                  },
-                ),
-                loading: () => const Center(child: LoadingAnimation()),
-                error: (error, stackTrace) => const SizedBox(),
-              ),
-              asyncDistricts.when(
-                data: (districts) => SelectionDropDown(
-                  hintText: 'Choose District',
-                  value: selectedDistrict,
-                  label: null,
-                  items: districts.map((district) {
-                    return DropdownMenuItem<String>(
-                      value: district.id,
-                      child: Text(district.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedDistrict = value;
-                      selectedChapter = null;
-                    });
-                  },
-                ),
-                loading: () => const Center(child: LoadingAnimation()),
-                error: (error, stackTrace) => const SizedBox(),
-              ),
-              asyncChapters.when(
-                data: (chapters) => SelectionDropDown(
-                  hintText: 'Choose Chapter',
-                  value: selectedChapter,
-                  label: null,
-                  items: chapters.map((chapter) {
-                    return DropdownMenuItem<String>(
-                      value: chapter.id,
-                      child: Text(chapter.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedChapter = value;
-                    });
-                  },
-                ),
-                loading: () => const Center(child: LoadingAnimation()),
-                error: (error, stackTrace) => const SizedBox(),
-              ),
-              asyncMembers.when(
-                data: (members) {
-                  final filteredMembers =
-                      members.where((member) => member.id != id).toList();
-                  return SelectionDropDown(
-                    hintText: 'Choose Member',
-                    value: selectedMember,
-                    label: null,
-                    items: filteredMembers.map((member) {
-                      return DropdownMenuItem<String>(
-                        value: member.id,
-                        child: Text(member.name),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedMember = value;
-                      });
-                    },
-                  );
-                },
-                loading: () => const Center(child: LoadingAnimation()),
-                error: (error, stackTrace) => const SizedBox(),
-              ),
+
+              const SizedBox(height: 10),
+
+              // Member List (Only show when search field is focused)
+              if (_isSearchFieldFocused)
+                if (isFirstLoad)
+                  const Center(child: CircularProgressIndicator())
+                else if (sortedUsers.isNotEmpty)
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListView.builder(
+                      itemCount: sortedUsers.length + (isLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == sortedUsers.length) {
+                          return const Center(
+                              child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ));
+                        }
+
+                        final user = sortedUsers[index];
+                        final isSelected = selectedMember == user.uid;
+
+                        return ListTile(
+                          leading: SizedBox(
+                            height: 40,
+                            width: 40,
+                            child: ClipOval(
+                              child: user.image != null &&
+                                      user.image!.isNotEmpty
+                                  ? Image.network(
+                                      user.image!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return SvgPicture.asset(
+                                            'assets/svg/icons/dummy_person_small.svg');
+                                      },
+                                    )
+                                  : SvgPicture.asset(
+                                      'assets/svg/icons/dummy_person_small.svg'),
+                            ),
+                          ),
+                          title: Text(
+                            user.name ?? '',
+                            style: TextStyle(
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: isSelected ? Colors.blue : Colors.black,
+                            ),
+                          ),
+                          subtitle: Text('${user.chapter?.name ?? ''}',
+                              style: const TextStyle(color: Colors.grey)),
+                          trailing: isSelected
+                              ? const Icon(Icons.check_circle,
+                                  color: Colors.blue)
+                              : null,
+                          onTap: () {
+                            setState(() {
+                              selectedMember = user.uid;
+                              selectedMemberName = user.name;
+                              memberSearchController.text = user.name ?? '';
+                            });
+                            // Clear focus to hide the list
+                            _searchFocusNode.unfocus();
+                          },
+                        );
+                      },
+                    ),
+                  )
+                else
+                  const Text('No members found')
+              else
+                const SizedBox.shrink(),
+
               const SizedBox(height: 16.0),
+
               _buildRequiredLabel('Title'),
               CustomTextFormField(
                 textController: titleController,
@@ -370,6 +408,7 @@ class _EditAnalyticRequestPageState
                   return null;
                 },
               ),
+
               if (selectedRequestType == 'Business' ||
                   selectedRequestType == 'Referral')
                 Column(
@@ -380,7 +419,7 @@ class _EditAnalyticRequestPageState
                       _buildRequiredLabel('Amount'),
                     if (selectedRequestType != 'Referral')
                       CustomTextFormField(
-                        textInputType: TextInputType.numberWithOptions(),
+                        textInputType: const TextInputType.numberWithOptions(),
                         textController: amountController,
                         labelText: 'Eg - 50000',
                         validator: (value) {
@@ -392,20 +431,25 @@ class _EditAnalyticRequestPageState
                       ),
                   ],
                 ),
+
               if (selectedRequestType != 'Referral')
                 const SizedBox(height: 10.0),
-              Text('Description', style: kSmallTitleB),
+
+              Text(
+                'Description',
+                style: kSmallTitleB,
+              ),
               CustomTextFormField(
                 textController: descriptionController,
                 labelText: 'Eg - Business closed for purchase of materials',
                 maxLines: 4,
               ),
-              SizedBox(height: 10),
-              if (selectedRequestType == 'Business')
+
+              const SizedBox(height: 10),
+
+              if (selectedRequestType == 'Business') ...[
                 _buildRequiredLabel('Date'),
-              if (selectedRequestType == 'Business')
                 const SizedBox(height: 10.0),
-              if (selectedRequestType == 'Business')
                 TextFormField(
                   controller: dateController,
                   readOnly: true,
@@ -460,15 +504,18 @@ class _EditAnalyticRequestPageState
                     ),
                   ),
                 ),
+              ],
+
               const SizedBox(height: 20.0),
+
               if (selectedRequestType == 'One v One Meeting')
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildRequiredLabel('Meeting Type'),
-                    SizedBox(height: 10),
-                    SelectionDropDown(
-                      hintText: 'Choose Meeting Type',
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<String>(
+                      hint: const Text('Choose Meeting Type'),
                       value: selectedMeetingType,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -485,6 +532,7 @@ class _EditAnalyticRequestPageState
                       onChanged: (value) {
                         setState(() {
                           selectedMeetingType = value;
+                          // Clear the fields when switching types
                           if (value == 'Online') {
                             locationController.clear();
                           } else {
@@ -492,6 +540,11 @@ class _EditAnalyticRequestPageState
                           }
                         });
                       },
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      ),
                     ),
                     const SizedBox(height: 10.0),
                     _buildRequiredLabel('Date'),
@@ -505,49 +558,12 @@ class _EditAnalyticRequestPageState
                         }
                         return null;
                       },
-                      decoration: InputDecoration(
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        floatingLabelBehavior: FloatingLabelBehavior.never,
-                        fillColor: Colors.white,
-                        filled: true,
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 212, 209, 209)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 223, 220, 220)),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 212, 209, 209)),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 223, 220, 220)),
-                        ),
+                      decoration: const InputDecoration(
                         labelText: 'Date',
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.calendar_today),
-                          onPressed: () async {
-                            DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2025),
-                              lastDate: DateTime(2101),
-                            );
-                            if (pickedDate != null) {
-                              setState(() {
-                                dateController.text =
-                                    DateFormat('yyyy-MM-dd').format(pickedDate);
-                              });
-                            }
-                          },
-                        ),
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(Icons.calendar_today),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
                     ),
                     const SizedBox(height: 10.0),
@@ -562,52 +578,12 @@ class _EditAnalyticRequestPageState
                         }
                         return null;
                       },
-                      decoration: InputDecoration(
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        floatingLabelBehavior: FloatingLabelBehavior.never,
-                        fillColor: Colors.white,
-                        filled: true,
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 212, 209, 209)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 223, 220, 220)),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 212, 209, 209)),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 223, 220, 220)),
-                        ),
+                      decoration: const InputDecoration(
                         labelText: 'Time',
-                        suffixIcon: IconButton(
-                            icon: const Icon(Icons.access_time),
-                            onPressed: () async {
-                              TimeOfDay? pickedTime = await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay.now(),
-                              );
-
-                              if (pickedTime != null) {
-                                final localizations =
-                                    MaterialLocalizations.of(context);
-                                final formattedTime =
-                                    localizations.formatTimeOfDay(pickedTime,
-                                        alwaysUse24HourFormat: false);
-
-                                setState(() {
-                                  timeController.text = formattedTime;
-                                });
-                              }
-                            }),
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(Icons.access_time),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
                     ),
                     const SizedBox(height: 20.0),
@@ -629,6 +605,7 @@ class _EditAnalyticRequestPageState
                     ],
                   ],
                 ),
+
               if (selectedRequestType == 'Referral')
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -671,9 +648,7 @@ class _EditAnalyticRequestPageState
                           return null;
                         },
                         style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
+                            fontSize: 14, fontWeight: FontWeight.w400),
                         controller: referralPhoneController,
                         disableLengthCheck: true,
                         showCountryFlag: true,
@@ -681,10 +656,8 @@ class _EditAnalyticRequestPageState
                           filled: true,
                           fillColor: kWhite,
                           hintText: 'Enter referral phone number',
-                          hintStyle: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
-                          ),
+                          hintStyle:
+                              const TextStyle(color: Colors.grey, fontSize: 14),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: BorderSide(color: kGrey),
@@ -693,18 +666,15 @@ class _EditAnalyticRequestPageState
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: BorderSide(color: kGrey),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                            borderSide: const BorderSide(color: kGrey),
+                          focusedBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(color: kGrey),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(color: Colors.red),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16.0,
-                            horizontal: 10.0,
-                          ),
+                              vertical: 16.0, horizontal: 10.0),
                         ),
                         onCountryChanged: (value) {
                           ref.read(countryCodeProvider.notifier).state =
@@ -718,9 +688,7 @@ class _EditAnalyticRequestPageState
                         showDropdownIcon: true,
                         dropdownIconPosition: IconPosition.trailing,
                         dropdownTextStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
+                            fontSize: 14, fontWeight: FontWeight.w400),
                       ),
                     ),
                     const SizedBox(height: 10.0),
@@ -742,21 +710,24 @@ class _EditAnalyticRequestPageState
                     ),
                   ],
                 ),
+
               const SizedBox(height: 20.0),
               customButton(
                 label: 'Update Request',
                 onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
+                  if (_formKey.currentState!.validate() &&
+                      selectedMember != null) {
                     String? response =
                         await updateAnalytic(countryCode ?? '91');
                     if (response != null && response.contains('success')) {
                       Navigator.pop(context);
-                      ref.invalidate(fetchAnalyticsProvider);
                     } else {
                       SnackbarService service = SnackbarService();
                       service.showSnackBar(response ?? 'Error');
                     }
-                    print('Form Submitted');
+                  } else if (selectedMember == null) {
+                    SnackbarService service = SnackbarService();
+                    service.showSnackBar('Please select a member');
                   }
                 },
               ),
@@ -765,5 +736,15 @@ class _EditAnalyticRequestPageState
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    memberSearchController.removeListener(_onMemberSearchChanged);
+    _searchFocusNode.removeListener(_onSearchFocusChanged);
+    memberSearchController.dispose();
+    _searchFocusNode.dispose();
+    _debounce?.cancel();
+    super.dispose();
   }
 }

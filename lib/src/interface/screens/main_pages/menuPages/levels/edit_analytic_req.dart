@@ -96,6 +96,29 @@ class _EditAnalyticRequestPageState
     titleController.text = widget.analytic.title ?? '';
     descriptionController.text = widget.analytic.description ?? '';
 
+    // Pre-fill member field based on who is editing the request
+    if (widget.analytic.user_id != null && widget.analytic.username != null) {
+      // Check if the current user is the sender or receiver
+      bool currentUserIsSender = widget.analytic.user_id == id;
+      isReceived =
+          !currentUserIsSender; // If current user is not the sender, then they are receiving
+
+      if (currentUserIsSender) {
+        // Current user is the sender - they are editing a request they sent
+        // In this case, the selectedMember should be the recipient (we don't have this info in the model)
+        // So we'll leave it empty and let them choose
+        selectedMember = null;
+        selectedMemberName = null;
+        memberSearchController.clear();
+      } else {
+        // Current user is the receiver - they are editing a request they received
+        // Pre-fill with the sender information
+        selectedMember = widget.analytic.user_id;
+        selectedMemberName = widget.analytic.username;
+        memberSearchController.text = widget.analytic.username ?? '';
+      }
+    }
+
     if (widget.analytic.amount != null) {
       amountController.text = widget.analytic.amount.toString();
     }

@@ -55,7 +55,7 @@ class _EditAnalyticRequestPageState
   String? selectedMember;
   String? selectedMemberName;
   String? selectedMeetingType;
-  bool? isReceived = false ;
+  bool? isReceived = false;
   bool _isSearchFieldFocused = false;
   final FocusNode _searchFocusNode = FocusNode();
 
@@ -148,7 +148,7 @@ class _EditAnalyticRequestPageState
         "amount": double.parse(amountController.text),
       "title": titleController.text,
       if (descriptionController.text != '')
-      "description": descriptionController.text,
+        "description": descriptionController.text,
       if (selectedRequestType == 'Referral')
         "referral": {
           if (referralNameController.text != '')
@@ -558,10 +558,26 @@ class _EditAnalyticRequestPageState
                         }
                         return null;
                       },
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Date',
                         border: OutlineInputBorder(),
-                        suffixIcon: Icon(Icons.calendar_today),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.calendar_today),
+                          onPressed: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2025),
+                              lastDate: DateTime(2101),
+                            );
+                            if (pickedDate != null) {
+                              setState(() {
+                                dateController.text =
+                                    DateFormat('yyyy-MM-dd').format(pickedDate);
+                              });
+                            }
+                          },
+                        ),
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
@@ -578,10 +594,24 @@ class _EditAnalyticRequestPageState
                         }
                         return null;
                       },
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Time',
                         border: OutlineInputBorder(),
-                        suffixIcon: Icon(Icons.access_time),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.access_time),
+                          onPressed: () async {
+                            TimeOfDay? pickedTime = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            );
+                            if (pickedTime != null) {
+                              setState(() {
+                                timeController.text =
+                                    pickedTime.format(context);
+                              });
+                            }
+                          },
+                        ),
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),

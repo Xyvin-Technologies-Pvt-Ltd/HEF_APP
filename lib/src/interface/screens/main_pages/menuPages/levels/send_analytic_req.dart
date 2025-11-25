@@ -63,6 +63,7 @@ class _SendAnalyticRequestPageState
   bool? isReceived;
   bool _isSearchFieldFocused = false;
   final FocusNode _searchFocusNode = FocusNode();
+  final ScrollController _memberListScrollController = ScrollController();
 
   Timer? _debounce;
 
@@ -139,6 +140,7 @@ class _SendAnalyticRequestPageState
     ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
     memberSearchController.addListener(_onMemberSearchChanged);
     _searchFocusNode.addListener(_onSearchFocusChanged);
+    _memberListScrollController.addListener(_onMemberListScroll);
   }
 
   void _onSearchFocusChanged() {
@@ -314,6 +316,7 @@ class _SendAnalyticRequestPageState
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: ListView.builder(
+                      controller: _memberListScrollController,
                       itemCount: sortedUsers.length + (isLoading ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index == sortedUsers.length) {
@@ -795,12 +798,22 @@ class _SendAnalyticRequestPageState
     );
   }
 
+  void _onMemberListScroll() {
+    if (_memberListScrollController.position.pixels >=
+        _memberListScrollController.position.maxScrollExtent - 100) {
+      // Load more users when scrolling near the bottom
+      ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
+    }
+  }
+
   @override
   void dispose() {
     memberSearchController.removeListener(_onMemberSearchChanged);
     _searchFocusNode.removeListener(_onSearchFocusChanged);
+    _memberListScrollController.removeListener(_onMemberListScroll);
     memberSearchController.dispose();
     _searchFocusNode.dispose();
+    _memberListScrollController.dispose();
     _debounce?.cancel();
     super.dispose();
   }

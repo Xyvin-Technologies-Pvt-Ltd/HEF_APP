@@ -279,9 +279,8 @@ class _SendAnalyticRequestPageState
 
               const SizedBox(height: 10),
 
-              // Member List (Only show when search field is focused and has input)
-              if (_isSearchFieldFocused &&
-                  memberSearchController.text.trim().isNotEmpty)
+              // Member List (Only show when search field is focused)
+              if (_isSearchFieldFocused)
                 if (isFirstLoad)
                   const Center(child: CircularProgressIndicator())
                 else if (sortedUsers.isNotEmpty)

@@ -365,9 +365,30 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
               style: kSmallTitleM,
             ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.filter_list),
-                onPressed: _showFilterModal,
+              Stack(
+                children: [
+                  IconButton(
+                  icon: const Icon(Icons.filter_list),
+                  onPressed: _showFilterModal,
+                ),
+                if(startDate !=null || endDate != null)
+                Positioned(
+                    right: 12,
+                    top: 12,
+                    
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 8,
+                        minHeight: 8,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
             elevation: 0,

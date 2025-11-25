@@ -89,6 +89,7 @@ class _DateFilterSheetState extends State<DateFilterSheet> {
               },
             ),
           ),
+          const SizedBox(height: 24),
           const SizedBox(height: 16),
         ],
       ),

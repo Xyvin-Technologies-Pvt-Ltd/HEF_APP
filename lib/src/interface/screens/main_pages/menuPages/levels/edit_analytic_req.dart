@@ -54,6 +54,7 @@ class _EditAnalyticRequestPageState
   String? selectedRequestType;
   String? selectedMember;
   String? selectedMemberName;
+  String? selectedMemberChapter;
   String? selectedMeetingType;
   bool? isReceived = false;
   bool _isSearchFieldFocused = false;
@@ -109,6 +110,7 @@ class _EditAnalyticRequestPageState
         // So we'll leave it empty and let them choose
         selectedMember = null;
         selectedMemberName = null;
+        selectedMemberChapter = null;
         memberSearchController.clear();
       } else {
         // Current user is the receiver - they are editing a request they received
@@ -340,7 +342,7 @@ class _EditAnalyticRequestPageState
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                selectedMemberName ?? '',
+                                selectedMemberChapter?? '',
                                 style: const TextStyle(
                                   color: Colors.blue,
                                   fontWeight: FontWeight.w500,
@@ -352,6 +354,7 @@ class _EditAnalyticRequestPageState
                                   setState(() {
                                     selectedMember = null;
                                     selectedMemberName = null;
+                                    selectedMemberChapter = null;
                                     memberSearchController.clear();
                                   });
                                 },
@@ -430,6 +433,7 @@ class _EditAnalyticRequestPageState
                             setState(() {
                               selectedMember = user.uid;
                               selectedMemberName = user.name;
+                              selectedMemberChapter= user.chapter?.name;
                               memberSearchController.text = user.name ?? '';
                             });
                             // Clear focus to hide the list

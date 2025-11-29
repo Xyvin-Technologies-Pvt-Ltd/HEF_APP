@@ -59,6 +59,7 @@ class _SendAnalyticRequestPageState
   String? selectedRequestType;
   String? selectedMember;
   String? selectedMemberName;
+  String? selectedMemberChapter;
   String? selectedMeetingType;
   bool? isReceived;
   bool _isSearchFieldFocused = false;
@@ -279,7 +280,7 @@ class _SendAnalyticRequestPageState
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                selectedMemberName ?? '',
+                                selectedMemberChapter?? '',
                                 style: const TextStyle(
                                   color: Colors.blue,
                                   fontWeight: FontWeight.w500,
@@ -291,6 +292,7 @@ class _SendAnalyticRequestPageState
                                   setState(() {
                                     selectedMember = null;
                                     selectedMemberName = null;
+                                    selectedMemberChapter = null;
                                     memberSearchController.clear();
                                   });
                                 },
@@ -369,6 +371,7 @@ class _SendAnalyticRequestPageState
                             setState(() {
                               selectedMember = user.uid;
                               selectedMemberName = user.name;
+                              selectedMemberChapter = user.chapter?.name;
                               memberSearchController.text = user.name ?? '';
                             });
                             // Clear focus to hide the list

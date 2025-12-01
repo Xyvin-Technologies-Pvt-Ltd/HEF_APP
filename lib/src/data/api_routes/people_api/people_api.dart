@@ -9,21 +9,22 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'people_api.g.dart';
 
 class PeopleApiService {
-
   Future<List<UserModel>> fetchActiveUsers({
     int pageNo = 1,
     int limit = 20,
     String? query,
     String? district,
     List<String>? tags,
+    String? chapter,
   }) async {
     final baseUri = Uri.parse('$baseUrl/user/list');
-    
+
     final queryParams = {
       'pageNo': pageNo.toString(),
       'limit': limit.toString(),
       if (query != null && query.isNotEmpty) 'search': query,
       if (district != null && district.isNotEmpty) 'district': district,
+      if (chapter != null && chapter.isNotEmpty) 'chapter': chapter,
       if (tags != null && tags.isNotEmpty) 'tags': tags.join(','),
     };
 
@@ -57,6 +58,7 @@ Future<List<UserModel>> fetchActiveUsers(
   String? query,
   String? district,
   List<String>? tags,
+  String? chapter,
 }) async {
   final service = PeopleApiService();
   return service.fetchActiveUsers(

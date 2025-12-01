@@ -37,6 +37,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   Timer? _debounce;
   String? selectedDistrictId;
   String? selectedDistrictName;
+  String? selectedChapterId;
+  String? selectedChapter;
   String? businessTagSearch;
   List<String> selectedTags = [];
 
@@ -72,6 +74,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   void _showFilterBottomSheet() {
     String? tempDistrictId = selectedDistrictId;
     String? tempDistrictName = selectedDistrictName;
+    String? tempChapterId = selectedChapterId;
+    String? tempChapterName = selectedChapter;
 
     showModalBottomSheet(
       context: context,
@@ -118,14 +122,24 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    if (tempDistrictName != null || selectedTags.isNotEmpty)
+                    if (tempDistrictName != null ||
+                        selectedTags.isNotEmpty ||
+                        tempChapterName != null)
                       TextButton(
                         onPressed: () {
                           setState(() {
                             tempDistrictId = null;
                             tempDistrictName = null;
+                            tempChapterId = null;
+                            tempChapterName = null;
                             selectedTags.clear();
                           });
+                          ref
+                              .read(peopleNotifierProvider.notifier)
+                              .setDistrict(null);
+                          ref
+                              .read(peopleNotifierProvider.notifier)
+                              .setChapter(null);
                           ref.read(peopleNotifierProvider.notifier).setTags([]);
                         },
                         style: TextButton.styleFrom(
@@ -143,6 +157,100 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
+                        Theme(
+                          data: Theme.of(context).copyWith(
+                            dividerColor: Colors.transparent,
+                          ),
+                          child: ExpansionTile(
+                            tilePadding: EdgeInsets.zero,
+                            childrenPadding: EdgeInsets.zero,
+                            title: Row(
+                              children: [
+                                const Icon(Icons.location_on_outlined),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Chapter',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                if (tempChapterName != null) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[50],
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      '1 selected',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.blue[700],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            children: [
+                              Consumer(
+                                builder: (context, ref, child) {
+                                  final asyncChapters =
+                                      ref.watch(fetchChaptersProvider);
+                                  return asyncChapters.when(
+                                    data: (chapters) {
+                                      return ListView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: chapters.length,
+                                        itemBuilder: (context, index) {
+                                          final chapter = chapters[index];
+                                          return ListTile(
+                                            dense: true,
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 12),
+                                            title: Text(
+                                              chapter.name ?? '',
+                                              style: TextStyle(
+                                                color:
+                                                    tempChapterId == chapter.id
+                                                        ? Colors.blue[700]
+                                                        : null,
+                                              ),
+                                            ),
+                                            trailing:
+                                                tempChapterId == chapter.id
+                                                    ? Icon(Icons.check_circle,
+                                                        color: Colors.blue[700])
+                                                    : null,
+                                            onTap: () {
+                                              setState(() {
+                                                tempChapterId = chapter.id;
+                                                tempChapterName = chapter.name;
+                                              });
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    loading: () =>
+                                        const Center(child: LoadingAnimation()),
+                                    error: (error, stackTrace) =>
+                                        const SizedBox(),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(),
                         Theme(
                           data: Theme.of(context).copyWith(
                             dividerColor: Colors.transparent,
@@ -491,11 +599,14 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                         setState(() {
                           selectedDistrictId = tempDistrictId;
                           selectedDistrictName = tempDistrictName;
+                          selectedChapterId = tempChapterId;
+                          selectedChapter = tempChapterName;
                         });
 
                         final notifier =
                             ref.read(peopleNotifierProvider.notifier);
                         notifier.setDistrict(tempDistrictId);
+                        notifier.setChapter(tempChapterId);
                         notifier.setTags(selectedTags);
 
                         Navigator.pop(context);
@@ -579,7 +690,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                         child: IconButton(
                           icon: Icon(
                             Icons.filter_list,
-                            color: selectedDistrictName != null
+                            color: selectedDistrictName != null ||
+                                    selectedChapter != null ||
+                                    selectedTags.isNotEmpty
                                 ? Colors.blue
                                 : Colors.grey,
                           ),
@@ -588,7 +701,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                       ),
                     ],
                   ),
-                  if (selectedDistrictName != null || selectedTags.isNotEmpty)
+                  if (selectedDistrictName != null ||
+                      selectedTags.isNotEmpty ||
+                      selectedChapter != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Column(
@@ -598,6 +713,19 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
+                              if (selectedChapter != null)
+                                Chip(
+                                  label: Text(selectedChapter!),
+                                  onDeleted: () {
+                                    setState(() {
+                                      selectedChapter = null;
+                                      selectedChapterId = null;
+                                    });
+                                    ref
+                                        .read(peopleNotifierProvider.notifier)
+                                        .setChapter(null);
+                                  },
+                                ),
                               if (selectedDistrictName != null)
                                 Chip(
                                   label: Text(selectedDistrictName!),

@@ -382,5 +382,23 @@ final fetchDistrictsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef FetchDistrictsRef = AutoDisposeFutureProviderRef<List<DistrictModel>>;
+String _$fetchChaptersHash() => r'763c9f7c270262c67ac49e6161e8c84f72566a23';
+
+/// See also [fetchChapters].
+@ProviderFor(fetchChapters)
+final fetchChaptersProvider =
+    AutoDisposeFutureProvider<List<UserChapterModel>>.internal(
+  fetchChapters,
+  name: r'fetchChaptersProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$fetchChaptersHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef FetchChaptersRef = AutoDisposeFutureProviderRef<List<UserChapterModel>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

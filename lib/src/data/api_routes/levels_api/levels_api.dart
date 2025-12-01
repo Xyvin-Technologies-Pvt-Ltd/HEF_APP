@@ -55,7 +55,8 @@ class HierarchyApiService {
     }
   }
 
-  Future<List<UserModel>> fetchChapterMemberData(String id, String level) async {
+  Future<List<UserModel>> fetchChapterMemberData(
+      String id, String level) async {
     final url = Uri.parse('$baseUrl/hierarchy/levels/$id/$level');
     log('Requesting URL: $url');
 
@@ -90,7 +91,26 @@ class HierarchyApiService {
       throw Exception(message);
     }
   }
+
+  Future<List<UserChapterModel>> fetchChapters() async {
+    final url = Uri.parse('$baseUrl/hierarchy/chapter/list');
+    log('Requesting URL: $url');
+
+    final response = await http.get(url, headers: _headers);
+    log(response.body);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final chaptersJson = data['data'] as List<dynamic>? ?? [];
+      return chaptersJson.map((e) => UserChapterModel.fromJson(e)).toList();
+    } else {
+      final message = json.decode(response.body)['message'];
+      log(message);
+      throw Exception(message);
+    }
+  }
 }
+
 @riverpod
 HierarchyApiService hierarchyApiService(Ref ref) {
   return const HierarchyApiService();
@@ -109,7 +129,8 @@ Future<List<LevelModel>> fetchLevelData(Ref ref, String id, String level) {
 }
 
 @riverpod
-Future<List<UserModel>> fetchChapterMemberData(Ref ref, String id, String level) {
+Future<List<UserModel>> fetchChapterMemberData(
+    Ref ref, String id, String level) {
   final api = ref.watch(hierarchyApiServiceProvider);
   return api.fetchChapterMemberData(id, level);
 }
@@ -118,4 +139,10 @@ Future<List<UserModel>> fetchChapterMemberData(Ref ref, String id, String level)
 Future<List<DistrictModel>> fetchDistricts(Ref ref) {
   final api = ref.watch(hierarchyApiServiceProvider);
   return api.fetchDistricts();
+}
+
+@riverpod
+Future<List<UserChapterModel>> fetchChapters(Ref ref) {
+  final api = ref.watch(hierarchyApiServiceProvider);
+  return api.fetchChapters();
 }

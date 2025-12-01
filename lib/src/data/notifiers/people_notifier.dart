@@ -15,6 +15,7 @@ class PeopleNotifier extends _$PeopleNotifier {
   String? searchQuery;
   String? district; // Added district filter
   List<String>? tags; // Added tags filter
+  String? chapter;
 
   @override
   List<UserModel> build() {
@@ -64,7 +65,9 @@ class PeopleNotifier extends _$PeopleNotifier {
   }
 
   Future<void> searchUsers(String query,
-      {String? districtFilter, List<String>? tagsFilter}) async {
+      {String? districtFilter,
+      List<String>? tagsFilter,
+      String? chapterFilter}) async {
     isLoading = true;
     isFirstLoad = true;
     pageNo = 1;
@@ -72,6 +75,7 @@ class PeopleNotifier extends _$PeopleNotifier {
     searchQuery = query;
     district = districtFilter; // Apply district filter
     tags = tagsFilter; // Apply tags filter
+    chapter = chapterFilter;
 
     try {
       final newUsers = await ref.read(
@@ -81,12 +85,13 @@ class PeopleNotifier extends _$PeopleNotifier {
           query: query,
           district: district, // Pass district filter
           tags: tags, // Pass tags filter
+          chapter: chapter,
         ).future,
       );
 
       users = [...newUsers];
       hasMore = newUsers.length == limit;
-  isFirstLoad = false;
+      isFirstLoad = false;
       state = [...users];
     } catch (e, stackTrace) {
       log(e.toString());
@@ -112,12 +117,13 @@ class PeopleNotifier extends _$PeopleNotifier {
           query: searchQuery,
           district: district, // Pass district filter
           tags: tags, // Pass tags filter
+          chapter: chapter,
         ).future,
       );
 
       users = [...newUsers];
       hasMore = newUsers.length == limit;
-isFirstLoad=false;
+      isFirstLoad = false;
       state = [...users];
     } catch (e, stackTrace) {
       log(e.toString());
@@ -135,5 +141,10 @@ isFirstLoad=false;
   void setTags(List<String>? newTags) {
     tags = newTags;
     refresh(); // Auto-refresh when tags are updated
+  }
+
+  void setChapter(String? newChapter) {
+    chapter = newChapter;
+    refresh(); // Auto-refresh when chapter is updated
   }
 }

@@ -794,6 +794,8 @@ class _SendAnalyticRequestPageState
                   }
                 },
               ),
+                            const SizedBox(height: 20.0),
+
             ],
           ),
         ),

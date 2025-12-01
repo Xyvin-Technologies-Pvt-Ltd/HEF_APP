@@ -370,6 +370,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                 ),
               ),
             ),
+            SizedBox(height: 10,)
         ],
       ),
     );

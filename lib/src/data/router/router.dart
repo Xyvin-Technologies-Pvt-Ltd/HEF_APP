@@ -83,13 +83,16 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
                 newUser: newUser,
               ));
     case 'EditAnalyticRequest':
-  final analytic = settings?.arguments as AnalyticsModel;
-  return MaterialPageRoute(
-    builder: (context) => EditAnalyticRequestPage(
-      analytic: analytic,
-    ),
-  );
-    
+      final args = settings?.arguments as Map<String, dynamic>?;
+      final AnalyticsModel analytic = args?['analytic'] as AnalyticsModel;
+      final bool isReceived = args?['isReceived'] as bool? ?? false;
+      return MaterialPageRoute(
+        builder: (context) => EditAnalyticRequestPage(
+          analytic: analytic,
+          isReceived: isReceived,
+        ),
+      );
+
     case 'EventMemberList':
       Event event = settings?.arguments as Event;
       return MaterialPageRoute(
@@ -99,11 +102,15 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
     case 'EditUser':
       return MaterialPageRoute(builder: (context) => EditUser());
     case 'IndividualPage':
-              final args = settings?.arguments as Map<String, dynamic>?;
-          Participant sender = args?['sender'];
-          Participant receiver = args?['receiver'];
+      final args = settings?.arguments as Map<String, dynamic>?;
+      Participant sender = args?['sender'];
+      Participant receiver = args?['receiver'];
 
-      return MaterialPageRoute(builder: (context) => IndividualPage(receiver: receiver,sender: sender,));
+      return MaterialPageRoute(
+          builder: (context) => IndividualPage(
+                receiver: receiver,
+                sender: sender,
+              ));
     case 'ChangeNumber':
       return MaterialPageRoute(builder: (context) => ChangeNumberPage());
     case 'NotificationPage':
@@ -126,8 +133,11 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       return MaterialPageRoute(builder: (context) => AnalyticsPage());
     case 'SendAnalyticRequest':
       final args = settings?.arguments as Map<String, dynamic>?;
-  final bool isReceived = args?['isReceived'] as bool? ?? false;
-      return MaterialPageRoute(builder: (context) => SendAnalyticRequestPage(isReceived: isReceived,));
+      final bool isReceived = args?['isReceived'] as bool? ?? false;
+      return MaterialPageRoute(
+          builder: (context) => SendAnalyticRequestPage(
+                isReceived: isReceived,
+              ));
 
     case 'RequestNFC':
       return MaterialPageRoute(builder: (context) => RequestNFCPage());
@@ -144,8 +154,6 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
 
     case 'PrivacyPolicy':
       return MaterialPageRoute(builder: (context) => PrivacyPolicyPage());
-
-
 
     case 'ProfileAnalytics':
       UserModel user = settings?.arguments as UserModel;

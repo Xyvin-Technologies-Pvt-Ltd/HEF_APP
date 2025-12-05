@@ -132,13 +132,14 @@ class AnalyticsModalSheet extends ConsumerWidget {
             const SizedBox(height: 20),
             // Action buttons section with consistent layout
             if (_shouldShowActionButtons())
-              _buildActionButtonsSection(analyticsApiService, navigationService, ref),
+              _buildActionButtonsSection(
+                  analyticsApiService, navigationService, ref),
             // Status change buttons - Available for both sender and receiver
             if (tabBarType != 'history' &&
                 analytic.status != 'rejected' &&
                 analytic.status != 'completed')
-              _buildStatusActionButtons(analyticsApiService, navigationService, ref),
-
+              _buildStatusActionButtons(
+                  analyticsApiService, navigationService, ref),
           ],
         ),
       ),
@@ -197,8 +198,8 @@ class AnalyticsModalSheet extends ConsumerWidget {
   bool _shouldShowActionButtons() {
     // Show edit/cancel buttons for sent requests or if user is the owner
     return (tabBarType == 'sent' || analytic.user_id == id) &&
-           analytic.status != 'completed' &&
-           analytic.status != 'rejected';
+        analytic.status != 'completed' &&
+        analytic.status != 'rejected';
   }
 
   // Build the action buttons section (Edit and Cancel buttons)
@@ -221,7 +222,10 @@ class AnalyticsModalSheet extends ConsumerWidget {
                 navigationService.pop();
                 navigationService.pushNamed(
                   'EditAnalyticRequest',
-                  arguments: analytic,
+                  arguments: {
+                    'analytic': analytic,
+                    'isReceived': tabBarType == 'received',
+                  },
                 );
               },
             ),
@@ -270,8 +274,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                     label: 'Reject',
                     onPressed: () async {
                       await analyticsApiService.updateAnalyticStatus(
-                          analyticId: analytic.id ?? '',
-                          action: 'rejected');
+                          analyticId: analytic.id ?? '', action: 'rejected');
                       ref.invalidate(fetchAnalyticsProvider);
                       navigationService.pop();
                     },
@@ -279,7 +282,8 @@ class AnalyticsModalSheet extends ConsumerWidget {
                 ),
 
               // Accept button (for non-meeting types) or Schedule button (for meetings)
-              if (analytic.type != 'One v One Meeting' && analytic.status != 'accepted')
+              if (analytic.type != 'One v One Meeting' &&
+                  analytic.status != 'accepted')
                 Expanded(
                   child: customButton(
                     sideColor: kGreen,
@@ -287,14 +291,14 @@ class AnalyticsModalSheet extends ConsumerWidget {
                     label: 'Accept',
                     onPressed: () async {
                       await analyticsApiService.updateAnalyticStatus(
-                          analyticId: analytic.id ?? '',
-                          action: 'accepted');
+                          analyticId: analytic.id ?? '', action: 'accepted');
                       ref.invalidate(fetchAnalyticsProvider);
                       navigationService.pop();
                     },
                   ),
                 )
-              else if (analytic.type == 'One v One Meeting' && analytic.status != 'meeting_scheduled')
+              else if (analytic.type == 'One v One Meeting' &&
+                  analytic.status != 'meeting_scheduled')
                 Expanded(
                   child: customButton(
                     sideColor: kBlue,
@@ -325,8 +329,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                       label: 'Reject',
                       onPressed: () async {
                         await analyticsApiService.updateAnalyticStatus(
-                            analyticId: analytic.id ?? '',
-                            action: 'rejected');
+                            analyticId: analytic.id ?? '', action: 'rejected');
                         ref.invalidate(fetchAnalyticsProvider);
                         navigationService.pop();
                       },
@@ -340,8 +343,7 @@ class AnalyticsModalSheet extends ConsumerWidget {
                       label: 'Complete',
                       onPressed: () async {
                         await analyticsApiService.updateAnalyticStatus(
-                            analyticId: analytic.id ?? '',
-                            action: 'completed');
+                            analyticId: analytic.id ?? '', action: 'completed');
                         ref.invalidate(fetchAnalyticsProvider);
                         navigationService.pop();
                       },
@@ -352,7 +354,8 @@ class AnalyticsModalSheet extends ConsumerWidget {
             ),
 
           // Third row for accepted status (Mark as Completed button)
-          if (analytic.status == 'accepted' && analytic.type != 'One v One Meeting')
+          if (analytic.status == 'accepted' &&
+              analytic.type != 'One v One Meeting')
             Padding(
               padding: const EdgeInsets.only(top: 12),
               child: SizedBox(
@@ -370,7 +373,9 @@ class AnalyticsModalSheet extends ConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(height: 10,)
+          SizedBox(
+            height: 10,
+          )
         ],
       ),
     );

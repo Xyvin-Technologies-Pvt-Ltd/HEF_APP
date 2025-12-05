@@ -22,9 +22,13 @@ import 'package:shimmer/shimmer.dart';
 
 class EditAnalyticRequestPage extends ConsumerStatefulWidget {
   final AnalyticsModel analytic;
+  final bool isReceived;
 
-  const EditAnalyticRequestPage({Key? key, required this.analytic})
-      : super(key: key);
+  const EditAnalyticRequestPage({
+    Key? key,
+    required this.analytic,
+    required this.isReceived,
+  }) : super(key: key);
 
   @override
   _EditAnalyticRequestPageState createState() =>
@@ -68,6 +72,13 @@ class _EditAnalyticRequestPageState
   @override
   void initState() {
     super.initState();
+
+    // Use the passed isReceived parameter directly
+    isReceived = widget.isReceived;
+
+    log('Analytics Edit - Using passed isReceived parameter: $isReceived',
+        name: 'Analytics Edit');
+
     _populateFields();
     // Initialize people notifier
     ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
@@ -97,28 +108,28 @@ class _EditAnalyticRequestPageState
     titleController.text = widget.analytic.title ?? '';
     descriptionController.text = widget.analytic.description ?? '';
 
-    // Pre-fill member field based on who is editing the request
-    if (widget.analytic.user_id != null && widget.analytic.username != null) {
-      // Check if the current user is the sender or receiver
-      bool currentUserIsSender = widget.analytic.user_id == id;
-      isReceived =
-          !currentUserIsSender; // If current user is not the sender, then they are receiving
+    // SIMPLIFIED: Use the passed isReceived parameter directly
+    log('Analytics Edit - Populating fields with isReceived: $isReceived',
+        name: 'Analytics Edit');
 
-      if (currentUserIsSender) {
-        // Current user is the sender - they are editing a request they sent
-        // In this case, the selectedMember should be the recipient (we don't have this info in the model)
-        // So we'll leave it empty and let them choose
-        selectedMember = null;
-        selectedMemberName = null;
-        selectedMemberChapter = null;
-        memberSearchController.clear();
-      } else {
-        // Current user is the receiver - they are editing a request they received
-        // Pre-fill with the sender information
+    if (isReceived == true) {
+      // Editing a received request - pre-fill with sender information
+      if (widget.analytic.user_id != null && widget.analytic.username != null) {
         selectedMember = widget.analytic.user_id;
         selectedMemberName = widget.analytic.username;
+        selectedMemberChapter = null;
         memberSearchController.text = widget.analytic.username ?? '';
+        log('Editing received request - pre-filled with sender: ${widget.analytic.username}',
+            name: 'Analytics Edit');
       }
+    } else {
+      // Editing a sent request - let user choose a new recipient
+      selectedMember = null;
+      selectedMemberName = null;
+      selectedMemberChapter = null;
+      memberSearchController.clear();
+      log('Editing sent request - cleared member selection',
+          name: 'Analytics Edit');
     }
 
     if (widget.analytic.amount != null) {
@@ -167,6 +178,13 @@ class _EditAnalyticRequestPageState
   }
 
   Future<String?> updateAnalytic(String countryCode) async {
+    log('Analytics Update Debug - isReceived: $isReceived',
+        name: 'Analytics Edit');
+    log('Analytics Update Debug - selectedMember: $selectedMember',
+        name: 'Analytics Edit');
+    log('Analytics Update Debug - Current User ID: $id',
+        name: 'Analytics Edit');
+
     final Map<String, dynamic> analytictData = {
       "type": selectedRequestType,
       "member": isReceived! ? id : selectedMember,
@@ -228,6 +246,12 @@ class _EditAnalyticRequestPageState
 
   @override
   Widget build(BuildContext context) {
+    // Debug logging for build method
+    log('Analytics Edit - Build method called, isReceived: $isReceived',
+        name: 'Analytics Edit');
+    log('Analytics Edit - Selected Member: $selectedMember',
+        name: 'Analytics Edit');
+
     final countryCode = ref.watch(countryCodeProvider);
     final users = ref.watch(peopleNotifierProvider);
     final isLoading = ref.read(peopleNotifierProvider.notifier).isLoading;
@@ -342,7 +366,7 @@ class _EditAnalyticRequestPageState
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                selectedMemberChapter?? '',
+                                selectedMemberChapter ?? '',
                                 style: const TextStyle(
                                   color: Colors.blue,
                                   fontWeight: FontWeight.w500,
@@ -433,7 +457,7 @@ class _EditAnalyticRequestPageState
                             setState(() {
                               selectedMember = user.uid;
                               selectedMemberName = user.name;
-                              selectedMemberChapter= user.chapter?.name;
+                              selectedMemberChapter = user.chapter?.name;
                               memberSearchController.text = user.name ?? '';
                             });
                             // Clear focus to hide the list

@@ -204,6 +204,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                       ref.watch(fetchChaptersProvider);
                                   return asyncChapters.when(
                                     data: (chapters) {
+                                      log('Fetched chapters: $chapters');
                                       return ListView.builder(
                                         shrinkWrap: true,
                                         physics:
@@ -217,7 +218,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                                 const EdgeInsets.symmetric(
                                                     horizontal: 12),
                                             title: Text(
-                                              chapter.name ?? '',
+                                              chapter.name ??
+                                                  chapter.shortCode ??
+                                                  '',
                                               style: TextStyle(
                                                 color:
                                                     tempChapterId == chapter.id

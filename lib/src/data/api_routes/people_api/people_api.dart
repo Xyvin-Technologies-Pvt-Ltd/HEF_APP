@@ -67,5 +67,6 @@ Future<List<UserModel>> fetchActiveUsers(
     query: query,
     district: district,
     tags: tags,
+    chapter: chapter,
   );
 }

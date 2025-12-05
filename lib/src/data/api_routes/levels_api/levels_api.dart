@@ -101,7 +101,7 @@ class HierarchyApiService {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      final chaptersJson = data['data'] as List<dynamic>? ?? [];
+      final chaptersJson = data['data']['body'] as List<dynamic>? ?? [];
       return chaptersJson.map((e) => UserChapterModel.fromJson(e)).toList();
     } else {
       final message = json.decode(response.body)['message'];

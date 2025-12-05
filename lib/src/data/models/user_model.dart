@@ -46,12 +46,12 @@ class UserChapterModel {
 
   factory UserChapterModel.fromJson(Map<String, dynamic> json) {
     return UserChapterModel(
-      id: json['_id'] as String?,
-      name: json['name'] as String?,
+      id: json['Name'] as String? ?? json['_id'] as String?,
+      name: json['ChapterName'] as String? ?? json['name'] as String?,
       district: json['districtId'] != null
           ? UserDistrictModel.fromJson(json['districtId'])
           : null,
-      shortCode: json['shortCode'] as String?,
+      shortCode: json['ShortCode'] as String? ?? json['shortCode'] as String?,
     );
   }
 
@@ -299,7 +299,7 @@ class UserModel {
       'name': name,
       'uid': uid,
       'memberId': memberId,
-      'role' : role,
+      'role': role,
       'bloodgroup': bloodgroup,
       'isAdmin': isAdmin,
       'chapter': chapter?.toJson(),

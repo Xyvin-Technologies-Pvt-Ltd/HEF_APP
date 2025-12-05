@@ -6,6 +6,25 @@ part of 'chapter_details.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$fetchAllChaptersHash() => r'0771dc246c0ba9e31299e27a0e9860aa9304a751';
+
+/// See also [fetchAllChapters].
+@ProviderFor(fetchAllChapters)
+final fetchAllChaptersProvider =
+    AutoDisposeFutureProvider<List<UserChapterModel>>.internal(
+  fetchAllChapters,
+  name: r'fetchAllChaptersProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$fetchAllChaptersHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef FetchAllChaptersRef
+    = AutoDisposeFutureProviderRef<List<UserChapterModel>>;
 String _$fetchChapterDetailsHash() =>
     r'3088ad1cbb27936c34c67454ed1c152a3009ac96';
 

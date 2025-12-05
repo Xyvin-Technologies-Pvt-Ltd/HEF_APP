@@ -63,12 +63,21 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      ref.read(peopleNotifierProvider.notifier).searchUsers(query);
+      ref.read(peopleNotifierProvider.notifier).searchUsers(query,
+          districtFilter: selectedDistrictId,
+          chapterFilter: selectedChapterId,
+          tagsFilter: selectedTags.isNotEmpty ? selectedTags : null);
     });
   }
 
   void _onSearchSubmitted(String query) {
-    ref.read(peopleNotifierProvider.notifier).searchUsers(query);
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      ref.read(peopleNotifierProvider.notifier).searchUsers(query,
+          districtFilter: selectedDistrictId,
+          chapterFilter: selectedChapterId,
+          tagsFilter: selectedTags.isNotEmpty ? selectedTags : null);
+    });
   }
 
   void _showFilterBottomSheet() {
@@ -606,11 +615,16 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                           selectedChapter = tempChapterName;
                         });
 
+                        // Only call searchUsers to avoid multiple API calls
                         final notifier =
                             ref.read(peopleNotifierProvider.notifier);
-                        notifier.setDistrict(tempDistrictId);
-                        notifier.setChapter(tempChapterId);
-                        notifier.setTags(selectedTags);
+                        notifier.searchUsers(
+                          _searchController.text,
+                          districtFilter: tempDistrictId,
+                          chapterFilter: tempChapterId,
+                          tagsFilter:
+                              selectedTags.isNotEmpty ? selectedTags : null,
+                        );
 
                         Navigator.pop(context);
                       },

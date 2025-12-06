@@ -243,7 +243,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     if (currentVersion < response.version && response.force) {
       // Pause initialization and show update dialog
-      // isAppUpdateRequired = true;
+      isAppUpdateRequired = true;
       showUpdateDialog(response, context);
     }
   }

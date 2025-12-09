@@ -26,10 +26,15 @@ class AnalyticsPdfService {
   }) async {
     final pdf = pw.Document();
 
+    // Load logo image
+    final logoBytes = (await rootBundle.load('assets/pngs/splash_logo.png'))
+        .buffer
+        .asUint8List();
+
     // Add content to PDF
     pdf.addPage(
-      await _buildReportPage(
-          analyticsData, reportType, startDate, endDate, requestType),
+      await _buildReportPage(analyticsData, reportType, startDate, endDate,
+          requestType, logoBytes),
     );
 
     // Save the document
@@ -53,6 +58,7 @@ class AnalyticsPdfService {
     String? startDate,
     String? endDate,
     String? requestType,
+    Uint8List? logoBytes,
   ) async {
     final font =
         await pw.Font.ttf(await rootBundle.load('assets/fonts/Helvetica.ttf'));
@@ -98,15 +104,22 @@ class AnalyticsPdfService {
                   border: pw.Border.all(color: primaryColor, width: 2),
                 ),
                 child: pw.Center(
-                  child: pw.Text(
-                    'HEF',
-                    style: pw.TextStyle(
-                      font: font,
-                      fontSize: 24,
-                      fontWeight: pw.FontWeight.bold,
-                      color: primaryColor,
-                    ),
-                  ),
+                  child: logoBytes != null
+                      ? pw.Image(
+                          pw.MemoryImage(logoBytes),
+                          width: 60,
+                          height: 60,
+                          fit: pw.BoxFit.contain,
+                        )
+                      : pw.Text(
+                          'HEF',
+                          style: pw.TextStyle(
+                            font: font,
+                            fontSize: 24,
+                            fontWeight: pw.FontWeight.bold,
+                            color: primaryColor,
+                          ),
+                        ),
                 ),
               ),
             ],
@@ -250,9 +263,31 @@ class AnalyticsPdfService {
                         ),
                       ),
                       pw.Expanded(
-                        flex: 3,
+                        flex: 2,
+                        child: pw.Text(
+                          'Type',
+                          style: pw.TextStyle(
+                            font: font,
+                            color: PdfColor.fromInt(0xFFFFFFFF),
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      pw.Expanded(
+                        flex: 2,
                         child: pw.Text(
                           'Title/Description',
+                          style: pw.TextStyle(
+                            font: font,
+                            color: PdfColor.fromInt(0xFFFFFFFF),
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      pw.Expanded(
+                        flex: 1,
+                        child: pw.Text(
+                          'Amount',
                           style: pw.TextStyle(
                             font: font,
                             color: PdfColor.fromInt(0xFFFFFFFF),
@@ -313,12 +348,31 @@ class AnalyticsPdfService {
                           ),
                         ),
                         pw.Expanded(
-                          flex: 3,
+                          flex: 2,
+                          child: pw.Text(
+                            analytic.type ?? 'N/A',
+                            style: pw.TextStyle(font: font, fontSize: 10),
+                            maxLines: 1,
+                            overflow: pw.TextOverflow.clip,
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 2,
                           child: pw.Text(
                             analytic.title ?? 'N/A',
                             style: pw.TextStyle(font: font, fontSize: 10),
                             maxLines: 2,
                             overflow: pw.TextOverflow.clip,
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 1,
+                          child: pw.Text(
+                            analytic.amount != null 
+                            ? '\${analytic.amount!.toStringAsFixed(2)}' 
+                            : 'N/A',
+                            style: pw.TextStyle(font: font, fontSize: 10),
+                            textAlign: pw.TextAlign.center,
                           ),
                         ),
                         pw.Expanded(
@@ -332,7 +386,7 @@ class AnalyticsPdfService {
                           flex: 1,
                           child: pw.Container(
                             padding: const pw.EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
+                                horizontal: 6, vertical: 4),
                             decoration: pw.BoxDecoration(
                               color: _getStatusColor(analytic.status ?? ''),
                               borderRadius: pw.BorderRadius.circular(12),
@@ -342,7 +396,7 @@ class AnalyticsPdfService {
                               style: pw.TextStyle(
                                 font: font,
                                 color: PdfColor.fromInt(0xFFFFFFFF),
-                                fontSize: 8,
+                                fontSize: 7,
                                 fontWeight: pw.FontWeight.bold,
                               ),
                               textAlign: pw.TextAlign.center,

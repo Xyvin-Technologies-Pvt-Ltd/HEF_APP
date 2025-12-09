@@ -10,9 +10,11 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
 import 'package:hef/src/data/notifiers/people_notifier.dart';
+import 'package:hef/src/data/services/analytics_pdf_service.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:hef/src/interface/components/ModalSheets/analytics.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:intl/intl.dart';
@@ -299,6 +301,124 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     );
   }
 
+  Future<void> _downloadPdf() async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
+      // Request storage permission for Android
+      if (await Permission.storage.isDenied) {
+        await Permission.storage.request();
+      }
+
+      // Get current tab data
+      List<AnalyticsModel> analyticsData;
+      String reportType;
+
+      switch (_tabController.index) {
+        case 0: // Received
+          final asyncReceivedAnalytics = ref.watch(fetchAnalyticsProvider(
+            type: 'received',
+            startDate: startDate != null
+                ? DateFormat('yyyy-MM-dd').format(startDate!)
+                : null,
+            endDate: endDate != null
+                ? DateFormat('yyyy-MM-dd').format(endDate!)
+                : null,
+            requestType: selectedRequestType,
+          ));
+          analyticsData = asyncReceivedAnalytics.value ?? [];
+          reportType = 'received';
+          break;
+        case 1: // Sent
+          final asyncSentAnalytics = ref.watch(fetchAnalyticsProvider(
+            type: 'sent',
+            startDate: startDate != null
+                ? DateFormat('yyyy-MM-dd').format(startDate!)
+                : null,
+            endDate: endDate != null
+                ? DateFormat('yyyy-MM-dd').format(endDate!)
+                : null,
+            requestType: selectedRequestType,
+          ));
+          analyticsData = asyncSentAnalytics.value ?? [];
+          reportType = 'sent';
+          break;
+        case 2: // History
+          final asyncHistoryAnalytics = ref.watch(fetchAnalyticsProvider(
+            type: null,
+            startDate: startDate != null
+                ? DateFormat('yyyy-MM-dd').format(startDate!)
+                : null,
+            endDate: endDate != null
+                ? DateFormat('yyyy-MM-dd').format(endDate!)
+                : null,
+            requestType: selectedRequestType,
+          ));
+          analyticsData = asyncHistoryAnalytics.value ?? [];
+          reportType = 'history';
+          break;
+        default:
+          analyticsData = [];
+          reportType = 'all';
+      }
+
+      // Generate PDF
+      final file = await AnalyticsPdfService.generateAnalyticsPdf(
+        analyticsData: analyticsData,
+        reportType: reportType,
+        startDate: startDate != null
+            ? DateFormat('yyyy-MM-dd').format(startDate!)
+            : null,
+        endDate:
+            endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
+        requestType: selectedRequestType,
+      );
+
+      // Close loading dialog
+      if (mounted) {
+        Navigator.of(context).pop();
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('PDF downloaded successfully!'),
+            backgroundColor: kGreen,
+            action: SnackBarAction(
+              label: 'Open',
+              textColor: Colors.white,
+              onPressed: () {
+                AnalyticsPdfService.openPdfFile(file);
+              },
+            ),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) {
+        Navigator.of(context).pop();
+
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to generate PDF: $e'),
+            backgroundColor: kRed,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
     _autoRefreshTimer?.cancel();
@@ -368,27 +488,30 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
               Stack(
                 children: [
                   IconButton(
-                  icon: const Icon(Icons.filter_list),
-                  onPressed: _showFilterModal,
-                ),
-                if(startDate !=null || endDate != null)
-                Positioned(
-                    right: 12,
-                    top: 12,
-                    
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 8,
-                        minHeight: 8,
+                    icon: const Icon(Icons.filter_list),
+                    onPressed: _showFilterModal,
+                  ),
+                  if (startDate != null || endDate != null)
+                    Positioned(
+                      right: 12,
+                      top: 12,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 8,
+                          minHeight: 8,
+                        ),
                       ),
                     ),
-                  ),
                 ],
+              ),
+              IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: _downloadPdf,
               ),
             ],
             elevation: 0,

@@ -368,9 +368,7 @@ class AnalyticsPdfService {
                         pw.Expanded(
                           flex: 1,
                           child: pw.Text(
-                            analytic.amount != null 
-                            ? '\${analytic.amount!.toStringAsFixed(2)}' 
-                            : 'N/A',
+                            _formatAmount(analytic.amount),
                             style: pw.TextStyle(font: font, fontSize: 10),
                             textAlign: pw.TextAlign.center,
                           ),
@@ -473,6 +471,13 @@ class AnalyticsPdfService {
     } else {
       return 'All time';
     }
+  }
+
+  static String _formatAmount(double? amount) {
+    if (amount != null) {
+      return '\₹ ${amount.toStringAsFixed(2)}';
+    }
+    return 'N/A';
   }
 
   static String _formatDateTime(DateTime? date, String? time) {

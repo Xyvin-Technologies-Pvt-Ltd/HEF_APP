@@ -259,6 +259,16 @@ class UserNotifier extends StateNotifier<AsyncValue<UserModel>> {
   void updateBusinessTags(List<String> businessTags) {
     state = state.whenData((user) => user.copyWith(businessTags: businessTags));
   }
+
+  void updateBusinessCategory(String? businessCategory) {
+    state = state
+        .whenData((user) => user.copyWith(businessCategory: businessCategory));
+  }
+
+  void updateBusinessSubCategory(String? businessSubCategory) {
+    state = state.whenData(
+        (user) => user.copyWith(businessSubCategory: businessSubCategory));
+  }
 }
 
 final userProvider =

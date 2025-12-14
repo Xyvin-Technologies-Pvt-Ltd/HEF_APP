@@ -192,6 +192,18 @@ class CustomTextFormField extends StatelessWidget {
                         textController!.text);
                     break;
 
+                  case 'Enter your Category':
+                    ref.read(userProvider.notifier).updateBusinessCategory(
+                          textController!.text,
+                        );
+                    break;
+
+                  case 'Enter your Sub Category':
+                    ref.read(userProvider.notifier).updateBusinessSubCategory(
+                          textController!.text,
+                        );
+                    break;
+
                   default:
                 }
               },

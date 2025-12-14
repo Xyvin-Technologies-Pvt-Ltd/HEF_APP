@@ -633,7 +633,8 @@ class _EditUserState extends ConsumerState<EditUser> {
                 businessCategoryController.text = user.businessCategory ?? ' ';
               }
               if (businessSubCategoryController.text.isEmpty) {
-                businessSubCategoryController.text = user.businessSubCategory ?? ' ';
+                businessSubCategoryController.text =
+                    user.businessSubCategory ?? ' ';
               }
               if (emailController.text.isEmpty) {
                 emailController.text = user.email ?? '';

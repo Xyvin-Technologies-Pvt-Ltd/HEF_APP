@@ -261,10 +261,10 @@ class ProfilePage extends StatelessWidget {
                                                           Text(user.role!.toUpperCase()),
                                                           if(user.businessCategory != null)
 
-                                                          Text('Category : ${user.businessCategory ?? "null"}'),
+                                                          Text('Category : ${user.businessCategory!.toUpperCase() ?? "null"}'),
                                                           SizedBox(height: 5,),
-                                                          if(user.businessSubCategory != null)
-                                                          Text(user.businessSubCategory!.toUpperCase())
+                                                          Text('Sub Category : ${user.businessSubCategory!.toUpperCase() ?? "null"}'),
+                                                          SizedBox(height: 5,),
                                                     ],
                                                   ),
                                                 ),

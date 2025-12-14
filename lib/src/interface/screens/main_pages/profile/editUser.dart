@@ -122,6 +122,11 @@ class _EditUserState extends ConsumerState<EditUser> {
   final TextEditingController batchController = TextEditingController();
   final TextEditingController companyPhoneController = TextEditingController();
 
+  final TextEditingController businessCategoryController =
+      TextEditingController();
+  final TextEditingController businessSubCategoryController =
+      TextEditingController();
+
   final TextEditingController designationController = TextEditingController();
   final TextEditingController companyNameController = TextEditingController();
   final TextEditingController companyEmailController = TextEditingController();
@@ -173,116 +178,118 @@ class _EditUserState extends ConsumerState<EditUser> {
   bool _isProfileImageLoading = false;
   Map<int, bool> _companyLogoLoadingStates = {};
 
-Future<File?> _pickFile({required String imageType, int? companyIndex}) async {
-  // iOS-specific permission check
-  if (Platform.isIOS) {
-    final status = await Permission.photos.request();
+  Future<File?> _pickFile(
+      {required String imageType, int? companyIndex}) async {
+    // iOS-specific permission check
+    if (Platform.isIOS) {
+      final status = await Permission.photos.request();
 
-    if (status.isDenied || status.isPermanentlyDenied) {
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Permission Required'),
-          content: const Text(
-              'Gallery access is required to pick images. Please enable it from settings.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await openAppSettings();
-              },
-              child: const Text('Open Settings'),
-            ),
-          ],
-        ),
-      );
-      return null;
-    }
-  }
-
-  final ImagePicker _picker = ImagePicker();
-  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-  if (image == null) return null;
-
-  final file = File(image.path);
-
-  if (imageType == 'profile') {
-    setState(() {
-      _isProfileImageLoading = true;
-      _profileImageFile = file;
-    });
-    try {
-      String profileUrl = await imageUpload(file.path);
-      _profileImageSource = ImageSource.gallery;
-      ref.read(userProvider.notifier).updateProfilePicture(profileUrl);
-      return file;
-    } catch (e) {
-      print('Error uploading profile image: $e');
-      snackbarService.showSnackBar('Failed to upload profile image');
-    } finally {
-      setState(() {
-        _isProfileImageLoading = false;
-      });
-    }
-  } else if (imageType == 'company' && companyIndex != null) {
-    setState(() {
-      _companyLogoLoadingStates[companyIndex] = true;
-      _companyImageFile = file;
-    });
-    try {
-      String companyLogoUrl = await imageUpload(file.path);
-      _companyImageSource = ImageSource.gallery;
-
-      // Update the company logo in the existing company data
-      final user = ref.read(userProvider).value;
-      if (user != null && user.company != null && companyIndex < user.company!.length) {
-        final existingCompany = user.company![companyIndex];
-        final updatedCompany = existingCompany.copyWith(logo: companyLogoUrl);
-        ref.read(userProvider.notifier).updateCompany(updatedCompany, companyIndex);
+      if (status.isDenied || status.isPermanentlyDenied) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Gallery access is required to pick images. Please enable it from settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+        return null;
       }
-      return file;
-    } catch (e) {
-      print('Error uploading company logo: $e');
-      snackbarService.showSnackBar('Failed to upload company logo');
-    } finally {
-      setState(() {
-        _companyLogoLoadingStates[companyIndex] = false;
-      });
     }
-  } else if (imageType == 'award') {
-    setState(() {
-      _awardImageSource = ImageSource.gallery;
-      _awardImageFIle = file;
-    });
-    return file;
-  } else if (imageType == 'certificate') {
-    setState(() {
-      _certificateSource = ImageSource.gallery;
-      _certificateImageFIle = file;
-    });
-    return file;
+
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image == null) return null;
+
+    final file = File(image.path);
+
+    if (imageType == 'profile') {
+      setState(() {
+        _isProfileImageLoading = true;
+        _profileImageFile = file;
+      });
+      try {
+        String profileUrl = await imageUpload(file.path);
+        _profileImageSource = ImageSource.gallery;
+        ref.read(userProvider.notifier).updateProfilePicture(profileUrl);
+        return file;
+      } catch (e) {
+        print('Error uploading profile image: $e');
+        snackbarService.showSnackBar('Failed to upload profile image');
+      } finally {
+        setState(() {
+          _isProfileImageLoading = false;
+        });
+      }
+    } else if (imageType == 'company' && companyIndex != null) {
+      setState(() {
+        _companyLogoLoadingStates[companyIndex] = true;
+        _companyImageFile = file;
+      });
+      try {
+        String companyLogoUrl = await imageUpload(file.path);
+        _companyImageSource = ImageSource.gallery;
+
+        // Update the company logo in the existing company data
+        final user = ref.read(userProvider).value;
+        if (user != null &&
+            user.company != null &&
+            companyIndex < user.company!.length) {
+          final existingCompany = user.company![companyIndex];
+          final updatedCompany = existingCompany.copyWith(logo: companyLogoUrl);
+          ref
+              .read(userProvider.notifier)
+              .updateCompany(updatedCompany, companyIndex);
+        }
+        return file;
+      } catch (e) {
+        print('Error uploading company logo: $e');
+        snackbarService.showSnackBar('Failed to upload company logo');
+      } finally {
+        setState(() {
+          _companyLogoLoadingStates[companyIndex] = false;
+        });
+      }
+    } else if (imageType == 'award') {
+      setState(() {
+        _awardImageSource = ImageSource.gallery;
+        _awardImageFIle = file;
+      });
+      return file;
+    } else if (imageType == 'certificate') {
+      setState(() {
+        _certificateSource = ImageSource.gallery;
+        _certificateImageFIle = file;
+      });
+      return file;
+    }
+
+    return null;
   }
 
-  return null;
-}
+  void _removeProfilePicture() {
+    setState(() {
+      _profileImageFile = null;
+      _profileImageSource = null;
+    });
 
-
-void _removeProfilePicture() {
-  setState(() {
-    _profileImageFile = null;
-    _profileImageSource = null;
-  });
-
-  // Update the backend / provider
-  ref.read(userProvider.notifier).updateProfilePicture('');
-}
-
-
+    // Update the backend / provider
+    ref.read(userProvider.notifier).updateProfilePicture('');
+  }
 
   // void _addAwardCard() async {
   // await api.createFileUrl(file: _awardImageFIle!).then((url) {
@@ -395,18 +402,21 @@ void _removeProfilePicture() {
       "email": user.email,
       "phone": user.phone,
 
-      // if (user.image != null && user.image != '') 
+      // if (user.image != null && user.image != '')
       // "image": user.image ?? '',
 
       // ✅ Include image always, even if null
-      "image": (user.image != null && user.image!.isNotEmpty) 
-      ? user.image 
-      : null,
-
+      "image":
+          (user.image != null && user.image!.isNotEmpty) ? user.image : null,
 
       if (user.address != null && user.address != '')
         "address": user.address ?? '',
       if (user.bio != null && user.bio != '') "bio": user.bio ?? '',
+      if (user.businessCategory != null && user.businessCategory != '')
+        "businessCatogary": user.businessCategory ?? '',
+      if (user.businessSubCategory != null && user.businessSubCategory != '')
+        "businessSubCatogary": user.businessSubCategory ?? '',
+
       "chapter": user.chapter?.id ?? '',
       if (user.secondaryPhone != null)
         "secondaryPhone": {
@@ -619,6 +629,12 @@ void _removeProfilePicture() {
               if (personalPhoneController.text.isEmpty) {
                 personalPhoneController.text = user.phone ?? '';
               }
+              if (businessCategoryController.text.isEmpty) {
+                businessCategoryController.text = user.businessCategory ?? ' ';
+              }
+              if (businessSubCategoryController.text.isEmpty) {
+                businessSubCategoryController.text = user.businessSubCategory ?? ' ';
+              }
               if (emailController.text.isEmpty) {
                 emailController.text = user.email ?? '';
               }
@@ -759,93 +775,106 @@ void _removeProfilePicture() {
                                         //   ],
                                         // ),
                                         Stack(
-  children: [
-    DottedBorder(
-      borderType: BorderType.Circle,
-      dashPattern: [6, 3],
-      color: Colors.grey,
-      strokeWidth: 2,
-      child: ClipOval(
-        child: Container(
-          width: 120,
-          height: 120,
-          color: Colors.white,
-          child: _isProfileImageLoading
-              ? const Center(child: LoadingAnimation())
-              : Image.network(
-                  user.image ?? '',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return SvgPicture.asset(
-                      'assets/svg/icons/dummy_person_large.svg',
-                    );
-                  },
-                ),
-        ),
-      ),
-    ),
-    // Edit button
-    Positioned(
-      bottom: 4,
-      right: 4,
-      child: InkWell(
-        onTap: () {
-          _pickFile(imageType: 'profile');
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                offset: const Offset(2, 2),
-                blurRadius: 4,
-              ),
-            ],
-            shape: BoxShape.circle,
-          ),
-          child: const CircleAvatar(
-            radius: 17,
-            backgroundColor: Colors.white,
-            child: Icon(
-              Icons.edit,
-              color: kPrimaryColor,
-              size: 16,
-            ),
-          ),
-        ),
-      ),
-    ),
-    // Delete button
-    Positioned(
-      bottom: 4,
-      left: 4,
-      child: InkWell(
-        onTap: _removeProfilePicture, // <-- call the function I suggested earlier
-        child: Container(
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                offset: const Offset(2, 2),
-                blurRadius: 4,
-              ),
-            ],
-            shape: BoxShape.circle,
-          ),
-          child: const CircleAvatar(
-            radius: 17,
-            backgroundColor: Colors.white,
-            child: Icon(
-              Icons.delete,
-              color: Colors.red,
-              size: 16,
-            ),
-          ),
-        ),
-      ),
-    ),
-  ],
-),
+                                          children: [
+                                            DottedBorder(
+                                              borderType: BorderType.Circle,
+                                              dashPattern: [6, 3],
+                                              color: Colors.grey,
+                                              strokeWidth: 2,
+                                              child: ClipOval(
+                                                child: Container(
+                                                  width: 120,
+                                                  height: 120,
+                                                  color: Colors.white,
+                                                  child: _isProfileImageLoading
+                                                      ? const Center(
+                                                          child:
+                                                              LoadingAnimation())
+                                                      : Image.network(
+                                                          user.image ?? '',
+                                                          fit: BoxFit.cover,
+                                                          errorBuilder:
+                                                              (context, error,
+                                                                  stackTrace) {
+                                                            return SvgPicture
+                                                                .asset(
+                                                              'assets/svg/icons/dummy_person_large.svg',
+                                                            );
+                                                          },
+                                                        ),
+                                                ),
+                                              ),
+                                            ),
+                                            // Edit button
+                                            Positioned(
+                                              bottom: 4,
+                                              right: 4,
+                                              child: InkWell(
+                                                onTap: () {
+                                                  _pickFile(
+                                                      imageType: 'profile');
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.2),
+                                                        offset:
+                                                            const Offset(2, 2),
+                                                        blurRadius: 4,
+                                                      ),
+                                                    ],
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const CircleAvatar(
+                                                    radius: 17,
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    child: Icon(
+                                                      Icons.edit,
+                                                      color: kPrimaryColor,
+                                                      size: 16,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            // Delete button
+                                            Positioned(
+                                              bottom: 4,
+                                              left: 4,
+                                              child: InkWell(
+                                                onTap:
+                                                    _removeProfilePicture, // <-- call the function I suggested earlier
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.2),
+                                                        offset:
+                                                            const Offset(2, 2),
+                                                        blurRadius: 4,
+                                                      ),
+                                                    ],
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const CircleAvatar(
+                                                    radius: 17,
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    child: Icon(
+                                                      Icons.delete,
+                                                      color: Colors.red,
+                                                      size: 16,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
 
                                         if (state.hasError)
                                           Padding(
@@ -946,6 +975,40 @@ void _removeProfilePicture() {
                                         textController: bioController,
                                         labelText: 'Bio',
                                         maxLines: 5),
+
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    CustomTextFormField(
+                                      title: 'Category',
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please Enter Your Category';
+                                        }
+                                        return null;
+                                      },
+                                      textController:
+                                          businessCategoryController,
+                                      labelText: 'Enter your Category',
+                                    ),
+
+                                    //sub category
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    CustomTextFormField(
+                                      title: 'Sub Category',
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please Enter Your Sub Category';
+                                        }
+                                        return null;
+                                      },
+                                      textController:
+                                          businessSubCategoryController,
+                                      labelText: 'Enter your Sub Category',
+                                    ),
+                                    const SizedBox(height: 20.0),
                                   ],
                                 ),
                               ),

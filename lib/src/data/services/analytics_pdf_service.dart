@@ -254,6 +254,17 @@ class AnalyticsPdfService {
                       pw.Expanded(
                         flex: 2,
                         child: pw.Text(
+                          'Date',
+                          style: pw.TextStyle(
+                            font: font,
+                            color: PdfColor.fromInt(0xFFFFFFFF),
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      pw.Expanded(
+                        flex: 2,
+                        child: pw.Text(
                           'Member Name',
                           style: pw.TextStyle(
                             font: font,
@@ -295,17 +306,7 @@ class AnalyticsPdfService {
                           ),
                         ),
                       ),
-                      pw.Expanded(
-                        flex: 2,
-                        child: pw.Text(
-                          'Date & Time',
-                          style: pw.TextStyle(
-                            font: font,
-                            color: PdfColor.fromInt(0xFFFFFFFF),
-                            fontWeight: pw.FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                      
                       pw.Expanded(
                         flex: 1,
                         child: pw.Text(
@@ -343,6 +344,13 @@ class AnalyticsPdfService {
                         pw.Expanded(
                           flex: 2,
                           child: pw.Text(
+                            _formatDateTime(analytic.date, analytic.time),
+                            style: pw.TextStyle(font: font, fontSize: 10),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 2,
+                          child: pw.Text(
                             analytic.username ?? 'N/A',
                             style: pw.TextStyle(font: font, fontSize: 10),
                           ),
@@ -373,13 +381,7 @@ class AnalyticsPdfService {
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
-                        pw.Expanded(
-                          flex: 2,
-                          child: pw.Text(
-                            _formatDateTime(analytic.date, analytic.time),
-                            style: pw.TextStyle(font: font, fontSize: 10),
-                          ),
-                        ),
+                        
                         pw.Expanded(
                           flex: 1,
                           child: pw.Container(

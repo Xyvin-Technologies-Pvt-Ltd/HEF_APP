@@ -400,15 +400,15 @@ class _SendAnalyticRequestPageState
                 },
               ),
 
-              if (selectedRequestType == 'Business' ||
-                  selectedRequestType == 'Referral')
+              // if (selectedRequestType == 'Business' ||
+              //     selectedRequestType == 'Referral')
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 10.0),
-                    if (selectedRequestType != 'Referral')
+                    // if (selectedRequestType != 'Referral')
                       _buildRequiredLabel('Amount'),
-                    if (selectedRequestType != 'Referral')
+                    // if (selectedRequestType != 'Referral')
                       CustomTextFormField(
                         textInputType: const TextInputType.numberWithOptions(),
                         textController: amountController,
@@ -423,7 +423,7 @@ class _SendAnalyticRequestPageState
                   ],
                 ),
 
-              if (selectedRequestType != 'Referral')
+              // if (selectedRequestType != 'Referral')
                 const SizedBox(height: 10.0),
 
               Text(

@@ -63,6 +63,16 @@ class AnalyticsPdfService {
     final font =
         await pw.Font.ttf(await rootBundle.load('assets/fonts/Helvetica.ttf'));
 
+    // Sort analytics data by date (oldest first)
+    final sortedAnalyticsData = [...analyticsData];
+    sortedAnalyticsData.sort((a, b) {
+      // Handle null dates - put them at the end
+      if (a.date == null && b.date == null) return 0;
+      if (a.date == null) return 1;
+      if (b.date == null) return -1;
+      return a.date!.compareTo(b.date!);
+    });
+
     return pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.all(24),
@@ -306,7 +316,6 @@ class AnalyticsPdfService {
                           ),
                         ),
                       ),
-                      
                       pw.Expanded(
                         flex: 1,
                         child: pw.Text(
@@ -323,7 +332,7 @@ class AnalyticsPdfService {
                 ),
 
                 // Table Data
-                ...analyticsData.asMap().entries.map((entry) {
+                ...sortedAnalyticsData.asMap().entries.map((entry) {
                   final index = entry.key;
                   final analytic = entry.value;
                   final isEven = index % 2 == 0;
@@ -381,7 +390,6 @@ class AnalyticsPdfService {
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
-                        
                         pw.Expanded(
                           flex: 1,
                           child: pw.Container(

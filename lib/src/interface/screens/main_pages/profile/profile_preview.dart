@@ -54,7 +54,7 @@ class ProfilePreview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final reviewsToShow = ref.watch(reviewsProvider);
     PageController _videoCountController = PageController();
-    String joinedDate = DateFormat('dd/MM/yyyy').format(user.createdAt!);
+    String joinedDate = DateFormat('dd/MM/yyyy').format(user.dateOfJoining!);
     Map<String, String> levelData = extractLevelDetails(user.level ?? '');
 
     // Debug logging for role field in current user's profile

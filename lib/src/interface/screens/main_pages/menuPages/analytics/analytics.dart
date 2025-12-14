@@ -188,7 +188,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                               context: context,
                               initialDate: endDate ?? DateTime.now(),
                               firstDate: DateTime(2020),
-                              lastDate: DateTime.now(),
+                              lastDate: DateTime(2100),
                             );
                             if (picked != null) {
                               setState(() => endDate = picked);
@@ -491,7 +491,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                     icon: const Icon(Icons.filter_list),
                     onPressed: _showFilterModal,
                   ),
-                  if (startDate != null || endDate != null || selectedRequestType != null)
+                  if (startDate != null ||
+                      endDate != null ||
+                      selectedRequestType != null)
                     Positioned(
                       right: 12,
                       top: 12,

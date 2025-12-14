@@ -240,8 +240,8 @@ class UserModel {
               ?.map((e) => Company.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      businessCategory: json['businessCategory'] as String? ?? '',
-      businessSubCategory: json['businessSubCategory'] as String? ?? '',
+      businessCategory: json['businessCatogary'] as String? ?? '',
+      businessSubCategory: json['businessSubCatogary'] as String? ?? '',
       file:
           (json['file'] as List<dynamic>?)?.map((e) => e as String).toList() ??
               [],
@@ -311,8 +311,8 @@ class UserModel {
       'status': status,
       'address': address,
       'company': company?.map((e) => e.toJson()).toList(),
-      'businessCategory': businessCategory,
-      'businessSubCategory': businessSubCategory,
+      'businessCatogary': businessCategory,
+      'businessSubCatogary': businessSubCategory,
       'file': file,
       'social': social?.map((e) => e.toJson()).toList(),
       'websites': websites?.map((e) => e.toJson()).toList(),

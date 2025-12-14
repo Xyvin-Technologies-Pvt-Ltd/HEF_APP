@@ -258,7 +258,13 @@ class ProfilePage extends StatelessWidget {
                                                           ),
                                                           SizedBox(height: 5,),
                                                           if(user.role != null)
-                                                          Text(user.role!.toUpperCase())
+                                                          Text(user.role!.toUpperCase()),
+                                                          if(user.businessCategory != null)
+
+                                                          Text('Category : ${user.businessCategory ?? "null"}'),
+                                                          SizedBox(height: 5,),
+                                                          if(user.businessSubCategory != null)
+                                                          Text(user.businessSubCategory!.toUpperCase())
                                                     ],
                                                   ),
                                                 ),

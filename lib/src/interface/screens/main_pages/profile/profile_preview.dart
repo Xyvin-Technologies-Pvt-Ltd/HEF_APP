@@ -157,6 +157,16 @@ class ProfilePreview extends ConsumerWidget {
                         // Display role if available
                         if (user.role != null && user.role!.isNotEmpty)
                           Text(user.role!.toUpperCase()),
+
+                        if(user.businessCategory != null)
+
+                          Text('Category : ${user.businessCategory ?? "null"}'),
+
+
+                        if(user.businessSubCategory != null)
+                          Text('Sub category : ${user.businessSubCategory ?? "null"}'),
+                        SizedBox(height: 10,),
+
                         if (user.company != null)
                           Column(
                             children: [

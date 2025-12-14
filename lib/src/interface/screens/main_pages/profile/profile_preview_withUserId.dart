@@ -276,6 +276,18 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                             if(user.role != null && user.role!.isNotEmpty)
                                             Text(user.role!.toUpperCase()),
                                         const SizedBox(height: 10),
+
+                                        if(user.businessCategory != null)
+
+                                        Text('Category : ${user.businessCategory ?? ""}'),
+
+
+                                        if(user.businessSubCategory != null)
+                                        Text('Sub category : ${user.businessSubCategory ?? ""}'),
+                                        const SizedBox(height: 10),
+
+
+
                                         Wrap(
                                           alignment: WrapAlignment.center,
                                           children: [
@@ -309,6 +321,8 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                             color: Colors.grey,
                                           ),
                                         ),
+
+                                        
                                       ],
                                     ),
                                   ),

@@ -491,7 +491,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                     icon: const Icon(Icons.filter_list),
                     onPressed: _showFilterModal,
                   ),
-                  if (startDate != null || endDate != null)
+                  if (startDate != null || endDate != null || selectedRequestType != null)
                     Positioned(
                       right: 12,
                       top: 12,

@@ -25,6 +25,11 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController phoneCountryController = TextEditingController();
+  TextEditingController whatsappController = TextEditingController();
+  TextEditingController whatsappCountryController = TextEditingController();
+  TextEditingController secondaryPhoneController = TextEditingController();
+  TextEditingController secondaryPhoneCountryController =
+      TextEditingController();
   TextEditingController bioController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController adressController = TextEditingController();
@@ -80,8 +85,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 label: 'Bio *',
                 hintText: 'Add description',
                 maxLines: 5,
-                validator: (value) =>
-                    value!.isEmpty ? 'Bio is required' : null,
+                validator: (value) => value!.isEmpty ? 'Bio is required' : null,
               ),
               MemberCreationTextfield(
                 textEditingController: emailController,
@@ -91,15 +95,19 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                   if (value!.isEmpty) {
                     return 'Email is required';
                   }
-                  if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                  if (!RegExp(
+                          r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
                       .hasMatch(value)) {
                     return 'Enter a valid email address';
                   }
                   return null;
                 },
               ),
-              Text('Phone *',style: const TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 5,),
+              Text('Phone *',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(
+                height: 5,
+              ),
               Container(
                 width: double.infinity,
                 child: IntlPhoneField(
@@ -150,6 +158,148 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                   ),
                   onCountryChanged: (value) {
                     phoneCountryController.text = value.dialCode;
+                  },
+                  initialCountryCode: 'IN',
+                  onChanged: (PhoneNumber phone) {
+                    print(phone.completeNumber);
+                  },
+                  flagsButtonPadding: const EdgeInsets.only(left: 10),
+                  showDropdownIcon: true,
+                  dropdownIconPosition: IconPosition.trailing,
+                  dropdownTextStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Text('WhatsApp Number',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(
+                height: 5,
+              ),
+              Container(
+                width: double.infinity,
+                child: IntlPhoneField(
+                  validator: (phone) {
+                    if (phone != null && phone.number.isNotEmpty) {
+                      if (phone.number.length != 10) {
+                        return 'Phone number must be 10 digits';
+                      }
+                    }
+                    return null;
+                  },
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  controller: whatsappController,
+                  disableLengthCheck: true,
+                  showCountryFlag: true,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: kWhite,
+                    hintText: 'Enter WhatsApp number',
+                    hintStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: kGrey),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: kGrey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: kGrey),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 10.0,
+                    ),
+                  ),
+                  onCountryChanged: (value) {
+                    whatsappCountryController.text = value.dialCode;
+                  },
+                  initialCountryCode: 'IN',
+                  onChanged: (PhoneNumber phone) {
+                    print(phone.completeNumber);
+                  },
+                  flagsButtonPadding: const EdgeInsets.only(left: 10),
+                  showDropdownIcon: true,
+                  dropdownIconPosition: IconPosition.trailing,
+                  dropdownTextStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Text('Secondary Phone Number',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(
+                height: 5,
+              ),
+              Container(
+                width: double.infinity,
+                child: IntlPhoneField(
+                  validator: (phone) {
+                    if (phone != null && phone.number.isNotEmpty) {
+                      if (phone.number.length != 10) {
+                        return 'Phone number must be 10 digits';
+                      }
+                    }
+                    return null;
+                  },
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  controller: secondaryPhoneController,
+                  disableLengthCheck: true,
+                  showCountryFlag: true,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: kWhite,
+                    hintText: 'Enter secondary phone number',
+                    hintStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: kGrey),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: kGrey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: kGrey),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 10.0,
+                    ),
+                  ),
+                  onCountryChanged: (value) {
+                    secondaryPhoneCountryController.text = value.dialCode;
                   },
                   initialCountryCode: 'IN',
                   onChanged: (PhoneNumber phone) {
@@ -261,7 +411,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                   if (value!.isEmpty) {
                     return 'Company email is required';
                   }
-                  if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                  if (!RegExp(
+                          r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
                       .hasMatch(value)) {
                     return 'Enter a valid email address';
                   }
@@ -272,8 +423,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 label: 'Website ',
                 hintText: 'Link',
                 textEditingController: companyWebsiteController,
-                validator: (value) => 
-                value!.isEmpty ? 'Website is required' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Website is required' : null,
               ),
               MemberCreationTextfield(
                 textEditingController: businessCategoryController,
@@ -328,7 +479,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
 
                           print('=== USER MODEL CREATION ===');
                           print('Member Name: ${nameController.text}');
-                          print('Joining Date: ${dateOfJoining.toIso8601String()}');
+                          print(
+                              'Joining Date: ${dateOfJoining.toIso8601String()}');
                           print('===========================');
 
                           navigationService.pushNamed('MemberAllocation',
@@ -339,6 +491,15 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                   email: emailController.text,
                                   phone:
                                       '${phoneCountryController.text}${phoneController.text}',
+                                  secondaryPhone: SecondaryPhone(
+                                      whatsapp: whatsappController
+                                              .text.isNotEmpty
+                                          ? '${whatsappCountryController.text}${whatsappController.text}'
+                                          : null,
+                                      business: secondaryPhoneController
+                                              .text.isNotEmpty
+                                          ? '${secondaryPhoneCountryController.text}${secondaryPhoneController.text}'
+                                          : null),
                                   address: adressController.text,
                                   company: [
                                     Company(
@@ -351,19 +512,21 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                         websites:
                                             companyWebsiteController.text),
                                   ],
-                                  businessCategory: businessCategoryController.text,
-                                  businessSubCategory: businessSubCategoryController.text,
+                                  businessCategory:
+                                      businessCategoryController.text,
+                                  businessSubCategory:
+                                      businessSubCategoryController.text,
                                   status: selectedStatus,
                                   dateOfJoining: dateOfJoining));
                         } else {
-                           ScaffoldMessenger.of(context).showSnackBar(
-                             const SnackBar(
-                               content: Text(
-                                   'Please fill all required fields (Name, Bio, Email, Phone, Company Name, Designation, Company Email, Business Category, Sub Category, Status)'),
-                               backgroundColor: Colors.red,
-                             ),
-                           );
-                         }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Please fill all required fields (Name, Bio, Email, Phone, Company Name, Designation, Company Email, Business Category, Sub Category, Status)'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       },
                     ),
                   ),
@@ -376,7 +539,6 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
     );
   }
 }
-
 
 class CustomDropdown extends StatelessWidget {
   final String label;

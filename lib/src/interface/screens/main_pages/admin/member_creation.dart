@@ -19,6 +19,26 @@ class MemberCreationPage extends StatefulWidget {
   State<MemberCreationPage> createState() => _MemberCreationPageState();
 }
 
+class CompanyFormData {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController phoneCountryController = TextEditingController();
+  TextEditingController designationController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController websiteController = TextEditingController();
+
+  String get phoneCountryCode => phoneCountryController.text;
+
+  void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    phoneCountryController.dispose();
+    designationController.dispose();
+    emailController.dispose();
+    websiteController.dispose();
+  }
+}
+
 class _MemberCreationPageState extends State<MemberCreationPage> {
   final _formKey = GlobalKey<FormState>();
 
@@ -33,16 +53,37 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
   TextEditingController bioController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController adressController = TextEditingController();
-  TextEditingController companyNameController = TextEditingController();
-  TextEditingController companyPhoneController = TextEditingController();
-  TextEditingController companyPhoneCountryController = TextEditingController();
-  TextEditingController companyDesignationController = TextEditingController();
-  TextEditingController companyEmailController = TextEditingController();
-  TextEditingController companyWebsiteController = TextEditingController();
   TextEditingController businessCategoryController = TextEditingController();
   TextEditingController businessSubCategoryController = TextEditingController();
   String? selectedStatus;
   File? _profileImage;
+
+  // Multiple companies support
+  List<CompanyFormData> companies = [CompanyFormData()];
+
+  @override
+  void dispose() {
+    // Dispose all controllers
+    nameController.dispose();
+    phoneController.dispose();
+    phoneCountryController.dispose();
+    whatsappController.dispose();
+    whatsappCountryController.dispose();
+    secondaryPhoneController.dispose();
+    secondaryPhoneCountryController.dispose();
+    bioController.dispose();
+    emailController.dispose();
+    adressController.dispose();
+    businessCategoryController.dispose();
+    businessSubCategoryController.dispose();
+
+    // Dispose company controllers
+    for (var company in companies) {
+      company.dispose();
+    }
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -323,109 +364,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 hintText: 'Personal Address',
                 validator: (value) => null,
               ),
-              MemberCreationTextfield(
-                label: 'Company Name *',
-                hintText: 'Name',
-                textEditingController: companyNameController,
-                validator: (value) =>
-                    value!.isEmpty ? 'Company name is required' : null,
-              ),
-              Container(
-                width: double.infinity,
-                child: IntlPhoneField(
-                  validator: (phone) {
-                    if (phone != null && phone.number.isNotEmpty) {
-                      if (phone.number.length != 10) {
-                        return 'Phone number must be 10 digits';
-                      }
-                    }
-                    return null;
-                  },
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  controller: companyPhoneController,
-                  disableLengthCheck: true,
-                  showCountryFlag: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: kWhite,
-                    hintText: 'Enter company phone number',
-                    hintStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: kGrey),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: kGrey),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: kGrey),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Colors.red),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 16.0,
-                      horizontal: 10.0,
-                    ),
-                  ),
-                  onCountryChanged: (value) {
-                    companyPhoneCountryController.text = value.dialCode;
-                  },
-                  initialCountryCode: 'IN',
-                  onChanged: (PhoneNumber phone) {
-                    print(phone.completeNumber);
-                  },
-                  flagsButtonPadding: const EdgeInsets.only(left: 10),
-                  showDropdownIcon: true,
-                  dropdownIconPosition: IconPosition.trailing,
-                  dropdownTextStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              MemberCreationTextfield(
-                textEditingController: companyDesignationController,
-                label: 'Designation *',
-                hintText: 'Designation',
-                validator: (value) =>
-                    value!.isEmpty ? 'Designation is required' : null,
-              ),
-              MemberCreationTextfield(
-                label: 'Company Email *',
-                hintText: 'email',
-                textEditingController: companyEmailController,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Company email is required';
-                  }
-                  if (!RegExp(
-                          r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                      .hasMatch(value)) {
-                    return 'Enter a valid email address';
-                  }
-                  return null;
-                },
-              ),
-              MemberCreationTextfield(
-                label: 'Website ',
-                hintText: 'Link',
-                textEditingController: companyWebsiteController,
-                validator: (value) =>
-                    value!.isEmpty ? 'Website is required' : null,
-              ),
+              // Companies Section
+              _buildCompaniesSection(),
               MemberCreationTextfield(
                 textEditingController: businessCategoryController,
                 label: 'Business Category *',
@@ -469,7 +409,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                       label: 'Save',
                       onPressed: () async {
                         if (_formKey.currentState!.validate() &&
-                            selectedStatus != null) {
+                            selectedStatus != null &&
+                            _validateCompanies()) {
                           String profileImageUrl = _profileImage != null
                               ? await imageUpload(_profileImage!.path)
                               : '';
@@ -501,17 +442,21 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                           ? '${secondaryPhoneCountryController.text}${secondaryPhoneController.text}'
                                           : null),
                                   address: adressController.text,
-                                  company: [
-                                    Company(
-                                        name: companyNameController.text,
-                                        designation:
-                                            companyDesignationController.text,
-                                        email: companyEmailController.text,
-                                        phone:
-                                            '+${companyPhoneCountryController.text}${companyPhoneController.text}',
-                                        websites:
-                                            companyWebsiteController.text),
-                                  ],
+                                  company: companies
+                                      .where((c) =>
+                                          c.nameController.text.isNotEmpty)
+                                      .map((c) => Company(
+                                            name: c.nameController.text,
+                                            designation:
+                                                c.designationController.text,
+                                            email: c.emailController.text,
+                                            phone: c.phoneController.text
+                                                    .isNotEmpty
+                                                ? '+${c.phoneCountryCode}${c.phoneController.text}'
+                                                : null,
+                                            websites: c.websiteController.text,
+                                          ))
+                                      .toList(),
                                   businessCategory:
                                       businessCategoryController.text,
                                   businessSubCategory:
@@ -522,7 +467,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                  'Please fill all required fields (Name, Bio, Email, Phone, Company Name, Designation, Company Email, Business Category, Sub Category, Status)'),
+                                  'Please fill all required fields (Name, Bio, Email, Phone, at least one Company with name, designation, and email, Business Category, Sub Category, Status)'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -537,6 +482,196 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildCompaniesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Companies *',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  companies.add(CompanyFormData());
+                });
+              },
+              icon: const Icon(Icons.add_circle, color: kPrimaryColor),
+              tooltip: 'Add Company',
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ...companies.asMap().entries.map((entry) {
+          int index = entry.key;
+          CompanyFormData company = entry.value;
+          return _buildCompanyCard(company, index);
+        }).toList(),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildCompanyCard(CompanyFormData company, int index) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Company ${index + 1}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                if (companies.length > 1)
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        companies.removeAt(index);
+                      });
+                    },
+                    icon: const Icon(
+                      Icons.remove_circle,
+                      color: Colors.red,
+                    ),
+                    tooltip: 'Remove Company',
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            MemberCreationTextfield(
+              textEditingController: company.nameController,
+              label: 'Company Name *',
+              hintText: 'Enter company name',
+              validator: (value) =>
+                  value!.isEmpty ? 'Company name is required' : null,
+            ),
+            const SizedBox(height: 12),
+            MemberCreationTextfield(
+              textEditingController: company.designationController,
+              label: 'Designation *',
+              hintText: 'Your role/designation',
+              validator: (value) =>
+                  value!.isEmpty ? 'Designation is required' : null,
+            ),
+            const SizedBox(height: 12),
+            MemberCreationTextfield(
+              textEditingController: company.emailController,
+              label: 'Company Email *',
+              hintText: 'company@email.com',
+              validator: (value) {
+                if (value!.isEmpty) return 'Company email is required';
+                if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                    .hasMatch(value)) {
+                  return 'Enter a valid email address';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Company Phone',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 5),
+            Container(
+              width: double.infinity,
+              child: IntlPhoneField(
+                validator: (phone) {
+                  if (phone != null && phone.number.isNotEmpty) {
+                    if (phone.number.length != 10) {
+                      return 'Phone number must be 10 digits';
+                    }
+                  }
+                  return null;
+                },
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+                controller: company.phoneController,
+                disableLengthCheck: true,
+                showCountryFlag: true,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: kWhite,
+                  hintText: 'Enter company phone number',
+                  hintStyle: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(color: kGrey),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(color: kGrey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(color: kGrey),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16.0,
+                    horizontal: 10.0,
+                  ),
+                ),
+                onCountryChanged: (value) {
+                  company.phoneCountryController.text = value.dialCode;
+                },
+                initialCountryCode: 'IN',
+                onChanged: (PhoneNumber phone) {
+                  print(phone.completeNumber);
+                },
+                flagsButtonPadding: const EdgeInsets.only(left: 10),
+                showDropdownIcon: true,
+                dropdownIconPosition: IconPosition.trailing,
+                dropdownTextStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            MemberCreationTextfield(
+              textEditingController: company.websiteController,
+              label: 'Website',
+              hintText: 'https://company.com',
+              validator: (value) => null, // Website is optional
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _validateCompanies() {
+    // Check if at least one company has a name
+    return companies.any((company) => company.nameController.text.isNotEmpty);
+  }
+
+  String? _validateCompaniesRequired() {
+    if (!_validateCompanies()) {
+      return 'At least one company is required';
+    }
+    return null;
   }
 }
 

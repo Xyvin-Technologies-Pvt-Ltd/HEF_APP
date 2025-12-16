@@ -146,6 +146,7 @@ class UserModel {
   //role
   final String? role;
   final bool? isAdmin;
+  final String? designation;
   final UserChapterModel? chapter;
   final String? image;
   final String? email;
@@ -178,6 +179,7 @@ class UserModel {
   final DateTime? dateOfJoining;
 
   UserModel({
+    this.designation,
     this.role,
     this.name,
     this.uid,
@@ -230,6 +232,7 @@ class UserModel {
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       role: json['role'] as String? ?? '',
+      designation: json['designation'] as String? ?? '',
       secondaryPhone: json['secondaryPhone'] != null
           ? SecondaryPhone.fromJson(json['secondaryPhone'])
           : null,
@@ -300,6 +303,7 @@ class UserModel {
       'uid': uid,
       'memberId': memberId,
       'role': role,
+      'designation':designation,
       'bloodgroup': bloodgroup,
       'isAdmin': isAdmin,
       'chapter': chapter?.toJson(),
@@ -339,6 +343,7 @@ class UserModel {
     String? name,
     String? uid,
     String? role,
+    String?  designation,
     String? memberId,
     String? bloodgroup,
     bool? isAdmin,
@@ -375,6 +380,7 @@ class UserModel {
       name: name ?? this.name,
       uid: uid ?? this.uid,
       role: role ?? this.role,
+      designation: designation ?? this.designation,
       memberId: memberId ?? this.memberId,
       bloodgroup: bloodgroup ?? this.bloodgroup,
       isAdmin: isAdmin ?? this.isAdmin,

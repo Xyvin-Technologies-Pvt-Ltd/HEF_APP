@@ -55,6 +55,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
   TextEditingController adressController = TextEditingController();
   TextEditingController businessCategoryController = TextEditingController();
   TextEditingController businessSubCategoryController = TextEditingController();
+  TextEditingController designationController = TextEditingController();
   String? selectedStatus;
   File? _profileImage;
 
@@ -380,6 +381,15 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 validator: (value) =>
                     value!.isEmpty ? 'Sub category is required' : null,
               ),
+
+              MemberCreationTextfield(
+                textEditingController: designationController,
+                label: 'Designation *',
+                hintText: 'Enter Designation',
+                validator: (value) =>
+                    value!.isEmpty ? 'This field is required' : null,
+              ),
+
               CustomDropdown(
                 label: 'Status',
                 items: ['active', 'inactive', 'suspended'],
@@ -462,6 +472,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                   businessSubCategory:
                                       businessSubCategoryController.text,
                                   status: selectedStatus,
+                                  designation: designationController.text,
                                   dateOfJoining: dateOfJoining));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(

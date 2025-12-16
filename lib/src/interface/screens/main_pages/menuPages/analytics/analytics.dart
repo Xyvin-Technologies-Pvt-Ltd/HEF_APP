@@ -9,7 +9,7 @@ import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
-import 'package:hef/src/data/notifiers/people_notifier.dart';
+import 'package:hef/src/data/notifiers/analytics_notifier.dart';
 import 'package:hef/src/data/services/analytics_pdf_service.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
@@ -42,14 +42,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     with SingleTickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _tagController = TextEditingController();
   FocusNode _searchFocus = FocusNode();
   Timer? _debounce;
   Timer? _autoRefreshTimer;
-  String? selectedDistrictId;
-  String? selectedDistrictName;
-  String? businessTagSearch;
-  List<String> selectedTags = [];
 
   late TabController _tabController;
 
@@ -67,7 +62,6 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _fetchInitialUsers();
     _tabController = TabController(length: 3, vsync: this);
 
     // Set initial tab if provided
@@ -89,35 +83,71 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     if (widget.endDate != null) {
       endDate = DateTime.parse(widget.endDate!);
     }
+
     // Periodic refresh for near real-time updates
     _autoRefreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       if (mounted) {
-        ref.invalidate(fetchAnalyticsProvider);
+        Future(() {
+          ref.read(analyticsNotifierProvider.notifier).refresh();
+        });
       }
+    });
+
+    // Fetch initial analytics after widget tree is built
+    Future(() {
+      _fetchInitialAnalytics();
     });
   }
 
-  Future<void> _fetchInitialUsers() async {
-    await ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
+  Future<void> _fetchInitialAnalytics() async {
+    ref.read(analyticsNotifierProvider.notifier).fetchMoreAnalytics();
   }
 
   void _onScroll() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
+      ref.read(analyticsNotifierProvider.notifier).fetchMoreAnalytics();
     }
   }
 
   void _onSearchChanged(String query) {
-    // if (_debounce?.isActive ?? false) _debounce?.cancel();
-    // _debounce = Timer(const Duration(milliseconds: 300), () {
-    //   ref.read(peopleNotifierProvider.notifier).searchUsers(query);
-    // });
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      _performSearch(query);
+    });
     setState(() {});
   }
 
   void _onSearchSubmitted(String query) {
-    ref.read(peopleNotifierProvider.notifier).searchUsers(query);
+    _performSearch(query);
+  }
+
+  void _performSearch(String query) {
+    final currentTabType = _getCurrentTabType();
+    ref.read(analyticsNotifierProvider.notifier).searchAnalytics(
+          newType: currentTabType,
+          newStartDate: startDate != null
+              ? DateFormat('yyyy-MM-dd').format(startDate!)
+              : null,
+          newEndDate: endDate != null
+              ? DateFormat('yyyy-MM-dd').format(endDate!)
+              : null,
+          newRequestType: selectedRequestType,
+          query: query,
+        );
+  }
+
+  String? _getCurrentTabType() {
+    switch (_tabController.index) {
+      case 0: // Received
+        return 'received';
+      case 1: // Sent
+        return 'sent';
+      case 2: // History
+        return null;
+      default:
+        return null;
+    }
   }
 
   // Add filter modal sheet
@@ -266,8 +296,21 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                           ),
                           onPressed: () {
                             Navigator.pop(context);
-                            // Invalidate the provider to refresh with new filters
-                            ref.invalidate(fetchAnalyticsProvider);
+                            // Update filters and refresh
+                            ref
+                                .read(analyticsNotifierProvider.notifier)
+                                .updateFilters(
+                                  newType: _getCurrentTabType(),
+                                  newStartDate: startDate != null
+                                      ? DateFormat('yyyy-MM-dd')
+                                          .format(startDate!)
+                                      : null,
+                                  newEndDate: endDate != null
+                                      ? DateFormat('yyyy-MM-dd')
+                                          .format(endDate!)
+                                      : null,
+                                  newRequestType: selectedRequestType,
+                                );
                           },
                           child: const Text('Apply'),
                         ),
@@ -319,55 +362,22 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         await Permission.storage.request();
       }
 
-      // Get current tab data
-      List<AnalyticsModel> analyticsData;
+      // Get current analytics data from notifier
+      final analyticsNotifier = ref.read(analyticsNotifierProvider.notifier);
+      final analyticsData = analyticsNotifier.analytics;
       String reportType;
 
       switch (_tabController.index) {
         case 0: // Received
-          final asyncReceivedAnalytics = ref.watch(fetchAnalyticsProvider(
-            type: 'received',
-            startDate: startDate != null
-                ? DateFormat('yyyy-MM-dd').format(startDate!)
-                : null,
-            endDate: endDate != null
-                ? DateFormat('yyyy-MM-dd').format(endDate!)
-                : null,
-            requestType: selectedRequestType,
-          ));
-          analyticsData = asyncReceivedAnalytics.value ?? [];
           reportType = 'received';
           break;
         case 1: // Sent
-          final asyncSentAnalytics = ref.watch(fetchAnalyticsProvider(
-            type: 'sent',
-            startDate: startDate != null
-                ? DateFormat('yyyy-MM-dd').format(startDate!)
-                : null,
-            endDate: endDate != null
-                ? DateFormat('yyyy-MM-dd').format(endDate!)
-                : null,
-            requestType: selectedRequestType,
-          ));
-          analyticsData = asyncSentAnalytics.value ?? [];
           reportType = 'sent';
           break;
         case 2: // History
-          final asyncHistoryAnalytics = ref.watch(fetchAnalyticsProvider(
-            type: null,
-            startDate: startDate != null
-                ? DateFormat('yyyy-MM-dd').format(startDate!)
-                : null,
-            endDate: endDate != null
-                ? DateFormat('yyyy-MM-dd').format(endDate!)
-                : null,
-            requestType: selectedRequestType,
-          ));
-          analyticsData = asyncHistoryAnalytics.value ?? [];
           reportType = 'history';
           break;
         default:
-          analyticsData = [];
           reportType = 'all';
       }
 
@@ -426,42 +436,16 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     _scrollController.dispose();
     _tabController.dispose();
     _searchController.dispose();
-    _tagController.dispose();
     _searchFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final asyncSentAnalytics = ref.watch(fetchAnalyticsProvider(
-      type: 'sent',
-      startDate: startDate != null
-          ? DateFormat('yyyy-MM-dd').format(startDate!)
-          : null,
-      endDate:
-          endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
-      requestType: selectedRequestType,
-    ));
-
-    final asyncReceivedAnalytics = ref.watch(fetchAnalyticsProvider(
-      type: 'received',
-      startDate: startDate != null
-          ? DateFormat('yyyy-MM-dd').format(startDate!)
-          : null,
-      endDate:
-          endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
-      requestType: selectedRequestType,
-    ));
-
-    final asyncHistoryAnalytics = ref.watch(fetchAnalyticsProvider(
-      type: null,
-      startDate: startDate != null
-          ? DateFormat('yyyy-MM-dd').format(startDate!)
-          : null,
-      endDate:
-          endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
-      requestType: selectedRequestType,
-    ));
+    final analytics = ref.watch(analyticsNotifierProvider);
+    final isLoading = ref.read(analyticsNotifierProvider.notifier).isLoading;
+    final isFirstLoad =
+        ref.read(analyticsNotifierProvider.notifier).isFirstLoad;
 
     return Scaffold(
       appBar: PreferredSize(
@@ -534,6 +518,24 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
               labelColor: Colors.orange,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.orange,
+              onTap: (index) {
+                // Refresh data when tab changes
+                ref.read(analyticsNotifierProvider.notifier).searchAnalytics(
+                      newType: index == 0
+                          ? 'received'
+                          : index == 1
+                              ? 'sent'
+                              : null,
+                      newStartDate: startDate != null
+                          ? DateFormat('yyyy-MM-dd').format(startDate!)
+                          : null,
+                      newEndDate: endDate != null
+                          ? DateFormat('yyyy-MM-dd').format(endDate!)
+                          : null,
+                      newRequestType: selectedRequestType,
+                      query: _searchController.text,
+                    );
+              },
               tabs: const [
                 Tab(text: "Received"),
                 Tab(text: "Sent"),
@@ -556,7 +558,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                           filled: true,
                           fillColor: Colors.white,
                           prefixIcon: const Icon(Icons.search),
-                          hintText: 'Search Members',
+                          hintText: 'Search Analytics',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(
@@ -568,79 +570,18 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                         onSubmitted: _onSearchSubmitted,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    // Container(
-                    //   decoration: BoxDecoration(
-                    //     border: Border.all(
-                    //       color: const Color.fromARGB(255, 216, 211, 211),
-                    //     ),
-                    //     borderRadius: BorderRadius.circular(8.0),
-                    //   ),
-                    //   child: IconButton(
-                    //     icon: Icon(
-                    //       Icons.filter_list,
-                    //       color: selectedDistrictName != null
-                    //           ? Colors.blue
-                    //           : Colors.grey,
-                    //     ),
-                    //     onPressed: _showFilterBottomSheet,
-                    //   ),
-                    // ),
                   ],
                 ),
-                if (selectedDistrictName != null || selectedTags.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            if (selectedDistrictName != null)
-                              Chip(
-                                label: Text(selectedDistrictName!),
-                                onDeleted: () {
-                                  setState(() {
-                                    selectedDistrictId = null;
-                                    selectedDistrictName = null;
-                                  });
-                                  ref
-                                      .read(peopleNotifierProvider.notifier)
-                                      .setDistrict(null);
-                                },
-                              ),
-                            ...selectedTags.map((tag) => Chip(
-                                  label: Text(tag),
-                                  onDeleted: () {
-                                    setState(() {
-                                      selectedTags.remove(tag);
-                                    });
-                                    ref
-                                        .read(peopleNotifierProvider.notifier)
-                                        .setTags(selectedTags);
-                                  },
-                                )),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
               ],
             ),
           ),
 
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildRefreshableAnalyticsTab(
-                    asyncReceivedAnalytics, 'received'),
-                _buildRefreshableAnalyticsTab(asyncSentAnalytics, 'sent'),
-                _buildRefreshableAnalyticsTab(asyncHistoryAnalytics, 'history'),
-              ],
-            ),
+            child: isFirstLoad
+                ? const Center(child: LoadingAnimation())
+                : analytics.isNotEmpty
+                    ? _buildAnalyticsList(analytics)
+                    : const Center(child: Text("No data available")),
           ),
         ],
       ),
@@ -671,83 +612,45 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     );
   }
 
-  Widget _buildRefreshableAnalyticsTab(
-      AsyncValue<List<AnalyticsModel>> asyncAnalytics, String tabBarType) {
+  Widget _buildAnalyticsList(List<AnalyticsModel> analytics) {
+    // Filter based on search input
+    final searchQuery = _searchController.text.trim().toLowerCase();
+    List<AnalyticsModel> filtered = analytics.where((analytic) {
+      final username = analytic.username?.toLowerCase() ?? '';
+      final title = analytic.title?.toLowerCase() ?? '';
+      return username.contains(searchQuery) || title.contains(searchQuery);
+    }).toList();
+
+    // Sort by date (latest first)
+    filtered.sort((a, b) {
+      final aDate = a.date ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final bDate = b.date ?? DateTime.fromMillisecondsSinceEpoch(0);
+      return bDate.compareTo(aDate);
+    });
+
+    final isLoading = ref.read(analyticsNotifierProvider.notifier).isLoading;
+
     return RefreshIndicator(
       backgroundColor: kWhite,
       color: kPrimaryColor,
       onRefresh: () async {
-        ref.invalidate(fetchAnalyticsProvider);
+        ref.read(analyticsNotifierProvider.notifier).refresh();
       },
-      child: asyncAnalytics.when(
-        data: (analytics) {
-          if (analytics.isEmpty) {
-            return const Center(child: Text("No data available"));
+      child: ListView.builder(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16.0),
+        itemCount: filtered.length + (isLoading ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == filtered.length) {
+            return const Center(child: LoadingAnimation());
           }
-
-          //  Filter based on search input
-          final searchQuery = _searchController.text.trim().toLowerCase();
-          List<AnalyticsModel> filtered = analytics.where((analytic) {
-            final username = analytic.username?.toLowerCase() ?? '';
-            final title = analytic.title?.toLowerCase() ?? '';
-            return username.contains(searchQuery) ||
-                title.contains(searchQuery);
-          }).toList();
-
-          // Sort alphabetically by username
-          // filtered.sort((a, b) =>
-          //     (a.username ?? '').toLowerCase().compareTo((b.username ?? '').toLowerCase()));
-
-          filtered.sort((a, b) {
-            final aDate = a.date ?? DateTime.fromMillisecondsSinceEpoch(0);
-            final bDate = b.date ?? DateTime.fromMillisecondsSinceEpoch(0);
-            return bDate.compareTo(aDate); // Latest date first
-          });
-
-          return ListView.builder(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16.0),
-            itemCount: filtered.length,
-            itemBuilder: (context, index) {
-              return _buildCard(filtered[index], tabBarType);
-            },
-          );
-        },
-        loading: () => const Center(child: LoadingAnimation()),
-        error: (error, stackTrace) {
-          log(error.toString());
-          return const Center(child: Text("Error loading data"));
+          final analytic = filtered[index];
+          return _buildCard(analytic, _getCurrentTabType() ?? 'history');
         },
       ),
     );
   }
-
-  // Widget _buildRefreshableAnalyticsTab(
-  //     AsyncValue<List<AnalyticsModel>> asyncAnalytics, String tabBarType) {
-  //   return RefreshIndicator(
-  //     backgroundColor: kWhite,
-  //     color: kPrimaryColor,
-  //     onRefresh: () async {
-  //       ref.invalidate(fetchAnalyticsProvider);
-  //     },
-  //     child: asyncAnalytics.when(
-  //         data: (analytics) => analytics.isEmpty
-  //             ? const Center(child: Text("No data available"))
-  //             : ListView.builder(
-  //                 physics: const AlwaysScrollableScrollPhysics(),
-  //                 padding: const EdgeInsets.all(16.0),
-  //                 itemCount: analytics.length,
-  //                 itemBuilder: (context, index) {
-  //                   return _buildCard(analytics[index], tabBarType);
-  //                 },
-  //               ),
-  //         loading: () => const Center(child: LoadingAnimation()),
-  //         error: (error, stackTrace) {
-  //           log(error.toString());
-  //           return Center(child: Text("Error loading data"));
-  //         }),
-  //   );
-  // }
 
   Widget _buildCard(AnalyticsModel analytic, String tabBarType) {
     log(analytic.userImage ?? '', name: 'User image of analytic');
@@ -866,7 +769,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       case "rejected":
         return kRed;
       case "meeting_scheduled":
-        return Color(0xFF2B74E1);
+        return const Color(0xFF2B74E1);
       default:
         return Colors.grey;
     }

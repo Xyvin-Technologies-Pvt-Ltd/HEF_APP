@@ -2,9 +2,11 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
@@ -14,9 +16,9 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'package:path/path.dart' as Path;
 
-class MemberCreationPage extends StatefulWidget {
+class MemberCreationPage extends ConsumerStatefulWidget {
   @override
-  State<MemberCreationPage> createState() => _MemberCreationPageState();
+  ConsumerState<MemberCreationPage> createState() => _MemberCreationPageState();
 }
 
 class CompanyFormData {
@@ -39,7 +41,7 @@ class CompanyFormData {
   }
 }
 
-class _MemberCreationPageState extends State<MemberCreationPage> {
+class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController nameController = TextEditingController();
@@ -59,6 +61,11 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
   String? selectedStatus;
   File? _profileImage;
 
+  // Business tags functionality
+  final TextEditingController _tagController = TextEditingController();
+  List<String> businessTags = [];
+  String? businessTagSearch;
+
   // Multiple companies support
   List<CompanyFormData> companies = [CompanyFormData()];
 
@@ -77,6 +84,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
     adressController.dispose();
     businessCategoryController.dispose();
     businessSubCategoryController.dispose();
+    _tagController.dispose();
 
     // Dispose company controllers
     for (var company in companies) {
@@ -86,9 +94,61 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
     super.dispose();
   }
 
+  void _addBusinessTag() {
+    final tag = _tagController.text.trim();
+    if (tag.isNotEmpty) {
+      // Check if tag already exists (case-insensitive comparison)
+      if (!businessTags.any(
+          (existingTag) => existingTag.toLowerCase() == tag.toLowerCase())) {
+        setState(() {
+          businessTags.add(tag);
+          _tagController.clear();
+          businessTagSearch = null; // Clear search when tag is added
+        });
+      } else {
+        // Show snackbar or some indication that tag already exists
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Tag "$tag" already exists'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+        _tagController.clear();
+      }
+    }
+  }
+
+  void _removeBusinessTag(String tag) {
+    setState(() {
+      businessTags.remove(tag);
+    });
+  }
+
+  // Get filtered tags using the same provider as editUser.dart
+  List<String> _getFilteredTags(List<String>? allTags) {
+    if (businessTagSearch?.isEmpty ?? true) {
+      return [];
+    }
+
+    if (allTags == null) {
+      return [];
+    }
+
+    return allTags
+        .where((tag) =>
+            tag.toLowerCase().contains(businessTagSearch!.toLowerCase()))
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     NavigationService navigationService = NavigationService();
+
+    // Watch business tags provider (same as editUser.dart)
+    final asyncBusinessTags = ref.watch(
+      searchBusinessTagsProvider(search: businessTagSearch),
+    );
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kWhite,
@@ -365,6 +425,8 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                 hintText: 'Personal Address',
                 validator: (value) => null,
               ),
+              // Business Tags Section
+              _buildBusinessTagsSection(asyncBusinessTags),
               // Companies Section
               _buildCompaniesSection(),
               MemberCreationTextfield(
@@ -471,8 +533,12 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                       businessCategoryController.text,
                                   businessSubCategory:
                                       businessSubCategoryController.text,
+                                  businessTags: businessTags.isNotEmpty
+                                      ? businessTags
+                                      : null,
                                   status: selectedStatus,
-                                  designation: generaldesignationController.text,
+                                  designation:
+                                      generaldesignationController.text,
                                   dateOfJoining: dateOfJoining));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -683,6 +749,165 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
       return 'At least one company is required';
     }
     return null;
+  }
+
+  Widget _buildBusinessTagsSection(AsyncValue<List<String>> asyncBusinessTags) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Business Tags',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _tagController,
+                    decoration: InputDecoration(
+                      hintText: 'Add business tags (e.g., IT, Healthcare)',
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    onSubmitted: (_) => _addBusinessTag(),
+                    onChanged: (value) {
+                      if (value.endsWith(' ')) {
+                        final tag = value.trim();
+                        if (tag.isNotEmpty) {
+                          _addBusinessTag();
+                        }
+                      } else {
+                        setState(() {
+                          businessTagSearch = value;
+                        });
+                      }
+                    },
+                  ),
+                  if (businessTagSearch?.isNotEmpty ?? false)
+                    asyncBusinessTags.when(
+                      data: (businessTags) {
+                        final filteredTags = _getFilteredTags(businessTags);
+                        if (filteredTags.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        return Container(
+                          margin: const EdgeInsets.only(top: 4),
+                          constraints: const BoxConstraints(maxHeight: 200),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.1),
+                                spreadRadius: 1,
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              itemCount: filteredTags.length,
+                              itemBuilder: (context, index) {
+                                final tag = filteredTags[index];
+                                return Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () {
+                                      _tagController.text = tag;
+                                      _addBusinessTag();
+                                      setState(() {
+                                        businessTagSearch = null;
+                                      });
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.tag,
+                                            size: 16,
+                                            color: Colors.grey[600],
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            tag,
+                                            style: TextStyle(
+                                              color: Colors.grey[800],
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              onPressed: _addBusinessTag,
+              icon: const Icon(Icons.add),
+              style: IconButton.styleFrom(
+                backgroundColor: kPrimaryColor,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ...businessTags.map((tag) {
+              return Chip(
+                label: Text(
+                  tag,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                deleteIcon: const Icon(Icons.close, size: 16),
+                onDeleted: () => _removeBusinessTag(tag),
+                backgroundColor: Colors.white,
+                side: BorderSide(color: Colors.grey[300]!),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              );
+            }).toList(),
+          ],
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
   }
 }
 

@@ -55,7 +55,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
   TextEditingController adressController = TextEditingController();
   TextEditingController businessCategoryController = TextEditingController();
   TextEditingController businessSubCategoryController = TextEditingController();
-  TextEditingController designationController = TextEditingController();
+  TextEditingController generaldesignationController = TextEditingController();
   String? selectedStatus;
   File? _profileImage;
 
@@ -383,7 +383,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
               ),
 
               MemberCreationTextfield(
-                textEditingController: designationController,
+                textEditingController: generaldesignationController,
                 label: 'Designation *',
                 hintText: 'Enter Designation',
                 validator: (value) =>
@@ -472,7 +472,7 @@ class _MemberCreationPageState extends State<MemberCreationPage> {
                                   businessSubCategory:
                                       businessSubCategoryController.text,
                                   status: selectedStatus,
-                                  designation: designationController.text,
+                                  designation: generaldesignationController.text,
                                   dateOfJoining: dateOfJoining));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(

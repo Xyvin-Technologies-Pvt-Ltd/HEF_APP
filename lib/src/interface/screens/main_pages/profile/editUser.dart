@@ -128,6 +128,8 @@ class _EditUserState extends ConsumerState<EditUser> {
       TextEditingController();
 
   final TextEditingController designationController = TextEditingController();
+  final TextEditingController generaldesignationController =
+      TextEditingController();
   final TextEditingController companyNameController = TextEditingController();
   final TextEditingController companyEmailController = TextEditingController();
   final TextEditingController companyWebsiteController =
@@ -636,6 +638,10 @@ class _EditUserState extends ConsumerState<EditUser> {
                 businessSubCategoryController.text =
                     user.businessSubCategory ?? ' ';
               }
+              if (generaldesignationController.text.isEmpty) {
+                generaldesignationController.text =
+                    user.designation ?? ' ';
+              }
               if (emailController.text.isEmpty) {
                 emailController.text = user.email ?? '';
               }
@@ -1010,6 +1016,19 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       labelText: 'Enter your Sub Category',
                                     ),
                                     const SizedBox(height: 20.0),
+
+                                    CustomTextFormField(
+                                      title: 'Designation ',
+                                      // validator: (value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return 'Please Enter Your Designation';
+                                      //   }
+                                      //   return null;
+                                      // },
+                                      textController:
+                                          generaldesignationController,
+                                      labelText: 'Enter your Designation',
+                                    ),
                                   ],
                                 ),
                               ),
@@ -1539,7 +1558,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       ),
                                       CustomTextFormField(
                                         companyIndex: index,
-                                        title: 'Designation',
+                                        title: 'Designation in company',
                                         labelText: 'Enter Designation',
                                         textController:
                                             controllers['designation']!,

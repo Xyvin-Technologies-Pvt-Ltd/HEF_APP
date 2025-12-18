@@ -13,7 +13,6 @@ import 'package:hef/src/data/notifiers/analytics_notifier.dart';
 import 'package:hef/src/data/services/analytics_pdf_service.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
-import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:hef/src/interface/components/ModalSheets/analytics.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -45,6 +44,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   FocusNode _searchFocus = FocusNode();
   Timer? _debounce;
   Timer? _autoRefreshTimer;
+  int _previousTabIndex = 0;
 
   late TabController _tabController;
 
@@ -66,11 +66,12 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
 
     // Set initial tab if provided
     if (widget.initialTab != null) {
-      _tabController.animateTo(widget.initialTab == 'sent'
+      _previousTabIndex = widget.initialTab == 'sent'
           ? 1
           : widget.initialTab == 'received'
               ? 0
-              : 2);
+              : 2;
+      _tabController.animateTo(_previousTabIndex);
     }
 
     // Set initial filters if provided
@@ -83,15 +84,6 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     if (widget.endDate != null) {
       endDate = DateTime.parse(widget.endDate!);
     }
-
-    // Periodic refresh for near real-time updates
-    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      if (mounted) {
-        Future(() {
-          ref.read(analyticsNotifierProvider.notifier).refresh();
-        });
-      }
-    });
 
     // Fetch initial analytics after widget tree is built
     Future(() {
@@ -443,9 +435,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   @override
   Widget build(BuildContext context) {
     final analytics = ref.watch(analyticsNotifierProvider);
-    final isLoading = ref.read(analyticsNotifierProvider.notifier).isLoading;
-    final isFirstLoad =
-        ref.read(analyticsNotifierProvider.notifier).isFirstLoad;
+    final notifier = ref.read(analyticsNotifierProvider.notifier);
+    final isLoading = notifier.isLoading;
+    final isFirstLoad = notifier.isFirstLoad;
 
     return Scaffold(
       appBar: PreferredSize(
@@ -519,22 +511,25 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.orange,
               onTap: (index) {
-                // Refresh data when tab changes
-                ref.read(analyticsNotifierProvider.notifier).searchAnalytics(
-                      newType: index == 0
-                          ? 'received'
-                          : index == 1
-                              ? 'sent'
-                              : null,
-                      newStartDate: startDate != null
-                          ? DateFormat('yyyy-MM-dd').format(startDate!)
-                          : null,
-                      newEndDate: endDate != null
-                          ? DateFormat('yyyy-MM-dd').format(endDate!)
-                          : null,
-                      newRequestType: selectedRequestType,
-                      query: _searchController.text,
-                    );
+                // Only refresh if tab actually changed
+                if (_previousTabIndex != index) {
+                  _previousTabIndex = index;
+                  ref.read(analyticsNotifierProvider.notifier).searchAnalytics(
+                        newType: index == 0
+                            ? 'received'
+                            : index == 1
+                                ? 'sent'
+                                : null,
+                        newStartDate: startDate != null
+                            ? DateFormat('yyyy-MM-dd').format(startDate!)
+                            : null,
+                        newEndDate: endDate != null
+                            ? DateFormat('yyyy-MM-dd').format(endDate!)
+                            : null,
+                        newRequestType: selectedRequestType,
+                        query: _searchController.text,
+                      );
+                }
               },
               tabs: const [
                 Tab(text: "Received"),
@@ -628,7 +623,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       return bDate.compareTo(aDate);
     });
 
-    final isLoading = ref.read(analyticsNotifierProvider.notifier).isLoading;
+    final notifier = ref.read(analyticsNotifierProvider.notifier);
+    final isLoading = notifier.isLoading;
 
     return RefreshIndicator(
       backgroundColor: kWhite,

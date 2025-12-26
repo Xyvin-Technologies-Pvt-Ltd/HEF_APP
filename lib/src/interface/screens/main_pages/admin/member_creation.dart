@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/models/business_category_model.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
+import 'package:hef/src/data/notifiers/business_category_notifier.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
@@ -57,6 +59,11 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
   TextEditingController adressController = TextEditingController();
   TextEditingController businessCategoryController = TextEditingController();
   TextEditingController businessSubCategoryController = TextEditingController();
+  BusinessCategoryModel? selectedBusinessCategory;
+  bool _isSearchExpanded = false;
+  String? _selectedCategoryDisplay;
+  final TextEditingController _categorySearchController =
+      TextEditingController();
   TextEditingController generaldesignationController = TextEditingController();
   String? selectedStatus;
   File? _profileImage;
@@ -429,6 +436,10 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
               _buildBusinessTagsSection(asyncBusinessTags),
               // Companies Section
               _buildCompaniesSection(),
+
+              // Business Category Dropdown (New)
+              _buildBusinessCategoryDropdown(),
+
               MemberCreationTextfield(
                 textEditingController: businessCategoryController,
                 label: 'Business Category *',
@@ -529,8 +540,11 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
                                             websites: c.websiteController.text,
                                           ))
                                       .toList(),
-                                  businessCategory:
-                                      businessCategoryController.text,
+                                  category: selectedBusinessCategory?.id ?? '',
+                                  businessCategory: businessCategoryController
+                                          .text.isNotEmpty
+                                      ? businessCategoryController.text
+                                      : (selectedBusinessCategory?.name ?? ''),
                                   businessSubCategory:
                                       businessSubCategoryController.text,
                                   businessTags: businessTags.isNotEmpty
@@ -905,6 +919,196 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
             }).toList(),
           ],
         ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildBusinessCategoryDropdown() {
+    final businessCategories = ref.watch(businessCategoryNotifierProvider);
+    final notifier = ref.read(businessCategoryNotifierProvider.notifier);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Business Category (Dropdown)',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Expandable Search Section
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _isSearchExpanded = !_isSearchExpanded;
+              if (_isSearchExpanded) {
+                _categorySearchController.clear();
+              }
+            });
+          },
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: kWhite,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: _isSearchExpanded ? kPrimaryColor : kGrey,
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _selectedCategoryDisplay ?? 'Select business category',
+                    style: TextStyle(
+                      color: _selectedCategoryDisplay != null
+                          ? Colors.black87
+                          : Colors.grey.shade600,
+                      fontSize: 14,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Icon(
+                  _isSearchExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  color: Colors.grey.shade600,
+                ),
+                const SizedBox(width: 12),
+              ],
+            ),
+          ),
+        ),
+        // Search field and filtered list
+        if (_isSearchExpanded) ...[
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: kWhite,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: kPrimaryColor.withOpacity(0.3),
+              ),
+            ),
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _categorySearchController,
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Search business category...',
+                    hintStyle: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 14,
+                    ),
+                    prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+                    border: const OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {});
+                    if (value.isEmpty) {
+                      notifier.refreshCategories();
+                    } else {
+                      notifier.searchCategories(value);
+                    }
+                  },
+                ),
+                Container(
+                  constraints: const BoxConstraints(
+                    maxHeight: 200,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // Filtered categories based on search
+                        ...businessCategories.where((cat) {
+                          final searchTerm =
+                              _categorySearchController.text.toLowerCase();
+                          return searchTerm.isEmpty ||
+                              cat.name.toLowerCase().contains(searchTerm);
+                        }).map((cat) {
+                          return ListTile(
+                            dense: true,
+                            title: Text(
+                              cat.name,
+                              style: const TextStyle(
+                                color: Colors.black87,
+                                fontSize: 14,
+                              ),
+                            ),
+                            subtitle: cat.companyCount != null &&
+                                    cat.companyCount! > 0
+                                ? Text(
+                                    '${cat.companyCount} companies',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 12,
+                                    ),
+                                  )
+                                : null,
+                            onTap: () {
+                              setState(() {
+                                selectedBusinessCategory = cat;
+                                _selectedCategoryDisplay = cat.name;
+                                businessCategoryController.text =
+                                    cat.name; // Auto-fill text field
+                                _isSearchExpanded = false;
+                                _categorySearchController.clear();
+                              });
+                            },
+                          );
+                        }),
+                        // Load more option
+                        if (notifier.hasMore || notifier.isLoading)
+                          ListTile(
+                            dense: true,
+                            leading: notifier.isLoading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  )
+                                : Icon(Icons.more_horiz,
+                                    color: Colors.grey.shade600),
+                            title: Text(
+                              notifier.isLoading
+                                  ? 'Loading...'
+                                  : 'Load more...',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 14,
+                              ),
+                            ),
+                            onTap: notifier.isLoading
+                                ? null
+                                : () {
+                                    notifier.fetchMoreCategories();
+                                  },
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 16),
       ],
     );

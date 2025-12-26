@@ -158,6 +158,7 @@ class UserModel {
   final List<Company>? company;
   final String? businessCategory;
   final String? businessSubCategory;
+  final String? category;
   final List<String>? file;
   final List<Link>? social;
   final List<Link>? websites;
@@ -195,6 +196,7 @@ class UserModel {
     this.status,
     this.address,
     this.company,
+    this.category,
     this.businessCategory,
     this.businessSubCategory,
     this.file,
@@ -243,6 +245,7 @@ class UserModel {
               ?.map((e) => Company.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      category: json['category'] as String? ?? '',
       businessCategory: json['businessCatogary'] as String? ?? '',
       businessSubCategory: json['businessSubCatogary'] as String? ?? '',
       file:
@@ -303,7 +306,7 @@ class UserModel {
       'uid': uid,
       'memberId': memberId,
       'role': role,
-      'designation':designation,
+      'designation': designation,
       'bloodgroup': bloodgroup,
       'isAdmin': isAdmin,
       'chapter': chapter?.toJson(),
@@ -315,6 +318,7 @@ class UserModel {
       'status': status,
       'address': address,
       'company': company?.map((e) => e.toJson()).toList(),
+      'category': category,
       'businessCatogary': businessCategory,
       'businessSubCatogary': businessSubCategory,
       'file': file,
@@ -343,7 +347,7 @@ class UserModel {
     String? name,
     String? uid,
     String? role,
-    String?  designation,
+    String? designation,
     String? memberId,
     String? bloodgroup,
     bool? isAdmin,
@@ -356,6 +360,7 @@ class UserModel {
     String? status,
     String? address,
     List<Company>? company,
+    String? category,
     String? businessCategory,
     String? businessSubCategory,
     List<String>? file,
@@ -393,6 +398,7 @@ class UserModel {
       status: status ?? this.status,
       address: address ?? this.address,
       company: company ?? this.company,
+      category: category ?? this.category,
       businessCategory: businessCategory ?? this.businessCategory,
       businessSubCategory: businessSubCategory ?? this.businessSubCategory,
       file: file ?? this.file,

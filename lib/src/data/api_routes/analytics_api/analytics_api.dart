@@ -13,10 +13,10 @@ class AnalyticsApiService {
   static final _baseUrl = Uri.parse('$baseUrl/analytic');
 
   static Map<String, String> _headers() => {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-        'accept': '*/*',
-      };
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token',
+    'accept': '*/*',
+  };
 
   /// Fetch Analytics
   static Future<List<AnalyticsModel>> fetchAnalytics({
@@ -61,11 +61,16 @@ class AnalyticsApiService {
 
       // Encode data as JSON for logging
       final jsonData = jsonEncode(data);
-      log('Posting analytics with request body (JSON format for Postman):\n$jsonData',
-          name: 'Analytics API Request');
+      log(
+        'Posting analytics with request body (JSON format for Postman):\n$jsonData',
+        name: 'Analytics API Request',
+      );
 
-      final response =
-          await http.post(_baseUrl, headers: _headers(), body: jsonData);
+      final response = await http.post(
+        _baseUrl,
+        headers: _headers(),
+        body: jsonData,
+      );
       final decoded = json.decode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -87,10 +92,7 @@ class AnalyticsApiService {
   }) async {
     final url = Uri.parse('$_baseUrl/status');
 
-    final body = jsonEncode({
-      'requestId': analyticId,
-      'action': action,
-    });
+    final body = jsonEncode({'requestId': analyticId, 'action': action});
 
     try {
       final response = await http.post(url, headers: _headers(), body: body);
@@ -114,8 +116,11 @@ class AnalyticsApiService {
     final url = Uri.parse('$_baseUrl/$analyticId');
 
     try {
-      final response =
-          await http.put(url, headers: _headers(), body: jsonEncode(data));
+      final response = await http.put(
+        url,
+        headers: _headers(),
+        body: jsonEncode(data),
+      );
       final decoded = json.decode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -147,6 +152,95 @@ class AnalyticsApiService {
       log('Error deleting analytic: $e');
     }
   }
+
+  /// Download Analytics (NEW FUNCTION)
+  /// Calls the /download-app endpoint to get analytics data for export
+  static Future<Map<String, dynamic>?> downloadAnalytics() async {
+    try {
+      final url = Uri.parse('$_baseUrl/download-app');
+      log('Downloading analytics from: $url');
+      log("token for download analytics api: $token");
+
+      final response = await http.get(url, headers: _headers());
+
+      final decoded = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        log('Analytics downloaded successfully');
+        return decoded;
+      } else {
+        log('Failed to download analytics: ${response.statusCode}');
+        log('Response: ${response.body}');
+        throw Exception(decoded['message'] ?? 'Failed to download analytics');
+      }
+    } catch (e) {
+      log('Exception in downloading analytics: $e');
+      rethrow;
+    }
+  }
+
+  /// Convert download response to CSV format
+  static String convertToCSV(Map<String, dynamic> downloadResponse) {
+    try {
+      final data = downloadResponse['data'];
+      if (data == null) return '';
+
+      final headers = data['headers'] as List<dynamic>;
+      final body = data['body'] as List<dynamic>;
+
+      if (headers.isEmpty || body.isEmpty) return '';
+
+      // Create header row
+      final headerRow = headers.map((h) => h['header']).join(',');
+
+      // Create data rows
+      final dataRows = body
+          .map((item) {
+            return headers
+                .map((header) {
+                  final key = header['key'];
+                  final value = item[key]?.toString() ?? '';
+                  // Escape commas and quotes in CSV
+                  if (value.contains(',') ||
+                      value.contains('"') ||
+                      value.contains('\n')) {
+                    return '"${value.replaceAll('"', '""')}"';
+                  }
+                  return value;
+                })
+                .join(',');
+          })
+          .join('\n');
+
+      return '$headerRow\n$dataRows';
+    } catch (e) {
+      log('Error converting to CSV: $e');
+      return '';
+    }
+  }
+
+  /// Get analytics data for display
+  static List<Map<String, dynamic>> getAnalyticsData(
+    Map<String, dynamic> downloadResponse,
+  ) {
+    try {
+      final data = downloadResponse['data'];
+      if (data == null) return [];
+
+      return List<Map<String, dynamic>>.from(data['body'] ?? []);
+    } catch (e) {
+      log('Error getting analytics data: $e');
+      return [];
+    }
+  }
+
+  /// Generate CSV filename with timestamp
+  static String generateCSVFilename() {
+    final now = DateTime.now();
+    final timestamp =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}-${now.minute.toString().padLeft(2, '0')}';
+    return 'analytics_export_$timestamp.csv';
+  }
 }
 
 @riverpod
@@ -167,4 +261,10 @@ Future<List<AnalyticsModel>> fetchAnalytics(
     pageNo: pageNo,
     limit: limit,
   );
+}
+
+/// New Riverpod provider for download analytics
+@riverpod
+Future<Map<String, dynamic>?> downloadAnalyticsProvider(Ref ref) {
+  return AnalyticsApiService.downloadAnalytics();
 }

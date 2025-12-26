@@ -87,6 +87,7 @@ dependencies:
   firebase_app_check: ^0.3.2+10
   pdf: ^3.10.7
   printing: ^5.11.1
+  csv: ^5.1.1  
 
 dev_dependencies:
   flutter_test:

@@ -19,6 +19,8 @@ import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/router/nav_router.dart';
 import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/data/services/pdf_services.dart';
+import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
 import 'package:hef/src/interface/components/Drawer/drawer.dart';
 import 'package:hef/src/interface/components/common/custom_video.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_news.dart';
@@ -55,6 +57,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   int _currentEventIndex = 0;
   int _currentVideoIndex = 0;
 
+  bool isDownloading = false;
+
   double _calculateDynamicHeight(List<Promotion> notices) {
     double maxHeight = 0.0;
 
@@ -78,6 +82,83 @@ class _HomePageState extends ConsumerState<HomePage> {
     final double screenWidth = MediaQuery.sizeOf(context).width;
     final int numLines = (text.length / (screenWidth / fontSize)).ceil();
     return numLines * fontSize * 1.2 + 40;
+  }
+
+  /// Download and generate PDF from analytics data
+  Future<void> downloadPDF() async {
+    if (isDownloading) return;
+
+    setState(() => isDownloading = true);
+    try {
+      // Get analytics data
+      final downloadResponse = await AnalyticsApiService.downloadAnalytics();
+      log('Home Page - API Response received: $downloadResponse');
+
+      if (downloadResponse != null) {
+        // Check the structure of the response
+        final data = downloadResponse['data'];
+        log('Home Page - Data section: $data');
+        log('Home Page - Data type: ${data?.runtimeType}');
+
+        if (data != null) {
+          final headers = data['headers'];
+          final body = data['body'];
+          log('Home Page - Headers: $headers');
+          log('Home Page - Headers count: ${headers?.length}');
+          log('Home Page - Body count: ${body?.length}');
+
+          if (headers != null &&
+              body != null &&
+              headers is List<dynamic> &&
+              body is List<dynamic>) {
+            // Show detailed info to user
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Generating PDF with ${body.length} records...'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+
+            await PdfService.generateAndOpenPDF(
+              downloadResponse,
+              title: 'Analytics Report',
+              shareImmediately:
+                  false, // Preview PDF instead of sharing immediately
+            );
+
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('PDF generated successfully!')),
+            );
+          } else {
+            log('Home Page - Missing headers or body in API response');
+            log('Headers type: ${headers?.runtimeType}');
+            log('Body type: ${body?.runtimeType}');
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Invalid data structure in API response')),
+            );
+          }
+        } else {
+          log('Home Page - No data section in API response');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('API response missing data section')),
+          );
+        }
+      } else {
+        log('Home Page - API response is null');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No data available for PDF generation')),
+        );
+      }
+    } catch (e) {
+      log('Home Page - Error generating PDF: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error generating PDF: $e')),
+      );
+    } finally {
+      setState(() => isDownloading = false);
+    }
   }
 
   CarouselController controller = CarouselController();
@@ -202,22 +283,40 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           return asyncNotifications.when(
                                             data: (notifications) {
                                               // Filter out cleared notifications for the current user
-                                              final visibleNotifications = notifications.where((notification) {
-                                                final userNotification = notification.users?.firstWhere(
+                                              final visibleNotifications =
+                                                  notifications
+                                                      .where((notification) {
+                                                final userNotification =
+                                                    notification.users
+                                                        ?.firstWhere(
                                                   (user) => user.userId == id,
-                                                  orElse: () => UserNotification(userId: '', read: false, cleared: false),
+                                                  orElse: () =>
+                                                      UserNotification(
+                                                          userId: '',
+                                                          read: false,
+                                                          cleared: false),
                                                 );
-                                                return !(userNotification?.cleared ?? false);
+                                                return !(userNotification
+                                                        ?.cleared ??
+                                                    false);
                                               }).toList();
 
-                                              bool hasUnread = visibleNotifications
-                                                  .any((notification) {
-                                                    final userNotification = notification.users?.firstWhere(
-                                                      (user) => user.userId == id,
-                                                      orElse: () => UserNotification(userId: '', read: false, cleared: false),
-                                                    );
-                                                    return userNotification?.read ?? false;
-                                                  });
+                                              bool hasUnread =
+                                                  visibleNotifications
+                                                      .any((notification) {
+                                                final userNotification =
+                                                    notification.users
+                                                        ?.firstWhere(
+                                                  (user) => user.userId == id,
+                                                  orElse: () =>
+                                                      UserNotification(
+                                                          userId: '',
+                                                          read: false,
+                                                          cleared: false),
+                                                );
+                                                return userNotification?.read ??
+                                                    false;
+                                              });
 
                                               return Stack(
                                                 children: [
@@ -238,28 +337,38 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                       );
                                                     },
                                                   ),
-                                                  if (visibleNotifications.isNotEmpty)
+                                                  if (visibleNotifications
+                                                      .isNotEmpty)
                                                     Positioned(
                                                       right: 0,
                                                       top: 0,
                                                       child: Container(
-                                                        padding: const EdgeInsets.all(2),
-                                                        decoration: BoxDecoration(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(2),
+                                                        decoration:
+                                                            BoxDecoration(
                                                           color: Colors.red,
-                                                          borderRadius: BorderRadius.circular(10),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
                                                         ),
-                                                        constraints: const BoxConstraints(
+                                                        constraints:
+                                                            const BoxConstraints(
                                                           minWidth: 18,
                                                           minHeight: 18,
                                                         ),
                                                         child: Text(
                                                           '${visibleNotifications.length}',
-                                                          style: const TextStyle(
+                                                          style:
+                                                              const TextStyle(
                                                             color: Colors.white,
                                                             fontSize: 12,
-                                                            fontWeight: FontWeight.bold,
+                                                            fontWeight:
+                                                                FontWeight.bold,
                                                           ),
-                                                          textAlign: TextAlign.center,
+                                                          textAlign:
+                                                              TextAlign.center,
                                                         ),
                                                       ),
                                                     ),
@@ -335,6 +444,28 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     children: [
                                       Text('DASHBOARD', style: kSmallTitleR),
                                       const Spacer(),
+                                      if (widget.user.adminType != null &&
+                                          widget.user.adminType != "")
+                                        Stack(
+                                          children: [
+                                            IconButton(
+                                                icon: isDownloading
+                                                    ? const SizedBox(
+                                                        width: 20,
+                                                        height: 20,
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          color: kPrimaryColor,
+                                                        ),
+                                                      )
+                                                    : const Icon(
+                                                        Icons.download),
+                                                onPressed: isDownloading
+                                                    ? null
+                                                    : downloadPDF),
+                                          ],
+                                        ),
                                       Stack(
                                         children: [
                                           IconButton(
@@ -343,11 +474,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               showModalBottomSheet(
                                                 context: context,
                                                 isScrollControlled: true,
-                                                backgroundColor: Colors.transparent,
+                                                backgroundColor:
+                                                    Colors.transparent,
                                                 builder: (context) =>
                                                     DateFilterSheet(
-                                                  onApply: (String? newStartDate,
-                                                      String? newEndDate) {
+                                                  onApply:
+                                                      (String? newStartDate,
+                                                          String? newEndDate) {
                                                     setState(() {
                                                       startDate = newStartDate;
                                                       endDate = newEndDate;
@@ -360,18 +493,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               );
                                             },
                                           ),
-                                          if (startDate != null || endDate != null)
+                                          if (startDate != null ||
+                                              endDate != null)
                                             Positioned(
                                               right: 12,
                                               top: 12,
-                                              
                                               child: Container(
-                                                padding: const EdgeInsets.all(2),
+                                                padding:
+                                                    const EdgeInsets.all(2),
                                                 decoration: BoxDecoration(
                                                   color: Colors.red,
-                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
                                                 ),
-                                                constraints: const BoxConstraints(
+                                                constraints:
+                                                    const BoxConstraints(
                                                   minWidth: 8,
                                                   minHeight: 8,
                                                 ),
@@ -564,7 +700,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     data: (events) {
                                       // Filter out completed events
                                       final activeEvents = events
-                                          .where((event) => event.status?.toLowerCase() != 'completed')
+                                          .where((event) =>
+                                              event.status?.toLowerCase() !=
+                                              'completed')
                                           .toList();
 
                                       return activeEvents.isNotEmpty
@@ -587,7 +725,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                   ],
                                                 ),
                                                 CarouselSlider(
-                                                  items: activeEvents.map((event) {
+                                                  items:
+                                                      activeEvents.map((event) {
                                                     return Container(
                                                       width:
                                                           MediaQuery.of(context)
@@ -598,8 +737,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                           MediaQuery.of(context)
                                                                   .size
                                                                   .width *
-                                                                  0.95 * 9 / 16
-,
+                                                              0.95 *
+                                                              9 /
+                                                              16,
                                                       child: GestureDetector(
                                                         onTap: () {
                                                           navigationService
@@ -1098,7 +1238,6 @@ Widget customNotice({
                   ),
                 ),
                 const SizedBox(height: 8),
-
                 GestureDetector(
                     onTap: () async {
                       // CHANGE: add async function

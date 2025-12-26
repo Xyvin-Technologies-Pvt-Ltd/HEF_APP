@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -106,74 +107,114 @@ class PdfService {
         throw Exception('No valid data rows found in the response');
       }
 
-      // Enhanced table with better formatting
-      final tableWidget = pw.Table(
-        border: pw.TableBorder.all(width: 1.0),
-        children: tableData.asMap().entries.map((entry) {
-          final rowIndex = entry.key;
-          final row = entry.value;
+      // Handle pagination for large datasets
+      const recordsPerPage = 50; // Adjust this based on your needs
+      final totalRecords = tableData.length - 1; // Exclude header
+      final totalPages = (totalRecords / recordsPerPage).ceil();
 
-          // Make header row bold
-          final isHeader = rowIndex == 0;
+      log('PDF Service - Total records: $totalRecords, Pages needed: $totalPages');
 
-          return pw.TableRow(
-            decoration: isHeader
-                ? pw.BoxDecoration(
-                    color: PdfColors.grey300,
-                  )
-                : null,
-            children: row.map((cell) {
-              return pw.Padding(
-                padding: const pw.EdgeInsets.all(8),
-                child: pw.Text(
-                  cell,
-                  style: pw.TextStyle(
-                    fontSize: isHeader ? 12 : 10,
-                    fontWeight:
-                        isHeader ? pw.FontWeight.bold : pw.FontWeight.normal,
-                    color: isHeader ? PdfColors.black : PdfColors.black,
+      // Generate pages with pagination
+      for (int pageNum = 0; pageNum < totalPages; pageNum++) {
+        final startIndex = pageNum * recordsPerPage;
+        final endIndex = math.min(startIndex + recordsPerPage, totalRecords);
+
+        // Get records for this page (include header for first page)
+        final pageRecords = <List<String>>[];
+
+        if (pageNum == 0) {
+          // First page includes header
+          pageRecords.add(tableData[0]); // Header
+          pageRecords.addAll(tableData.sublist(1, endIndex + 1));
+        } else {
+          // Other pages only include data
+          pageRecords.addAll(tableData.sublist(startIndex + 1, endIndex + 1));
+        }
+
+        log('PDF Service - Page $pageNum: records ${startIndex + 1} to $endIndex');
+
+        // Create table widget for this page
+        final tableWidget = pw.Table(
+          border: pw.TableBorder.all(width: 0.8),
+          children: pageRecords.asMap().entries.map((entry) {
+            final rowIndex = entry.key;
+            final row = entry.value;
+
+            // Make header row bold (only on first page)
+            final isHeader = pageNum == 0 && rowIndex == 0;
+
+            return pw.TableRow(
+              decoration: isHeader
+                  ? pw.BoxDecoration(
+                      color: PdfColors.grey300,
+                    )
+                  : null,
+              children: row.map((cell) {
+                return pw.Padding(
+                  padding: const pw.EdgeInsets.all(6),
+                  child: pw.Text(
+                    cell,
+                    style: pw.TextStyle(
+                      fontSize: isHeader ? 11 : 9,
+                      fontWeight:
+                          isHeader ? pw.FontWeight.bold : pw.FontWeight.normal,
+                      color: PdfColors.black,
+                    ),
+                    textAlign: pw.TextAlign.left,
                   ),
-                  textAlign: pw.TextAlign.left,
-                ),
-              );
-            }).toList(),
-          );
-        }).toList(),
-      );
+                );
+              }).toList(),
+            );
+          }).toList(),
+        );
 
-      // Add title and table to PDF
-      pdf.addPage(
-        pw.Page(
-          build: (context) => pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text(
-                title,
-                style: pw.TextStyle(
-                  fontSize: 24,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.black,
+        // Add page to PDF
+        pdf.addPage(
+          pw.Page(
+            build: (context) => pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header for each page
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text(
+                      title,
+                      style: pw.TextStyle(
+                        fontSize: 18,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.black,
+                      ),
+                    ),
+                    pw.Text(
+                      'Page ${pageNum + 1} of $totalPages',
+                      style: pw.TextStyle(
+                        fontSize: 10,
+                        color: PdfColors.grey,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              pw.SizedBox(height: 20),
-              pw.Text(
-                'Generated on: ${DateTime.now().toString().split(' ')[0]} | Total Records: ${tableData.length - 1}',
-                style: pw.TextStyle(
-                  fontSize: 12,
-                  color: PdfColors.grey,
+                pw.SizedBox(height: 15),
+                pw.Text(
+                  'Generated on: ${DateTime.now().toString().split(' ')[0]} | Records: ${startIndex + 1} - $endIndex of $totalRecords',
+                  style: pw.TextStyle(
+                    fontSize: 10,
+                    color: PdfColors.grey,
+                  ),
                 ),
-              ),
-              pw.SizedBox(height: 20),
-              pw.Expanded(
-                child: pw.Container(
-                  padding: const pw.EdgeInsets.all(8),
-                  child: tableWidget,
+                pw.SizedBox(height: 15),
+                pw.Expanded(
+                  child: pw.Container(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: tableWidget,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
+        );
+      }
 
       // Save PDF
       final bytes = await pdf.save();

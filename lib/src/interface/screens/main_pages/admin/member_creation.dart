@@ -930,7 +930,7 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Business Category (Dropdown)',
+          'Business Category',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 14,

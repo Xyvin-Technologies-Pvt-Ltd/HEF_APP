@@ -541,10 +541,8 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
                                           ))
                                       .toList(),
                                   category: selectedBusinessCategory?.id ?? '',
-                                  businessCategory: businessCategoryController
-                                          .text.isNotEmpty
-                                      ? businessCategoryController.text
-                                      : (selectedBusinessCategory?.name ?? ''),
+                                  businessCategory:
+                                      businessCategoryController.text,
                                   businessSubCategory:
                                       businessSubCategoryController.text,
                                   businessTags: businessTags.isNotEmpty
@@ -1065,8 +1063,7 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
                               setState(() {
                                 selectedBusinessCategory = cat;
                                 _selectedCategoryDisplay = cat.name;
-                                businessCategoryController.text =
-                                    cat.name; // Auto-fill text field
+                                // Do NOT auto-fill businessCategoryController - keep separate!
                                 _isSearchExpanded = false;
                                 _categorySearchController.clear();
                               });

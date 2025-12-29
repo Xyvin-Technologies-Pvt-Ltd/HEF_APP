@@ -245,7 +245,16 @@ class UserModel {
               ?.map((e) => Company.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      category: json['category'] as String? ?? '',
+      category: (() {
+        final categoryValue = json['category'];
+        if (categoryValue is Map<String, dynamic>) {
+          return categoryValue['_id'] as String? ?? '';
+        } else if (categoryValue is String) {
+          return categoryValue;
+        } else {
+          return '';
+        }
+      })(),
       businessCategory: json['businessCatogary'] as String? ?? '',
       businessSubCategory: json['businessSubCatogary'] as String? ?? '',
       file:
@@ -273,7 +282,9 @@ class UserModel {
           [],
       otp: json['otp'] as int? ?? 0,
       blockedUsers: (json['blockedUsers'] as List<dynamic>?)
-              ?.map((e) => e as UserModel)
+              ?.map((e) => e is Map<String, dynamic>
+                  ? UserModel.fromJson(e)
+                  : UserModel())
               .toList() ??
           [],
       feedCount: json['feedsCount'] as int? ?? json['feedCount'] as int? ?? 0,

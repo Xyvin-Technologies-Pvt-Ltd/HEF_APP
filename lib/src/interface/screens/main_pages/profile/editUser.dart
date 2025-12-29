@@ -128,7 +128,6 @@ class _EditUserState extends ConsumerState<EditUser> {
       TextEditingController();
   final TextEditingController businessSubCategoryController =
       TextEditingController();
-  
 
   final TextEditingController designationController = TextEditingController();
   final TextEditingController generaldesignationController =
@@ -428,6 +427,7 @@ class _EditUserState extends ConsumerState<EditUser> {
         "businessCatogary": user.businessCategory ?? '',
       if (user.businessSubCategory != null && user.businessSubCategory != '')
         "businessSubCatogary": user.businessSubCategory ?? '',
+
       if (selectedBusinessCategory?.id != null)
         "category": selectedBusinessCategory?.id ?? '',
 
@@ -645,6 +645,24 @@ class _EditUserState extends ConsumerState<EditUser> {
               }
               if (businessCategoryController.text.isEmpty) {
                 businessCategoryController.text = user.businessCategory ?? ' ';
+              }
+              // Initialize selected business category from existing user data
+              if (user.category != null &&
+                  user.category!.isNotEmpty &&
+                  selectedBusinessCategory == null) {
+                final categories = ref.read(businessCategoryNotifierProvider);
+                try {
+                  final matchingCategory = categories.firstWhere(
+                    (cat) => cat.id == user.category,
+                    orElse: () => BusinessCategoryModel(id: '', name: ''),
+                  );
+                  if (matchingCategory.id.isNotEmpty) {
+                    selectedBusinessCategory = matchingCategory;
+                    _selectedCategoryDisplay = matchingCategory.name;
+                  }
+                } catch (e) {
+                  print('Error finding matching category: $e');
+                }
               }
               if (businessSubCategoryController.text.isEmpty) {
                 businessSubCategoryController.text =
@@ -1040,7 +1058,9 @@ class _EditUserState extends ConsumerState<EditUser> {
                                           generaldesignationController,
                                       labelText: 'Enter your Designation',
                                     ),
-                                    SizedBox(height: 10,),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
                                     // Business Category Dropdown (New)
                                     _buildBusinessCategoryDropdown(),
                                   ],
@@ -2658,7 +2678,6 @@ class _EditUserState extends ConsumerState<EditUser> {
     );
   }
 
-
   Widget _buildBusinessCategoryDropdown() {
     final businessCategories = ref.watch(businessCategoryNotifierProvider);
     final notifier = ref.read(businessCategoryNotifierProvider.notifier);
@@ -2800,8 +2819,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                               setState(() {
                                 selectedBusinessCategory = cat;
                                 _selectedCategoryDisplay = cat.name;
-                                businessCategoryController.text =
-                                    cat.name; // Auto-fill text field
+                                // Do NOT auto-fill businessCategoryController - keep separate!
                                 _isSearchExpanded = false;
                                 _categorySearchController.clear();
                               });

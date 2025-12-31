@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
@@ -31,11 +32,9 @@ class AnalyticsPdfService {
         .buffer
         .asUint8List();
 
-    // Add content to PDF
-    pdf.addPage(
-      await _buildReportPage(analyticsData, reportType, startDate, endDate,
-          requestType, logoBytes),
-    );
+    // Add content to PDF with pagination
+    await _addPaginatedContent(pdf, analyticsData, reportType, startDate,
+        endDate, requestType, logoBytes);
 
     // Save the document
     final bytes = await pdf.save();
@@ -52,7 +51,8 @@ class AnalyticsPdfService {
     return file;
   }
 
-  static Future<pw.Page> _buildReportPage(
+  static Future<void> _addPaginatedContent(
+    pw.Document pdf,
     List<AnalyticsModel> analyticsData,
     String reportType,
     String? startDate,
@@ -60,9 +60,6 @@ class AnalyticsPdfService {
     String? requestType,
     Uint8List? logoBytes,
   ) async {
-    final font =
-        await pw.Font.ttf(await rootBundle.load('assets/fonts/Helvetica.ttf'));
-
     // Sort analytics data by date (oldest first)
     final sortedAnalyticsData = [...analyticsData];
     sortedAnalyticsData.sort((a, b) {
@@ -73,165 +70,208 @@ class AnalyticsPdfService {
       return a.date!.compareTo(b.date!);
     });
 
+    const int recordsPerPage = 10; // Number of records per page
+    final int totalPages = (sortedAnalyticsData.length / recordsPerPage).ceil();
+
+    for (int pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+      final startIndex = pageIndex * recordsPerPage;
+      final endIndex =
+          math.min(startIndex + recordsPerPage, sortedAnalyticsData.length);
+      final pageData = sortedAnalyticsData.sublist(startIndex, endIndex);
+
+      pdf.addPage(
+        await _buildReportPage(
+          pageData,
+          reportType,
+          startDate,
+          endDate,
+          requestType,
+          logoBytes,
+          pageIndex: pageIndex,
+          totalPages: totalPages,
+          totalRecords: sortedAnalyticsData.length,
+        ),
+      );
+    }
+  }
+
+  static Future<pw.Page> _buildReportPage(
+    List<AnalyticsModel> analyticsData,
+    String reportType,
+    String? startDate,
+    String? endDate,
+    String? requestType,
+    Uint8List? logoBytes, {
+    int pageIndex = 0,
+    int totalPages = 1,
+    int totalRecords = 0,
+  }) async {
+    final font =
+        await pw.Font.ttf(await rootBundle.load('assets/fonts/Helvetica.ttf'));
+
     return pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.all(24),
       build: (context) => pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          // Header
-          pw.Row(
-            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-            children: [
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text(
-                    'HEF Analytics Report',
-                    style: pw.TextStyle(
-                      font: font,
-                      fontSize: 24,
-                      fontWeight: pw.FontWeight.bold,
-                      color: primaryColor,
-                    ),
-                  ),
-                  pw.SizedBox(height: 4),
-                  pw.Text(
-                    _getReportTitle(reportType),
-                    style: pw.TextStyle(
-                      font: font,
-                      fontSize: 16,
-                      color: secondaryColor,
-                    ),
-                  ),
-                ],
-              ),
-              pw.Container(
-                width: 80,
-                height: 80,
-                decoration: pw.BoxDecoration(
-                  borderRadius: pw.BorderRadius.circular(8),
-                  border: pw.Border.all(color: primaryColor, width: 2),
-                ),
-                child: pw.Center(
-                  child: logoBytes != null
-                      ? pw.Image(
-                          pw.MemoryImage(logoBytes),
-                          width: 60,
-                          height: 60,
-                          fit: pw.BoxFit.contain,
-                        )
-                      : pw.Text(
-                          'HEF',
-                          style: pw.TextStyle(
-                            font: font,
-                            fontSize: 24,
-                            fontWeight: pw.FontWeight.bold,
-                            color: primaryColor,
-                          ),
-                        ),
-                ),
-              ),
-            ],
-          ),
-          pw.SizedBox(height: 24),
-
-          // Report Summary
-          pw.Container(
-            padding: const pw.EdgeInsets.all(16),
-            decoration: pw.BoxDecoration(
-              color: PdfColor.fromInt(0xFFF5F5F5),
-              borderRadius: pw.BorderRadius.circular(8),
-            ),
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
+          // Header - Only show on first page
+          if (pageIndex == 0) ...[
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
-                pw.Text(
-                  'Report Summary',
-                  style: pw.TextStyle(
-                    font: font,
-                    fontSize: 16,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-                pw.SizedBox(height: 12),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('Report Type:',
-                            style: pw.TextStyle(
-                                font: font, fontWeight: pw.FontWeight.bold)),
-                        pw.Text(_getReportTitle(reportType),
-                            style: pw.TextStyle(font: font)),
-                      ],
+                    pw.Text(
+                      'HEF Analytics Report',
+                      style: pw.TextStyle(
+                        font: font,
+                        fontSize: 24,
+                        fontWeight: pw.FontWeight.bold,
+                        color: primaryColor,
+                      ),
                     ),
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('Total Records:',
-                            style: pw.TextStyle(
-                                font: font, fontWeight: pw.FontWeight.bold)),
-                        pw.Text('${analyticsData.length}',
-                            style: pw.TextStyle(font: font)),
-                      ],
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      _getReportTitle(reportType),
+                      style: pw.TextStyle(
+                        font: font,
+                        fontSize: 16,
+                        color: secondaryColor,
+                      ),
                     ),
                   ],
                 ),
-                pw.SizedBox(height: 8),
-                if (startDate != null || endDate != null) ...[
+                pw.Container(
+                  width: 80,
+                  height: 80,
+                  decoration: pw.BoxDecoration(
+                    borderRadius: pw.BorderRadius.circular(8),
+                    border: pw.Border.all(color: primaryColor, width: 2),
+                  ),
+                  child: pw.Center(
+                    child: logoBytes != null
+                        ? pw.Image(
+                            pw.MemoryImage(logoBytes),
+                            width: 60,
+                            height: 60,
+                            fit: pw.BoxFit.contain,
+                          )
+                        : pw.Text(
+                            'HEF',
+                            style: pw.TextStyle(
+                              font: font,
+                              fontSize: 24,
+                              fontWeight: pw.FontWeight.bold,
+                              color: primaryColor,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 24),
+
+            // Report Summary - Only show on first page
+            pw.Container(
+              padding: const pw.EdgeInsets.all(16),
+              decoration: pw.BoxDecoration(
+                color: PdfColor.fromInt(0xFFF5F5F5),
+                borderRadius: pw.BorderRadius.circular(8),
+              ),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    'Report Summary',
+                    style: pw.TextStyle(
+                      font: font,
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                  pw.SizedBox(height: 12),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          pw.Text('Date Range:',
+                          pw.Text('Report Type:',
                               style: pw.TextStyle(
                                   font: font, fontWeight: pw.FontWeight.bold)),
-                          pw.Text(_formatDateRange(startDate, endDate),
+                          pw.Text(_getReportTitle(reportType),
                               style: pw.TextStyle(font: font)),
                         ],
                       ),
-                      if (requestType != null)
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text('Total Records:',
+                              style: pw.TextStyle(
+                                  font: font, fontWeight: pw.FontWeight.bold)),
+                          pw.Text(
+                              '${totalRecords > 0 ? totalRecords : analyticsData.length}',
+                              style: pw.TextStyle(font: font)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  pw.SizedBox(height: 8),
+                  if (startDate != null || endDate != null) ...[
+                    pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                      children: [
                         pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
-                            pw.Text('Request Type:',
+                            pw.Text('Date Range:',
                                 style: pw.TextStyle(
                                     font: font,
                                     fontWeight: pw.FontWeight.bold)),
-                            pw.Text(requestType,
+                            pw.Text(_formatDateRange(startDate, endDate),
                                 style: pw.TextStyle(font: font)),
                           ],
                         ),
-                    ],
-                  ),
-                ],
-                pw.SizedBox(height: 8),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('Generated:',
-                            style: pw.TextStyle(
-                                font: font, fontWeight: pw.FontWeight.bold)),
-                        pw.Text(
-                            DateFormat('MMM d, yyyy - h:mm a')
-                                .format(DateTime.now()),
-                            style: pw.TextStyle(font: font)),
+                        if (requestType != null)
+                          pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text('Request Type:',
+                                  style: pw.TextStyle(
+                                      font: font,
+                                      fontWeight: pw.FontWeight.bold)),
+                              pw.Text(requestType,
+                                  style: pw.TextStyle(font: font)),
+                            ],
+                          ),
                       ],
                     ),
                   ],
-                ),
-              ],
+                  pw.SizedBox(height: 8),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text('Generated:',
+                              style: pw.TextStyle(
+                                  font: font, fontWeight: pw.FontWeight.bold)),
+                          pw.Text(
+                              DateFormat('MMM d, yyyy - h:mm a')
+                                  .format(DateTime.now()),
+                              style: pw.TextStyle(font: font)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          pw.SizedBox(height: 24),
+            pw.SizedBox(height: 24),
+          ],
 
           // Data Table
           if (analyticsData.isEmpty)
@@ -249,15 +289,12 @@ class AnalyticsPdfService {
           else
             pw.Column(
               children: [
-                // Table Header
+                // Table Header - Show on all pages
                 pw.Container(
                   padding: const pw.EdgeInsets.all(12),
                   decoration: pw.BoxDecoration(
                     color: primaryColor,
-                    borderRadius: pw.BorderRadius.only(
-                      topLeft: pw.Radius.circular(8),
-                      topRight: pw.Radius.circular(8),
-                    ),
+                    borderRadius: pw.BorderRadius.circular(8),
                   ),
                   child: pw.Row(
                     children: [
@@ -332,7 +369,7 @@ class AnalyticsPdfService {
                 ),
 
                 // Table Data
-                ...sortedAnalyticsData.asMap().entries.map((entry) {
+                ...analyticsData.asMap().entries.map((entry) {
                   final index = entry.key;
                   final analytic = entry.value;
                   final isEven = index % 2 == 0;
@@ -423,14 +460,27 @@ class AnalyticsPdfService {
           // Footer
           pw.Align(
             alignment: pw.Alignment.center,
-            child: pw.Text(
-              'Generated by HEF Analytics App',
-              style: pw.TextStyle(
-                font: font,
-                fontSize: 10,
-                color: secondaryColor,
-                fontStyle: pw.FontStyle.italic,
-              ),
+            child: pw.Column(
+              children: [
+                pw.Text(
+                  'Generated by HEF Analytics App',
+                  style: pw.TextStyle(
+                    font: font,
+                    fontSize: 10,
+                    color: secondaryColor,
+                    fontStyle: pw.FontStyle.italic,
+                  ),
+                ),
+                if (totalPages > 1)
+                  pw.Text(
+                    'Page ${pageIndex + 1} of $totalPages',
+                    style: pw.TextStyle(
+                      font: font,
+                      fontSize: 9,
+                      color: secondaryColor,
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
@@ -485,7 +535,7 @@ class AnalyticsPdfService {
 
   static String _formatAmount(double? amount) {
     if (amount != null) {
-      return '\₹ ${amount.toStringAsFixed(2)}';
+      return '₹ ${amount.toStringAsFixed(2)}';
     }
     return 'N/A';
   }

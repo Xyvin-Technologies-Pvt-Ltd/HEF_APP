@@ -1012,38 +1012,38 @@ class _EditUserState extends ConsumerState<EditUser> {
                                         labelText: 'Bio',
                                         maxLines: 5),
 
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    CustomTextFormField(
-                                      title: 'Category',
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please Enter Your Category';
-                                        }
-                                        return null;
-                                      },
-                                      textController:
-                                          businessCategoryController,
-                                      labelText: 'Enter your Category',
-                                    ),
+                                    // SizedBox(
+                                    //   height: 10,
+                                    // ),
+                                    // CustomTextFormField(
+                                    //   title: 'Category',
+                                    //   validator: (value) {
+                                    //     if (value == null || value.isEmpty) {
+                                    //       return 'Please Enter Your Category';
+                                    //     }
+                                    //     return null;
+                                    //   },
+                                    //   textController:
+                                    //       businessCategoryController,
+                                    //   labelText: 'Enter your Category',
+                                    // ),
 
                                     //sub category
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    CustomTextFormField(
-                                      title: 'Sub Category',
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please Enter Your Sub Category';
-                                        }
-                                        return null;
-                                      },
-                                      textController:
-                                          businessSubCategoryController,
-                                      labelText: 'Enter your Sub Category',
-                                    ),
+                                    // SizedBox(
+                                    //   height: 10,
+                                    // ),
+                                    // CustomTextFormField(
+                                    //   title: 'Sub Category',
+                                    //   validator: (value) {
+                                    //     if (value == null || value.isEmpty) {
+                                    //       return 'Please Enter Your Sub Category';
+                                    //     }
+                                    //     return null;
+                                    //   },
+                                    //   textController:
+                                    //       businessSubCategoryController,
+                                    //   labelText: 'Enter your Sub Category',
+                                    // ),
                                     const SizedBox(height: 20.0),
 
                                     CustomTextFormField(

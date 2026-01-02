@@ -440,20 +440,20 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
               // Business Category Dropdown (New)
               _buildBusinessCategoryDropdown(),
 
-              MemberCreationTextfield(
-                textEditingController: businessCategoryController,
-                label: 'Business Category *',
-                hintText: 'Enter business category',
-                validator: (value) =>
-                    value!.isEmpty ? 'Business category is required' : null,
-              ),
-              MemberCreationTextfield(
-                textEditingController: businessSubCategoryController,
-                label: 'Sub Category *',
-                hintText: 'Enter sub category',
-                validator: (value) =>
-                    value!.isEmpty ? 'Sub category is required' : null,
-              ),
+              // MemberCreationTextfield(
+              //   textEditingController: businessCategoryController,
+              //   label: 'Business Category *',
+              //   hintText: 'Enter business category',
+              //   validator: (value) =>
+              //       value!.isEmpty ? 'Business category is required' : null,
+              // ),
+              // MemberCreationTextfield(
+              //   textEditingController: businessSubCategoryController,
+              //   label: 'Sub Category *',
+              //   hintText: 'Enter sub category',
+              //   validator: (value) =>
+              //       value!.isEmpty ? 'Sub category is required' : null,
+              // ),
 
               MemberCreationTextfield(
                 textEditingController: generaldesignationController,
@@ -556,7 +556,7 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                  'Please fill all required fields (Name, Bio, Email, Phone, at least one Company with name, designation, and email, Business Category, Sub Category, Status)'),
+                                  'Please fill all required fields (Name, Bio, Email, Phone, at least one Company with name, designation, and email,Status)'),
                               backgroundColor: Colors.red,
                             ),
                           );

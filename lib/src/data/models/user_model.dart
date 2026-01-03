@@ -249,8 +249,17 @@ class UserModel {
       category: json['category'] != null
           ? (json['category'] is Map<String, dynamic>
               ? BusinessCategoryModel.fromJson(json['category'])
-              : BusinessCategoryModel(
-                  id: json['category'] ?? '', name: json['category'] ?? ''))
+              : (json['category'] is String &&
+                      json['category'].toString().isNotEmpty)
+                  ? (() {
+                      final categoryStr = json['category'].toString();
+                      log('Creating BusinessCategoryModel from string: id=$categoryStr, name=$categoryStr');
+                      return BusinessCategoryModel(
+                          id: categoryStr,
+                          name: categoryStr // Use ID as name fallback
+                          );
+                    })()
+                  : null)
           : null,
       businessCategory: json['businessCatogary'] as String? ?? '',
       businessSubCategory: json['businessSubCatogary'] as String? ?? '',

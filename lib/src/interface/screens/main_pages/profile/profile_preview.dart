@@ -68,6 +68,17 @@ class ProfilePreview extends ConsumerWidget {
     log('Role is empty: ${user.role?.isEmpty ?? true}');
     log('=== END CURRENT USER PROFILE DEBUG ===');
 
+    // Debug category information
+    log('=== CATEGORY DEBUG ===');
+    log('user.category: ${user.category}');
+    log('user.category is null: ${user.category == null}');
+    if (user.category != null) {
+      log('user.category.name: ${user.category!.name}');
+      log('user.category.name.isEmpty: ${user.category!.name.isEmpty}');
+      log('user.category.name.isNotEmpty: ${user.category!.name.isNotEmpty}');
+    }
+    log('======================');
+
     _videoCountController.addListener(() {
       _currentVideo.value = _videoCountController.page!.round();
     });

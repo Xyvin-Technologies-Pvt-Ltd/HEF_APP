@@ -94,6 +94,8 @@ class _SendAnalyticRequestPageState
             "address": referralAddressController.text,
           if (referralInfoController.text != '')
             "info": referralInfoController.text,
+          // if(dateController.text != '')
+          //   "date":dateController.text,
         },
       if (dateController.text != '') "date": dateController.text,
       if (timeController.text != '') "time": timeController.text,
@@ -677,6 +679,64 @@ class _SendAnalyticRequestPageState
                     const Text('Referral Details',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 16)),
+
+                    const SizedBox(height: 10.0),
+                    _buildRequiredLabel('Date'),
+                    const SizedBox(height: 10.0),
+                    TextFormField(
+                      controller: dateController,
+                      readOnly: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a date';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                        fillColor: Colors.white,
+                        filled: true,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 212, 209, 209)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 223, 220, 220)),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 212, 209, 209)),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 223, 220, 220)),
+                        ),
+                        labelText: 'Date',
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.calendar_today),
+                          onPressed: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2025),
+                              lastDate: DateTime(2101),
+                            );
+                            if (pickedDate != null) {
+                              setState(() {
+                                dateController.text =
+                                    DateFormat('yyyy-MM-dd').format(pickedDate);
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 10.0),
                     _buildRequiredLabel('Name'),
                     CustomTextFormField(

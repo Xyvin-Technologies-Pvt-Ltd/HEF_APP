@@ -354,9 +354,21 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         await Permission.storage.request();
       }
 
-      // Get current analytics data from notifier
-      final analyticsNotifier = ref.read(analyticsNotifierProvider.notifier);
-      final analyticsData = analyticsNotifier.analytics;
+      // Fetch all analytics data from API for PDF
+      final analyticsData = await ref.read(
+        fetchAnalyticsProvider(
+          type: _getCurrentTabType(),
+          startDate: startDate != null
+              ? DateFormat('yyyy-MM-dd').format(startDate!)
+              : null,
+          endDate: endDate != null
+              ? DateFormat('yyyy-MM-dd').format(endDate!)
+              : null,
+          requestType: selectedRequestType,
+          pageNo: 1,
+          limit: 10000,
+        ).future,
+      );
       String reportType;
 
       switch (_tabController.index) {

@@ -647,22 +647,9 @@ class _EditUserState extends ConsumerState<EditUser> {
                 businessCategoryController.text = user.businessCategory ?? ' ';
               }
               // Initialize selected business category from existing user data
-              if (user.category != null &&
-                  user.category!.isNotEmpty &&
-                  selectedBusinessCategory == null) {
-                final categories = ref.read(businessCategoryNotifierProvider);
-                try {
-                  final matchingCategory = categories.firstWhere(
-                    (cat) => cat.id == user.category,
-                    orElse: () => BusinessCategoryModel(id: '', name: ''),
-                  );
-                  if (matchingCategory.id.isNotEmpty) {
-                    selectedBusinessCategory = matchingCategory;
-                    _selectedCategoryDisplay = matchingCategory.name;
-                  }
-                } catch (e) {
-                  print('Error finding matching category: $e');
-                }
+              if (user.category != null && selectedBusinessCategory == null) {
+                selectedBusinessCategory = user.category;
+                _selectedCategoryDisplay = user.category?.name;
               }
               if (businessSubCategoryController.text.isEmpty) {
                 businessSubCategoryController.text =

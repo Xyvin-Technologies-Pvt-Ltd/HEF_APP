@@ -277,15 +277,6 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                             Text(user.role!.toUpperCase()),
                                         const SizedBox(height: 10),
 
-                                        if(user.businessCategory != null)
-
-                                        Text('Category : ${user.businessCategory ?? ""}'),
-
-
-                                        if(user.businessSubCategory != null)
-                                        Text('Sub category : ${user.businessSubCategory ?? ""}'),
-                                        const SizedBox(height: 10),
-
 
 
                                         Wrap(

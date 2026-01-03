@@ -540,7 +540,7 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
                                             websites: c.websiteController.text,
                                           ))
                                       .toList(),
-                                  category: selectedBusinessCategory?.id ?? '',
+                                  category: selectedBusinessCategory,
                                   businessCategory:
                                       businessCategoryController.text,
                                   businessSubCategory:

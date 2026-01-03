@@ -1081,39 +1081,44 @@ class _MembersPageState extends ConsumerState<MembersPage> {
 
                   return GestureDetector(
                     onTap: () async {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ProfilePreview(user: user)));
                       // Navigate immediately with current user data
-                      final profilePreview = ProfilePreview(user: user);
+                      // final profilePreview = ProfilePreview(user: user);
 
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            // Fetch complete user data in background
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              ref
-                                  .read(fetchUserDetailsProvider(user.uid ?? '')
-                                      .future)
-                                  .then((completeUser) {
-                                if (context.mounted &&
-                                    Navigator.canPop(context)) {
-                                  // Update the profile preview with complete data
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ProfilePreview(user: completeUser),
-                                    ),
-                                  );
-                                }
-                              }).catchError((error) {
-                                // Silently handle error - keep original data
-                                print(
-                                    'Error fetching complete user data: $error');
-                              });
-                            });
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //     builder: (context) {
+                      //       // Fetch complete user data in background
+                      //       WidgetsBinding.instance.addPostFrameCallback((_) {
+                      //         ref
+                      //             .read(fetchUserDetailsProvider(user.uid ?? '')
+                      //                 .future)
+                      //             .then((completeUser) {
+                      //           if (context.mounted &&
+                      //               Navigator.canPop(context)) {
+                      //             // Update the profile preview with complete data
+                      //             Navigator.of(context).pushReplacement(
+                      //               MaterialPageRoute(
+                      //                 builder: (context) =>
+                      //                     ProfilePreview(user: completeUser),
+                      //               ),
+                      //             );
+                      //           }
+                      //         }).catchError((error) {
+                      //           // Silently handle error - keep original data
+                      //           print(
+                      //               'Error fetching complete user data: $error');
+                      //         });
+                      //       });
 
-                            return profilePreview;
-                          },
-                        ),
-                      );
+                      //       return profilePreview;
+                      //     },
+                      //   ),
+                      // );
                     },
                     child: asyncUserChat,
                   );

@@ -54,7 +54,7 @@ class ProfilePreview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final reviewsToShow = ref.watch(reviewsProvider);
     PageController _videoCountController = PageController();
-    String joinedDate = user.dateOfJoining != null 
+    String joinedDate = user.dateOfJoining != null
         ? DateFormat('dd/MM/yyyy').format(user.dateOfJoining!)
         : 'N/A';
     Map<String, String> levelData = extractLevelDetails(user.level ?? '');
@@ -160,14 +160,9 @@ class ProfilePreview extends ConsumerWidget {
                         if (user.role != null && user.role!.isNotEmpty)
                           Text(user.role!.toUpperCase()),
 
-                        if(user.businessCategory != null)
-
-                          Text('Category : ${user.businessCategory ?? "null"}'),
-
-
-                        if(user.businessSubCategory != null)
-                          Text('Sub category : ${user.businessSubCategory ?? "null"}'),
-                        SizedBox(height: 10,),
+                        if (user.category != null &&
+                            user.category!.name.isNotEmpty)
+                          Text('Category : ${user.category!.name}'),
 
                         if (user.company != null)
                           Column(
@@ -440,7 +435,8 @@ class ProfilePreview extends ConsumerWidget {
                       height: 50,
                     ),
                     // Business Tags Section
-                    if (user.businessTags != null && user.businessTags!.isNotEmpty)
+                    if (user.businessTags != null &&
+                        user.businessTags!.isNotEmpty)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -456,7 +452,8 @@ class ProfilePreview extends ConsumerWidget {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+                            padding: const EdgeInsets.only(
+                                left: 10, right: 10, bottom: 20),
                             child: Wrap(
                               spacing: 8.0,
                               runSpacing: 8.0,
@@ -1128,7 +1125,7 @@ class ProfilePreview extends ConsumerWidget {
   void _showVideoDialog(BuildContext context, Link video) {
     final videoUrl = video.link;
     final videoId = YoutubePlayer.convertUrlToId(videoUrl ?? '');
-    
+
     final controller = YoutubePlayerController(
       initialVideoId: videoId ?? '',
       flags: const YoutubePlayerFlags(

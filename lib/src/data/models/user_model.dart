@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:hef/src/data/models/business_category_model.dart';
 
 class Link {
   final String? name;
@@ -158,7 +159,7 @@ class UserModel {
   final List<Company>? company;
   final String? businessCategory;
   final String? businessSubCategory;
-  final String? category;
+  final BusinessCategoryModel? category;
   final List<String>? file;
   final List<Link>? social;
   final List<Link>? websites;
@@ -245,16 +246,12 @@ class UserModel {
               ?.map((e) => Company.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      category: (() {
-        final categoryValue = json['category'];
-        if (categoryValue is Map<String, dynamic>) {
-          return categoryValue['_id'] as String? ?? '';
-        } else if (categoryValue is String) {
-          return categoryValue;
-        } else {
-          return '';
-        }
-      })(),
+      category: json['category'] != null
+          ? (json['category'] is Map<String, dynamic>
+              ? BusinessCategoryModel.fromJson(json['category'])
+              : BusinessCategoryModel(
+                  id: json['category'] ?? '', name: json['category'] ?? ''))
+          : null,
       businessCategory: json['businessCatogary'] as String? ?? '',
       businessSubCategory: json['businessSubCatogary'] as String? ?? '',
       file:
@@ -329,7 +326,7 @@ class UserModel {
       'status': status,
       'address': address,
       'company': company?.map((e) => e.toJson()).toList(),
-      'category': category,
+      'category': category?.toJson(),
       'businessCatogary': businessCategory,
       'businessSubCatogary': businessSubCategory,
       'file': file,
@@ -371,7 +368,7 @@ class UserModel {
     String? status,
     String? address,
     List<Company>? company,
-    String? category,
+    BusinessCategoryModel? category,
     String? businessCategory,
     String? businessSubCategory,
     List<String>? file,

@@ -16,6 +16,7 @@ class PeopleNotifier extends _$PeopleNotifier {
   String? district; // Added district filter
   List<String>? tags; // Added tags filter
   String? chapter;
+  String? category;
 
   @override
   List<UserModel> build() {
@@ -34,13 +35,15 @@ class PeopleNotifier extends _$PeopleNotifier {
     try {
       final newUsers = await ref.read(
         fetchActiveUsersProvider(
-          pageNo: pageNo,
-          limit: limit,
-          query: searchQuery,
-          district: district, // Pass district filter
-          tags: tags,
-          chapter: chapter // Pass tags filter
-        ).future,
+                pageNo: pageNo,
+                limit: limit,
+                query: searchQuery,
+                district: district, // Pass district filter
+                tags: tags,
+                chapter: chapter ,// Pass tags filter
+                category:category,
+                )
+            .future,
       );
 
       users = [...users, ...newUsers];
@@ -68,7 +71,8 @@ class PeopleNotifier extends _$PeopleNotifier {
   Future<void> searchUsers(String query,
       {String? districtFilter,
       List<String>? tagsFilter,
-      String? chapterFilter}) async {
+      String? chapterFilter,
+      String? categoryFilter}) async {
     isLoading = true;
     isFirstLoad = true;
     pageNo = 1;
@@ -77,6 +81,7 @@ class PeopleNotifier extends _$PeopleNotifier {
     district = districtFilter; // Apply district filter
     tags = tagsFilter; // Apply tags filter
     chapter = chapterFilter;
+    category = categoryFilter;
 
     try {
       final newUsers = await ref.read(
@@ -87,6 +92,7 @@ class PeopleNotifier extends _$PeopleNotifier {
           district: district, // Pass district filter
           tags: tags, // Pass tags filter
           chapter: chapter,
+          category:category,
         ).future,
       );
 
@@ -119,6 +125,7 @@ class PeopleNotifier extends _$PeopleNotifier {
           district: district, // Pass district filter
           tags: tags, // Pass tags filter
           chapter: chapter,
+          category: category,
         ).future,
       );
 
@@ -146,6 +153,11 @@ class PeopleNotifier extends _$PeopleNotifier {
 
   void setChapter(String? newChapter) {
     chapter = newChapter;
+    refresh(); // Auto-refresh when chapter is updated
+  }
+
+  void setCategory(String? newCategory) {
+    category = newCategory;
     refresh(); // Auto-refresh when chapter is updated
   }
 }

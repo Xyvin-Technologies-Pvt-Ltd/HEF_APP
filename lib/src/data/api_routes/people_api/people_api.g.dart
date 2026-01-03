@@ -6,7 +6,7 @@ part of 'people_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchActiveUsersHash() => r'89f2fc5336a14972ea934562101638020b7328e4';
+String _$fetchActiveUsersHash() => r'd8468d7f69e203f9597867cc0ca73dafec22486e';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -46,6 +46,7 @@ class FetchActiveUsersFamily extends Family<AsyncValue<List<UserModel>>> {
     String? district,
     List<String>? tags,
     String? chapter,
+    String? category,
   }) {
     return FetchActiveUsersProvider(
       pageNo: pageNo,
@@ -54,6 +55,7 @@ class FetchActiveUsersFamily extends Family<AsyncValue<List<UserModel>>> {
       district: district,
       tags: tags,
       chapter: chapter,
+      category: category,
     );
   }
 
@@ -68,6 +70,7 @@ class FetchActiveUsersFamily extends Family<AsyncValue<List<UserModel>>> {
       district: provider.district,
       tags: provider.tags,
       chapter: provider.chapter,
+      category: provider.category,
     );
   }
 
@@ -97,6 +100,7 @@ class FetchActiveUsersProvider
     String? district,
     List<String>? tags,
     String? chapter,
+    String? category,
   }) : this._internal(
           (ref) => fetchActiveUsers(
             ref as FetchActiveUsersRef,
@@ -106,6 +110,7 @@ class FetchActiveUsersProvider
             district: district,
             tags: tags,
             chapter: chapter,
+            category: category,
           ),
           from: fetchActiveUsersProvider,
           name: r'fetchActiveUsersProvider',
@@ -122,6 +127,7 @@ class FetchActiveUsersProvider
           district: district,
           tags: tags,
           chapter: chapter,
+          category: category,
         );
 
   FetchActiveUsersProvider._internal(
@@ -137,6 +143,7 @@ class FetchActiveUsersProvider
     required this.district,
     required this.tags,
     required this.chapter,
+    required this.category,
   }) : super.internal();
 
   final int pageNo;
@@ -145,6 +152,7 @@ class FetchActiveUsersProvider
   final String? district;
   final List<String>? tags;
   final String? chapter;
+  final String? category;
 
   @override
   Override overrideWith(
@@ -165,6 +173,7 @@ class FetchActiveUsersProvider
         district: district,
         tags: tags,
         chapter: chapter,
+        category: category,
       ),
     );
   }
@@ -182,7 +191,8 @@ class FetchActiveUsersProvider
         other.query == query &&
         other.district == district &&
         other.tags == tags &&
-        other.chapter == chapter;
+        other.chapter == chapter &&
+        other.category == category;
   }
 
   @override
@@ -194,6 +204,7 @@ class FetchActiveUsersProvider
     hash = _SystemHash.combine(hash, district.hashCode);
     hash = _SystemHash.combine(hash, tags.hashCode);
     hash = _SystemHash.combine(hash, chapter.hashCode);
+    hash = _SystemHash.combine(hash, category.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -219,6 +230,9 @@ mixin FetchActiveUsersRef on AutoDisposeFutureProviderRef<List<UserModel>> {
 
   /// The parameter `chapter` of this provider.
   String? get chapter;
+
+  /// The parameter `category` of this provider.
+  String? get category;
 }
 
 class _FetchActiveUsersProviderElement
@@ -238,6 +252,8 @@ class _FetchActiveUsersProviderElement
   List<String>? get tags => (origin as FetchActiveUsersProvider).tags;
   @override
   String? get chapter => (origin as FetchActiveUsersProvider).chapter;
+  @override
+  String? get category => (origin as FetchActiveUsersProvider).category;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

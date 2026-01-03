@@ -9,6 +9,9 @@ import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/notifiers/people_notifier.dart';
+import 'package:hef/src/data/notifiers/business_category_notifier.dart';
+import 'package:hef/src/data/api_routes/business_category_api.dart/business_category_api_service.dart';
+import 'package:hef/src/data/models/business_category_model.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -38,6 +41,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   String? selectedDistrictId;
   String? selectedDistrictName;
   String? selectedChapterId;
+  String? selectedCategoryId;
+  String? selectedCategoryName;
   String? selectedChapter;
   String? businessTagSearch;
   List<String> selectedTags = [];
@@ -47,10 +52,17 @@ class _MembersPageState extends ConsumerState<MembersPage> {
     super.initState();
     _scrollController.addListener(_onScroll);
     _fetchInitialUsers();
+    _fetchCategories();
   }
 
   Future<void> _fetchInitialUsers() async {
     await ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
+  }
+
+  Future<void> _fetchCategories() async {
+    await ref
+        .read(businessCategoryNotifierProvider.notifier)
+        .fetchMoreCategories();
   }
 
   void _onScroll() {
@@ -66,6 +78,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
       ref.read(peopleNotifierProvider.notifier).searchUsers(query,
           districtFilter: selectedDistrictId,
           chapterFilter: selectedChapterId,
+          categoryFilter: selectedCategoryId,
           tagsFilter: selectedTags.isNotEmpty ? selectedTags : null);
     });
   }
@@ -76,6 +89,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
       ref.read(peopleNotifierProvider.notifier).searchUsers(query,
           districtFilter: selectedDistrictId,
           chapterFilter: selectedChapterId,
+          categoryFilter: selectedCategoryId,
           tagsFilter: selectedTags.isNotEmpty ? selectedTags : null);
     });
   }
@@ -85,6 +99,13 @@ class _MembersPageState extends ConsumerState<MembersPage> {
     String? tempDistrictName = selectedDistrictName;
     String? tempChapterId = selectedChapterId;
     String? tempChapterName = selectedChapter;
+    String? tempCategoryName = selectedCategoryName;
+    String? tempCategoryId = selectedCategoryId;
+
+    // Ensure categories are loaded when filter sheet opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(businessCategoryNotifierProvider.notifier).fetchMoreCategories();
+    });
 
     showModalBottomSheet(
       context: context,
@@ -133,7 +154,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                     ),
                     if (tempDistrictName != null ||
                         selectedTags.isNotEmpty ||
-                        tempChapterName != null)
+                        tempChapterName != null ||
+                        tempCategoryName != null)
                       TextButton(
                         onPressed: () {
                           setState(() {
@@ -141,8 +163,13 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                             tempDistrictName = null;
                             tempChapterId = null;
                             tempChapterName = null;
+                            tempCategoryName = null;
+                            tempCategoryId = null;
                             selectedTags.clear();
                           });
+                          ref
+                              .read(peopleNotifierProvider.notifier)
+                              .setCategory(null);
                           ref
                               .read(peopleNotifierProvider.notifier)
                               .setDistrict(null);
@@ -263,6 +290,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                           ),
                         ),
                         const Divider(),
+
+                        //category
                         Theme(
                           data: Theme.of(context).copyWith(
                             dividerColor: Colors.transparent,
@@ -272,7 +301,144 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                             childrenPadding: EdgeInsets.zero,
                             title: Row(
                               children: [
-                                const Icon(Icons.location_on_outlined),
+                                const Icon(Icons.category),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Category',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                if (tempCategoryName != null) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[50],
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      '1 selected',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.blue[700],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            children: [
+                              FutureBuilder<List<BusinessCategoryModel>>(
+                                future: BusinesscategoryApiService()
+                                    .getBusinessCategories(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            CircularProgressIndicator(),
+                                            SizedBox(height: 8),
+                                            Text('Loading categories...'),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  if (snapshot.hasError) {
+                                    log('Error loading categories: ${snapshot.error}');
+                                    return Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text('Error loading categories'),
+                                            const SizedBox(height: 8),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                setState(
+                                                    () {}); // Trigger rebuild
+                                              },
+                                              child: const Text('Retry'),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  final categories = snapshot.data ?? [];
+                                  log('Direct API categories: $categories');
+                                  log('Categories length: ${categories.length}');
+
+                                  if (categories.isEmpty) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: Text('No categories available'),
+                                      ),
+                                    );
+                                  }
+
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: categories.length,
+                                    itemBuilder: (context, index) {
+                                      final category = categories[index];
+                                      return ListTile(
+                                        dense: true,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 12),
+                                        title: Text(
+                                          category.name ?? '',
+                                          style: TextStyle(
+                                            color: tempCategoryId == category.id
+                                                ? Colors.blue[700]
+                                                : null,
+                                          ),
+                                        ),
+                                        trailing: tempCategoryId == category.id
+                                            ? Icon(Icons.check_circle,
+                                                color: Colors.blue[700])
+                                            : null,
+                                        onTap: () {
+                                          setState(() {
+                                            tempCategoryId = category.id;
+                                            tempCategoryName = category.name;
+                                          });
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        Divider(),
+                        Theme(
+                          data: Theme.of(context).copyWith(
+                            dividerColor: Colors.transparent,
+                          ),
+                          child: ExpansionTile(
+                            tilePadding: EdgeInsets.zero,
+                            childrenPadding: EdgeInsets.zero,
+                            title: Row(
+                              children: [
+                                const Icon(Icons.location_city),
                                 const SizedBox(width: 8),
                                 const Text(
                                   'District',
@@ -613,6 +779,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                           selectedDistrictName = tempDistrictName;
                           selectedChapterId = tempChapterId;
                           selectedChapter = tempChapterName;
+                          selectedCategoryName = tempCategoryName;
+                          selectedCategoryId = tempCategoryId;
                         });
 
                         // Only call searchUsers to avoid multiple API calls
@@ -622,6 +790,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                           _searchController.text,
                           districtFilter: tempDistrictId,
                           chapterFilter: tempChapterId,
+                          categoryFilter: tempCategoryId,
                           tagsFilter:
                               selectedTags.isNotEmpty ? selectedTags : null,
                         );
@@ -709,7 +878,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                             Icons.filter_list,
                             color: selectedDistrictName != null ||
                                     selectedChapter != null ||
-                                    selectedTags.isNotEmpty
+                                    selectedTags.isNotEmpty ||
+                                    selectedCategoryName != null
                                 ? Colors.blue
                                 : Colors.grey,
                           ),
@@ -720,7 +890,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                   ),
                   if (selectedDistrictName != null ||
                       selectedTags.isNotEmpty ||
-                      selectedChapter != null)
+                      selectedChapter != null ||
+                      selectedCategoryName != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Column(
@@ -743,6 +914,22 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                         .setChapter(null);
                                   },
                                 ),
+                              //category
+
+                              if (selectedCategoryName != null)
+                                Chip(
+                                  label: Text(selectedCategoryName!),
+                                  onDeleted: () {
+                                    setState(() {
+                                      selectedCategoryName = null;
+                                      selectedCategoryId = null;
+                                    });
+                                    ref
+                                        .read(peopleNotifierProvider.notifier)
+                                        .setCategory(null);
+                                  },
+                                ),
+
                               if (selectedDistrictName != null)
                                 Chip(
                                   label: Text(selectedDistrictName!),

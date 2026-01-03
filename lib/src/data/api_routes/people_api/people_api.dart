@@ -16,6 +16,7 @@ class PeopleApiService {
     String? district,
     List<String>? tags,
     String? chapter,
+    String? category,
   }) async {
     final baseUri = Uri.parse('$baseUrl/user/list');
 
@@ -25,6 +26,8 @@ class PeopleApiService {
       if (query != null && query.isNotEmpty) 'search': query,
       if (district != null && district.isNotEmpty) 'district': district,
       if (chapter != null && chapter.isNotEmpty) 'chapter': chapter,
+      if (category != null && category.isNotEmpty) 'category': category,
+
       if (tags != null && tags.isNotEmpty) 'tags': tags.join(','),
     };
 
@@ -59,6 +62,7 @@ Future<List<UserModel>> fetchActiveUsers(
   String? district,
   List<String>? tags,
   String? chapter,
+  String? category,
 }) async {
   final service = PeopleApiService();
   return service.fetchActiveUsers(
@@ -68,5 +72,6 @@ Future<List<UserModel>> fetchActiveUsers(
     district: district,
     tags: tags,
     chapter: chapter,
+    category: category,
   );
 }

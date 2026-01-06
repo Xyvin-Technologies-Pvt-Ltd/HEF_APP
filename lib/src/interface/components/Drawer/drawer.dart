@@ -11,7 +11,6 @@ import 'package:hef/src/interface/screens/main_pages/menuPages/levels/level_memb
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/zones.dart';
 import 'package:hef/src/interface/screens/web_view_screen.dart';
 
-
 Widget customDrawer({required UserModel user, required BuildContext context}) {
   NavigationService navigationService = NavigationService();
   return SafeArea(
@@ -22,7 +21,7 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
           // Drawer Header
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Image.asset(scale: 5, 'assets/pngs/splash_logo.png'),
+            child: Image.asset(scale: 5, 'assets/pngs/new_logo.png'),
           ),
           SizedBox(
             height: 20,
@@ -149,14 +148,14 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
               navigationService.pushNamed('RequestNFC');
             },
           ),
-          if(user.phone!='+919645398555')
-          _buildDrawerItem(
-            icon: 'assets/svg/icons/my_subscription.svg',
-            label: 'My Subscription',
-            onTap: () {
-              navigationService.pushNamed('MySubscriptionPage');
-            },
-          ),
+          if (user.phone != '+919645398555')
+            _buildDrawerItem(
+              icon: 'assets/svg/icons/my_subscription.svg',
+              label: 'My Subscription',
+              onTap: () {
+                navigationService.pushNamed('MySubscriptionPage');
+              },
+            ),
 
           _buildDrawerItem(
             icon: 'assets/svg/icons/my_reviews.svg',
@@ -210,15 +209,12 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
             icon: 'assets/svg/icons/logout.svg',
             label: 'Logout',
             onTap: () async {
-         await SecureStorage.delete('token');
-                   await SecureStorage.delete('id');
-                        await editUser({
-                "fcm":"","name":user.name,"phone":user.phone
-              });
+              await SecureStorage.delete('token');
+              await SecureStorage.delete('id');
+              await editUser(
+                  {"fcm": "", "name": user.name, "phone": user.phone});
               navigationService.pushNamedAndRemoveUntil('PhoneNumber');
-              await editUser({
-                "fcm":""
-              });
+              await editUser({"fcm": ""});
             },
           ),
           _buildDrawerItem(

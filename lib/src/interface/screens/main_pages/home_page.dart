@@ -400,7 +400,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         },
                                         child: Image.asset(
                                             scale: 5,
-                                            'assets/pngs/splash_logo.png'),
+                                            'assets/pngs/new_logo.png'),
                                       ),
                                       SizedBox(
                                         width: 20,

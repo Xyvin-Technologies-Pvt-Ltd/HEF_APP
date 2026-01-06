@@ -705,8 +705,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                       width: 100,
                                       height: 100,
                                       child: Image.asset(
-                                          scale: 5,
-                                          'assets/pngs/splash_logo.png'),
+                                          scale: 5, 'assets/pngs/new_logo.png'),
                                     ),
                                   ),
                                   actions: [

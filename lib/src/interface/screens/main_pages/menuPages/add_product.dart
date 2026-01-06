@@ -256,7 +256,7 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                 child: SizedBox(
                   width: 100,
                   height: 100,
-                  child: Image.asset(scale: 5, 'assets/pngs/splash_logo.png'),
+                  child: Image.asset(scale: 5, 'assets/pngs/new_logo.png'),
                 ),
               ),
               bottom: PreferredSize(
@@ -347,9 +347,8 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                                 Navigator.of(context).pop();
                               },
                               child: AspectRatio(
-                                aspectRatio: 3/1,
+                                aspectRatio: 3 / 1,
                                 child: Container(
-                                  
                                   decoration: BoxDecoration(
                                     color: Colors.grey[200],
                                     borderRadius: BorderRadius.circular(10),
@@ -376,7 +375,10 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                                                     'Upload Image',
                                                     style: TextStyle(
                                                         color: Color.fromARGB(
-                                                            255, 102, 101, 101)),
+                                                            255,
+                                                            102,
+                                                            101,
+                                                            101)),
                                                   ),
                                                 ],
                                               ),
@@ -537,16 +539,23 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      NavigationService.navigatorKey.currentState!
-                                          .popUntil((route) => route.settings.name == 'MyProducts');
+                                      NavigationService
+                                          .navigatorKey.currentState!
+                                          .popUntil((route) =>
+                                              route.settings.name ==
+                                              'MyProducts');
                                     }, // Cancel
                                     child: const Text("Cancel"),
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.pop(context, true); // Confirm and close dialog
-                                      NavigationService.navigatorKey.currentState!
-                                          .popUntil((route) => route.settings.name == 'MyProducts');
+                                      Navigator.pop(context,
+                                          true); // Confirm and close dialog
+                                      NavigationService
+                                          .navigatorKey.currentState!
+                                          .popUntil((route) =>
+                                              route.settings.name ==
+                                              'MyProducts');
                                     }, // Confirm
                                     child: const Text("Proceed"),
                                   ),

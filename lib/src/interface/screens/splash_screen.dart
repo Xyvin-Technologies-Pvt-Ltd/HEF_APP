@@ -283,27 +283,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       if (!isAppUpdateRequired) {
         print('Logged in : $LoggedIn');
         if (LoggedIn) {
-      
           final pendingDeepLink = _deepLinkService.pendingDeepLink;
           if (pendingDeepLink != null) {
             navigationService.pushNamedReplacement('MainPage').then((_) {
-         
               _deepLinkService.handleDeepLink(pendingDeepLink);
               _deepLinkService.clearPendingDeepLink();
             });
           } else {
-        navigationService.pushNamedReplacement( 'MainPage');
+            navigationService.pushNamedReplacement('MainPage');
           }
         } else {
-      navigationService.pushNamedReplacement( 'PhoneNumber');
+          navigationService.pushNamedReplacement('PhoneNumber');
         }
       }
     });
   }
 
   Future<void> checktoken() async {
-
-
     String? savedtoken = await SecureStorage.read('token') ?? '';
     String? savedId = await SecureStorage.read('id') ?? '';
     log('token:$savedtoken');

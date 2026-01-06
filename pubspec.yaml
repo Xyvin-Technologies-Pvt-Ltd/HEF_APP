@@ -115,4 +115,4 @@ flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/pngs/splash_logo.png"
+  image_path: "assets/pngs/new_logo.png"

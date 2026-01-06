@@ -256,10 +256,12 @@ class ProfilePage extends StatelessWidget {
                                                               ],
                                                             ),
                                                           ),
-                                                          SizedBox(height: 5,),
-                                                          if(user.role != null)
-                                                          Text(user.role!.toUpperCase()),
-                                                          
+                                                      SizedBox(
+                                                        height: 5,
+                                                      ),
+                                                      if (user.role != null)
+                                                        Text(user.role!
+                                                            .toUpperCase()),
                                                     ],
                                                   ),
                                                 ),
@@ -356,7 +358,7 @@ class ProfilePage extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Image.asset(
-                                      scale: 5, 'assets/pngs/splash_logo.png'),
+                                      scale: 5, 'assets/pngs/new_logo.png'),
                                   Spacer(),
                                   RichText(
                                     text: TextSpan(

@@ -45,7 +45,7 @@ class GroupInfoPage extends StatelessWidget {
                       width: 100,
                       height: 100,
                       child: Image.asset(
-                        'assets/pngs/splash_logo.png',
+                        'assets/pngs/new_logo.png',
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -177,24 +177,22 @@ class GroupInfoPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 0.0),
       child: ListTile(
         leading: CircleAvatar(
-          radius: 25,
-          backgroundColor: Colors.grey[200], // Optional background color
-          child: member.image != null && member.image.isNotEmpty
-              ? ClipOval(
-                  child: Image.asset(
-                    member.image,
-                    fit: BoxFit.cover,
-                    width: 50, // Match double the radius
-                    height: 50,
-                    errorBuilder: (context, error, stackTrace) {
-                      return SvgPicture.asset(
-                          'assets/svg/icons/dummy_person_small.svg');
-                    },
-                  ),
-                )
-              : SvgPicture.asset(
-                                  'assets/svg/icons/dummy_person_small.svg')
-        ),
+            radius: 25,
+            backgroundColor: Colors.grey[200], // Optional background color
+            child: member.image != null && member.image.isNotEmpty
+                ? ClipOval(
+                    child: Image.asset(
+                      member.image,
+                      fit: BoxFit.cover,
+                      width: 50, // Match double the radius
+                      height: 50,
+                      errorBuilder: (context, error, stackTrace) {
+                        return SvgPicture.asset(
+                            'assets/svg/icons/dummy_person_small.svg');
+                      },
+                    ),
+                  )
+                : SvgPicture.asset('assets/svg/icons/dummy_person_small.svg')),
 
         title: Text(member.name,
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),

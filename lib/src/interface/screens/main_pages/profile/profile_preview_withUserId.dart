@@ -272,12 +272,11 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                               ),
                                             ),
 
-                                            //for showing role
-                                            if(user.role != null && user.role!.isNotEmpty)
-                                            Text(user.role!.toUpperCase()),
+                                        //for showing role
+                                        if (user.role != null &&
+                                            user.role!.isNotEmpty)
+                                          Text(user.role!.toUpperCase()),
                                         const SizedBox(height: 10),
-
-
 
                                         Wrap(
                                           alignment: WrapAlignment.center,
@@ -312,8 +311,6 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                             color: Colors.grey,
                                           ),
                                         ),
-
-                                        
                                       ],
                                     ),
                                   ),
@@ -338,8 +335,7 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(left: 10),
                                       child: Image.asset(
-                                          scale: 5,
-                                          'assets/pngs/splash_logo.png'),
+                                          scale: 5, 'assets/pngs/new_logo.png'),
                                     ),
                                     Text(
                                       'Member ID: ${user.memberId}',
@@ -506,12 +502,14 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                 height: 50,
                               ),
                               // Business Tags Section
-                              if (user.businessTags != null && user.businessTags!.isNotEmpty)
+                              if (user.businessTags != null &&
+                                  user.businessTags!.isNotEmpty)
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Padding(
-                                      padding: EdgeInsets.only(left: 10, bottom: 15),
+                                      padding:
+                                          EdgeInsets.only(left: 10, bottom: 15),
                                       child: Text(
                                         'Business Tags',
                                         style: TextStyle(
@@ -522,7 +520,8 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                       ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+                                      padding: const EdgeInsets.only(
+                                          left: 10, right: 10, bottom: 20),
                                       child: Wrap(
                                         spacing: 8.0,
                                         runSpacing: 8.0,
@@ -533,8 +532,10 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                               vertical: 6,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: kPrimaryColor.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(20),
+                                              color: kPrimaryColor
+                                                  .withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                               border: Border.all(
                                                 color: kPrimaryColor,
                                                 width: 1.0,
@@ -1190,7 +1191,7 @@ class ProfilePreviewUsingId extends ConsumerWidget {
   void _showVideoDialog(BuildContext context, Link video) {
     final videoUrl = video.link;
     final videoId = YoutubePlayer.convertUrlToId(videoUrl ?? '');
-    
+
     final controller = YoutubePlayerController(
       initialVideoId: videoId ?? '',
       flags: const YoutubePlayerFlags(

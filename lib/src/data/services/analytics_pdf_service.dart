@@ -28,7 +28,7 @@ class AnalyticsPdfService {
     final pdf = pw.Document();
 
     // Load logo image
-    final logoBytes = (await rootBundle.load('assets/pngs/splash_logo.png'))
+    final logoBytes = (await rootBundle.load('assets/pngs/new_logo.png'))
         .buffer
         .asUint8List();
 

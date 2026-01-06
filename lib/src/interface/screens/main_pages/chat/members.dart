@@ -333,12 +333,23 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                               ],
                             ),
                             children: [
-                              FutureBuilder<List<BusinessCategoryModel>>(
-                                future: BusinesscategoryApiService()
-                                    .getBusinessCategories(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
+                              Consumer(
+                                builder: (context, ref, child) {
+                                  final businessCategories = ref
+                                      .watch(businessCategoryNotifierProvider);
+                                  final notifier = ref.read(
+                                      businessCategoryNotifierProvider
+                                          .notifier);
+
+                                  // Ensure categories are loaded
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    if (businessCategories.isEmpty) {
+                                      notifier.fetchMoreCategories();
+                                    }
+                                  });
+
+                                  if (businessCategories.isEmpty) {
                                     return const Center(
                                       child: Padding(
                                         padding: EdgeInsets.all(16.0),
@@ -354,49 +365,17 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                     );
                                   }
 
-                                  if (snapshot.hasError) {
-                                    log('Error loading categories: ${snapshot.error}');
-                                    return Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(16.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text('Error loading categories'),
-                                            const SizedBox(height: 8),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                setState(
-                                                    () {}); // Trigger rebuild
-                                              },
-                                              child: const Text('Retry'),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  }
-
-                                  final categories = snapshot.data ?? [];
-                                  log('Direct API categories: $categories');
-                                  log('Categories length: ${categories.length}');
-
-                                  if (categories.isEmpty) {
-                                    return const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(16.0),
-                                        child: Text('No categories available'),
-                                      ),
-                                    );
-                                  }
+                                  log('Categories from provider: $businessCategories');
+                                  log('Categories length: ${businessCategories.length}');
 
                                   return ListView.builder(
                                     shrinkWrap: true,
                                     physics:
                                         const NeverScrollableScrollPhysics(),
-                                    itemCount: categories.length,
+                                    itemCount: businessCategories.length,
                                     itemBuilder: (context, index) {
-                                      final category = categories[index];
+                                      final category =
+                                          businessCategories[index];
                                       return ListTile(
                                         dense: true,
                                         contentPadding:

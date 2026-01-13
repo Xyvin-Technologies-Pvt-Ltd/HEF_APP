@@ -28,10 +28,6 @@ class PeopleNotifier extends _$PeopleNotifier {
 
     isLoading = true;
 
-    Future(() {
-      state = [...users];
-    });
-
     try {
       final newUsers = await ref.read(
         fetchActiveUsersProvider(
@@ -50,20 +46,12 @@ class PeopleNotifier extends _$PeopleNotifier {
       pageNo++;
       hasMore = newUsers.length == limit;
       isFirstLoad = false;
-
-      Future(() {
-        state = [...users];
-      });
     } catch (e, stackTrace) {
       log(e.toString());
       log(stackTrace.toString());
     } finally {
       isLoading = false;
-
-      Future(() {
-        state = [...users];
-      });
-
+      state = [...users];
       log('Fetched users: $users');
     }
   }
@@ -97,14 +85,15 @@ class PeopleNotifier extends _$PeopleNotifier {
       );
 
       users = [...newUsers];
+      pageNo++;
       hasMore = newUsers.length == limit;
       isFirstLoad = false;
-      state = [...users];
     } catch (e, stackTrace) {
       log(e.toString());
       log(stackTrace.toString());
     } finally {
       isLoading = false;
+      state = [...users];
     }
   }
 
@@ -114,7 +103,7 @@ class PeopleNotifier extends _$PeopleNotifier {
     pageNo = 1;
     hasMore = true;
     users = [];
-    state = [...users];
+    state = [];
 
     try {
       final newUsers = await ref.read(
@@ -130,14 +119,15 @@ class PeopleNotifier extends _$PeopleNotifier {
       );
 
       users = [...newUsers];
+      pageNo++;
       hasMore = newUsers.length == limit;
       isFirstLoad = false;
-      state = [...users];
     } catch (e, stackTrace) {
       log(e.toString());
       log(stackTrace.toString());
     } finally {
       isLoading = false;
+      state = [...users];
     }
   }
 

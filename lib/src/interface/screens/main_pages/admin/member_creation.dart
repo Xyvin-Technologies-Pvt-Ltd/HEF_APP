@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -16,7 +15,6 @@ import 'package:hef/src/interface/components/custom_widgets/member_creation_text
 import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
-import 'package:path/path.dart' as Path;
 
 class MemberCreationPage extends ConsumerStatefulWidget {
   @override
@@ -59,9 +57,9 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
   TextEditingController adressController = TextEditingController();
   TextEditingController businessCategoryController = TextEditingController();
   TextEditingController businessSubCategoryController = TextEditingController();
-  BusinessCategoryModel? selectedBusinessCategory;
+  // Business category dropdown state - now supports multiple selections
+  List<BusinessCategoryModel> selectedBusinessCategories = [];
   bool _isSearchExpanded = false;
-  String? _selectedCategoryDisplay;
   final TextEditingController _categorySearchController =
       TextEditingController();
   TextEditingController generaldesignationController = TextEditingController();
@@ -540,7 +538,10 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
                                             websites: c.websiteController.text,
                                           ))
                                       .toList(),
-                                  category: selectedBusinessCategory,
+                                  // Send category as array (backend expects array of strings)
+                                  category: selectedBusinessCategories
+                                      .map((cat) => cat.id)
+                                      .toList(),
                                   businessCategory:
                                       businessCategoryController.text,
                                   businessSubCategory:
@@ -930,13 +931,40 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Business Category',
+          'Business Categories (Select Multiple)',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),
         ),
         const SizedBox(height: 8),
+        // Display selected categories as chips
+        if (selectedBusinessCategories.isNotEmpty) ...[
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: selectedBusinessCategories.map((cat) {
+              return Chip(
+                label: Text(
+                  cat.name,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                deleteIcon: const Icon(Icons.close, size: 16),
+                onDeleted: () {
+                  setState(() {
+                    selectedBusinessCategories.remove(cat);
+                  });
+                },
+                backgroundColor: kPrimaryColor.withOpacity(0.1),
+                side: BorderSide(color: kPrimaryColor),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+        ],
         // Expandable Search Section
         GestureDetector(
           onTap: () {
@@ -962,11 +990,13 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    _selectedCategoryDisplay ?? 'Select business category',
+                    selectedBusinessCategories.isEmpty
+                        ? 'Select business categories'
+                        : '${selectedBusinessCategories.length} category(ies) selected',
                     style: TextStyle(
-                      color: _selectedCategoryDisplay != null
-                          ? Colors.black87
-                          : Colors.grey.shade600,
+                      color: selectedBusinessCategories.isEmpty
+                          ? Colors.grey.shade600
+                          : Colors.black87,
                       fontSize: 14,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -1040,13 +1070,37 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
                           return searchTerm.isEmpty ||
                               cat.name.toLowerCase().contains(searchTerm);
                         }).map((cat) {
+                          final isSelected = selectedBusinessCategories
+                              .any((selected) => selected.id == cat.id);
                           return ListTile(
                             dense: true,
+                            leading: Checkbox(
+                              value: isSelected,
+                              onChanged: (value) {
+                                setState(() {
+                                  if (value == true) {
+                                    // Add category if not already selected
+                                    if (!selectedBusinessCategories.any(
+                                        (selected) => selected.id == cat.id)) {
+                                      selectedBusinessCategories.add(cat);
+                                    }
+                                  } else {
+                                    // Remove category
+                                    selectedBusinessCategories.removeWhere(
+                                        (selected) => selected.id == cat.id);
+                                  }
+                                });
+                              },
+                            ),
                             title: Text(
                               cat.name,
-                              style: const TextStyle(
-                                color: Colors.black87,
+                              style: TextStyle(
+                                color:
+                                    isSelected ? kPrimaryColor : Colors.black87,
                                 fontSize: 14,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
                               ),
                             ),
                             subtitle: cat.companyCount != null &&
@@ -1061,11 +1115,12 @@ class _MemberCreationPageState extends ConsumerState<MemberCreationPage> {
                                 : null,
                             onTap: () {
                               setState(() {
-                                selectedBusinessCategory = cat;
-                                _selectedCategoryDisplay = cat.name;
-                                // Do NOT auto-fill businessCategoryController - keep separate!
-                                _isSearchExpanded = false;
-                                _categorySearchController.clear();
+                                if (isSelected) {
+                                  selectedBusinessCategories.removeWhere(
+                                      (selected) => selected.id == cat.id);
+                                } else {
+                                  selectedBusinessCategories.add(cat);
+                                }
                               });
                             },
                           );

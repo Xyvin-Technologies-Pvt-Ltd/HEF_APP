@@ -182,10 +182,9 @@ class _EditUserState extends ConsumerState<EditUser> {
   bool _isProfileImageLoading = false;
   Map<int, bool> _companyLogoLoadingStates = {};
 
-  // Business category dropdown state
-  BusinessCategoryModel? selectedBusinessCategory;
+  // Business category dropdown state - now supports multiple selections
+  List<BusinessCategoryModel> selectedBusinessCategories = [];
   bool _isSearchExpanded = false;
-  String? _selectedCategoryDisplay;
   final TextEditingController _categorySearchController =
       TextEditingController();
 
@@ -428,8 +427,8 @@ class _EditUserState extends ConsumerState<EditUser> {
       if (user.businessSubCategory != null && user.businessSubCategory != '')
         "businessSubCatogary": user.businessSubCategory ?? '',
 
-      if (selectedBusinessCategory?.id != null)
-        "category": selectedBusinessCategory?.id ?? '',
+      // Send category as array (backend expects array of strings)
+      "category": selectedBusinessCategories.map((cat) => cat.id).toList(),
 
       "chapter": user.chapter?.id ?? '',
       if (user.secondaryPhone != null)
@@ -646,10 +645,23 @@ class _EditUserState extends ConsumerState<EditUser> {
               if (businessCategoryController.text.isEmpty) {
                 businessCategoryController.text = user.businessCategory ?? ' ';
               }
-              // Initialize selected business category from existing user data
-              if (user.category != null && selectedBusinessCategory == null) {
-                selectedBusinessCategory = user.category;
-                _selectedCategoryDisplay = user.category?.name;
+              // Initialize selected business categories from existing user data
+              // user.category is now List<String>? (array of category IDs)
+              if (user.category != null &&
+                  user.category!.isNotEmpty &&
+                  selectedBusinessCategories.isEmpty) {
+                final businessCategories =
+                    ref.read(businessCategoryNotifierProvider);
+                // Find all matching categories from the user's category IDs
+                selectedBusinessCategories = user.category!.map((categoryId) {
+                  return businessCategories.firstWhere(
+                    (cat) => cat.id == categoryId,
+                    orElse: () => BusinessCategoryModel(
+                      id: categoryId,
+                      name: categoryId, // Use ID as name fallback
+                    ),
+                  );
+                }).toList();
               }
               if (businessSubCategoryController.text.isEmpty) {
                 businessSubCategoryController.text =
@@ -1185,256 +1197,256 @@ class _EditUserState extends ConsumerState<EditUser> {
                                   // ),
                                 ],
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 25, left: 20, bottom: 15),
-                                child: Row(
-                                  children: [
-                                    Text('Business Tags',
-                                        style: kSubHeadingB.copyWith(
-                                            color: const Color(0xFF2C2829))),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            children: [
-                                              TextField(
-                                                controller: _tagController,
-                                                decoration: InputDecoration(
-                                                  hintText:
-                                                      'Add business tags (e.g., IT, Healthcare)',
-                                                  contentPadding:
-                                                      const EdgeInsets
-                                                          .symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 8,
-                                                  ),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    borderSide: BorderSide(
-                                                        color:
-                                                            Colors.grey[300]!),
-                                                  ),
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    borderSide: BorderSide(
-                                                        color:
-                                                            Colors.grey[300]!),
-                                                  ),
-                                                ),
-                                                onSubmitted: (_) =>
-                                                    _addBusinessTag(),
-                                                onChanged: (value) {
-                                                  if (value.endsWith(' ')) {
-                                                    final tag = value.trim();
-                                                    if (tag.isNotEmpty) {
-                                                      _addBusinessTag();
-                                                    }
-                                                  } else {
-                                                    setState(() {
-                                                      businessTagSearch = value;
-                                                    });
-                                                  }
-                                                },
-                                              ),
-                                              if (businessTagSearch
-                                                      ?.isNotEmpty ??
-                                                  false)
-                                                Consumer(
-                                                  builder:
-                                                      (context, ref, child) {
-                                                    final asyncBusinessTags =
-                                                        ref.watch(
-                                                      searchBusinessTagsProvider(
-                                                          search:
-                                                              businessTagSearch),
-                                                    );
-                                                    return asyncBusinessTags
-                                                        .when(
-                                                      data: (businessTags) {
-                                                        log('Business tags:$businessTags');
-                                                        if (businessTags
-                                                            .isEmpty)
-                                                          return const SizedBox
-                                                              .shrink();
-                                                        return Container(
-                                                          margin:
-                                                              const EdgeInsets
-                                                                  .only(top: 4),
-                                                          constraints:
-                                                              const BoxConstraints(
-                                                                  maxHeight:
-                                                                      200),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors.white,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                            boxShadow: [
-                                                              BoxShadow(
-                                                                color: Colors
-                                                                    .grey
-                                                                    .withOpacity(
-                                                                        0.1),
-                                                                spreadRadius: 1,
-                                                                blurRadius: 4,
-                                                                offset:
-                                                                    const Offset(
-                                                                        0, 2),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          child: ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                            child: ListView
-                                                                .builder(
-                                                              shrinkWrap: true,
-                                                              padding:
-                                                                  EdgeInsets
-                                                                      .zero,
-                                                              itemCount:
-                                                                  businessTags
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (context,
-                                                                      index) {
-                                                                final tag =
-                                                                    businessTags[
-                                                                        index];
-                                                                return Material(
-                                                                  color: Colors
-                                                                      .transparent,
-                                                                  child:
-                                                                      InkWell(
-                                                                    onTap: () {
-                                                                      _tagController
-                                                                              .text =
-                                                                          tag ??
-                                                                              '';
-                                                                      _addBusinessTag();
-                                                                      setState(
-                                                                          () {
-                                                                        businessTagSearch =
-                                                                            null;
-                                                                      });
-                                                                    },
-                                                                    child:
-                                                                        Padding(
-                                                                      padding:
-                                                                          const EdgeInsets
-                                                                              .symmetric(
-                                                                        horizontal:
-                                                                            12,
-                                                                        vertical:
-                                                                            8,
-                                                                      ),
-                                                                      child:
-                                                                          Row(
-                                                                        children: [
-                                                                          Icon(
-                                                                            Icons.tag,
-                                                                            size:
-                                                                                16,
-                                                                            color:
-                                                                                Colors.grey[600],
-                                                                          ),
-                                                                          const SizedBox(
-                                                                              width: 8),
-                                                                          Text(
-                                                                            tag ??
-                                                                                '',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              color: Colors.grey[800],
-                                                                              fontSize: 14,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      loading: () =>
-                                                          SizedBox.shrink(),
-                                                      error: (_, __) =>
-                                                          const SizedBox
-                                                              .shrink(),
-                                                    );
-                                                  },
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        IconButton(
-                                          onPressed: _addBusinessTag,
-                                          icon: const Icon(Icons.add),
-                                          style: IconButton.styleFrom(
-                                            backgroundColor: kPrimaryColor,
-                                            foregroundColor: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: [
-                                        ...(ref
-                                                    .watch(userProvider)
-                                                    .value
-                                                    ?.businessTags ??
-                                                [])
-                                            .map((tag) {
-                                          return Chip(
-                                            label: Text(
-                                              tag,
-                                              style:
-                                                  const TextStyle(fontSize: 12),
-                                            ),
-                                            deleteIcon: const Icon(Icons.close,
-                                                size: 16),
-                                            onDeleted: () =>
-                                                _removeBusinessTag(tag),
-                                            backgroundColor: kWhite,
-                                            side: BorderSide(
-                                                color: Colors.grey[300]!),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              // Padding(
+                              //   padding: const EdgeInsets.only(
+                              //       top: 25, left: 20, bottom: 15),
+                              //   child: Row(
+                              //     children: [
+                              //       Text('Business Tags',
+                              //           style: kSubHeadingB.copyWith(
+                              //               color: const Color(0xFF2C2829))),
+                              //     ],
+                              //   ),
+                              // ),
+                              // Padding(
+                              //   padding:
+                              //       const EdgeInsets.symmetric(horizontal: 20),
+                              //   child: Column(
+                              //     crossAxisAlignment: CrossAxisAlignment.start,
+                              //     children: [
+                              //       Row(
+                              //         children: [
+                              //           Expanded(
+                              //             child: Column(
+                              //               children: [
+                              //                 TextField(
+                              //                   controller: _tagController,
+                              //                   decoration: InputDecoration(
+                              //                     hintText:
+                              //                         'Add business tags (e.g., IT, Healthcare)',
+                              //                     contentPadding:
+                              //                         const EdgeInsets
+                              //                             .symmetric(
+                              //                       horizontal: 12,
+                              //                       vertical: 8,
+                              //                     ),
+                              //                     border: OutlineInputBorder(
+                              //                       borderRadius:
+                              //                           BorderRadius.circular(
+                              //                               8),
+                              //                       borderSide: BorderSide(
+                              //                           color:
+                              //                               Colors.grey[300]!),
+                              //                     ),
+                              //                     enabledBorder:
+                              //                         OutlineInputBorder(
+                              //                       borderRadius:
+                              //                           BorderRadius.circular(
+                              //                               8),
+                              //                       borderSide: BorderSide(
+                              //                           color:
+                              //                               Colors.grey[300]!),
+                              //                     ),
+                              //                   ),
+                              //                   onSubmitted: (_) =>
+                              //                       _addBusinessTag(),
+                              //                   onChanged: (value) {
+                              //                     if (value.endsWith(' ')) {
+                              //                       final tag = value.trim();
+                              //                       if (tag.isNotEmpty) {
+                              //                         _addBusinessTag();
+                              //                       }
+                              //                     } else {
+                              //                       setState(() {
+                              //                         businessTagSearch = value;
+                              //                       });
+                              //                     }
+                              //                   },
+                              //                 ),
+                              //                 if (businessTagSearch
+                              //                         ?.isNotEmpty ??
+                              //                     false)
+                              //                   Consumer(
+                              //                     builder:
+                              //                         (context, ref, child) {
+                              //                       final asyncBusinessTags =
+                              //                           ref.watch(
+                              //                         searchBusinessTagsProvider(
+                              //                             search:
+                              //                                 businessTagSearch),
+                              //                       );
+                              //                       return asyncBusinessTags
+                              //                           .when(
+                              //                         data: (businessTags) {
+                              //                           log('Business tags:$businessTags');
+                              //                           if (businessTags
+                              //                               .isEmpty)
+                              //                             return const SizedBox
+                              //                                 .shrink();
+                              //                           return Container(
+                              //                             margin:
+                              //                                 const EdgeInsets
+                              //                                     .only(top: 4),
+                              //                             constraints:
+                              //                                 const BoxConstraints(
+                              //                                     maxHeight:
+                              //                                         200),
+                              //                             decoration:
+                              //                                 BoxDecoration(
+                              //                               color: Colors.white,
+                              //                               borderRadius:
+                              //                                   BorderRadius
+                              //                                       .circular(
+                              //                                           8),
+                              //                               boxShadow: [
+                              //                                 BoxShadow(
+                              //                                   color: Colors
+                              //                                       .grey
+                              //                                       .withOpacity(
+                              //                                           0.1),
+                              //                                   spreadRadius: 1,
+                              //                                   blurRadius: 4,
+                              //                                   offset:
+                              //                                       const Offset(
+                              //                                           0, 2),
+                              //                                 ),
+                              //                               ],
+                              //                             ),
+                              //                             child: ClipRRect(
+                              //                               borderRadius:
+                              //                                   BorderRadius
+                              //                                       .circular(
+                              //                                           8),
+                              //                               child: ListView
+                              //                                   .builder(
+                              //                                 shrinkWrap: true,
+                              //                                 padding:
+                              //                                     EdgeInsets
+                              //                                         .zero,
+                              //                                 itemCount:
+                              //                                     businessTags
+                              //                                         .length,
+                              //                                 itemBuilder:
+                              //                                     (context,
+                              //                                         index) {
+                              //                                   final tag =
+                              //                                       businessTags[
+                              //                                           index];
+                              //                                   return Material(
+                              //                                     color: Colors
+                              //                                         .transparent,
+                              //                                     child:
+                              //                                         InkWell(
+                              //                                       onTap: () {
+                              //                                         _tagController
+                              //                                                 .text =
+                              //                                             tag ??
+                              //                                                 '';
+                              //                                         _addBusinessTag();
+                              //                                         setState(
+                              //                                             () {
+                              //                                           businessTagSearch =
+                              //                                               null;
+                              //                                         });
+                              //                                       },
+                              //                                       child:
+                              //                                           Padding(
+                              //                                         padding:
+                              //                                             const EdgeInsets
+                              //                                                 .symmetric(
+                              //                                           horizontal:
+                              //                                               12,
+                              //                                           vertical:
+                              //                                               8,
+                              //                                         ),
+                              //                                         child:
+                              //                                             Row(
+                              //                                           children: [
+                              //                                             Icon(
+                              //                                               Icons.tag,
+                              //                                               size:
+                              //                                                   16,
+                              //                                               color:
+                              //                                                   Colors.grey[600],
+                              //                                             ),
+                              //                                             const SizedBox(
+                              //                                                 width: 8),
+                              //                                             Text(
+                              //                                               tag ??
+                              //                                                   '',
+                              //                                               style:
+                              //                                                   TextStyle(
+                              //                                                 color: Colors.grey[800],
+                              //                                                 fontSize: 14,
+                              //                                               ),
+                              //                                             ),
+                              //                                           ],
+                              //                                         ),
+                              //                                       ),
+                              //                                     ),
+                              //                                   );
+                              //                                 },
+                              //                               ),
+                              //                             ),
+                              //                           );
+                              //                         },
+                              //                         loading: () =>
+                              //                             SizedBox.shrink(),
+                              //                         error: (_, __) =>
+                              //                             const SizedBox
+                              //                                 .shrink(),
+                              //                       );
+                              //                     },
+                              //                   ),
+                              //               ],
+                              //             ),
+                              //           ),
+                              //           const SizedBox(width: 8),
+                              //           IconButton(
+                              //             onPressed: _addBusinessTag,
+                              //             icon: const Icon(Icons.add),
+                              //             style: IconButton.styleFrom(
+                              //               backgroundColor: kPrimaryColor,
+                              //               foregroundColor: Colors.white,
+                              //             ),
+                              //           ),
+                              //         ],
+                              //       ),
+                              //       const SizedBox(height: 12),
+                              //       Wrap(
+                              //         spacing: 8,
+                              //         runSpacing: 8,
+                              //         children: [
+                              //           ...(ref
+                              //                       .watch(userProvider)
+                              //                       .value
+                              //                       ?.businessTags ??
+                              //                   [])
+                              //               .map((tag) {
+                              //             return Chip(
+                              //               label: Text(
+                              //                 tag,
+                              //                 style:
+                              //                     const TextStyle(fontSize: 12),
+                              //               ),
+                              //               deleteIcon: const Icon(Icons.close,
+                              //                   size: 16),
+                              //               onDeleted: () =>
+                              //                   _removeBusinessTag(tag),
+                              //               backgroundColor: kWhite,
+                              //               side: BorderSide(
+                              //                   color: Colors.grey[300]!),
+                              //               shape: RoundedRectangleBorder(
+                              //                 borderRadius:
+                              //                     BorderRadius.circular(16),
+                              //               ),
+                              //             );
+                              //           }).toList(),
+                              //         ],
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
                               const Row(
                                 children: [
                                   Padding(
@@ -2672,13 +2684,40 @@ class _EditUserState extends ConsumerState<EditUser> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Business Category',
+          'Business Categories (Select Multiple)',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),
         ),
         const SizedBox(height: 8),
+        // Display selected categories as chips
+        if (selectedBusinessCategories.isNotEmpty) ...[
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: selectedBusinessCategories.map((cat) {
+              return Chip(
+                label: Text(
+                  cat.name,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                deleteIcon: const Icon(Icons.close, size: 16),
+                onDeleted: () {
+                  setState(() {
+                    selectedBusinessCategories.remove(cat);
+                  });
+                },
+                backgroundColor: kPrimaryColor.withOpacity(0.1),
+                side: BorderSide(color: kPrimaryColor),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+        ],
         // Expandable Search Section
         GestureDetector(
           onTap: () {
@@ -2704,11 +2743,13 @@ class _EditUserState extends ConsumerState<EditUser> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    _selectedCategoryDisplay ?? 'Select business category',
+                    selectedBusinessCategories.isEmpty
+                        ? 'Select business categories'
+                        : '${selectedBusinessCategories.length} category(ies) selected',
                     style: TextStyle(
-                      color: _selectedCategoryDisplay != null
-                          ? Colors.black87
-                          : Colors.grey.shade600,
+                      color: selectedBusinessCategories.isEmpty
+                          ? Colors.grey.shade600
+                          : Colors.black87,
                       fontSize: 14,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -2782,13 +2823,37 @@ class _EditUserState extends ConsumerState<EditUser> {
                           return searchTerm.isEmpty ||
                               cat.name.toLowerCase().contains(searchTerm);
                         }).map((cat) {
+                          final isSelected = selectedBusinessCategories
+                              .any((selected) => selected.id == cat.id);
                           return ListTile(
                             dense: true,
+                            leading: Checkbox(
+                              value: isSelected,
+                              onChanged: (value) {
+                                setState(() {
+                                  if (value == true) {
+                                    // Add category if not already selected
+                                    if (!selectedBusinessCategories.any(
+                                        (selected) => selected.id == cat.id)) {
+                                      selectedBusinessCategories.add(cat);
+                                    }
+                                  } else {
+                                    // Remove category
+                                    selectedBusinessCategories.removeWhere(
+                                        (selected) => selected.id == cat.id);
+                                  }
+                                });
+                              },
+                            ),
                             title: Text(
                               cat.name,
-                              style: const TextStyle(
-                                color: Colors.black87,
+                              style: TextStyle(
+                                color:
+                                    isSelected ? kPrimaryColor : Colors.black87,
                                 fontSize: 14,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
                               ),
                             ),
                             subtitle: cat.companyCount != null &&
@@ -2803,11 +2868,12 @@ class _EditUserState extends ConsumerState<EditUser> {
                                 : null,
                             onTap: () {
                               setState(() {
-                                selectedBusinessCategory = cat;
-                                _selectedCategoryDisplay = cat.name;
-                                // Do NOT auto-fill businessCategoryController - keep separate!
-                                _isSearchExpanded = false;
-                                _categorySearchController.clear();
+                                if (isSelected) {
+                                  selectedBusinessCategories.removeWhere(
+                                      (selected) => selected.id == cat.id);
+                                } else {
+                                  selectedBusinessCategories.add(cat);
+                                }
                               });
                             },
                           );

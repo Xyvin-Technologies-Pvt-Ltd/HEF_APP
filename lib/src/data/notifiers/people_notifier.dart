@@ -31,15 +31,14 @@ class PeopleNotifier extends _$PeopleNotifier {
     try {
       final newUsers = await ref.read(
         fetchActiveUsersProvider(
-                pageNo: pageNo,
-                limit: limit,
-                query: searchQuery,
-                district: district, // Pass district filter
-                tags: tags,
-                chapter: chapter ,// Pass tags filter
-                category:category,
-                )
-            .future,
+          pageNo: pageNo,
+          limit: limit,
+          query: searchQuery,
+          district: district, // Pass district filter
+          tags: tags,
+          chapter: chapter, // Pass tags filter
+          category: category,
+        ).future,
       );
 
       users = [...users, ...newUsers];
@@ -80,7 +79,7 @@ class PeopleNotifier extends _$PeopleNotifier {
           district: district, // Pass district filter
           tags: tags, // Pass tags filter
           chapter: chapter,
-          category:category,
+          category: category,
         ).future,
       );
 

@@ -304,7 +304,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                                 const Icon(Icons.category),
                                 const SizedBox(width: 8),
                                 const Text(
-                                  'Category',
+                                  'Business Category',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -502,245 +502,245 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                             ],
                           ),
                         ),
-                        const Divider(),
-                        ExpansionTile(
-                          tilePadding: EdgeInsets.zero,
-                          childrenPadding: EdgeInsets.zero,
-                          title: Row(
-                            children: [
-                              const Icon(Icons.tag),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'Business Tags',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              if (selectedTags.isNotEmpty) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue[50],
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    '${selectedTags.length} selected',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.blue[700],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 12,
-                                right: 12,
-                                bottom: 16,
-                              ),
-                              child: Column(
-                                children: [
-                                  TextField(
-                                    controller: _tagController,
-                                    decoration: InputDecoration(
-                                      hintText: 'Search business tags',
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: BorderSide(
-                                            color: Colors.grey[300]!),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: BorderSide(
-                                            color: Colors.grey[300]!),
-                                      ),
-                                    ),
-                                    onChanged: (value) {
-                                      if (value.endsWith(' ')) {
-                                        final tag = value.trim();
-                                        if (tag.isNotEmpty) {
-                                          setState(() {
-                                            if (!selectedTags.contains(tag)) {
-                                              selectedTags.add(tag);
-                                            }
-                                            _tagController.clear();
-                                            businessTagSearch = null;
-                                          });
-                                        }
-                                      } else {
-                                        setState(() {
-                                          businessTagSearch = value;
-                                        });
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(height: 12),
-                                  if (selectedTags.isNotEmpty)
-                                    Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: selectedTags
-                                          .map((tag) => Chip(
-                                                label: Text(tag),
-                                                deleteIcon: const Icon(
-                                                    Icons.close,
-                                                    size: 16),
-                                                onDeleted: () {
-                                                  setState(() {
-                                                    selectedTags.remove(tag);
-                                                  });
-                                                },
-                                                backgroundColor:
-                                                    Colors.blue[50],
-                                                side: BorderSide(
-                                                    color: Colors.blue[200]!),
-                                                labelStyle: TextStyle(
-                                                    color: Colors.blue[700]),
-                                              ))
-                                          .toList(),
-                                    ),
-                                  const SizedBox(height: 12),
-                                  if (businessTagSearch?.isNotEmpty ?? false)
-                                    Consumer(
-                                      builder: (context, ref, child) {
-                                        final asyncBusinessTags = ref.watch(
-                                          searchBusinessTagsProvider(
-                                              search: businessTagSearch),
-                                        );
-                                        return asyncBusinessTags.when(
-                                          data: (businessTags) {
-                                            log('Business tags response: $businessTags');
-                                            if (businessTags.isEmpty)
-                                              return const SizedBox.shrink();
-                                            return Container(
-                                              constraints: const BoxConstraints(
-                                                maxHeight: 250,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.1),
-                                                    spreadRadius: 1,
-                                                    blurRadius: 4,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: ListView.builder(
-                                                shrinkWrap: true,
-                                                padding: EdgeInsets.zero,
-                                                itemCount: businessTags.length,
-                                                itemBuilder: (context, index) {
-                                                  final tag =
-                                                      businessTags[index];
-                                                  log('Building tag at index $index: $tag');
-                                                  return Material(
-                                                    color: Colors.transparent,
-                                                    child: InkWell(
-                                                      onTap: () {
-                                                        setState(() {
-                                                          if (selectedTags
-                                                              .contains(tag)) {
-                                                            selectedTags
-                                                                .remove(tag);
-                                                          } else {
-                                                            selectedTags
-                                                                .add(tag ?? '');
-                                                          }
-                                                          _tagController
-                                                              .clear();
-                                                          businessTagSearch =
-                                                              null;
-                                                        });
-                                                        ref
-                                                            .read(
-                                                                peopleNotifierProvider
-                                                                    .notifier)
-                                                            .setTags(
-                                                                selectedTags);
-                                                      },
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                          horizontal: 12,
-                                                          vertical: 8,
-                                                        ),
-                                                        child: Row(
-                                                          children: [
-                                                            Icon(
-                                                              selectedTags
-                                                                      .contains(
-                                                                          tag)
-                                                                  ? Icons
-                                                                      .check_circle
-                                                                  : Icons.tag,
-                                                              size: 16,
-                                                              color: selectedTags
-                                                                      .contains(
-                                                                          tag)
-                                                                  ? Colors
-                                                                      .blue[700]
-                                                                  : Colors.grey[
-                                                                      600],
-                                                            ),
-                                                            const SizedBox(
-                                                                width: 8),
-                                                            Text(
-                                                              tag ?? '',
-                                                              style: TextStyle(
-                                                                color: selectedTags
-                                                                        .contains(
-                                                                            tag)
-                                                                    ? Colors.blue[
-                                                                        700]
-                                                                    : Colors.grey[
-                                                                        800],
-                                                                fontSize: 14,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            );
-                                          },
-                                          loading: () => const Center(
-                                            child: Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: LoadingAnimation(),
-                                            ),
-                                          ),
-                                          error: (_, __) =>
-                                              const SizedBox.shrink(),
-                                        );
-                                      },
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                        // const Divider(),
+                        // ExpansionTile(
+                        //   tilePadding: EdgeInsets.zero,
+                        //   childrenPadding: EdgeInsets.zero,
+                        //   title: Row(
+                        //     children: [
+                        //       const Icon(Icons.tag),
+                        //       const SizedBox(width: 8),
+                        //       const Text(
+                        //         'Business Tags',
+                        //         style: TextStyle(
+                        //           fontSize: 16,
+                        //           fontWeight: FontWeight.w500,
+                        //         ),
+                        //       ),
+                        //       if (selectedTags.isNotEmpty) ...[
+                        //         const SizedBox(width: 8),
+                        //         Container(
+                        //           padding: const EdgeInsets.symmetric(
+                        //             horizontal: 8,
+                        //             vertical: 2,
+                        //           ),
+                        //           decoration: BoxDecoration(
+                        //             color: Colors.blue[50],
+                        //             borderRadius: BorderRadius.circular(12),
+                        //           ),
+                        //           child: Text(
+                        //             '${selectedTags.length} selected',
+                        //             style: TextStyle(
+                        //               fontSize: 12,
+                        //               color: Colors.blue[700],
+                        //             ),
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     ],
+                        //   ),
+                        //   children: [
+                        //     Padding(
+                        //       padding: const EdgeInsets.only(
+                        //         left: 12,
+                        //         right: 12,
+                        //         bottom: 16,
+                        //       ),
+                        //       child: Column(
+                        //         children: [
+                        //           TextField(
+                        //             controller: _tagController,
+                        //             decoration: InputDecoration(
+                        //               hintText: 'Search business tags',
+                        //               contentPadding:
+                        //                   const EdgeInsets.symmetric(
+                        //                 horizontal: 12,
+                        //                 vertical: 8,
+                        //               ),
+                        //               border: OutlineInputBorder(
+                        //                 borderRadius: BorderRadius.circular(8),
+                        //                 borderSide: BorderSide(
+                        //                     color: Colors.grey[300]!),
+                        //               ),
+                        //               enabledBorder: OutlineInputBorder(
+                        //                 borderRadius: BorderRadius.circular(8),
+                        //                 borderSide: BorderSide(
+                        //                     color: Colors.grey[300]!),
+                        //               ),
+                        //             ),
+                        //             onChanged: (value) {
+                        //               if (value.endsWith(' ')) {
+                        //                 final tag = value.trim();
+                        //                 if (tag.isNotEmpty) {
+                        //                   setState(() {
+                        //                     if (!selectedTags.contains(tag)) {
+                        //                       selectedTags.add(tag);
+                        //                     }
+                        //                     _tagController.clear();
+                        //                     businessTagSearch = null;
+                        //                   });
+                        //                 }
+                        //               } else {
+                        //                 setState(() {
+                        //                   businessTagSearch = value;
+                        //                 });
+                        //               }
+                        //             },
+                        //           ),
+                        //           const SizedBox(height: 12),
+                        //           if (selectedTags.isNotEmpty)
+                        //             Wrap(
+                        //               spacing: 8,
+                        //               runSpacing: 8,
+                        //               children: selectedTags
+                        //                   .map((tag) => Chip(
+                        //                         label: Text(tag),
+                        //                         deleteIcon: const Icon(
+                        //                             Icons.close,
+                        //                             size: 16),
+                        //                         onDeleted: () {
+                        //                           setState(() {
+                        //                             selectedTags.remove(tag);
+                        //                           });
+                        //                         },
+                        //                         backgroundColor:
+                        //                             Colors.blue[50],
+                        //                         side: BorderSide(
+                        //                             color: Colors.blue[200]!),
+                        //                         labelStyle: TextStyle(
+                        //                             color: Colors.blue[700]),
+                        //                       ))
+                        //                   .toList(),
+                        //             ),
+                        //           const SizedBox(height: 12),
+                        //           if (businessTagSearch?.isNotEmpty ?? false)
+                        //             Consumer(
+                        //               builder: (context, ref, child) {
+                        //                 final asyncBusinessTags = ref.watch(
+                        //                   searchBusinessTagsProvider(
+                        //                       search: businessTagSearch),
+                        //                 );
+                        //                 return asyncBusinessTags.when(
+                        //                   data: (businessTags) {
+                        //                     log('Business tags response: $businessTags');
+                        //                     if (businessTags.isEmpty)
+                        //                       return const SizedBox.shrink();
+                        //                     return Container(
+                        //                       constraints: const BoxConstraints(
+                        //                         maxHeight: 250,
+                        //                       ),
+                        //                       decoration: BoxDecoration(
+                        //                         color: Colors.white,
+                        //                         borderRadius:
+                        //                             BorderRadius.circular(8),
+                        //                         boxShadow: [
+                        //                           BoxShadow(
+                        //                             color: Colors.grey
+                        //                                 .withOpacity(0.1),
+                        //                             spreadRadius: 1,
+                        //                             blurRadius: 4,
+                        //                             offset: const Offset(0, 2),
+                        //                           ),
+                        //                         ],
+                        //                       ),
+                        //                       child: ListView.builder(
+                        //                         shrinkWrap: true,
+                        //                         padding: EdgeInsets.zero,
+                        //                         itemCount: businessTags.length,
+                        //                         itemBuilder: (context, index) {
+                        //                           final tag =
+                        //                               businessTags[index];
+                        //                           log('Building tag at index $index: $tag');
+                        //                           return Material(
+                        //                             color: Colors.transparent,
+                        //                             child: InkWell(
+                        //                               onTap: () {
+                        //                                 setState(() {
+                        //                                   if (selectedTags
+                        //                                       .contains(tag)) {
+                        //                                     selectedTags
+                        //                                         .remove(tag);
+                        //                                   } else {
+                        //                                     selectedTags
+                        //                                         .add(tag ?? '');
+                        //                                   }
+                        //                                   _tagController
+                        //                                       .clear();
+                        //                                   businessTagSearch =
+                        //                                       null;
+                        //                                 });
+                        //                                 ref
+                        //                                     .read(
+                        //                                         peopleNotifierProvider
+                        //                                             .notifier)
+                        //                                     .setTags(
+                        //                                         selectedTags);
+                        //                               },
+                        //                               child: Padding(
+                        //                                 padding:
+                        //                                     const EdgeInsets
+                        //                                         .symmetric(
+                        //                                   horizontal: 12,
+                        //                                   vertical: 8,
+                        //                                 ),
+                        //                                 child: Row(
+                        //                                   children: [
+                        //                                     Icon(
+                        //                                       selectedTags
+                        //                                               .contains(
+                        //                                                   tag)
+                        //                                           ? Icons
+                        //                                               .check_circle
+                        //                                           : Icons.tag,
+                        //                                       size: 16,
+                        //                                       color: selectedTags
+                        //                                               .contains(
+                        //                                                   tag)
+                        //                                           ? Colors
+                        //                                               .blue[700]
+                        //                                           : Colors.grey[
+                        //                                               600],
+                        //                                     ),
+                        //                                     const SizedBox(
+                        //                                         width: 8),
+                        //                                     Text(
+                        //                                       tag ?? '',
+                        //                                       style: TextStyle(
+                        //                                         color: selectedTags
+                        //                                                 .contains(
+                        //                                                     tag)
+                        //                                             ? Colors.blue[
+                        //                                                 700]
+                        //                                             : Colors.grey[
+                        //                                                 800],
+                        //                                         fontSize: 14,
+                        //                                       ),
+                        //                                     ),
+                        //                                   ],
+                        //                                 ),
+                        //                               ),
+                        //                             ),
+                        //                           );
+                        //                         },
+                        //                       ),
+                        //                     );
+                        //                   },
+                        //                   loading: () => const Center(
+                        //                     child: Padding(
+                        //                       padding: EdgeInsets.all(8.0),
+                        //                       child: LoadingAnimation(),
+                        //                     ),
+                        //                   ),
+                        //                   error: (_, __) =>
+                        //                       const SizedBox.shrink(),
+                        //                 );
+                        //               },
+                        //             ),
+                        //         ],
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ),

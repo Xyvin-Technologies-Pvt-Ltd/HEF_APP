@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,6 +10,8 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
+import 'package:hef/src/data/models/business_category_model.dart';
+import 'package:hef/src/data/notifiers/business_category_notifier.dart';
 import 'package:hef/src/data/services/extract_level_details.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/save_contact.dart';
@@ -120,6 +123,53 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                 log('Current user ID: $id');
                 log('Is own profile: ${user.uid == id}');
                 log('=== END PROFILE DEBUG ===');
+
+                // Get all category names from IDs - use Consumer to rebuild when categories load
+                final businessCategories =
+                    ref.watch(businessCategoryNotifierProvider);
+                final categoryNotifier =
+                    ref.read(businessCategoryNotifierProvider.notifier);
+
+                // Ensure categories are loaded
+                if (businessCategories.isEmpty) {
+                  SchedulerBinding.instance.addPostFrameCallback((_) {
+                    categoryNotifier.fetchMoreCategories();
+                  });
+                } else if (categoryNotifier.hasMore &&
+                    user.category != null &&
+                    user.category!.isNotEmpty) {
+                  // Check if all user categories are found
+                  final missingCategories = user.category!.where((categoryId) {
+                    return !businessCategories
+                        .any((cat) => cat.id == categoryId);
+                  }).toList();
+
+                  // If we have missing categories and more to load, keep loading
+                  if (missingCategories.isNotEmpty) {
+                    SchedulerBinding.instance.addPostFrameCallback((_) {
+                      categoryNotifier.fetchMoreCategories();
+                    });
+                  }
+                }
+
+                List<BusinessCategoryModel> userCategories = [];
+                if (user.category != null && user.category!.isNotEmpty) {
+                  userCategories = user.category!
+                      .map((categoryId) {
+                        try {
+                          final found = businessCategories.firstWhere(
+                            (cat) => cat.id == categoryId,
+                          );
+                          return found;
+                        } catch (e) {
+                          // Category not found in loaded list yet - return null to filter out
+                          // Will be populated when categories finish loading
+                          return null;
+                        }
+                      })
+                      .whereType<BusinessCategoryModel>()
+                      .toList(); // Filter out nulls
+                }
                 return Stack(
                   children: [
                     Positioned(
@@ -501,60 +551,73 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                               const SizedBox(
                                 height: 50,
                               ),
-                              // Business Tags Section
-                              if (user.businessTags != null &&
-                                  user.businessTags!.isNotEmpty)
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Padding(
-                                      padding:
-                                          EdgeInsets.only(left: 10, bottom: 15),
-                                      child: Text(
-                                        'Business Tags',
-                                        style: TextStyle(
-                                          color: Color(0xFF2C2829),
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                              // Business Categories Section (replaced Business Tags)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Padding(
+                                    padding:
+                                        EdgeInsets.only(left: 10, bottom: 15),
+                                    child: Text(
+                                      'Business Categories',
+                                      style: TextStyle(
+                                        color: Color(0xFF2C2829),
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 10, right: 10, bottom: 20),
-                                      child: Wrap(
-                                        spacing: 8.0,
-                                        runSpacing: 8.0,
-                                        children: user.businessTags!.map((tag) {
-                                          return Container(
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 10, right: 10, bottom: 20),
+                                    child: userCategories.isNotEmpty
+                                        ? Wrap(
+                                            spacing: 8.0,
+                                            runSpacing: 8.0,
+                                            children:
+                                                userCategories.map((category) {
+                                              return Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: kPrimaryColor
+                                                      .withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  border: Border.all(
+                                                    color: kPrimaryColor,
+                                                    width: 1.0,
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  category.name,
+                                                  style: TextStyle(
+                                                    color: kPrimaryColor,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          )
+                                        : Padding(
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: kPrimaryColor
-                                                  .withOpacity(0.1),
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              border: Border.all(
-                                                color: kPrimaryColor,
-                                                width: 1.0,
-                                              ),
-                                            ),
+                                                vertical: 8.0),
                                             child: Text(
-                                              tag,
+                                              'No categories selected',
                                               style: TextStyle(
-                                                color: kPrimaryColor,
+                                                color: Colors.grey,
                                                 fontSize: 14,
-                                                fontWeight: FontWeight.w500,
+                                                fontStyle: FontStyle.italic,
                                               ),
                                             ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                          ),
+                                  ),
+                                ],
+                              ),
                               Padding(
                                 padding: const EdgeInsets.all(10.0),
                                 child: Consumer(

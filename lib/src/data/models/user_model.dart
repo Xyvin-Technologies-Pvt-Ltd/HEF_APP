@@ -1,6 +1,3 @@
-import 'dart:developer';
-import 'package:hef/src/data/models/business_category_model.dart';
-
 class Link {
   final String? name;
   final String? link;
@@ -159,7 +156,8 @@ class UserModel {
   final List<Company>? company;
   final String? businessCategory;
   final String? businessSubCategory;
-  final BusinessCategoryModel? category;
+  final List<String>?
+      category; // Changed from BusinessCategoryModel? to List<String>? (array of category IDs)
   final List<String>? file;
   final List<Link>? social;
   final List<Link>? websites;
@@ -246,21 +244,29 @@ class UserModel {
               ?.map((e) => Company.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      category: json['category'] != null
-          ? (json['category'] is Map<String, dynamic>
-              ? BusinessCategoryModel.fromJson(json['category'])
-              : (json['category'] is String &&
-                      json['category'].toString().isNotEmpty)
-                  ? (() {
-                      final categoryStr = json['category'].toString();
-                      log('Creating BusinessCategoryModel from string: id=$categoryStr, name=$categoryStr');
-                      return BusinessCategoryModel(
-                          id: categoryStr,
-                          name: categoryStr // Use ID as name fallback
-                          );
-                    })()
-                  : null)
-          : null,
+      // Handle category as array (new format) or string/object (old format) for backward compatibility
+      category: json['category'] == null
+          ? null
+          : json['category'] is List
+              ? List<String>.from((json['category'] as List).map((e) {
+                  // If array contains objects, extract ID; if strings, use as-is
+                  if (e is Map<String, dynamic>) {
+                    return e['_id'] ?? e['id'] ?? e.toString();
+                  }
+                  return e.toString();
+                }))
+              : json['category'] is String &&
+                      json['category'].toString().isNotEmpty
+                  ? [
+                      json['category'].toString()
+                    ] // Convert old string format to array
+                  : json['category'] is Map<String, dynamic>
+                      ? [
+                          json['category']['_id'] ??
+                              json['category']['id'] ??
+                              ''
+                        ] // Extract ID from object
+                      : [],
       businessCategory: json['businessCatogary'] as String? ?? '',
       businessSubCategory: json['businessSubCatogary'] as String? ?? '',
       file:
@@ -312,9 +318,6 @@ class UserModel {
           ? DateTime.tryParse(json['dateOfJoining'] as String)
           : null,
     );
-
-    // Debug logging to see what values are being parsed
-    log('UserModel Debug - feedCount from JSON: ${json['feedsCount']}, productCount from JSON: ${json['productCount']}');
   }
 
   Map<String, dynamic> toJson() {
@@ -335,7 +338,7 @@ class UserModel {
       'status': status,
       'address': address,
       'company': company?.map((e) => e.toJson()).toList(),
-      'category': category?.toJson(),
+      'category': category, // Already an array of strings, send as-is
       'businessCatogary': businessCategory,
       'businessSubCatogary': businessSubCategory,
       'file': file,
@@ -377,7 +380,8 @@ class UserModel {
     String? status,
     String? address,
     List<Company>? company,
-    BusinessCategoryModel? category,
+    List<String>?
+        category, // Changed from BusinessCategoryModel? to List<String>?
     String? businessCategory,
     String? businessSubCategory,
     List<String>? file,

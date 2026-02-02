@@ -64,6 +64,7 @@ class AttendanceUserModel {
     );
   }
 }
+
 class AttendanceUserListModel {
   final List<AttendanceUser>? registeredUsers;
   final List<AttendanceUser>? attendedUsers;
@@ -101,12 +102,14 @@ class AttendanceUser {
   final String? name;
   final String? image;
   final String? email;
+  final String? chapter;
 
   AttendanceUser({
     this.id,
     this.name,
     this.image,
     this.email,
+    this.chapter,
   });
 
   factory AttendanceUser.fromJson(Map<String, dynamic> json) {
@@ -115,6 +118,7 @@ class AttendanceUser {
       name: json['name'] as String?,
       image: json['image'] as String?,
       email: json['email'] as String?,
+      chapter: json['chapter'] as String?,
     );
   }
 
@@ -124,6 +128,7 @@ class AttendanceUser {
       'name': name,
       'image': image,
       'email': email,
+      'chapter': chapter,
     };
   }
 }

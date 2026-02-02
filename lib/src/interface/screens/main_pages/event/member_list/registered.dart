@@ -70,7 +70,8 @@ class RegisteredPage extends StatelessWidget {
                                     NetworkImage(member?.image ?? ''),
                               ),
                               title: Text(member?.name ?? ''),
-                              subtitle: Text(member?.email ?? ''),
+                              // subtitle: Text(member?.email ?? ''),
+                              subtitle: Text(member?.chapter ?? ''),
                               trailing: Icon(Icons.arrow_forward_ios),
                               onTap: () async {
                                 // Show a loading dialog

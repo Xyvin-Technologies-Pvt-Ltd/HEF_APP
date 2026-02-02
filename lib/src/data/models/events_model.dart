@@ -1,3 +1,21 @@
+/// Extracts user ID from rsvp element (handles both string ID and populated User object).
+String? _extractUserId(dynamic e) {
+  if (e == null) return null;
+  if (e is String) return e;
+  if (e is Map) return e['_id']?.toString();
+  return e.toString();
+}
+
+/// Extracts user ID from rsvpnew entry { user: ObjectId | User }.
+String? _extractUserIdFromRsvpNew(dynamic e) {
+  if (e == null || e is! Map) return null;
+  final user = e['user'];
+  if (user == null) return null;
+  if (user is String) return user;
+  if (user is Map) return user['_id']?.toString();
+  return user.toString();
+}
+
 class Event {
   final String? id;
   final String? eventName;
@@ -17,36 +35,41 @@ class Event {
   final List<Speaker>? speakers;
   final String? status;
   final List<String>? rsvp;
+
+  /// New RSVP format from backend - stores user IDs (registrations go here).
+  /// Never null - use [] when backend omits it.
+  final List<String>? rsvpnew;
   final List<String>? attended;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final int? limit;
   final bool? allowGuestResgistration;
-  Event(
-      {this.eventDate,
-      this.id,
-      this.eventName,
-      this.description,
-      this.type,
-      this.image,
-      this.startDate,
-      this.startTime,
-      this.endDate,
-      this.endTime,
-      this.platform,
-      this.link,
-      this.venue,
-      this.organiserName,
-      this.coordinator,
-      this.speakers,
-      this.status,
-      this.rsvp,
-      this.attended,
-      this.createdAt,
-      this.updatedAt,
-      this.limit,
-      this.allowGuestResgistration,
-      });
+  Event({
+    this.eventDate,
+    this.id,
+    this.eventName,
+    this.description,
+    this.type,
+    this.image,
+    this.startDate,
+    this.startTime,
+    this.endDate,
+    this.endTime,
+    this.platform,
+    this.link,
+    this.venue,
+    this.organiserName,
+    this.coordinator,
+    this.speakers,
+    this.status,
+    this.rsvp,
+    this.rsvpnew,
+    this.attended,
+    this.createdAt,
+    this.updatedAt,
+    this.limit,
+    this.allowGuestResgistration,
+  });
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
@@ -79,7 +102,15 @@ class Event {
           ?.map((e) => Speaker.fromJson(e))
           .toList(),
       status: json['status'] as String?,
-      rsvp: (json['rsvp'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      rsvp: (json['rsvp'] as List<dynamic>?)
+          ?.map((e) => _extractUserId(e))
+          .whereType<String>()
+          .toList(),
+      rsvpnew: (json['rsvpnew'] as List<dynamic>?)
+              ?.map((e) => _extractUserIdFromRsvpNew(e))
+              .whereType<String>()
+              .toList() ??
+          [],
       attended: (json['attended'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
@@ -91,7 +122,6 @@ class Event {
           : null,
       limit: json['limit'] as int?,
       allowGuestResgistration: json['allowGuestRegistration'] as bool?,
-      
     );
   }
 
@@ -115,11 +145,12 @@ class Event {
       'speakers': speakers?.map((e) => e.toJson()).toList(),
       'status': status,
       'rsvp': rsvp,
+      'rsvpnew': rsvpnew,
       'attended': attended,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       'limit': limit,
-      'allowGuestRegistration' :allowGuestResgistration,
+      'allowGuestRegistration': allowGuestResgistration,
     };
   }
 }

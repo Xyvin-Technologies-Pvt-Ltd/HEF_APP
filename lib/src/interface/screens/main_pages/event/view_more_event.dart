@@ -5,8 +5,6 @@ import 'package:hef/src/data/api_routes/events_api/events_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/events_model.dart';
-import 'package:hef/src/data/models/user_model.dart';
-import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
@@ -31,10 +29,24 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
 
   bool registered = false;
   bool isRegistering = false;
+
+  /// Check if current user is registered (same strategy as ipaconnect).
+  /// HEF backend stores registrations in both rsvp (legacy) and rsvpnew.
+  bool _isUserRegistered() {
+    if (id.isEmpty) return false;
+    final inRsvp = widget.event.rsvp?.contains(id) ?? false;
+    final inRsvpnew = widget.event.rsvpnew!.contains(id);
+    return inRsvp || inRsvpnew;
+  }
+
+  /// Total registered count from both rsvp and rsvpnew.
+  int get _registeredCount =>
+      (widget.event.rsvp?.length ?? 0) + widget.event.rsvpnew!.length;
+
   @override
   void initState() {
     super.initState();
-    registered = widget.event.rsvp?.contains(id) ?? false;
+    registered = _isUserRegistered();
   }
 
   String _getRegistrationButtonLabel() {
@@ -42,10 +54,10 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
     if (registered) return 'REGISTERED';
 
     final int limit = widget.event.limit ?? 0;
-    final int registeredCount = widget.event.rsvp?.length ?? 0;
+    final int count = _registeredCount;
 
     if (limit > 0) {
-      final spotsLeft = limit - registeredCount;
+      final spotsLeft = limit - count;
       if (spotsLeft <= 0) return 'REGISTRATION FULL';
 
       // More user-friendly messages for remaining spots
@@ -66,23 +78,22 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
     final int limit = widget.event.limit ?? 0;
     if (limit == 0) return true; // No limit set
 
-    final int registeredCount = widget.event.rsvp?.length ?? 0;
-    return registeredCount < limit;
+    return _registeredCount < limit;
   }
 
   String _getRegistrationCountText() {
-    final registered = widget.event.rsvp?.length ?? 0;
+    final count = _registeredCount;
     final limit = widget.event.limit!;
-    final remaining = limit - registered;
+    final remaining = limit - count;
 
     if (remaining == 0) {
-      return 'All seats taken ($registered/$limit)';
+      return 'All seats taken ($count/$limit)';
     } else if (remaining == 1) {
-      return 'Last seat remaining ($registered/$limit)';
+      return 'Last seat remaining ($count/$limit)';
     } else if (remaining <= 10) {
-      return 'Only $remaining seats left ($registered/$limit)';
+      return 'Only $remaining seats left ($count/$limit)';
     }
-    return '$registered/$limit registered';
+    return '$count/$limit registered';
   }
 
   void showAddGuestSheet() {
@@ -107,203 +118,203 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                // Handle bar
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
+                  // Handle bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Add Guest',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(height: 16),
+                  Text(
+                    'Add Guest',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: TextField(
-                      controller: _nameController,
+                  Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: TextField(
+                        controller: _nameController,
 
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        prefixIcon: const Icon(Icons.person),
-                        hintText: 'Enter name',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 216, 211, 211),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          prefixIcon: const Icon(Icons.person),
+                          hintText: 'Enter name',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 216, 211, 211),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 216, 211, 211),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 216, 211, 211),
+                            ),
                           ),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 216, 211, 211),
+                        // Trigger search on submit
+                      )),
+
+                  Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: TextField(
+                        controller: _categoryController,
+
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          prefixIcon: const Icon(Icons.category),
+                          hintText: 'Enter category',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 216, 211, 211),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 216, 211, 211),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 216, 211, 211),
+                            ),
                           ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 216, 211, 211),
+                        // Trigger search on submit
+                      )),
+
+                  Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: TextField(
+                        controller: _numberController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          prefixIcon: const Icon(Icons.phone),
+                          hintText: 'Enter number',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 216, 211, 211),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 216, 211, 211),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 216, 211, 211),
+                            ),
                           ),
                         ),
-                      ),
-                      // Trigger search on submit
-                    )),
+                      )),
 
-                Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: TextField(
-                      controller: _categoryController,
-
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        prefixIcon: const Icon(Icons.category),
-                        hintText: 'Enter category',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 216, 211, 211),
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 216, 211, 211),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 216, 211, 211),
-                          ),
-                        ),
-                      ),
-                      // Trigger search on submit
-                    )),
-
-                Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: TextField(
-                      controller: _numberController,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        prefixIcon: const Icon(Icons.phone),
-                        hintText: 'Enter number',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 216, 211, 211),
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 216, 211, 211),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 216, 211, 211),
-                          ),
-                        ),
-                      ),
-                    )),
-
-                SizedBox(
-                  height: 16,
-                ),
-                customButton(
-                    label: 'ADD GUEST',
-                    onPressed: () async {
-                      final guestName = _nameController.text.trim();
-                      final category = _categoryController.text.trim();
-                      final phone = _numberController.text.trim();
-                      Navigator.pop(context);
-
-                      // Validation for name field
-                      if (guestName.isEmpty) {
-                        SnackbarService()
-                            .showSnackBar("Guest name is required!");
-                        return;
-                      }
-                      if (guestName.length < 2) {
-                        SnackbarService()
-                            .showSnackBar("Guest name must be at least 2 characters long!");
-                        return;
-                      }
-
-                      // Validation for category field
-                      if (category.isEmpty) {
-                        SnackbarService()
-                            .showSnackBar("Category is required!");
-                        return;
-                      }
-                      if (category.length < 2) {
-                        SnackbarService()
-                            .showSnackBar("Category must be at least 2 characters long!");
-                        return;
-                      }
-
-                      // Validation for phone field
-                      if (phone.isEmpty) {
-                        SnackbarService()
-                            .showSnackBar("Phone number is required!");
-                        return;
-                      }
-                      if (phone.length < 10) {
-                        SnackbarService()
-                            .showSnackBar("Phone number must be at least 10 digits!");
-                        return;
-                      }
-                      if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
-                        SnackbarService()
-                            .showSnackBar("Phone number must contain only digits!");
-                        return;
-                      }
-
-                      try {
-                        await EventApiService.addGuestToEvent(
-                          eventId: widget.event.id!,
-                          name: guestName,
-                          contact: phone,
-                          category: category,
-                        );
-
-                        ref.invalidate(fetchEventsProvider);
-
-                        _nameController.clear();
-                        _categoryController.clear();
-                        _numberController.clear();
-
+                  SizedBox(
+                    height: 16,
+                  ),
+                  customButton(
+                      label: 'ADD GUEST',
+                      onPressed: () async {
+                        final guestName = _nameController.text.trim();
+                        final category = _categoryController.text.trim();
+                        final phone = _numberController.text.trim();
                         Navigator.pop(context);
-                        SnackbarService()
-                            .showSnackBar("Guest added successfully by ");
-                      } catch (e) {
-                        SnackbarService()
-                            .showSnackBar("Failed to add guest: $e");
-                      }
-                    })
-               ],
-             ),
-           ),
-         ),
-       ),
-     ),
-   );
- }
+
+                        // Validation for name field
+                        if (guestName.isEmpty) {
+                          SnackbarService()
+                              .showSnackBar("Guest name is required!");
+                          return;
+                        }
+                        if (guestName.length < 2) {
+                          SnackbarService().showSnackBar(
+                              "Guest name must be at least 2 characters long!");
+                          return;
+                        }
+
+                        // Validation for category field
+                        if (category.isEmpty) {
+                          SnackbarService()
+                              .showSnackBar("Category is required!");
+                          return;
+                        }
+                        if (category.length < 2) {
+                          SnackbarService().showSnackBar(
+                              "Category must be at least 2 characters long!");
+                          return;
+                        }
+
+                        // Validation for phone field
+                        if (phone.isEmpty) {
+                          SnackbarService()
+                              .showSnackBar("Phone number is required!");
+                          return;
+                        }
+                        if (phone.length < 10) {
+                          SnackbarService().showSnackBar(
+                              "Phone number must be at least 10 digits!");
+                          return;
+                        }
+                        if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
+                          SnackbarService().showSnackBar(
+                              "Phone number must contain only digits!");
+                          return;
+                        }
+
+                        try {
+                          await EventApiService.addGuestToEvent(
+                            eventId: widget.event.id!,
+                            name: guestName,
+                            contact: phone,
+                            category: category,
+                          );
+
+                          ref.invalidate(fetchEventsProvider);
+
+                          _nameController.clear();
+                          _categoryController.clear();
+                          _numberController.clear();
+
+                          Navigator.pop(context);
+                          SnackbarService()
+                              .showSnackBar("Guest added successfully by ");
+                        } catch (e) {
+                          SnackbarService()
+                              .showSnackBar("Failed to add guest: $e");
+                        }
+                      })
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -318,9 +329,6 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
     log('event visibility start:     ${widget.event.startDate}');
     log('event visibility end:       ${widget.event.endDate}');
     log('event visibility event date:${widget.event.eventDate}');
-
-
-
 
     log('rsvp : ${widget.event.rsvp}');
     log('my id : ${id}');
@@ -692,13 +700,16 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                                         widget.event.id!);
 
                                     setState(() {
-                                      widget.event.rsvp?.add(id);
-                                      registered =
-                                          widget.event.rsvp?.contains(id) ??
-                                              false;
+                                      // Backend stores in rsvpnew - add locally to match
+                                      widget.event.rsvpnew!.add(id);
+                                      registered = true;
                                     });
 
                                     ref.invalidate(fetchEventsProvider);
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(e.toString())),
+                                    );
                                   } finally {
                                     setState(() {
                                       isRegistering = false;

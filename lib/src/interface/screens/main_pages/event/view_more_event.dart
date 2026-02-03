@@ -605,7 +605,21 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                     ),
                   ),
                 SizedBox(height: 60),
-                if (widget.event.coordinator!.contains(id))
+                if (widget.event.coordinator!.contains(id)) ...[
+                  if (widget.event.limit != null && widget.event.limit! > 0)
+                    Padding(
+                        padding: const EdgeInsets.only(
+                            left: 16, right: 16, bottom: 8),
+                        child: Center(
+                          child: Text(
+                            _getRegistrationCountText(),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
+                        )),
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -643,6 +657,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                       ),
                     ),
                   ),
+                ],
                 SizedBox(height: 90),
               ],
             ),

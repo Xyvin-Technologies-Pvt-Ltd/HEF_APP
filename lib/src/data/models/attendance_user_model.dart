@@ -118,8 +118,16 @@ class AttendanceUser {
       name: json['name'] as String?,
       image: json['image'] as String?,
       email: json['email'] as String?,
-      chapter: json['chapter'] as String?,
+      chapter: _chapterNameFromJson(json['chapter']),
     );
+  }
+
+  /// Parses chapter from API: either object { _id, name } or plain string.
+  static String? _chapterNameFromJson(dynamic chapter) {
+    if (chapter == null) return null;
+    if (chapter is String) return chapter;
+    if (chapter is Map<String, dynamic>) return chapter['name'] as String?;
+    return null;
   }
 
   Map<String, dynamic> toJson() {

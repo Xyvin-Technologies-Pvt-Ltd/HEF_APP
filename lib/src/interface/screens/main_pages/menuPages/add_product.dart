@@ -107,9 +107,9 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
   }
 
   Future<File?> _pickFile({required String imageType}) async {
-    if (Platform.isIOS) {
-      final status = await Permission.photos.request();
-      if (status.isDenied || status.isPermanentlyDenied) {
+    final canAccessPhotos = await requestPermission(Permission.photos);
+    if (!canAccessPhotos) {
+      if (mounted) {
         await showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -131,8 +131,8 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
             ],
           ),
         );
-        return null;
       }
+      return null;
     }
 
     final ImagePicker picker = ImagePicker();

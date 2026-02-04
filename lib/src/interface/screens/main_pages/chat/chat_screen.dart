@@ -23,6 +23,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'dart:io';
 import 'package:hef/src/data/services/image_upload.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class IndividualPage extends ConsumerStatefulWidget {
   IndividualPage({required this.receiver, required this.sender, super.key});
@@ -155,6 +156,34 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   }
 
   Future<void> _pickFromGallery() async {
+    final canAccessPhotos = await requestPermission(Permission.photos);
+    if (!canAccessPhotos) {
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Gallery access is required to pick images. Please enable it from settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
 
     if (photo != null) {
@@ -171,6 +200,34 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   }
 
   Future<void> _takePicture() async {
+    final canUseCamera = await requestPermission(Permission.camera);
+    if (!canUseCamera) {
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Camera access is required to take photos. Please enable it from settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
 
     if (photo != null) {

@@ -10,6 +10,7 @@ import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/notifiers/business_category_notifier.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/custom_widgets/member_creation_textfield.dart';
 import 'package:image_picker/image_picker.dart';
@@ -1248,6 +1249,34 @@ class _UploadPhotoWidgetState extends State<UploadPhotoWidget> {
   File? _profileImage;
 
   Future<void> _pickFile() async {
+    final canAccessPhotos = await requestPermission(Permission.photos);
+    if (!canAccessPhotos) {
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Gallery access is required to pick images. Please enable it from settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 

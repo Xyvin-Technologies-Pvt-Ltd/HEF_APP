@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/services/save_qr.dart';
+import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:hef/src/interface/components/ModalSheets/payment_model_sheet.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -39,6 +41,34 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
   }
 
   Future<File?> _pickFile({required String imageType}) async {
+    final canAccessPhotos = await requestPermission(Permission.photos);
+    if (!canAccessPhotos) {
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Photo access is required to pick images. Please enable it from Settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+      }
+      return null;
+    }
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: [
@@ -284,7 +314,6 @@ class _PremiumPlanPageState extends State<PremiumPlanPage> {
                           fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 16.0),
-      
                     const SizedBox(height: 8.0),
                     Container(
                       decoration: BoxDecoration(

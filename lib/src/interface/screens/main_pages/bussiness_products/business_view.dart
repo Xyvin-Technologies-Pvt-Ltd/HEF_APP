@@ -27,8 +27,10 @@ import 'package:hef/src/interface/components/ModalSheets/business_details.dart';
 import 'package:hef/src/interface/components/animations/widget_animations.dart';
 import 'package:hef/src/interface/components/custom_widgets/user_tile.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/interface/screens/crop_image_screen.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:shimmer/shimmer.dart';
 
@@ -65,6 +67,34 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
   ImageSource? _feedImageSource;
 
   Future<File?> _pickFile() async {
+    final canAccessPhotos = await requestPermission(Permission.photos);
+    if (!canAccessPhotos) {
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Gallery access is required to pick images. Please enable it from settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+      }
+      return null;
+    }
+
     final picker = ImagePicker();
 
     try {

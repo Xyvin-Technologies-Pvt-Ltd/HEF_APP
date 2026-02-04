@@ -18,6 +18,7 @@ import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/audio_upload.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/data/services/video_upload.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:hef/src/data/services/voice_recorder.dart';
 import 'package:hef/src/interface/components/Dialogs/report_dialog.dart';
 import 'package:hef/src/interface/components/common/groupchat_own_message_card.dart';
@@ -82,7 +83,8 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
   }
 
   void getMessageHistory() async {
-    final messagesette = await GroupApiService. getGroupChatMessages(groupId: widget.group.id!);
+    final messagesette =
+        await GroupApiService.getGroupChatMessages(groupId: widget.group.id!);
     if (mounted) {
       setState(() {
         messages.addAll(messagesette);
@@ -122,7 +124,8 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
 
   void sendMessage({List<Attachment>? attachments}) async {
     final text = _controller.text;
-    if ((text.isNotEmpty || (attachments != null && attachments.isNotEmpty)) && mounted) {
+    if ((text.isNotEmpty || (attachments != null && attachments.isNotEmpty)) &&
+        mounted) {
       try {
         // Send message via API
         String messageId = await ChatApiService.sendChatMessage(
@@ -159,7 +162,8 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
     }
   }
 
-  void setMessage(String type, String message, String fromId, {String msgType = 'text', List<Attachment>? attachments}) {
+  void setMessage(String type, String message, String fromId,
+      {String msgType = 'text', List<Attachment>? attachments}) {
     final messageModel = GroupChatModel(
       content: message,
       from: GroupChatUserModel(id: fromId),
@@ -182,6 +186,34 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
 
   // Media handling methods
   Future<void> _pickFromGallery() async {
+    final canAccessPhotos = await requestPermission(Permission.photos);
+    if (!canAccessPhotos) {
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Gallery access is required to pick images. Please enable it from settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
 
     if (photo != null) {
@@ -198,6 +230,34 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
   }
 
   Future<void> _takePicture() async {
+    final canUseCamera = await requestPermission(Permission.camera);
+    if (!canUseCamera) {
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Camera access is required to take photos. Please enable it from settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
 
     if (photo != null) {
@@ -248,8 +308,8 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
         filePath.toLowerCase().endsWith('.png')) {
       fieldName = 'image';
     } else if (filePath.toLowerCase().endsWith('.mp3') ||
-               filePath.toLowerCase().endsWith('.wav') ||
-               filePath.toLowerCase().endsWith('.m4a')) {
+        filePath.toLowerCase().endsWith('.wav') ||
+        filePath.toLowerCase().endsWith('.m4a')) {
       fieldName = 'audio';
     }
 
@@ -430,21 +490,20 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  final groupMessageStream = ref.watch(groupMessageStreamProvider);
+  Widget build(BuildContext context) {
+    final groupMessageStream = ref.watch(groupMessageStreamProvider);
 
-  groupMessageStream.whenData((newMessage) {
-    bool messageExists = messages.any((message) =>
-        message.createdAt == newMessage.createdAt &&
-        message.content == newMessage.content);
+    groupMessageStream.whenData((newMessage) {
+      bool messageExists = messages.any((message) =>
+          message.createdAt == newMessage.createdAt &&
+          message.content == newMessage.content);
 
-    if (!messageExists) {
-      setState(() {
-        messages.add(newMessage);
-      });
-    }
-  });
-
+      if (!messageExists) {
+        setState(() {
+          messages.add(newMessage);
+        });
+      }
+    });
 
     return Stack(
       children: [
@@ -565,9 +624,10 @@ Widget build(BuildContext context) {
                                               message.createdAt.toString())
                                           .toLocal(),
                                     ),
-                                    type: message.attachments?.isNotEmpty == true
-                                        ? message.attachments!.first.type
-                                        : 'text',
+                                    type:
+                                        message.attachments?.isNotEmpty == true
+                                            ? message.attachments!.first.type
+                                            : 'text',
                                     attachments: message.attachments,
                                   );
                                 },
@@ -678,13 +738,15 @@ Widget build(BuildContext context) {
                                         }
 
                                         setState(() {
-                                          _showEmojiKeyboard = !_showEmojiKeyboard;
+                                          _showEmojiKeyboard =
+                                              !_showEmojiKeyboard;
                                         });
 
                                         if (_showEmojiKeyboard) {
                                           FocusScope.of(context).unfocus();
                                         } else {
-                                          FocusScope.of(context).requestFocus(focusNode);
+                                          FocusScope.of(context)
+                                              .requestFocus(focusNode);
                                         }
                                       },
                                     ),
@@ -696,10 +758,12 @@ Widget build(BuildContext context) {
                                       color: Colors.white,
                                       shape: RoundedRectangleBorder(
                                         side: const BorderSide(
-                                          color: Color.fromARGB(255, 220, 215, 215),
+                                          color: Color.fromARGB(
+                                              255, 220, 215, 215),
                                           width: 0.5,
                                         ),
-                                        borderRadius: BorderRadius.circular(15.0),
+                                        borderRadius:
+                                            BorderRadius.circular(15.0),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -720,13 +784,22 @@ Widget build(BuildContext context) {
                                                     child: TextField(
                                                       controller: _controller,
                                                       focusNode: focusNode,
-                                                      keyboardType: TextInputType.multiline,
+                                                      keyboardType:
+                                                          TextInputType
+                                                              .multiline,
                                                       maxLines: null,
                                                       minLines: 1,
-                                                      decoration: const InputDecoration(
-                                                        border: InputBorder.none,
-                                                        hintText: "Type a message",
-                                                        contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        border:
+                                                            InputBorder.none,
+                                                        hintText:
+                                                            "Type a message",
+                                                        contentPadding:
+                                                            EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        8),
                                                       ),
                                                       onChanged: (text) {
                                                         setState(() {});
@@ -736,32 +809,39 @@ Widget build(BuildContext context) {
 
                                                   // Attachment and camera buttons
                                                   Row(
-                                                    mainAxisSize: MainAxisSize.min,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
                                                     children: [
                                                       SizedBox(
                                                         width: 32,
                                                         child: IconButton(
-                                                          padding: EdgeInsets.zero,
-                                                          constraints: BoxConstraints(),
+                                                          padding:
+                                                              EdgeInsets.zero,
+                                                          constraints:
+                                                              BoxConstraints(),
                                                           icon: const Icon(
                                                             Icons.attach_file,
                                                             size: 20,
                                                             color: Colors.grey,
                                                           ),
-                                                          onPressed: _showAttachmentModal,
+                                                          onPressed:
+                                                              _showAttachmentModal,
                                                         ),
                                                       ),
                                                       SizedBox(
                                                         width: 32,
                                                         child: IconButton(
-                                                          padding: EdgeInsets.zero,
-                                                          constraints: BoxConstraints(),
+                                                          padding:
+                                                              EdgeInsets.zero,
+                                                          constraints:
+                                                              BoxConstraints(),
                                                           icon: const Icon(
                                                             Icons.camera_alt,
                                                             size: 20,
                                                             color: Colors.grey,
                                                           ),
-                                                          onPressed: _takePicture,
+                                                          onPressed:
+                                                              _takePicture,
                                                         ),
                                                       ),
                                                     ],
@@ -776,15 +856,19 @@ Widget build(BuildContext context) {
                                   ),
 
                                   Padding(
-                                    padding: const EdgeInsets.only(right: 2, left: 2),
+                                    padding: const EdgeInsets.only(
+                                        right: 2, left: 2),
                                     child: Container(
                                       decoration: BoxDecoration(
                                           color: kPrimaryColor,
-                                          borderRadius: BorderRadius.circular(5)),
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
                                       child: IconButton(
                                         icon: _controller.text.isEmpty
-                                            ? Icon(Icons.mic, color: Colors.white)
-                                            : Icon(Icons.send, color: Colors.white),
+                                            ? Icon(Icons.mic,
+                                                color: Colors.white)
+                                            : Icon(Icons.send,
+                                                color: Colors.white),
                                         onPressed: () async {
                                           if (_controller.text.isEmpty) {
                                             // Hide emoji picker if open
@@ -796,18 +880,27 @@ Widget build(BuildContext context) {
 
                                             if (!_isRecording) {
                                               await _voiceRecorder.init();
-                                              await _voiceRecorder.startRecording();
+                                              await _voiceRecorder
+                                                  .startRecording();
                                               setState(() {
                                                 _isRecording = true;
                                               });
                                             } else {
-                                              File recordedFile = await _voiceRecorder.stopRecording();
+                                              File recordedFile =
+                                                  await _voiceRecorder
+                                                      .stopRecording();
                                               setState(() {
                                                 _isRecording = false;
                                                 _recordedFile = recordedFile;
                                               });
-                                              String audioUrl = await audioUpload(_recordedFile!.path);
-                                              sendMessage(attachments: [Attachment(url: audioUrl, type: 'voice')]);
+                                              String audioUrl =
+                                                  await audioUpload(
+                                                      _recordedFile!.path);
+                                              sendMessage(attachments: [
+                                                Attachment(
+                                                    url: audioUrl,
+                                                    type: 'voice')
+                                              ]);
                                             }
                                           } else {
                                             sendMessage();
@@ -840,16 +933,22 @@ Widget build(BuildContext context) {
                                     });
                                   },
                                   onSend: () async {
-                                    File recordedFile = await _voiceRecorder.stopRecording();
+                                    File recordedFile =
+                                        await _voiceRecorder.stopRecording();
                                     setState(() {
                                       _isRecording = false;
                                       _recordedFile = recordedFile;
                                     });
-                                    String audioUrl = await audioUpload(_recordedFile!.path);
-                                    sendMessage(attachments: [Attachment(url: audioUrl, type: 'voice')]);
+                                    String audioUrl =
+                                        await audioUpload(_recordedFile!.path);
+                                    sendMessage(attachments: [
+                                      Attachment(url: audioUrl, type: 'voice')
+                                    ]);
                                   },
-                                  onLock: () => setState(() => _isLocked = true),
-                                  onUnlock: () => setState(() => _isLocked = false),
+                                  onLock: () =>
+                                      setState(() => _isLocked = true),
+                                  onUnlock: () =>
+                                      setState(() => _isLocked = false),
                                 ),
                               ),
 

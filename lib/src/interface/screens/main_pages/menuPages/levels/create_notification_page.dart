@@ -12,6 +12,7 @@ import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/level_models/level_model.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
@@ -80,6 +81,34 @@ class _CreateNotificationPageState
   }
 
   Future<File?> _pickFile({required String imageType}) async {
+    final canAccessPhotos = await requestPermission(Permission.photos);
+    if (!canAccessPhotos) {
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Photo access is required to pick images. Please enable it from Settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+      }
+      return null;
+    }
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: [
@@ -328,11 +357,10 @@ class _CreateNotificationPageState
                 label: 'Send Notification',
                 onPressed: () async {
                   if (notificationImage != null) {
-                    notificationImageUrl = await imageUpload(
-
-                        notificationImage!.path);
+                    notificationImageUrl =
+                        await imageUpload(notificationImage!.path);
                   }
-          NotificationApiService.        createLevelNotification(
+                  NotificationApiService.createLevelNotification(
                       level: widget.level,
                       id: _selectedItemsId,
                       subject: titleController.text,
@@ -348,4 +376,3 @@ class _CreateNotificationPageState
     );
   }
 }
-

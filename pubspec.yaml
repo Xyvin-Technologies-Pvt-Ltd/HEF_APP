@@ -50,6 +50,7 @@ dependencies:
   image_picker: ^1.1.2
   dropdown_button2: ^2.3.9
   contact_add: ^0.0.3
+  file_saver: ^0.3.1
 
   flutter_dotenv: ^5.2.1
   image: ^4.3.0
@@ -88,6 +89,7 @@ dependencies:
   pdf: ^3.10.7
   printing: ^5.11.1
   csv: ^5.1.1  
+  image_cropper: ^11.0.0
 
 dev_dependencies:
   flutter_test:

@@ -9,13 +9,13 @@ import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EnterProductsPage extends ConsumerStatefulWidget {
   final bool isEditing;
@@ -135,16 +135,11 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
       }
     }
 
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['png', 'jpg', 'jpeg'],
-    );
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image == null) return null;
 
-    if (result != null && result.files.single.path != null) {
-      return File(result.files.single.path!);
-    }
-
-    return null;
+    return File(image.path);
   }
 
   void _showSnack(String message) {

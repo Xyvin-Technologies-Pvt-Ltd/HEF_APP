@@ -72,7 +72,74 @@ class RegisteredPage extends StatelessWidget {
                               title: Text(member?.name ?? ''),
                               // subtitle: Text(member?.email ?? ''),
                               subtitle: Text(member?.chapter ?? ''),
-                              trailing: Icon(Icons.arrow_forward_ios),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  PopupMenuButton<String>(
+                                    icon: const Icon(Icons.more_vert),
+                                    padding: EdgeInsets.zero,
+                                    onSelected: (value) async {
+                                      if (value != 'remove' ||
+                                          member?.id == null ||
+                                          event.id == null) return;
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text('Remove from RSVP'),
+                                          content: Text(
+                                            'Remove ${member?.name ?? 'this user'} from the event registration?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(ctx, false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(ctx, true),
+                                              child: const Text('Remove'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirm != true) return;
+                                      try {
+                                        await EventApiService.removeRsvp(
+                                          eventId: event.id!,
+                                          userId: member!.id!,
+                                        );
+                                        ref.invalidate(
+                                            fetchEventAttendanceProvider(
+                                                eventId: event.id ?? ''));
+                                        if (context.mounted) {
+                                          SnackbarService().showSnackBar(
+                                              'Removed from registration');
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          SnackbarService().showSnackBar(e
+                                              .toString()
+                                              .replaceFirst('Exception: ', ''));
+                                        }
+                                      }
+                                    },
+                                    itemBuilder: (context) => [
+                                      const PopupMenuItem<String>(
+                                        value: 'remove',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.person_remove_outlined),
+                                            SizedBox(width: 8),
+                                            Text('Remove from RSVP'),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Icon(Icons.arrow_forward_ios),
+                                ],
+                              ),
                               onTap: () async {
                                 // Show a loading dialog
                                 showDialog(

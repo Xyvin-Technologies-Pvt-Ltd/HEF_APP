@@ -40,7 +40,6 @@ class EventApiService {
         body: jsonEncode(body),
       );
       log('$baseUrl/$eventId/guests/add');
-      
 
       if (response.statusCode == 200) {
         log(' Guest added successfully');
@@ -185,6 +184,38 @@ class EventApiService {
       }
     } catch (e) {
       log('Error marking RSVP: $e');
+    }
+  }
+
+  /// Removes a user's RSVP from an event. Body: { "userId": "..." }.
+  static Future<void> removeRsvp({
+    required String eventId,
+    required String userId,
+  }) async {
+    final url = Uri.parse('$baseUrl/event/single/$eventId/remove-rsvp');
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'userId': userId}),
+      );
+
+      if (response.statusCode == 200) {
+        log('RSVP removed successfully');
+      } else {
+        final body = json.decode(response.body);
+        final message = body['message'] ?? 'Failed to remove RSVP';
+        log('Failed to remove RSVP: $message');
+        throw Exception(message);
+      }
+    } catch (e) {
+      log('Error removing RSVP: $e');
+      rethrow;
     }
   }
 

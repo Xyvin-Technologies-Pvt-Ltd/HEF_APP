@@ -11,6 +11,7 @@ import 'package:hef/src/data/models/events_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:hef/src/interface/screens/main_pages/event/qr_scanner_page.dart';
 
 class AttendedPage extends StatelessWidget {
   final Event event;
@@ -121,11 +122,21 @@ class AttendedPage extends StatelessWidget {
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              // Handle action
-            },
+            onPressed:
+                // Handle action
+                () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => QRScannerPage(
+                        eventId: event.id ?? '',
+                      )),
+            ),
             backgroundColor: Colors.orange,
-            child: Icon(Icons.person_add, color: Colors.white),
+            child: Icon(
+              Icons.qr_code_scanner,
+              color: Colors.white,
+              size: 27,
+            ),
           ),
         );
       },

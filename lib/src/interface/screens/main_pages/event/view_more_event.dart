@@ -412,7 +412,10 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                             ? Row(
                                 children: [
                                   Text(
-                                    widget.event.status?.toUpperCase() ?? '',
+                                    widget.event.status == "pending"
+                                        ? "UPCOMING"
+                                        : widget.event.status?.toUpperCase() ??
+                                            '',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,

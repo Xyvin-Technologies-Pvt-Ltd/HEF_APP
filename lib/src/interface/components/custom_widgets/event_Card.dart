@@ -5,13 +5,14 @@ import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+
 Widget eventWidget({
   bool withImage = true,
   required BuildContext context,
   required Event event,
 }) {
   String formattedDate = '';
-  
+
   if (event.startDate != null) {
     try {
       DateTime date = DateTime.parse(event.startDate.toString()).toLocal();
@@ -39,7 +40,8 @@ Widget eventWidget({
               Stack(
                 children: [
                   Container(
-                    padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+                    padding:
+                        const EdgeInsets.only(left: 10, right: 10, top: 10),
                     width: MediaQuery.sizeOf(context).width * .95,
                     height: MediaQuery.of(context).size.width * 0.95 * 9 / 16,
                     decoration: BoxDecoration(
@@ -100,13 +102,15 @@ Widget eventWidget({
                               'assets/svg/icons/live.svg',
                               color: Colors.white,
                             ),
-                          if (event.status == 'upcoming')
+                          if (event.status == 'pending')
                             const Icon(
                               Icons.access_time,
                               color: Colors.white,
                             ),
                           Text(
-                            event.status?.toUpperCase() ?? '',
+                            event.status == "pending"
+                                ? "UPCOMING"
+                                : event.status?.toUpperCase() ?? '',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,

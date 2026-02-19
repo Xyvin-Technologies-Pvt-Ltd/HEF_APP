@@ -1,12 +1,9 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_sound/flutter_sound.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/group_chat_api/group_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
@@ -17,8 +14,7 @@ import 'package:hef/src/data/models/msg_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/audio_upload.dart';
 import 'package:hef/src/data/services/image_upload.dart';
-import 'package:hef/src/data/services/video_upload.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import 'package:hef/src/data/services/voice_recorder.dart';
 import 'package:hef/src/interface/components/Dialogs/report_dialog.dart';
 import 'package:hef/src/interface/components/common/groupchat_own_message_card.dart';
@@ -50,7 +46,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
   List<GroupChatModel> messages = [];
   TextEditingController _controller = TextEditingController();
   ScrollController _scrollController = ScrollController();
-  final ImagePicker _picker = ImagePicker();
+
   final VoiceRecorder _voiceRecorder = VoiceRecorder();
 
   File? _recordedFile;
@@ -185,113 +181,6 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
   }
 
   // Media handling methods
-  Future<void> _pickFromGallery() async {
-    final canAccessPhotos = await requestPermission(Permission.photos);
-    if (!canAccessPhotos) {
-      if (mounted) {
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Permission Required'),
-            content: const Text(
-                'Gallery access is required to pick images. Please enable it from settings.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await openAppSettings();
-                },
-                child: const Text('Open Settings'),
-              ),
-            ],
-          ),
-        );
-      }
-      return;
-    }
-
-    final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (photo != null) {
-      try {
-        String imageUrl = await imageUpload(photo.path);
-
-        final attachment = Attachment(url: imageUrl, type: 'image');
-
-        sendMessage(attachments: [attachment]);
-      } catch (e) {
-        print("Error uploading image: $e");
-      }
-    }
-  }
-
-  Future<void> _takePicture() async {
-    final canUseCamera = await requestPermission(Permission.camera);
-    if (!canUseCamera) {
-      if (mounted) {
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Permission Required'),
-            content: const Text(
-                'Camera access is required to take photos. Please enable it from settings.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await openAppSettings();
-                },
-                child: const Text('Open Settings'),
-              ),
-            ],
-          ),
-        );
-      }
-      return;
-    }
-
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-
-    if (photo != null) {
-      try {
-        String imageUrl = await imageUpload(photo.path);
-
-        final attachment = Attachment(url: imageUrl, type: 'image');
-
-        sendMessage(attachments: [attachment]);
-      } catch (e) {
-        print("Error uploading image: $e");
-      }
-    }
-  }
-
-  Future<void> _pickDocument() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-    if (result != null && result.files.single.path != null) {
-      File file = File(result.files.single.path!);
-      try {
-        String fileUrl = await _uploadFile(file.path);
-
-        final attachment = Attachment(url: fileUrl, type: 'file');
-
-        sendMessage(attachments: [attachment]);
-      } catch (e) {
-        print("Error uploading document: $e");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to upload file. Please try again.')),
-        );
-      }
-    }
-  }
 
   Future<String> _uploadFile(String filePath) async {
     File file = File(filePath);
@@ -340,108 +229,57 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
     });
   }
 
-  // Attachment modal
-  void _showAttachmentModal() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: 200,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _attachmentOption(
-                    icon: Icons.insert_drive_file,
-                    label: 'Document',
-                    color: Colors.blue,
-                    onTap: () {
-                      Navigator.pop(context);
-                      _pickDocument();
-                    },
-                  ),
-                  _attachmentOption(
-                    icon: Icons.photo,
-                    label: 'Gallery',
-                    color: Colors.green,
-                    onTap: () {
-                      Navigator.pop(context);
-                      _pickFromGallery();
-                    },
-                  ),
-                  _attachmentOption(
-                    icon: Icons.camera_alt,
-                    label: 'Camera',
-                    color: Colors.pink,
-                    onTap: () {
-                      Navigator.pop(context);
-                      _takePicture();
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Future<void> _takePicture() async {
+    final File? photo = await MediaService().pickImageFromCamera();
+
+    if (photo != null) {
+      try {
+        String imageUrl = await imageUpload(photo.path);
+        // String imageUrl = photo.path;
+
+        final attachment = Attachment(url: imageUrl, type: 'image');
+
+        sendMessage(attachments: [attachment]);
+      } catch (e) {
+        print("Error uploading image: $e");
+      }
+    }
   }
 
-  Widget _attachmentOption({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: color.withOpacity(0.3)),
-            ),
-            child: Icon(
-              icon,
-              size: 30,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[700],
-            ),
-          ),
-        ],
-      ),
+  Future<void> _handleAttachment() async {
+    final result = await pickMedia(
+      context: context,
+      showDocument: true,
     );
+
+    if (result == null) return;
+
+    if (result is XFile) {
+      try {
+        String imageUrl = await imageUpload(result.path);
+        // String imageUrl = result.path;
+
+        final attachment = Attachment(url: imageUrl, type: 'image');
+
+        sendMessage(attachments: [attachment]);
+      } catch (e) {
+        print("Error uploading image: $e");
+      }
+    } else if (result is FilePickerResult) {
+      try {
+        File file = File(result.files.single.path!);
+        String fileUrl = await _uploadFile(file.path);
+
+        final attachment = Attachment(url: fileUrl, type: 'file');
+
+        sendMessage(attachments: [attachment]);
+      } catch (e) {
+        print("Error uploading document: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to upload file. Please try again.')),
+        );
+      }
+    }
   }
 
   Widget _buildEmojiPicker() {
@@ -825,7 +663,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
                                                             color: Colors.grey,
                                                           ),
                                                           onPressed:
-                                                              _showAttachmentModal,
+                                                              _handleAttachment,
                                                         ),
                                                       ),
                                                       SizedBox(
@@ -985,84 +823,6 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget bottomSheet() {
-    return Container(
-      height: 278,
-      width: MediaQuery.of(context).size.width,
-      child: Card(
-        margin: const EdgeInsets.all(18.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  iconCreation(
-                      Icons.insert_drive_file, Colors.indigo, "Document"),
-                  const SizedBox(
-                    width: 40,
-                  ),
-                  iconCreation(Icons.camera_alt, Colors.pink, "Camera"),
-                  const SizedBox(
-                    width: 40,
-                  ),
-                  iconCreation(Icons.insert_photo, Colors.purple, "Gallery"),
-                ],
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  iconCreation(Icons.headset, Colors.orange, "Audio"),
-                  const SizedBox(
-                    width: 40,
-                  ),
-                  iconCreation(Icons.location_pin, Colors.teal, "Location"),
-                  const SizedBox(
-                    width: 40,
-                  ),
-                  iconCreation(Icons.person, Colors.blue, "Contact"),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget iconCreation(IconData icons, Color color, String text) {
-    return InkWell(
-      onTap: () {},
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: color,
-            child: Icon(
-              icons,
-              size: 29,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 12,
-            ),
-          )
-        ],
-      ),
     );
   }
 }

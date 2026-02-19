@@ -28,9 +28,7 @@ import 'package:hef/src/interface/components/animations/widget_animations.dart';
 import 'package:hef/src/interface/components/custom_widgets/user_tile.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hef/src/data/services/image_upload.dart';
-import 'package:hef/src/interface/screens/crop_image_screen.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 import 'package:shimmer/shimmer.dart';
 
@@ -67,75 +65,25 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
   ImageSource? _feedImageSource;
 
   Future<File?> _pickFile() async {
-    final canAccessPhotos = await requestPermission(Permission.photos);
-    if (!canAccessPhotos) {
-      if (mounted) {
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Permission Required'),
-            content: const Text(
-                'Gallery access is required to pick images. Please enable it from settings.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await openAppSettings();
-                },
-                child: const Text('Open Settings'),
-              ),
-            ],
-          ),
-        );
-      }
-      return null;
+    final result = await pickMedia(
+      context: context,
+      enableCrop: true,
+      showDocument: false,
+      cropRatio: CropAspectRatio(
+          ratioX: 4,
+          ratioY:
+              5), // Align with previous AspectRatio 4/5 if possible, but 4/5 = 0.8
+    );
+
+    if (result != null && result is XFile) {
+      final File imageFile = File(result.path);
+      setState(() {
+        _feedImage = imageFile;
+        _feedImageSource =
+            ImageSource.gallery; // Assumption as pickMedia handles source
+      });
+      return _feedImage;
     }
-
-    final picker = ImagePicker();
-
-    try {
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-      if (pickedFile != null) {
-        final File imageFile = File(pickedFile.path);
-
-        // Navigate to crop screen
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CropImageScreen(imageFile: imageFile),
-          ),
-        );
-
-        if (result != null) {
-          // Generate a unique filename using timestamp
-          final tempDir = await getTemporaryDirectory();
-          final timestamp = DateTime.now().millisecondsSinceEpoch;
-          final tempFile = File('${tempDir.path}/cropped_image_$timestamp.jpg');
-
-          // Make sure the file exists and is writable
-          if (!tempFile.existsSync()) {
-            tempFile.createSync(recursive: true);
-          }
-
-          // Write the cropped image bytes to the file
-          await tempFile.writeAsBytes(result.bytes);
-
-          setState(() {
-            _feedImage = tempFile;
-            _feedImageSource = ImageSource.gallery;
-          });
-          return _feedImage;
-        }
-      }
-    } catch (e) {
-      debugPrint("Error picking or cropping the image: $e");
-    }
-
     return null;
   }
 

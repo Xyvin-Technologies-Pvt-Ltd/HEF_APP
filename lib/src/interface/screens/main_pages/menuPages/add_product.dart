@@ -1,10 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:hef/src/data/api_routes/products_api/products_api.dart';
-import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/product_model.dart';
-import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
@@ -14,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import 'package:image_picker/image_picker.dart';
 
 class EnterProductsPage extends ConsumerStatefulWidget {
@@ -107,39 +105,16 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
   }
 
   Future<File?> _pickFile({required String imageType}) async {
-    final canAccessPhotos = await requestPermission(Permission.photos);
-    if (!canAccessPhotos) {
-      if (mounted) {
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Permission Required'),
-            content: const Text(
-                'Photo access is required to pick images. Please enable it from Settings.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await openAppSettings();
-                },
-                child: const Text('Open Settings'),
-              ),
-            ],
-          ),
-        );
-      }
-      return null;
+    final result = await pickMedia(
+      context: context,
+      enableCrop: false, // User requested no crop for other pages
+      showDocument: false,
+    );
+
+    if (result != null && result is XFile) {
+      return File(result.path);
     }
-
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image == null) return null;
-
-    return File(image.path);
+    return null;
   }
 
   void _showSnack(String message) {
@@ -317,29 +292,8 @@ class _EnterProductsPageState extends ConsumerState<EnterProductsPage> {
                           children: [
                             GestureDetector(
                               onTap: () async {
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (BuildContext context) {
-                                    return const Center(
-                                      child: LoadingAnimation(),
-                                    );
-                                  },
-                                );
-
-                                final pickedFile =
-                                    await _pickFile(imageType: 'product');
-                                if (pickedFile == null) {
-                                  Navigator.pop(context);
-                                }
-
-                                setState(() {
-                                  productImage = pickedFile;
-                                  state.didChange(
-                                      pickedFile); // Update form state
-                                });
-
-                                Navigator.of(context).pop();
+                                await _pickFile(imageType: 'product');
+                                // state.didChange(productImage);
                               },
                               child: AspectRatio(
                                 aspectRatio: 3 / 1,

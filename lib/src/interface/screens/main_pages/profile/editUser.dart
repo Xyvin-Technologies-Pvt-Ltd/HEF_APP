@@ -7,7 +7,7 @@ import 'package:hef/src/data/api_routes/user_api/user_data/edit_user.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
-import 'package:hef/src/data/globals.dart';
+
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/image_upload.dart';
@@ -18,11 +18,11 @@ import 'package:hef/src/data/notifiers/business_category_notifier.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/Cards/award_card.dart';
 import 'package:hef/src/interface/components/Cards/certificate_card.dart';
-import 'package:hef/src/interface/components/Dialogs/upgrade_dialog.dart';
+
 import 'package:hef/src/interface/components/ModalSheets/add_award.dart';
 import 'package:hef/src/interface/components/ModalSheets/add_certificate.dart';
 import 'package:hef/src/interface/components/ModalSheets/add_website_video.dart';
-import 'package:hef/src/interface/components/Switch/custom_switch.dart';
+
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_websiteVideo_card.dart';
 import 'package:hef/src/interface/components/edit_user/contact_editor.dart';
@@ -37,8 +37,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:path/path.dart' as Path;
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/services.dart';
 
 class EditUser extends ConsumerStatefulWidget {
@@ -190,41 +188,22 @@ class _EditUserState extends ConsumerState<EditUser> {
 
   Future<File?> _pickFile(
       {required String imageType, int? companyIndex}) async {
-    // Request photo permission (same pattern as image_upload.dart)
-    final canAccessPhotos = await requestPermission(Permission.photos);
-    if (!canAccessPhotos) {
-      if (mounted) {
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Permission Required'),
-            content: const Text(
-                'Gallery access is required to pick images. Please enable it from settings.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await openAppSettings();
-                },
-                child: const Text('Open Settings'),
-              ),
-            ],
-          ),
-        );
-      }
+    // Use pickMedia from image_upload.dart which handles UI (BottomSheet) and Permissions
+    final result = await pickMedia(
+      context: context,
+      enableCrop: imageType == 'profile', // Enable crop for profile
+      showDocument: false, // We only want images for these fields currently
+    );
+
+    if (result == null) return null;
+
+    File file;
+    if (result is XFile) {
+      file = File(result.path);
+    } else {
+      // If result is not XFile (and not null), we don't know how to handle it currently
       return null;
     }
-
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (image == null) return null;
-
-    final file = File(image.path);
 
     if (imageType == 'profile') {
       setState(() {
@@ -504,31 +483,6 @@ class _EditUserState extends ConsumerState<EditUser> {
   //     });
   //   }
   // }
-
-  void _showPermissionDeniedDialog(bool isPermanentlyDenied) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Permission Denied'),
-          content: Text(isPermanentlyDenied
-              ? 'Permission is permanently denied. Please enable it from the app settings.'
-              : 'Permission is denied. Please grant the permission to proceed.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                navigationService.pop();
-                if (isPermanentlyDenied) {
-                  openAppSettings();
-                }
-              },
-              child: Text(isPermanentlyDenied ? 'Open Settings' : 'OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   void _openModalSheet({required String sheet}) {
     showModalBottomSheet(

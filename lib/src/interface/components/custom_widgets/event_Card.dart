@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/models/events_model.dart';
@@ -11,6 +12,7 @@ Widget eventWidget({
   required BuildContext context,
   required Event event,
 }) {
+  log('Event: ${event.eventName} | Raw Status: ${event.status}');
   String formattedDate = '';
 
   if (event.startDate != null) {
@@ -83,32 +85,32 @@ Widget eventWidget({
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: event.status == 'completed'
+                        color: event.status?.toLowerCase() == 'completed'
                             ? const Color(0xFF434343)
-                            : event.status == 'live'
+                            : event.status?.toLowerCase() == 'live'
                                 ? const Color(0xFF2D8D00)
                                 : const Color(0xFF596AFF),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
                         children: [
-                          if (event.status == 'completed')
+                          if (event.status?.toLowerCase() == 'completed')
                             SvgPicture.asset(
                               'assets/svg/icons/completed.svg',
                               color: Colors.white,
                             ),
-                          if (event.status == 'live')
+                          if (event.status?.toLowerCase() == 'live')
                             SvgPicture.asset(
                               'assets/svg/icons/live.svg',
                               color: Colors.white,
                             ),
-                          if (event.status == 'pending')
+                          if (event.status?.toLowerCase() == 'pending')
                             const Icon(
                               Icons.access_time,
                               color: Colors.white,
                             ),
                           Text(
-                            event.status == "pending"
+                            event.status?.toLowerCase() == "pending"
                                 ? "UPCOMING"
                                 : event.status?.toUpperCase() ?? '',
                             style: const TextStyle(

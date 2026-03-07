@@ -50,7 +50,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
   }
 
   String _getRegistrationButtonLabel() {
-    if (widget.event.status == 'cancelled') return 'CANCELLED';
+    if (widget.event.status?.toLowerCase() == 'cancelled') return 'CANCELLED';
     if (registered) return 'REGISTERED';
 
     final int limit = widget.event.limit ?? 0;
@@ -73,7 +73,8 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
   }
 
   bool _canRegister() {
-    if (registered || widget.event.status == 'cancelled') return false;
+    if (registered || widget.event.status?.toLowerCase() == 'cancelled')
+      return false;
 
     final int limit = widget.event.limit ?? 0;
     if (limit == 0) return true; // No limit set
@@ -412,7 +413,8 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                             ? Row(
                                 children: [
                                   Text(
-                                    widget.event.status == "pending"
+                                    widget.event.status?.toLowerCase() ==
+                                            "pending"
                                         ? "UPCOMING"
                                         : widget.event.status?.toUpperCase() ??
                                             '',
@@ -666,7 +668,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
             ),
           ),
           if (!widget.event.coordinator!.contains(id) &&
-              widget.event.status != "completed")
+              widget.event.status?.toLowerCase() != "completed")
             Consumer(
               builder: (context, ref, child) {
                 final bool canRegister = _canRegister();
@@ -708,7 +710,8 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                         onPressed: canRegister
                             ? () async {
                                 if (!registered &&
-                                    widget.event.status != 'cancelled') {
+                                    widget.event.status?.toLowerCase() !=
+                                        'cancelled') {
                                   setState(() {
                                     isRegistering = true;
                                   });

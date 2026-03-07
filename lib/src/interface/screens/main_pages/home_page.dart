@@ -178,7 +178,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           color: kPrimaryColor,
           onRefresh: () async {
             ref.invalidate(fetchPromotionsProvider);
-            // ref.invalidate(fetchEventsProvider);
+            ref.invalidate(fetchEventsProvider);
           },
           child: AdvancedDrawer(
             drawer: customDrawer(user: widget.user, context: context),

@@ -319,16 +319,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       backgroundColor: kScaffoldColor,
       body: Stack(
         children: [
-          Align(
-            alignment: Alignment.center,
-            child: SvgPicture.asset(
-              'assets/svg/images/flower_full.svg',
-            ),
-          ),
+          // Align(
+          //   alignment: Alignment.center,
+          //   child: SvgPicture.asset(
+          //     'assets/svg/images/flower_full.svg',
+          //   ),
+          // ),
           Align(
             alignment: Alignment.center,
             child: Image.asset(
-              'assets/pngs/splash_logo.png',
+              'assets/pngs/new_logo.png',
             ),
           ),
           if (hasVersionCheckError)

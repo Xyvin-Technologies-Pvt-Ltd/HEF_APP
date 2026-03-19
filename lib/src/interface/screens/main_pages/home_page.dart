@@ -599,11 +599,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           scrollPhysics: banners.length > 1
                                               ? null
                                               : const NeverScrollableScrollPhysics(),
-                                          autoPlay:
-                                              banners.length > 1 ? true : false,
+                                          autoPlay: banners.length > 1
+                                              ? false
+                                              : false,
                                           viewportFraction: 1,
                                           autoPlayInterval:
-                                              const Duration(seconds: 3),
+                                              const Duration(seconds: 5),
                                           onPageChanged: (index, reason) {
                                             setState(() {
                                               _currentBannerIndex = index;

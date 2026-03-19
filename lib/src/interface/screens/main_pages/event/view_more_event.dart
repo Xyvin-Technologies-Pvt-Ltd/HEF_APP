@@ -489,36 +489,36 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Divider(color: Color.fromARGB(255, 229, 220, 220)),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                  ),
-                  child: const Text('Organiser'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                  ),
-                  child: Text(
-                    widget.event.organiserName ?? '',
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                  child: Text(
-                    widget.event.description ?? '',
-                    style: TextStyle(fontSize: 16, color: Colors.black87),
-                  ),
-                ),
+                // const Divider(color: Color.fromARGB(255, 229, 220, 220)),
+                // Padding(
+                //   padding: const EdgeInsets.only(
+                //     left: 16,
+                //     right: 16,
+                //   ),
+                //   child: const Text('Organiser'),
+                // ),
+                // Padding(
+                //   padding: const EdgeInsets.only(
+                //     left: 16,
+                //     right: 16,
+                //   ),
+                //   child: Text(
+                //     widget.event.organiserName ?? '',
+                //     style: const TextStyle(
+                //         fontSize: 20, fontWeight: FontWeight.w600),
+                //   ),
+                // ),
+                // const SizedBox(
+                //   height: 20,
+                // ),
+                // Padding(
+                //   padding:
+                //       const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                //   child: Text(
+                //     widget.event.description ?? '',
+                //     style: TextStyle(fontSize: 16, color: Colors.black87),
+                //   ),
+                // ),
 
                 // ClipRRect(
                 //                                   borderRadius:
@@ -533,40 +533,40 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                 //                                           fit: BoxFit.cover,
                 //                                         )
                 //                                       : const SizedBox())
-                const SizedBox(height: 24),
-                const Padding(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Text(
-                    'Speakers',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.event.speakers!.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: _buildSpeakerCard(
-                          widget.event.speakers?[index].image,
-                          widget.event.speakers?[index].name ?? '',
-                          widget.event.speakers?[index].designation ?? ''),
-                    );
-                  },
-                ),
+                // const SizedBox(height: 24),
+                // const Padding(
+                //   padding: EdgeInsets.only(left: 10),
+                //   child: Text(
+                //     'Speakers',
+                //     style: TextStyle(
+                //       fontSize: 18,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 8),
+                // ListView.builder(
+                //   shrinkWrap: true,
+                //   physics: const NeverScrollableScrollPhysics(),
+                //   itemCount: widget.event.speakers!.length,
+                //   itemBuilder: (context, index) {
+                //     return Padding(
+                //       padding: const EdgeInsets.all(8.0),
+                //       child: _buildSpeakerCard(
+                //           widget.event.speakers?[index].image,
+                //           widget.event.speakers?[index].name ?? '',
+                //           widget.event.speakers?[index].designation ?? ''),
+                //     );
+                //   },
+                // ),
                 if (widget.event.venue != null) const SizedBox(height: 24),
                 // Venue Section
                 if (widget.event.venue != null)
-                  Padding(
-                    padding: const EdgeInsets.only(
+                  const Padding(
+                    padding: EdgeInsets.only(
                       left: 8,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Venue',
                       style: TextStyle(
                         fontSize: 18,

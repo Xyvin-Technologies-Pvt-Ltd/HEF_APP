@@ -595,13 +595,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               context: context, banner: banner);
                                         }).toList(),
                                         options: CarouselOptions(
+                                          pauseAutoPlayOnTouch: true,
                                           height: 175,
                                           scrollPhysics: banners.length > 1
                                               ? null
                                               : const NeverScrollableScrollPhysics(),
-                                          autoPlay: banners.length > 1
-                                              ? false
-                                              : false,
+                                          autoPlay:
+                                              banners.length > 1 ? true : false,
                                           viewportFraction: 1,
                                           autoPlayInterval:
                                               const Duration(seconds: 5),
@@ -627,6 +627,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               context: context, notice: notice);
                                         }).toList(),
                                         options: CarouselOptions(
+                                          pauseAutoPlayOnTouch: true,
                                           scrollPhysics: notices.length > 1
                                               ? null
                                               : const NeverScrollableScrollPhysics(),
@@ -682,6 +683,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                 ? null
                                                 : const NeverScrollableScrollPhysics(),
                                             autoPlay: posters.length > 1,
+                                            pauseAutoPlayOnTouch: true,
                                             viewportFraction: 1,
                                             autoPlayInterval:
                                                 const Duration(seconds: 3),
@@ -767,6 +769,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                     autoPlay: events.length > 1
                                                         ? true
                                                         : false,
+                                                    pauseAutoPlayOnTouch: true,
                                                     viewportFraction: 1,
                                                     autoPlayInterval:
                                                         const Duration(
@@ -903,6 +906,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               ? null
                                               : const NeverScrollableScrollPhysics(),
                                           viewportFraction: 1,
+                                          pauseAutoPlayOnTouch: true,
                                           onPageChanged: (index, reason) {
                                             setState(() {
                                               _currentVideoIndex = index;

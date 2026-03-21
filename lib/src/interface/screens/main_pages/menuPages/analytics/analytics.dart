@@ -92,9 +92,12 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   }
 
   Future<void> _fetchInitialAnalytics() async {
-    final currentTabType = _getCurrentTabType();
+    // Determine the initial tab type based on previousTabIndex
+    // Default to index 0 (Received) if initialTab is null
+    String? initialType = _getTabTypeFor(_previousTabIndex);
+
     ref.read(analyticsNotifierProvider.notifier).searchAnalytics(
-          newType: currentTabType,
+          newType: initialType,
           newStartDate: startDate != null
               ? DateFormat('yyyy-MM-dd').format(startDate!)
               : null,
@@ -104,6 +107,19 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
           newRequestType: selectedRequestType,
           query: _searchController.text,
         );
+  }
+
+  String? _getTabTypeFor(int index) {
+    switch (index) {
+      case 0:
+        return 'received';
+      case 1:
+        return 'sent';
+      case 2:
+        return null; // History (all data)
+      default:
+        return 'received';
+    }
   }
 
   void _onScroll() {
@@ -141,16 +157,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   }
 
   String? _getCurrentTabType() {
-    switch (_tabController.index) {
-      case 0: // Received
-        return 'received';
-      case 1: // Sent
-        return 'sent';
-      case 2: // History
-        return null;
-      default:
-        return null;
-    }
+    return _getTabTypeFor(_tabController.index);
   }
 
   // Add filter modal sheet

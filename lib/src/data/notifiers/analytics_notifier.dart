@@ -46,7 +46,11 @@ class AnalyticsNotifier extends _$AnalyticsNotifier {
         ).future,
       );
 
-      analytics = [...analytics, ...newAnalytics];
+      final existingIds = analytics.map((e) => e.id).toSet();
+      final uniqueNewAnalytics =
+          newAnalytics.where((item) => !existingIds.contains(item.id)).toList();
+
+      analytics = [...analytics, ...uniqueNewAnalytics];
       pageNo++;
       hasMore = newAnalytics.length == limit;
       isFirstLoad = false;

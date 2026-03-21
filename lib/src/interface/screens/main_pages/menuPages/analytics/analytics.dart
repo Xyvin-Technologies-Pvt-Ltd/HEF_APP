@@ -92,7 +92,18 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   }
 
   Future<void> _fetchInitialAnalytics() async {
-    ref.read(analyticsNotifierProvider.notifier).fetchMoreAnalytics();
+    final currentTabType = _getCurrentTabType();
+    ref.read(analyticsNotifierProvider.notifier).searchAnalytics(
+          newType: currentTabType,
+          newStartDate: startDate != null
+              ? DateFormat('yyyy-MM-dd').format(startDate!)
+              : null,
+          newEndDate: endDate != null
+              ? DateFormat('yyyy-MM-dd').format(endDate!)
+              : null,
+          newRequestType: selectedRequestType,
+          query: _searchController.text,
+        );
   }
 
   void _onScroll() {

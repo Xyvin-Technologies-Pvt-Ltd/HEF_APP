@@ -45,9 +45,10 @@ class MyEventsPage extends StatelessWidget {
                 itemCount: activeEvents.length,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: eventCard(
-                        context: context, event: activeEvents[index]),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0),
+                    child:
+                        eventCard(context: context, event: activeEvents[index]),
                   );
                 },
               );
@@ -66,173 +67,157 @@ class MyEventsPage extends StatelessWidget {
   }
 
   Widget eventCard({required BuildContext context, required Event event}) {
-    String startTime = DateFormat('hh:mm a').format(event.startTime!);
-    String startDate = DateFormat('yyyy-MM-dd').format(event.startDate!);
-    String endDate = DateFormat('hh:mm a').format(event.endDate!);
-    String endTime = DateFormat('yyyy-MM-dd').format(event.endTime!);
+    String startTime = DateFormat('hh:mm a').format(event.startTime!.toLocal());
+    String startDate =
+        DateFormat('yyyy-MM-dd').format(event.startDate!.toLocal());
+    String endDate = DateFormat('hh:mm a').format(event.endDate!.toLocal());
+    String endTime = DateFormat('yyyy-MM-dd').format(event.endTime!.toLocal());
     return Card(
+      elevation: 2,
+      clipBehavior: Clip.antiAlias,
       color: Colors.white,
-      margin: const EdgeInsets.all(10),
+      margin: EdgeInsets.zero,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
-            alignment: Alignment.center,
             children: [
-              Image.network(
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    // If the image is fully loaded, show the image
-                    return child;
-                  }
-                  // While the image is loading, show shimmer effect
-                  return Container(
-                    child: Shimmer.fromColors(
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.network(
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Shimmer.fromColors(
                       baseColor: Colors.grey[300]!,
                       highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.network('https://placehold.co/600x400');
-                },
-                event.image ?? 'https://via.placeholder.com/400x200',
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-              const Icon(Icons.play_circle_fill, size: 64, color: Colors.white),
-              Positioned(
-                top: 10,
-                left: 10,
-                child: Container(
-                  color: const Color(0xFFA9F3C7),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  child: Text(event.status!,
-                      style: TextStyle(color: Color(0xFF0F7036), fontSize: 14)),
+                      child: Container(color: Colors.grey[300]),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.network('https://placehold.co/600x400');
+                  },
+                  event.image ?? 'https://via.placeholder.com/400x200',
+                  width: double.infinity,
+                  fit: BoxFit.cover,
                 ),
               ),
+              if (event.status != null && event.status != '')
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE4483E),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          event.status?.toLowerCase() == "pending"
+                              ? "UPCOMING"
+                              : event.status?.toUpperCase() ?? '',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.circle,
+                          color: Colors.white,
+                          size: 8,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
-          const SizedBox(height: 10),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+            child: Text(event.type!),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              event.eventName!,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  event.type!,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF3F0A9),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.calendar_today,
-                              size: 20, color: Color(0xFF700F0F)),
-                          const SizedBox(width: 5),
-                          Text(
-                            startDate,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF700F0F),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFAED0E9),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.access_time,
-                              size: 20, color: Color(0xFF0E1877)),
-                          const SizedBox(width: 5),
-                          Text(
-                            startTime,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF0E1877),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
+                    const Icon(Icons.calendar_today,
+                        size: 15, color: kPrimaryColor),
+                    const SizedBox(width: 8),
                     Text(
-                      event.type!,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      startDate,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(width: 16),
                 Row(
                   children: [
-                    Flexible(
-                      child: Text(
-                        event.description ?? '',
-                        style: TextStyle(fontSize: 14),
+                    const Icon(Icons.access_time,
+                        size: 15, color: kPrimaryColor),
+                    const SizedBox(width: 8),
+                    Text(
+                      startTime,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                if (event.link != null && event.link!='')
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        launchUrl(Uri.parse(event.link ?? ''));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              4), // Adjust the value to make the edge less circular
-                        ),
-                        minimumSize: const Size(
-                            150, 40), // Adjust the width of the button
-                      ),
-                      child: const Text('JOIN',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
               ],
             ),
           ),
+          if (event.type == 'offline' && event.venue != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+              child: Text(
+                event.venue!,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          if (event.link != null && event.link != '')
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  launchUrl(Uri.parse(event.link ?? ''));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kPrimaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  minimumSize: const Size(120, 36),
+                ),
+                child:
+                    const Text('JOIN', style: TextStyle(color: Colors.white)),
+              ),
+            ),
         ],
       ),
     );

@@ -686,7 +686,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                             pauseAutoPlayOnTouch: true,
                                             viewportFraction: 1,
                                             autoPlayInterval:
-                                                const Duration(seconds: 3),
+                                                const Duration(seconds: 6),
                                             onPageChanged: (index, reason) {
                                               setState(() {
                                                 _currentPosterIndex = index;

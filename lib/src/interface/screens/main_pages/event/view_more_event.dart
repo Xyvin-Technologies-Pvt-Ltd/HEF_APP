@@ -53,6 +53,7 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
   String _getRegistrationButtonLabel() {
     if (widget.event.status?.toLowerCase() == 'cancelled') return 'CANCELLED';
     if (registered) return 'REGISTERED';
+    if (widget.event.registrationEnabled == false) return 'REGISTRATION CLOSED';
 
     final int limit = widget.event.limit ?? 0;
     final int count = _registeredCount;
@@ -74,8 +75,9 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
   }
 
   bool _canRegister() {
-    if (registered || widget.event.status?.toLowerCase() == 'cancelled')
-      return false;
+    if (registered ||
+        widget.event.status?.toLowerCase() == 'cancelled' ||
+        widget.event.registrationEnabled == false) return false;
 
     final int limit = widget.event.limit ?? 0;
     if (limit == 0) return true; // No limit set
@@ -745,14 +747,18 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
                       customButton(
                         sideColor: registered
                             ? Colors.green
-                            : canRegister
-                                ? kPrimaryColor
-                                : Colors.grey[400]!,
+                            : widget.event.registrationEnabled == false
+                                ? kRed
+                                : canRegister
+                                    ? kPrimaryColor
+                                    : Colors.grey[400]!,
                         buttonColor: registered
                             ? Colors.green
-                            : canRegister
-                                ? kPrimaryColor
-                                : Colors.grey[400]!,
+                            : widget.event.registrationEnabled == false
+                                ? kRed
+                                : canRegister
+                                    ? kPrimaryColor
+                                    : Colors.grey[400]!,
                         label: buttonLabel,
                         isLoading: isRegistering,
                         onPressed: canRegister

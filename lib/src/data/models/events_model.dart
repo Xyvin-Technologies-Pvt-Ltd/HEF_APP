@@ -44,6 +44,11 @@ class Event {
   final DateTime? updatedAt;
   final int? limit;
   final bool? allowGuestResgistration;
+  final bool? registrationEnabled;
+
+  /// Chapter IDs this event is targeted to.
+  final List<String>? chapters;
+
   Event({
     this.eventDate,
     this.id,
@@ -69,6 +74,8 @@ class Event {
     this.updatedAt,
     this.limit,
     this.allowGuestResgistration,
+    this.registrationEnabled,
+    this.chapters,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -96,7 +103,8 @@ class Event {
       venue: json['venue'] as String?,
       organiserName: json['organiserName'] as String?,
       coordinator: (json['coordinator'] as List<dynamic>?)
-          ?.map((e) => e as String)
+          ?.map((e) => _extractUserId(e))
+          .whereType<String>()
           .toList(),
       speakers: (json['speakers'] as List<dynamic>?)
           ?.map((e) => Speaker.fromJson(e))
@@ -122,6 +130,10 @@ class Event {
           : null,
       limit: json['limit'] as int?,
       allowGuestResgistration: json['allowGuestRegistration'] as bool?,
+      registrationEnabled: json['registrationEnabled'] as bool?,
+      chapters: (json['chapters'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
     );
   }
 
@@ -151,6 +163,8 @@ class Event {
       'updatedAt': updatedAt?.toIso8601String(),
       'limit': limit,
       'allowGuestRegistration': allowGuestResgistration,
+      'registrationEnabled': registrationEnabled,
+      'chapters': chapters,
     };
   }
 }

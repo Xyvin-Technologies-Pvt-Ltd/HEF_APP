@@ -5,6 +5,7 @@ import 'package:hef/src/data/api_routes/events_api/events_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/events_model.dart';
+import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
@@ -673,6 +674,53 @@ class _ViewMoreEventPageState extends ConsumerState<ViewMoreEventPage> {
               builder: (context, ref, child) {
                 final bool canRegister = _canRegister();
                 final String buttonLabel = _getRegistrationButtonLabel();
+
+                // Exclusive event check: if chapters list is non-empty and
+                // the user's chapter is not in it, show exclusive notice.
+                final userAsync = ref.watch(userProvider);
+                final String? userChapterId =
+                    userAsync.valueOrNull?.chapter?.id;
+                final List<String> eventChapters = widget.event.chapters ?? [];
+                final bool isExclusiveEvent = eventChapters.isNotEmpty;
+                final bool isUserChapterAllowed = userChapterId != null &&
+                    eventChapters.contains(userChapterId);
+
+                if (isExclusiveEvent && !isUserChapterAllowed) {
+                  return Positioned(
+                    bottom: 36,
+                    left: 16,
+                    right: 16,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                              color: Colors.orange.shade300, width: 1.5),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.lock_outline,
+                                color: Colors.orange.shade700, size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              'THIS IS AN EXCLUSIVE EVENT',
+                              style: TextStyle(
+                                color: Colors.orange.shade800,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
 
                 return Positioned(
                   bottom: 36,

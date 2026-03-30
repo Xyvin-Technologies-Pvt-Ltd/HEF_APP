@@ -747,13 +747,21 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                       children: [
                         Expanded(
                           child: Text(
-                            maxLines: 4,
+                            maxLines: 3,
                             analytic.title ?? '',
                             style: kBodyTitleB,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Spacer(),
+                        SizedBox(width: 10),
+                        if (analytic.amount != null)
+                          Expanded(
+                            child: Text(
+                              "₹${analytic.amount}",
+                              style: kBodyTitleB,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),

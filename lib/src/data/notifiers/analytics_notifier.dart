@@ -77,6 +77,7 @@ class AnalyticsNotifier extends _$AnalyticsNotifier {
     isLoading = true;
     isFirstLoad = true;
     pageNo = 1;
+    hasMore = true;
     analytics = [];
     type = newType;
     startDate = newStartDate;
@@ -99,6 +100,7 @@ class AnalyticsNotifier extends _$AnalyticsNotifier {
       );
 
       analytics = [...newAnalytics];
+      pageNo++;
       hasMore = newAnalytics.length == limit;
       isFirstLoad = false;
       state = [...analytics];
@@ -133,6 +135,7 @@ class AnalyticsNotifier extends _$AnalyticsNotifier {
       );
 
       analytics = [...newAnalytics];
+      pageNo++;
       hasMore = newAnalytics.length == limit;
       isFirstLoad = false;
       state = [...analytics];

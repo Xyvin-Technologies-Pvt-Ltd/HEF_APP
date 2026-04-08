@@ -123,8 +123,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       ref.read(analyticsNotifierProvider.notifier).fetchMoreAnalytics();
     }
   }
@@ -638,23 +638,19 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   }
 
   Widget _buildAnalyticsList(List<AnalyticsModel> analytics) {
-    // Filter based on search input
+    // Search filter (client-side) — preserves API response order, no sorting
     final searchQuery = _searchController.text.trim().toLowerCase();
-    List<AnalyticsModel> filtered = analytics.where((analytic) {
-      final username = analytic.username?.toLowerCase() ?? '';
-      final title = analytic.title?.toLowerCase() ?? '';
-      return username.contains(searchQuery) || title.contains(searchQuery);
-    }).toList();
-
-    // Sort by date (latest first)
-    filtered.sort((a, b) {
-      final aDate = a.date ?? DateTime.fromMillisecondsSinceEpoch(0);
-      final bDate = b.date ?? DateTime.fromMillisecondsSinceEpoch(0);
-      return bDate.compareTo(aDate);
-    });
+    final List<AnalyticsModel> filtered = searchQuery.isEmpty
+        ? analytics
+        : analytics.where((analytic) {
+            final username = analytic.username?.toLowerCase() ?? '';
+            final title = analytic.title?.toLowerCase() ?? '';
+            return username.contains(searchQuery) || title.contains(searchQuery);
+          }).toList();
 
     final notifier = ref.read(analyticsNotifierProvider.notifier);
     final isLoading = notifier.isLoading;
+    final hasMore = notifier.hasMore;
 
     return RefreshIndicator(
       backgroundColor: kWhite,
@@ -666,7 +662,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16.0),
-        itemCount: filtered.length + (isLoading ? 1 : 0),
+        itemCount: filtered.length + (isLoading && hasMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == filtered.length) {
             return const Center(child: LoadingAnimation());

@@ -15,6 +15,7 @@ import 'package:hef/src/interface/components/Dialogs/blockPersonDialog.dart';
 import 'package:hef/src/interface/components/Dialogs/report_dialog.dart';
 import 'package:hef/src/interface/components/common/own_message_card.dart';
 import 'package:hef/src/interface/components/common/reply_card.dart';
+import 'package:hef/src/interface/components/common/date_header.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/profile_preview.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/voice_recorder_widget.dart';
 import 'package:intl/intl.dart';
@@ -275,6 +276,16 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     });
   }
 
+  bool _shouldShowDateHeader(int index) {
+    if (index == messages.length - 1) return true;
+    final current = messages[index].createdAt?.toLocal();
+    final next = messages[index + 1].createdAt?.toLocal();
+    if (current == null || next == null) return false;
+    final currentDay = DateTime(current.year, current.month, current.day);
+    final nextDay = DateTime(next.year, next.month, next.day);
+    return currentDay != nextDay;
+  }
+
   @override
   Widget build(BuildContext context) {
     final messageStream = ref.watch(messageStreamProvider);
@@ -463,9 +474,12 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                               itemBuilder: (context, index) {
                                 final message =
                                     messages[messages.length - 1 - index];
+                                final actualIndex = messages.length - 1 - index;
 
+                                // Build the message widget
+                                Widget messageWidget;
                                 if (message.from == widget.sender.id) {
-                                  return OwnMessageCard(
+                                  messageWidget = OwnMessageCard(
                                     product: message.product,
                                     requirement: message.feed,
                                     status: message.status!,
@@ -489,7 +503,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                     ),
                                   );
                                 } else {
-                                  return GestureDetector(
+                                  messageWidget = GestureDetector(
                                     onLongPress: () {
                                       showReportPersonDialog(
                                           reportedItemId: message.id ?? '',
@@ -509,6 +523,21 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                     ),
                                   );
                                 }
+
+                                // Check if we should show date header
+                                if (_shouldShowDateHeader(actualIndex)) {
+                                  return Column(
+                                    children: [
+                                      DateHeader(
+                                        date:
+                                            message.createdAt ?? DateTime.now(),
+                                      ),
+                                      messageWidget,
+                                    ],
+                                  );
+                                }
+
+                                return messageWidget;
                               },
                             )
                           : Padding(

@@ -19,6 +19,7 @@ import 'package:hef/src/data/services/voice_recorder.dart';
 import 'package:hef/src/interface/components/Dialogs/report_dialog.dart';
 import 'package:hef/src/interface/components/common/groupchat_own_message_card.dart';
 import 'package:hef/src/interface/components/common/groupchat_reply_msg_card.dart';
+import 'package:hef/src/interface/components/common/date_header.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/group_info.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/voice_recorder_widget.dart';
@@ -178,6 +179,16 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
     setState(() {
       messages.add(messageModel);
     });
+  }
+
+  bool _shouldShowDateHeader(int index) {
+    if (index == messages.length - 1) return true;
+    final current = messages[index].createdAt?.toLocal();
+    final next = messages[index + 1].createdAt?.toLocal();
+    if (current == null || next == null) return false;
+    final currentDay = DateTime(current.year, current.month, current.day);
+    final nextDay = DateTime(next.year, next.month, next.day);
+    return currentDay != nextDay;
   }
 
   // Media handling methods
@@ -444,11 +455,13 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
                       controller: _scrollController,
                       itemCount: messages.length,
                       itemBuilder: (context, index) {
-                        final message = messages[messages.length -
-                            1 -
-                            index]; // Reverse the index to get the latest message first
+                        final message = messages[messages.length - 1 - index];
+                        final actualIndex = messages.length - 1 - index;
+
+                        // Build the message widget
+                        Widget messageWidget;
                         if (message.from?.id == widget.sender.id) {
-                          return Consumer(
+                          messageWidget = Consumer(
                             builder: (context, ref, child) {
                               final asyncUser = ref.watch(userProvider);
                               return asyncUser.when(
@@ -478,7 +491,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
                             },
                           );
                         } else {
-                          return GestureDetector(
+                          messageWidget = GestureDetector(
                               onLongPress: () {
                                 showReportPersonDialog(
                                     reportedItemId: message.id ?? '',
@@ -507,6 +520,20 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
                                 attachments: message.attachments,
                               ));
                         }
+
+                        // Check if we should show date header
+                        if (_shouldShowDateHeader(actualIndex)) {
+                          return Column(
+                            children: [
+                              DateHeader(
+                                date: message.createdAt ?? DateTime.now(),
+                              ),
+                              messageWidget,
+                            ],
+                          );
+                        }
+
+                        return messageWidget;
                       },
                     ),
                   ),

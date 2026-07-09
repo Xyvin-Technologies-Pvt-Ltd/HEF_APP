@@ -313,7 +313,7 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
                             Padding(
                               padding: const EdgeInsets.only(bottom: 7),
                               child: Image.asset(
-                                scale: 25,
+                                scale: 6,
                                 'assets/pngs/acutelogo.png',
                               ),
                             ),

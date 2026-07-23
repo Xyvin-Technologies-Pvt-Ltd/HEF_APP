@@ -486,7 +486,7 @@ class ProfilePreviewUsingId extends ConsumerWidget {
                                       padding: const EdgeInsets.only(left: 10),
                                       child: Row(
                                         children: [
-                                          const Icon(FontAwesomeIcons.whatsapp,
+                                          const FaIcon(FontAwesomeIcons.whatsapp,
                                               color: kPrimaryColor),
                                           const SizedBox(width: 10),
                                           Expanded(

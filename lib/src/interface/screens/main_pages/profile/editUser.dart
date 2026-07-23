@@ -1974,7 +1974,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                                 MainAxisAlignment.center,
                                             children: [
                                               const Icon(
-                                                FontAwesomeIcons.plus,
+                                                Icons.add,
                                                 color: kPrimaryColor,
                                                 size: 40,
                                               ),
@@ -2071,7 +2071,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                               height: 40,
                                             ),
                                             const Icon(
-                                              FontAwesomeIcons.plus,
+                                              Icons.add,
                                               color: kPrimaryColor,
                                               size: 60,
                                             ),

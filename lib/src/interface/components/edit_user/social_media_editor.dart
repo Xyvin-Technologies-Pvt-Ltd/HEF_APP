@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
@@ -8,7 +9,7 @@ import 'package:hef/src/interface/components/custom_widgets/custom_textFormField
 class SocialMediaEditor extends StatefulWidget {
   final List<Link> socialMedias;
   final String platform;
-  final IconData icon;
+  final dynamic icon;
   final void Function(List<Link> socialMedias, String platform, String newUrl)
       onSave;
 
@@ -109,10 +110,15 @@ class _SocialMediaEditorState extends State<SocialMediaEditor> {
             shape: BoxShape.rectangle,
             color: isValuePresent ? kPrimaryColor : kWhite),
         padding: const EdgeInsets.all(16),
-        child: Icon(
-          widget.icon,
-          color: isValuePresent ? kWhite : kPrimaryColor,
-        ),
+        child: widget.icon is IconData
+            ? Icon(
+                widget.icon as IconData,
+                color: isValuePresent ? kWhite : kPrimaryColor,
+              )
+            : FaIcon(
+                widget.icon,
+                color: isValuePresent ? kWhite : kPrimaryColor,
+              ),
       ),
     );
   }

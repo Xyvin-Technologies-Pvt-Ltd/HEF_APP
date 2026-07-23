@@ -6,7 +6,7 @@ part of 'products_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchProductsHash() => r'847946c9c9347a57accc2ad83170a534939fbe8b';
+String _$fetchProductsHash() => r'b4d555aabb02f180aed071f3d987ded16de8fb5b';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -191,7 +191,7 @@ class _FetchProductsProviderElement
   String? get search => (origin as FetchProductsProvider).search;
 }
 
-String _$fetchMyProductsHash() => r'281f44f9ccf49d593118a9a262233fd914907a1d';
+String _$fetchMyProductsHash() => r'9c069cab25688bd1e3ddf4e304b514ee75e46e8b';
 
 /// See also [fetchMyProducts].
 @ProviderFor(fetchMyProducts)

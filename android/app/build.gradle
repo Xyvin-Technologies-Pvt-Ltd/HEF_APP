@@ -69,4 +69,14 @@ flutter {
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
         implementation 'com.google.android.material:material:1.14.0-alpha03'
+
+    // Force 16 KB page-size compatible CameraX native libs
+    // (older camera-core ships libimage_processing_util_jni.so aligned to 4 KB)
+    implementation 'androidx.camera:camera-core:1.5.3'
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.camera:camera-core:1.5.3'
+    }
 }

@@ -40,6 +40,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _deepLinkService.initialize(context);
+    });
     checkFirstLaunch().then((_) {
       handlePermissions();
     });

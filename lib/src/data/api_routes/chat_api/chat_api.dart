@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -58,6 +57,49 @@ class SocketIoClientService {
         }
       }
     });
+
+    // Soft-delete sync from backend. Prefer message_deleted; keep messageDeleted
+    // for older servers, but dedupe by message id so both never double-apply.
+    final Set<String> handledDeletes = <String>{};
+    void handleDeleted(dynamic data) {
+      try {
+        log('Received message delete event: $data');
+        if (data is! Map) return;
+        final map = Map<String, dynamic>.from(data);
+        final deleteId = map['_id']?.toString() ?? map['id']?.toString();
+        if (deleteId != null && deleteId.isNotEmpty) {
+          if (handledDeletes.contains(deleteId)) return;
+          handledDeletes.add(deleteId);
+          if (handledDeletes.length > 100) {
+            handledDeletes.remove(handledDeletes.first);
+          }
+        }
+
+        final isGroup = map['isGroup'] == true ||
+            map['isGroup']?.toString().toLowerCase() == 'true';
+
+        if (isGroup) {
+          final model =
+              GroupChatModel.fromJson(map).copyWith(isDeleted: true);
+          ref.invalidate(getGroupListProvider);
+          if (!_groupMessageController.isClosed) {
+            _groupMessageController.add(model);
+          }
+        } else {
+          final model =
+              MessageModel.fromJson(map).copyWith(isDeleted: true);
+          ref.invalidate(fetchChatThreadProvider);
+          if (!_messageController.isClosed) {
+            _messageController.add(model);
+          }
+        }
+      } catch (e) {
+        log('Error handling deleted message event: $e');
+      }
+    }
+
+    _socket.on('message_deleted', handleDeleted);
+    _socket.on('messageDeleted', handleDeleted);
 
     _socket.on('connect_error', (error) {
       log('Connection Error: $error');
@@ -115,11 +157,7 @@ class ChatApiService {
       if (productId != null) 'product': productId,
       if (businessId != null) 'feed': businessId,
       if (attachments != null && attachments.isNotEmpty)
-  'attachments': attachments
-      .where((e) => e != null) // filter out nulls
-      .map((e) => e!.toJson()) // safely call toJson
-      .toList(),
-
+        'attachments': attachments.map((e) => e.toJson()).toList(),
       'isGroup': isGroup,
     });
 
@@ -187,6 +225,38 @@ class ChatApiService {
     } catch (e) {
       log('Error fetching chat threads: $e');
       throw Exception('Failed to load chat threads');
+    }
+  }
+
+  /// Soft-deletes a message. Requires backend endpoint:
+  /// `DELETE $baseUrl/chat/delete-message/$messageId`
+  /// Returns true on success.
+  static Future<bool> deleteMessage({required String messageId}) async {
+    if (messageId.isEmpty) return false;
+
+    final url = Uri.parse('$baseUrl/chat/delete-message/$messageId');
+    final headers = {
+      'accept': '*/*',
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.delete(url, headers: headers);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        log('Message deleted: $messageId');
+        return true;
+      }
+      try {
+        final jsonResponse = json.decode(response.body);
+        log('Failed to delete message: ${jsonResponse['message']}');
+      } catch (_) {
+        log('Failed to delete message: ${response.statusCode}');
+      }
+      return false;
+    } catch (e) {
+      log('Error deleting message: $e');
+      return false;
     }
   }
 }

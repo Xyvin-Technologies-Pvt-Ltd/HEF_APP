@@ -2,6 +2,7 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/events_api/events_api.dart';
+import 'package:hef/src/data/api_routes/group_chat_api/group_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
@@ -20,6 +21,14 @@ class DeepLinkService {
     _pendingDeepLink = null;
   }
 
+  void setPendingDeepLink(Uri uri) {
+    _pendingDeepLink = uri;
+  }
+
+  static bool hasNavigatorOverlay() {
+    return NavigationService.navigatorKey.currentState?.overlay != null;
+  }
+
   // Initialize and handle deep links
   Future<void> initialize(BuildContext context) async {
     try {
@@ -31,8 +40,11 @@ class DeepLinkService {
 
       // Handle deep link when app is in background or foreground
       _appLinks.uriLinkStream.listen((uri) {
-        _pendingDeepLink = uri;
-        handleDeepLink(uri);
+        if (hasNavigatorOverlay()) {
+          handleDeepLink(uri);
+        } else {
+          _pendingDeepLink = uri;
+        }
       });
     } catch (e) {
       debugPrint('Deep link initialization error: $e');
@@ -84,6 +96,30 @@ class DeepLinkService {
             } catch (e) {
               debugPrint('Error fetching user: $e');
               _showError('Unable to load profile');
+            }
+          }
+          break;
+        case 'group_chat':
+          if (pathSegments.length > 1) {
+            final groupId = pathSegments[1];
+            try {
+              String groupName = '';
+              try {
+                final info = await GroupApiService().fetchGroupInfo(groupId);
+                groupName = info.groupName;
+              } catch (_) {
+                // Navigate with id even if group details fail
+              }
+              NavigationService.navigatorKey.currentState?.pushNamed(
+                'Groupchatscreen',
+                arguments: {
+                  'group': Participant(id: groupId, name: groupName),
+                  'sender': Participant(id: id),
+                },
+              );
+            } catch (e) {
+              debugPrint('Error opening group chat: $e');
+              _showError('Unable to open group chat');
             }
           }
           break;
@@ -157,6 +193,8 @@ class DeepLinkService {
     switch (screen) {
       case 'chat':
         return id != null ? 'hef://app/chat/$id' : 'hef://app/chat';
+      case 'group_chat':
+        return id != null ? 'hef://app/group_chat/$id' : 'hef://app/group_chat';
       case 'event':
         return id != null ? 'hef://app/event/$id' : 'hef://app/event';
       case 'my_subscription':

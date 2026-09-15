@@ -7,6 +7,7 @@ import 'package:hef/src/interface/screens/main_page.dart';
 import 'package:hef/src/interface/screens/main_pages/admin/allocate_member.dart';
 import 'package:hef/src/interface/screens/main_pages/admin/member_creation.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/chat_screen.dart';
+import 'package:hef/src/interface/screens/main_pages/chat/groupchatscreen.dart';
 import 'package:hef/src/interface/screens/main_pages/event/event_member_list.dart';
 import 'package:hef/src/interface/screens/main_pages/event/view_more_event.dart';
 import 'package:hef/src/interface/screens/main_pages/login_page.dart';
@@ -110,6 +111,16 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
           builder: (context) => IndividualPage(
                 receiver: receiver,
                 sender: sender,
+              ));
+    case 'Groupchatscreen':
+      final groupArgs = settings?.arguments as Map<String, dynamic>?;
+      Participant group = groupArgs?['group'];
+      Participant groupSender = groupArgs?['sender'];
+
+      return MaterialPageRoute(
+          builder: (context) => Groupchatscreen(
+                group: group,
+                sender: groupSender,
               ));
     case 'ChangeNumber':
       return MaterialPageRoute(builder: (context) => ChangeNumberPage());

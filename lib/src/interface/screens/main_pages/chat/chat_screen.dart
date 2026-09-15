@@ -8,11 +8,14 @@ import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/msg_model.dart';
+import 'package:hef/src/data/notifiers/active_chat_tracker.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/audio_upload.dart';
+import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/data/services/voice_recorder.dart';
 import 'package:hef/src/interface/components/Dialogs/blockPersonDialog.dart';
 import 'package:hef/src/interface/components/Dialogs/report_dialog.dart';
+import 'package:hef/src/interface/components/common/message_actions_sheet.dart';
 import 'package:hef/src/interface/components/common/own_message_card.dart';
 import 'package:hef/src/interface/components/common/reply_card.dart';
 import 'package:hef/src/interface/components/common/date_header.dart';
@@ -47,10 +50,14 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
   final VoiceRecorder _voiceRecorder = VoiceRecorder();
 
   File? _recordedFile;
+  final Set<String> _deletingMessageIds = {};
 
   @override
   void initState() {
     super.initState();
+    if (widget.receiver.id != null) {
+      ActiveChatTracker.instance.setActive(chatId: widget.receiver.id!);
+    }
     // Initialize recorder
     _voiceRecorder.init();
     // Listen to recording progress
@@ -107,6 +114,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
 
   @override
   void dispose() {
+    ActiveChatTracker.instance.clear(chatId: widget.receiver.id);
     focusNode.unfocus();
     _controller.dispose();
     _voiceRecorder.dispose();
@@ -286,16 +294,131 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     return currentDay != nextDay;
   }
 
+  Future<void> _onMessageLongPress(MessageModel message) async {
+    final isOwn = message.from == widget.sender.id;
+    final hasServerId = message.id != null && message.id!.isNotEmpty;
+    final canCopy = (message.content?.trim().isNotEmpty ?? false) &&
+        !message.isDeleted;
+    final canDelete = isOwn && !message.isDeleted && hasServerId;
+    final canReport = !isOwn && !message.isDeleted;
+
+    if (!canCopy && !canDelete && !canReport) return;
+
+    final action = await showMessageActionsSheet(
+      context: context,
+      isOwnMessage: isOwn,
+      canCopy: canCopy,
+      canDelete: canDelete,
+      canReport: canReport,
+    );
+
+    if (!mounted) return;
+    await handleMessageAction(
+      context: context,
+      action: action,
+      messageId: message.id,
+      content: message.content,
+      onDeleteConfirmed: () => _deleteMessage(message),
+    );
+  }
+
+  Future<void> _deleteMessage(MessageModel message) async {
+    final messageId = message.id;
+    if (messageId == null || messageId.isEmpty) {
+      SnackbarService().showSnackBar('Unable to delete yet. Try again shortly.');
+      return;
+    }
+    if (_deletingMessageIds.contains(messageId)) return;
+
+    _deletingMessageIds.add(messageId);
+    final index = messages.indexWhere((m) => m.id == messageId);
+    MessageModel? previous;
+    if (index != -1) {
+      previous = messages[index];
+      setState(() {
+        messages[index] = previous!.copyWith(isDeleted: true);
+      });
+    }
+
+    final success = await ChatApiService.deleteMessage(messageId: messageId);
+    _deletingMessageIds.remove(messageId);
+
+    if (!mounted) return;
+
+    if (success) {
+      SnackbarService().showSnackBar('Message deleted');
+      ref.invalidate(fetchChatThreadProvider);
+    } else {
+      if (previous != null && index != -1 && index < messages.length) {
+        setState(() {
+          messages[index] = previous!;
+        });
+      }
+      SnackbarService().showSnackBar('Failed to delete message. Please try again.');
+    }
+  }
+
+  Widget _buildDeletedBubble({required bool isOwn}) {
+    return Align(
+      alignment: isOwn ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isOwn ? const Color(0xFFE6FFE2) : const Color(0xFFF2F2F2),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Text(
+          'This message was deleted',
+          style: TextStyle(
+            fontSize: 14,
+            fontStyle: FontStyle.italic,
+            color: kGreyDarker,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final messageStream = ref.watch(messageStreamProvider);
 
     messageStream.whenData((newMessage) {
-      bool messageExists = messages.any((message) =>
-          message.createdAt == newMessage.createdAt &&
-          message.content == newMessage.content);
+      // Only apply messages for this 1:1 conversation (both directions).
+      final involvesThisChat =
+          (newMessage.from == widget.receiver.id &&
+              newMessage.to == widget.sender.id) ||
+          (newMessage.from == widget.sender.id &&
+              newMessage.to == widget.receiver.id);
 
-      if (!messageExists) {
+      if (!involvesThisChat) return;
+
+      final existingIndex = messages.indexWhere(
+        (m) =>
+            (newMessage.id != null &&
+                newMessage.id!.isNotEmpty &&
+                m.id != null &&
+                m.id == newMessage.id) ||
+            (m.createdAt == newMessage.createdAt &&
+                m.content == newMessage.content &&
+                m.from == newMessage.from),
+      );
+
+      if (existingIndex != -1) {
+        if (newMessage.isDeleted ||
+            messages[existingIndex].isDeleted != newMessage.isDeleted ||
+            (messages[existingIndex].id == null && newMessage.id != null)) {
+          setState(() {
+            messages[existingIndex] = newMessage.isDeleted
+                ? messages[existingIndex].copyWith(isDeleted: true)
+                : newMessage;
+          });
+        }
+        return;
+      }
+
+      if (!newMessage.isDeleted) {
         setState(() {
           messages.add(newMessage);
         });
@@ -478,39 +601,47 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
 
                                 // Build the message widget
                                 Widget messageWidget;
-                                if (message.from == widget.sender.id) {
-                                  messageWidget = OwnMessageCard(
-                                    product: message.product,
-                                    requirement: message.feed,
-                                    status: message.status!,
-                                    message: message.content ?? '',
-                                    // 🔹 UPDATE: Determine type from attachments if available
-                                    type:
-                                        message.attachments?.isNotEmpty == true
-                                            ? message.attachments!.first.type
-                                            : 'text',
-                                    // 🔹 UPDATE: Pass fileUrl from first attachment
-                                    fileUrl:
-                                        message.attachments?.isNotEmpty == true
-                                            ? message.attachments!.first.url
-                                            : null,
-                                    // 🔹 UPDATE: Pass the attachments list
-                                    attachments: message.attachments,
-                                    time: DateFormat('h:mm a').format(
-                                      DateTime.parse(
-                                              message.createdAt.toString())
-                                          .toLocal(),
+                                if (message.isDeleted) {
+                                  messageWidget = GestureDetector(
+                                    onLongPress: () =>
+                                        _onMessageLongPress(message),
+                                    child: _buildDeletedBubble(
+                                      isOwn: message.from == widget.sender.id,
+                                    ),
+                                  );
+                                } else if (message.from == widget.sender.id) {
+                                  messageWidget = GestureDetector(
+                                    onLongPress: () =>
+                                        _onMessageLongPress(message),
+                                    child: OwnMessageCard(
+                                      product: message.product,
+                                      requirement: message.feed,
+                                      status: message.status!,
+                                      message: message.content ?? '',
+                                      // 🔹 UPDATE: Determine type from attachments if available
+                                      type: message.attachments?.isNotEmpty ==
+                                              true
+                                          ? message.attachments!.first.type
+                                          : 'text',
+                                      // 🔹 UPDATE: Pass fileUrl from first attachment
+                                      fileUrl:
+                                          message.attachments?.isNotEmpty ==
+                                                  true
+                                              ? message.attachments!.first.url
+                                              : null,
+                                      // 🔹 UPDATE: Pass the attachments list
+                                      attachments: message.attachments,
+                                      time: DateFormat('h:mm a').format(
+                                        DateTime.parse(
+                                                message.createdAt.toString())
+                                            .toLocal(),
+                                      ),
                                     ),
                                   );
                                 } else {
                                   messageWidget = GestureDetector(
-                                    onLongPress: () {
-                                      showReportPersonDialog(
-                                          reportedItemId: message.id ?? '',
-                                          context: context,
-                                          onReportStatusChanged: () {},
-                                          reportType: 'Message');
-                                    },
+                                    onLongPress: () =>
+                                        _onMessageLongPress(message),
                                     child: ReplyCard(
                                       business: message.feed,
                                       message: message.content ?? '',

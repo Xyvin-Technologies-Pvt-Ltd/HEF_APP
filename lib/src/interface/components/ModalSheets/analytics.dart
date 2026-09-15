@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
@@ -6,6 +7,7 @@ import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
 import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
+import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:intl/intl.dart';
 
@@ -99,10 +101,23 @@ class AnalyticsModalSheet extends ConsumerWidget {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-            Text(
+            SelectableText(
               analytic.description ?? '',
               style: const TextStyle(color: Colors.grey),
             ),
+            if ((analytic.description ?? '').trim().isNotEmpty)
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () {
+                    Clipboard.setData(
+                        ClipboardData(text: analytic.description ?? ''));
+                    SnackbarService().showSnackBar('Copied to clipboard');
+                  },
+                  icon: const Icon(Icons.copy, size: 16, color: kGreyDark),
+                  label: const Text('Copy', style: TextStyle(color: kGreyDark)),
+                ),
+              ),
             const SizedBox(height: 15),
 
             if (analytic.referral?.name != '' &&
@@ -146,16 +161,18 @@ class AnalyticsModalSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value, {Color? statusColor}) {
+  Widget _buildDetailRow(String label, String value,
+      {Color? statusColor, bool selectable = true}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
             style: const TextStyle(color: Colors.grey),
           ),
-          Spacer(),
+          const Spacer(),
           if (statusColor != null)
             Container(
               padding: const EdgeInsets.symmetric(
@@ -172,9 +189,39 @@ class AnalyticsModalSheet extends ConsumerWidget {
               ),
             )
           else
-            Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            Flexible(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: selectable
+                        ? SelectableText(
+                            value,
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          )
+                        : Text(
+                            value,
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                  if (selectable && value.trim().isNotEmpty)
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                      icon: const Icon(Icons.copy, size: 16, color: kGreyDark),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: value));
+                        SnackbarService().showSnackBar('Copied to clipboard');
+                      },
+                    ),
+                ],
+              ),
             ),
         ],
       ),

@@ -11,15 +11,18 @@ import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/models/group_chat_model.dart';
 import 'package:hef/src/data/models/msg_model.dart';
+import 'package:hef/src/data/notifiers/active_chat_tracker.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/data/services/audio_upload.dart';
 import 'package:hef/src/data/services/image_upload.dart';
+import 'package:hef/src/data/services/snackbar_service.dart';
 
 import 'package:hef/src/data/services/voice_recorder.dart';
 import 'package:hef/src/interface/components/Dialogs/report_dialog.dart';
 import 'package:hef/src/interface/components/common/groupchat_own_message_card.dart';
 import 'package:hef/src/interface/components/common/groupchat_reply_msg_card.dart';
 import 'package:hef/src/interface/components/common/date_header.dart';
+import 'package:hef/src/interface/components/common/message_actions_sheet.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/group_info.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/voice_recorder_widget.dart';
@@ -51,10 +54,15 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
   final VoiceRecorder _voiceRecorder = VoiceRecorder();
 
   File? _recordedFile;
+  final Set<String> _deletingMessageIds = {};
 
   @override
   void initState() {
     super.initState();
+    if (widget.group.id != null) {
+      ActiveChatTracker.instance
+          .setActive(chatId: widget.group.id!, isGroup: true);
+    }
     // Initialize recorder
     _voiceRecorder.init();
     // Listen to recording progress
@@ -111,6 +119,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
 
   @override
   void dispose() {
+    ActiveChatTracker.instance.clear(chatId: widget.group.id);
     focusNode.unfocus();
     _controller.dispose();
     _voiceRecorder.dispose();
@@ -141,6 +150,7 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
             "sent",
             text,
             widget.sender.id!,
+            messageId: messageId,
             msgType: attachments != null && attachments.isNotEmpty
                 ? attachments.first.type
                 : "text",
@@ -160,18 +170,14 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
   }
 
   void setMessage(String type, String message, String fromId,
-      {String msgType = 'text', List<Attachment>? attachments}) {
+      {String msgType = 'text',
+      List<Attachment>? attachments,
+      String? messageId}) {
     final messageModel = GroupChatModel(
+      id: messageId,
       content: message,
       from: GroupChatUserModel(id: fromId),
       status: type,
-      createdAt: DateTime.now(),
-    );
-
-    MessageModel(
-      from: fromId,
-      status: type,
-      content: message,
       createdAt: DateTime.now(),
       attachments: attachments ?? [],
     );
@@ -189,6 +195,93 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
     final currentDay = DateTime(current.year, current.month, current.day);
     final nextDay = DateTime(next.year, next.month, next.day);
     return currentDay != nextDay;
+  }
+
+  Future<void> _onMessageLongPress(GroupChatModel message) async {
+    final isOwn = message.from?.id == widget.sender.id;
+    final hasServerId = message.id != null && message.id!.isNotEmpty;
+    final canCopy =
+        (message.content?.trim().isNotEmpty ?? false) && !message.isDeleted;
+    final canDelete = isOwn && !message.isDeleted && hasServerId;
+    final canReport = !isOwn && !message.isDeleted;
+
+    if (!canCopy && !canDelete && !canReport) return;
+
+    final action = await showMessageActionsSheet(
+      context: context,
+      isOwnMessage: isOwn,
+      canCopy: canCopy,
+      canDelete: canDelete,
+      canReport: canReport,
+    );
+
+    if (!mounted) return;
+    await handleMessageAction(
+      context: context,
+      action: action,
+      messageId: message.id,
+      content: message.content,
+      onDeleteConfirmed: () => _deleteMessage(message),
+    );
+  }
+
+  Future<void> _deleteMessage(GroupChatModel message) async {
+    final messageId = message.id;
+    if (messageId == null || messageId.isEmpty) {
+      SnackbarService().showSnackBar('Unable to delete yet. Try again shortly.');
+      return;
+    }
+    if (_deletingMessageIds.contains(messageId)) return;
+
+    _deletingMessageIds.add(messageId);
+    final index = messages.indexWhere((m) => m.id == messageId);
+    GroupChatModel? previous;
+    if (index != -1) {
+      previous = messages[index];
+      setState(() {
+        messages[index] = previous!.copyWith(isDeleted: true);
+      });
+    }
+
+    final success = await ChatApiService.deleteMessage(messageId: messageId);
+    _deletingMessageIds.remove(messageId);
+
+    if (!mounted) return;
+
+    if (success) {
+      SnackbarService().showSnackBar('Message deleted');
+      ref.invalidate(getGroupListProvider);
+    } else {
+      if (previous != null && index != -1 && index < messages.length) {
+        setState(() {
+          messages[index] = previous!;
+        });
+      }
+      SnackbarService()
+          .showSnackBar('Failed to delete message. Please try again.');
+    }
+  }
+
+  Widget _buildDeletedBubble({required bool isOwn}) {
+    return Align(
+      alignment: isOwn ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isOwn ? const Color(0xFFE6FFE2) : const Color(0xFFF2F2F2),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Text(
+          'This message was deleted',
+          style: TextStyle(
+            fontSize: 14,
+            fontStyle: FontStyle.italic,
+            color: kGreyDarker,
+          ),
+        ),
+      ),
+    );
   }
 
   // Media handling methods
@@ -343,11 +436,38 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
     final groupMessageStream = ref.watch(groupMessageStreamProvider);
 
     groupMessageStream.whenData((newMessage) {
-      bool messageExists = messages.any((message) =>
-          message.createdAt == newMessage.createdAt &&
-          message.content == newMessage.content);
+      // Ignore deletes/messages from other groups
+      if (newMessage.to != null &&
+          widget.group.id != null &&
+          newMessage.to != widget.group.id) {
+        return;
+      }
 
-      if (!messageExists) {
+      final existingIndex = messages.indexWhere(
+        (m) =>
+            (newMessage.id != null &&
+                newMessage.id!.isNotEmpty &&
+                m.id != null &&
+                m.id == newMessage.id) ||
+            (m.createdAt == newMessage.createdAt &&
+                m.content == newMessage.content &&
+                m.from?.id == newMessage.from?.id),
+      );
+
+      if (existingIndex != -1) {
+        if (newMessage.isDeleted ||
+            messages[existingIndex].isDeleted != newMessage.isDeleted ||
+            (messages[existingIndex].id == null && newMessage.id != null)) {
+          setState(() {
+            messages[existingIndex] = newMessage.isDeleted
+                ? messages[existingIndex].copyWith(isDeleted: true)
+                : newMessage;
+          });
+        }
+        return;
+      }
+
+      if (!newMessage.isDeleted) {
         setState(() {
           messages.add(newMessage);
         });
@@ -460,53 +580,49 @@ class _IndividualPageState extends ConsumerState<Groupchatscreen> {
 
                         // Build the message widget
                         Widget messageWidget;
-                        if (message.from?.id == widget.sender.id) {
-                          messageWidget = Consumer(
-                            builder: (context, ref, child) {
-                              final asyncUser = ref.watch(userProvider);
-                              return asyncUser.when(
-                                data: (user) {
-                                  return GroupchatOwnMessageCard(
-                                    username: '${user.name ?? ''}',
-                                    status: message.status!,
-                                    message: message.content ?? '',
-                                    time: DateFormat('h:mm a').format(
-                                      DateTime.parse(
-                                              message.createdAt.toString())
-                                          .toLocal(),
-                                    ),
-                                    type:
-                                        message.attachments?.isNotEmpty == true
-                                            ? message.attachments!.first.type
-                                            : 'text',
-                                    attachments: message.attachments,
-                                  );
-                                },
-                                loading: () =>
-                                    Center(child: LoadingAnimation()),
-                                error: (error, stackTrace) {
-                                  return Text('Something went wrong');
-                                },
-                              );
-                            },
+                        if (message.isDeleted) {
+                          messageWidget = GestureDetector(
+                            onLongPress: () => _onMessageLongPress(message),
+                            child: _buildDeletedBubble(
+                              isOwn: message.from?.id == widget.sender.id,
+                            ),
+                          );
+                        } else if (message.from?.id == widget.sender.id) {
+                          messageWidget = GestureDetector(
+                            onLongPress: () => _onMessageLongPress(message),
+                            child: Consumer(
+                              builder: (context, ref, child) {
+                                final asyncUser = ref.watch(userProvider);
+                                return asyncUser.when(
+                                  data: (user) {
+                                    return GroupchatOwnMessageCard(
+                                      username: '${user.name ?? ''}',
+                                      status: message.status!,
+                                      message: message.content ?? '',
+                                      time: DateFormat('h:mm a').format(
+                                        DateTime.parse(
+                                                message.createdAt.toString())
+                                            .toLocal(),
+                                      ),
+                                      type: message.attachments?.isNotEmpty ==
+                                              true
+                                          ? message.attachments!.first.type
+                                          : 'text',
+                                      attachments: message.attachments,
+                                    );
+                                  },
+                                  loading: () =>
+                                      Center(child: LoadingAnimation()),
+                                  error: (error, stackTrace) {
+                                    return Text('Something went wrong');
+                                  },
+                                );
+                              },
+                            ),
                           );
                         } else {
                           messageWidget = GestureDetector(
-                              onLongPress: () {
-                                showReportPersonDialog(
-                                    reportedItemId: message.id ?? '',
-                                    context: context,
-                                    onReportStatusChanged: () {
-                                      setState(() {
-                                        if (isBlocked) {
-                                          isBlocked = false;
-                                        } else {
-                                          isBlocked = true;
-                                        }
-                                      });
-                                    },
-                                    reportType: 'Message');
-                              },
+                              onLongPress: () => _onMessageLongPress(message),
                               child: GroupchatReplyMsgCard(
                                 username: '${message.from?.name ?? ''}',
                                 message: message.content ?? '',

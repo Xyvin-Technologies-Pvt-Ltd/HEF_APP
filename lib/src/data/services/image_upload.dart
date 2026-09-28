@@ -240,6 +240,8 @@ Future<dynamic> pickMedia({
   return showModalBottomSheet(
     context: context,
     backgroundColor: Colors.white,
+    // Pad manually from the window inset — modal MediaQuery often reports 0.
+    useSafeArea: false,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -270,8 +272,12 @@ class _PickSourceDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Nested bottom sheets strip MediaQuery.padding; use the raw window inset
+    // so Gallery stays above 3-button system navigation.
+    final systemBottom =
+        MediaQueryData.fromView(View.of(context)).viewPadding.bottom;
     return Padding(
-      padding: const EdgeInsets.all(10),
+      padding: EdgeInsets.fromLTRB(10, 10, 10, 16 + systemBottom),
       child: Wrap(
         runSpacing: 15,
         children: [

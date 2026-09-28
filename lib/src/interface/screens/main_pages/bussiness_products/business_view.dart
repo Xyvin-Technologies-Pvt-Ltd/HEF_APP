@@ -92,6 +92,8 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
     _feedImage = null;
     showModalBottomSheet(
         isScrollControlled: true,
+        // Pad manually in the sheet — modal MediaQuery often reports 0.
+        useSafeArea: false,
         context: context,
         builder: (context) {
           return ShowAdddBusinessSheet(

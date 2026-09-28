@@ -48,13 +48,18 @@ class _ShowAdddBusinessSheetState extends State<ShowAdddBusinessSheet> {
   Widget build(BuildContext context) {
     NavigationService navigationService = NavigationService();
     SnackbarService snackbarService = SnackbarService();
+    // Modal routes often strip MediaQuery.padding; read the raw system inset
+    // so 3-button nav does not cover ADD POST (same as SafeArea on screens).
+    final systemBottom =
+        MediaQueryData.fromView(View.of(context)).viewPadding.bottom;
+    final keyboardBottom = MediaQuery.viewInsetsOf(context).bottom;
     return PopScope(
       child: Padding(
         padding: EdgeInsets.only(
           left: 16,
           right: 16,
           top: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+          bottom: 16 + systemBottom + keyboardBottom,
         ),
         child: SingleChildScrollView(
           // Added this widget

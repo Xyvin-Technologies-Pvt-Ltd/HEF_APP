@@ -71,27 +71,32 @@ class ProductCard extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Row(
-                          children: [  if(product.price!=null&&product.price!=''&& product.price!='null')
-                            Flexible(
-                              child: Text(
-                                '₹ ${product.price}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  decoration: product.offerPrice != null
-                                      ? TextDecoration.lineThrough
-                                      : null,
-                                  fontSize: 15.0,
-                                  color:
-                                      const Color.fromARGB(255, 112, 112, 112),
-                                  fontWeight: FontWeight.w600,
+                          children: [
+                            if (product.price != null &&
+                                product.price != '' &&
+                                product.price != 'null')
+                              Flexible(
+                                child: Text(
+                                  '₹ ${product.price}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    decoration: product.offerPrice != null
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                    fontSize: 15.0,
+                                    color: const Color.fromARGB(
+                                        255, 112, 112, 112),
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                            ),
                             const SizedBox(
                               width: 8,
                             ),
-                        if(product.offerPrice!=null&&product.offerPrice!=''&& product.offerPrice!='null')
+                            if (product.offerPrice != null &&
+                                product.offerPrice != '' &&
+                                product.offerPrice != 'null')
                               Flexible(
                                 child: Text(
                                   '₹ ${product.offerPrice}',
@@ -107,15 +112,15 @@ class ProductCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if(product.moq!=null&&product.moq!=''&& product.moq!='null'&&product.moq!=0)
-                      Text(
-                        'MOQ: ${product.moq}',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w500,
+                      if (product.moq != null && product.moq != 0)
+                        Text(
+                          'MOQ: ${product.moq}',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
                       if (statusNeeded ?? false)
                         Text(
                           'Status: ${product.status}',

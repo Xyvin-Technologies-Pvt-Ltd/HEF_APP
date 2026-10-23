@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/product_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -30,7 +29,9 @@ class ProductApiService {
 
     log('Requesting URL: $url');
 
-    final response = await http.get(url, headers: _headers);
+    final response = await http
+      .get(url, headers: _headers)
+      .timeout(const Duration(seconds: 20));
     final responseData = json.decode(response.body);
     log('Status: ${responseData['status']}');
 

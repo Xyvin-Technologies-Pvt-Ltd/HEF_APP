@@ -36,7 +36,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
   @override
   void initState() {
     super.initState();
-    _quantityController.text = widget.product.moq.toString() ?? '0';
+    _quantityController.text = widget.product.moq?.toString() ?? '0';
   }
 
   @override
@@ -169,9 +169,7 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                 color: Colors.black),
                           )
                         : SizedBox.shrink(),
-                if (widget.product.moq != null &&
-                    widget.product.moq != '' &&
-                    widget.product.moq != 0)
+                if (widget.product.moq != null && widget.product.moq != 0)
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Row(
@@ -396,7 +394,8 @@ class _ProductDetailsModalState extends ConsumerState<ProductDetailsModal> {
                                 productId: widget.product.id,
                                 Id: widget.product.seller!,
                                 content:
-                                    '''I need ${_quantityController.text}\nLet\'s Connect!''', type: '');
+                                    '''I need ${_quantityController.text}\nLet\'s Connect!''',
+                                type: '');
 
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => IndividualPage(

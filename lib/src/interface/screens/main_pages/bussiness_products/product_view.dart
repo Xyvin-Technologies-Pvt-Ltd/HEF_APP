@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
@@ -14,7 +12,6 @@ import 'package:hef/src/data/notifiers/products_notifier.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/interface/components/Cards/product_card.dart';
 import 'package:hef/src/interface/components/ModalSheets/product_details.dart';
-import 'package:hef/src/interface/components/shimmers/product_card_shimmer.dart';
 
 class ProductView extends ConsumerStatefulWidget {
   const ProductView({super.key});
@@ -24,7 +21,7 @@ class ProductView extends ConsumerStatefulWidget {
 }
 
 class _ProductViewState extends ConsumerState<ProductView> {
-  FocusNode _searchFocus = FocusNode();
+  final FocusNode _searchFocus = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
@@ -34,6 +31,10 @@ class _ProductViewState extends ConsumerState<ProductView> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(productsNotifierProvider.notifier).fetchMoreProducts();
+    });
     // _searchFocus.addListener(_onSearchFocusChange);
   }
 
@@ -53,6 +54,7 @@ class _ProductViewState extends ConsumerState<ProductView> {
   }
 
   void _onSearchChanged(String query) {
+    setState(() => _hasSearched = true);
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       ref.read(productsNotifierProvider.notifier).searchProducts(query);
@@ -60,11 +62,12 @@ class _ProductViewState extends ConsumerState<ProductView> {
   }
 
   void _onSearchSubmitted(String query) {
+    setState(() => _hasSearched = true);
     // Perform search when search is submitted
     ref.read(productsNotifierProvider.notifier).searchProducts(query);
   }
 
-    void _openModalSheet({required String sheet}) {
+  void _openModalSheet({required String sheet}) {
     if (sheet == 'product') {
       NavigationService navigationService = NavigationService();
       navigationService.pushNamed('EnterProductsPage');
@@ -91,7 +94,7 @@ class _ProductViewState extends ConsumerState<ProductView> {
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, child) {
       final products = ref.watch(productsNotifierProvider);
-      final isLoading = ref.read(productsNotifierProvider.notifier).isLoading;
+      final productNotifier = ref.read(productsNotifierProvider.notifier);
 
       return PopScope(
         onPopInvokedWithResult: (didPop, result) {
@@ -100,138 +103,159 @@ class _ProductViewState extends ConsumerState<ProductView> {
           }
         },
         child: Scaffold(
-            body: SingleChildScrollView(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: TextField(
-                    controller: _searchController,
-                    focusNode: _searchFocus,
+          body: SingleChildScrollView(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocus,
 
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      prefixIcon: const Icon(Icons.search),
-                      hintText: 'Search',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: Color.fromARGB(255, 216, 211, 211),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        prefixIcon: const Icon(Icons.search),
+                        hintText: 'Search',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(255, 216, 211, 211),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(255, 216, 211, 211),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(255, 216, 211, 211),
+                          ),
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: Color.fromARGB(255, 216, 211, 211),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: Color.fromARGB(255, 216, 211, 211),
-                        ),
-                      ),
+                      onChanged: (query) =>
+                          _onSearchChanged(query), // Trigger dynamic search
+                      onSubmitted: (query) =>
+                          _onSearchSubmitted(query), // Trigger search on submit
+                    )),
+                const SizedBox(height: 16),
+                if (products.isNotEmpty)
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      mainAxisExtent: 212,
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 0.0,
+                      mainAxisSpacing: 20.0,
                     ),
-                    onChanged: (query) =>
-                        _onSearchChanged(query), // Trigger dynamic search
-                    onSubmitted: (query) =>
-                        _onSearchSubmitted(query), // Trigger search on submit
-                  )),
-              const SizedBox(height: 16),
-              if (products.isNotEmpty)
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    mainAxisExtent: 212,
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 0.0,
-                    mainAxisSpacing: 20.0,
-                  ),
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    return Consumer(
-                      builder: (context, ref, child) {
-                        final asyncProductOwner = ref.watch(
-                            fetchUserDetailsProvider(
-                                products[index].seller ?? ''));
-                        return asyncProductOwner.when(
-                          data: (productOwner) {
-                            final receiver = Participant(
-                                name: productOwner.name ?? '',
-                                id: productOwner.uid,
-                                image: productOwner.image);
-                            return GestureDetector(
-                              onTap: () => showProductDetails(
-                                  receiver: receiver,
-                                  sender: Participant(id: id),
-                                  context: context,
-                                  product: products[index]),
-                              child: ProductCard(onEdit: null,
-                                isOthersProduct: true,
-                                product: products[index],
-                                onRemove: null,
-                              ),
-                            );
-                          },
-                          error: (error, stackTrace) {
-                      
-                            return const SizedBox();
-                          },
-                          loading: () {
-                            return SizedBox.shrink();
-                          },
-                        );
-                      },
-                    );
-                  },
-                )
-              else if (!_hasSearched)
-                Column(
-                  children: [
-                    const SizedBox(height: 100),
-                    Image.asset('assets/pngs/searchproduct.png'),
-                    const SizedBox(height: 20),
-                    Text('Search required Products',
-                        style: kHeadTitleB.copyWith(color: kGreyDark)),
-                  ],
-                )
-              else
-                const Column(
-                  children: [
-                    SizedBox(height: 100),
-                    Text(
-                      'No Products Found',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-                    onPressed: () {
-                      _openModalSheet(sheet: 'product');
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      return Consumer(
+                        builder: (context, ref, child) {
+                          final productCard = ProductCard(
+                            onEdit: null,
+                            isOthersProduct: true,
+                            product: products[index],
+                            onRemove: null,
+                          );
+                          final asyncProductOwner = ref.watch(
+                              fetchUserDetailsProvider(
+                                  products[index].seller ?? ''));
+                          return asyncProductOwner.when(
+                            data: (productOwner) {
+                              final receiver = Participant(
+                                  name: productOwner.name ?? '',
+                                  id: productOwner.uid,
+                                  image: productOwner.image);
+                              return GestureDetector(
+                                onTap: () => showProductDetails(
+                                    receiver: receiver,
+                                    sender: Participant(id: id),
+                                    context: context,
+                                    product: products[index]),
+                                child: productCard,
+                              );
+                            },
+                            error: (error, stackTrace) => productCard,
+                            loading: () => productCard,
+                          );
+                        },
+                      );
                     },
-                    label: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'Add Product/Service',
-                        style: TextStyle(color: Colors.white),
+                  )
+                else if (productNotifier.isLoading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 48.0),
+                    child: CircularProgressIndicator(),
+                  )
+                else if (productNotifier.errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 48.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Could not load products: ${productNotifier.errorMessage}',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton.icon(
+                          onPressed: productNotifier.fetchMoreProducts,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                else if (!_hasSearched)
+                  Column(
+                    children: [
+                      const SizedBox(height: 100),
+                      Image.asset('assets/pngs/searchproduct.png'),
+                      const SizedBox(height: 20),
+                      Text('No products available',
+                          style: kHeadTitleB.copyWith(color: kGreyDark)),
+                    ],
+                  )
+                else
+                  const Column(
+                    children: [
+                      SizedBox(height: 100),
+                      Text(
+                        'No Products Found',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    icon: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                      size: 27,
-                    ),
-                    backgroundColor: kPrimaryColor,
+                    ],
                   ),
+              ],
+            ),
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              _openModalSheet(sheet: 'product');
+            },
+            label: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Add Product/Service',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            icon: const Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 27,
+            ),
+            backgroundColor: kPrimaryColor,
+          ),
         ),
       );
     });

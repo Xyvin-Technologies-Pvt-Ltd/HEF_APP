@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Product {
   final String? id;
   final String? seller;
@@ -8,7 +6,7 @@ class Product {
   final double? price;
   final double? offerPrice;
   final String? description;
-  final int? moq;
+  final num? moq;
   final String? productPriceType;
   final String? status;
   final DateTime? createdAt;
@@ -27,18 +25,25 @@ class Product {
     this.status,
     this.createdAt,
     this.updatedAt,
-      });
+  });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    final sellerData = json['seller'];
+    final sellerId = sellerData is String
+        ? sellerData
+        : sellerData is Map
+            ? (sellerData['_id'] ?? sellerData['id'])?.toString()
+            : null;
+
     return Product(
       id: json['_id'] as String?,
-      seller: json['seller'] as String?,
+      seller: sellerId,
       name: json['name'] as String?,
       image: json['image'] as String?,
       price: (json['price'] as num?)?.toDouble(),
       offerPrice: (json['offerPrice'] as num?)?.toDouble(),
       description: json['description'] as String?,
-      moq: json['moq'] as int?,
+      moq: json['moq'] as num?,
       productPriceType: json['units'] as String?,
       status: json['status'] as String?,
       createdAt: json['createdAt'] != null
@@ -47,7 +52,6 @@ class Product {
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'] as String)
           : null,
-
     );
   }
 
@@ -65,7 +69,6 @@ class Product {
       'status': status,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
-
     };
   }
 }

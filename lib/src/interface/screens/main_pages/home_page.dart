@@ -402,7 +402,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                             scale: 5,
                                             'assets/pngs/new_logo.png'),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 20,
                                       )
                                     ],

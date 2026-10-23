@@ -11,6 +11,7 @@ part 'products_notifier.g.dart';
 class ProductsNotifier extends _$ProductsNotifier {
   List<Product> products = [];
   bool isLoading = false;
+  String? errorMessage;
   int pageNo = 1;
   final int limit = 20;
   bool hasMore = true;
@@ -28,6 +29,8 @@ class ProductsNotifier extends _$ProductsNotifier {
   Future<void> fetchMoreProducts() async {
     if (isLoading || !hasMore) return;
     isLoading = true;
+    errorMessage = null;
+    state = [...products];
 
     try {
       final newProducts = await ref
@@ -37,17 +40,21 @@ class ProductsNotifier extends _$ProductsNotifier {
       hasMore = newProducts.length == limit;
       state = products;
     } catch (e, stackTrace) {
+      errorMessage = e.toString();
       log(e.toString());
       log(stackTrace.toString());
     } finally {
       isLoading = false;
+      state = [...products];
     }
   }
 
   Future<void> searchProducts(String query) async {
     isLoading = true;
+    errorMessage = null;
     pageNo = 1;
     products = []; // Reset the product list when searching
+    state = [];
 
     try {
       final newProducts = await ref.read(
@@ -56,12 +63,13 @@ class ProductsNotifier extends _$ProductsNotifier {
       products = [...newProducts];
       hasMore = newProducts.length == limit;
       state = products;
-      
     } catch (e, stackTrace) {
+      errorMessage = e.toString();
       log(e.toString());
       log(stackTrace.toString());
     } finally {
       isLoading = false;
+      state = [...products];
     }
   }
 }

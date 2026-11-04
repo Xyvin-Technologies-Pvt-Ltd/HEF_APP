@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hef/src/data/api_routes/user_api/admin/admin_activities_api.dart';
 import 'package:hef/src/data/api_routes/user_api/login/user_login_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
@@ -16,7 +15,6 @@ import 'package:hef/src/data/utils/secure_storage.dart';
 import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
-import 'package:hef/src/interface/screens/main_page.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/editUser.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
@@ -38,37 +36,33 @@ class PhoneNumberScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoading = ref.watch(loadingProvider);
-    final countryCode = ref.watch(countryCodeProvider);
 
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: kPrimaryLightColor,
+      backgroundColor: kWhite,
       body: Stack(
         children: [
-          Positioned(
-              bottom: 0,
-              right: 0,
-              left: 0,
-              child: SvgPicture.asset('assets/svg/images/login_flower.svg')),
-
           Positioned.fill(
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 27),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 40),
-                    const SizedBox(height: 80),
+                    SizedBox(height: MediaQuery.sizeOf(context).height * 0.20),
                     Text(
                       'Login',
-                      style: kHeadTitleB.copyWith(color: kPrimaryColor),
+                      style: TextStyle(
+                        fontFamily: kFamilyName,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 23,
+                        color: kPrimaryColor,
+                        height: 1.0,
+                      ),
                     ),
-                    SizedBox(
-                      height: 40,
-                    ),
+                    const SizedBox(height: 52),
                     Expanded(
                       child: SingleChildScrollView(
                         child: Padding(
@@ -76,9 +70,16 @@ class PhoneNumberScreen extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Please enter your mobile number',
-                                  style: kBodyTitleL),
-                              const SizedBox(height: 20),
+                              const Text(
+                                'Phone Number',
+                                style: TextStyle(
+                                  fontFamily: kFamilyName,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 15,
+                                  color: kBlack,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
                               IntlPhoneField(
                                 validator: (phone) {
                                   if (phone!.number.length > 9) {
@@ -89,8 +90,8 @@ class PhoneNumberScreen extends ConsumerWidget {
                                   return null;
                                 },
                                 style: const TextStyle(
-                                  letterSpacing: 8,
-                                  fontSize: 18,
+                                  letterSpacing: 1,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w400,
                                 ),
                                 controller: _mobileController,
@@ -100,26 +101,30 @@ class PhoneNumberScreen extends ConsumerWidget {
                                   filled: true,
                                   fillColor: kWhite,
                                   hintText: 'Enter your phone number',
-                                  hintStyle: const TextStyle(
-                                    letterSpacing: 2,
-                                    color: Colors.grey,
-                                    fontSize: 14,
+                                  hintStyle: TextStyle(
+                                    letterSpacing: 0,
+                                    color: Colors.grey.shade500,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: BorderSide(color: kGrey),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey.shade300),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: BorderSide(color: kGrey),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey.shade300),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: const BorderSide(color: kGrey),
+                                    borderSide: const BorderSide(
+                                        color: kPrimaryColor, width: 1.5),
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16.0,
-                                    horizontal: 10.0,
+                                    vertical: 12.0,
+                                    horizontal: 14.0,
                                   ),
                                 ),
                                 onCountryChanged: (value) {
@@ -139,17 +144,23 @@ class PhoneNumberScreen extends ConsumerWidget {
                                   fontWeight: FontWeight.w400,
                                 ),
                               ),
-                              const SizedBox(height: 20),
-                              const Text(
-                                  'A 6 digit verification code will be sent',
-                                  style: kSmallTitleR),
+                              const SizedBox(height: 24),
+                              Text(
+                                'A 6 digit verification code will be sent',
+                                style: TextStyle(
+                                  fontFamily: kFamilyName,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 13,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
                               Padding(
-                                padding: const EdgeInsets.only(top: 20),
+                                padding: const EdgeInsets.only(top: 34),
                                 child: SizedBox(
-                                  height: 47,
+                                  height: 45,
                                   width: double.infinity,
                                   child: customButton(
-                                    label: 'GENERATE OTP',
+                                    label: 'Generate OTP',
                                     onPressed: isLoading
                                         ? () {}
                                         : () {
@@ -169,7 +180,6 @@ class PhoneNumberScreen extends ConsumerWidget {
               ),
             ),
           ),
-          // Loading overlay
           if (isLoading)
             Container(
               color: kBlack54,
@@ -189,7 +199,7 @@ class PhoneNumberScreen extends ConsumerWidget {
     ref.read(loadingProvider.notifier).startLoading();
 
     bool userExists =
-        await UserService. checkUser('+$countryCode${_mobileController.text}');
+        await UserService.checkUser('+$countryCode${_mobileController.text}');
     if (userExists) {
       try {
         if (countryCode == '971') {
@@ -303,6 +313,12 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
     });
   }
 
+  String get _formattedTimer {
+    final minutes = (_start ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_start % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
   void resendCode() {
     startTimer();
 
@@ -321,111 +337,139 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: kPrimaryLightColor,
+      backgroundColor: kWhite,
       body: Stack(
         children: [
-          Positioned(
-              bottom: 0,
-              right: 0,
-              left: 0,
-              child: SvgPicture.asset('assets/svg/images/login_flower.svg')),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 40),
-                const SizedBox(height: 80),
-                Text(
-                  'Verify OTP',
-                  style: kHeadTitleB.copyWith(color: kPrimaryColor),
-                ),
-                SizedBox(
-                  height: 40,
-                ),
-                Text('Enter the OTP to verify',
-                    style: kSmallerTitleEL.copyWith(fontSize: 20)),
-                const SizedBox(height: 5),
-                PinCodeTextField(
-                  appContext: context,
-                  length: 6, // Number of OTP digits
-                  obscureText: false,
-                  keyboardType: TextInputType.number, // Number-only keyboard
-                  animationType: AnimationType.fade,
-                  textStyle: const TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 5.0,
-                  ),
-                  pinTheme: PinTheme(
-                    shape: PinCodeFieldShape.box,
-                    borderRadius: BorderRadius.circular(5),
-                    fieldHeight: 55,
-                    fieldWidth: 50, selectedColor: kPrimaryColor,
-                    activeColor: const Color.fromARGB(255, 232, 226, 226),
-                    inactiveColor: kWhite,
-                    activeFillColor: kWhite, // Box color when focused
-                    selectedFillColor: kWhite, // Box color when selected
-                    inactiveFillColor:
-                        kWhite, // Box fill color when not selected
-                  ),
-                  animationDuration: const Duration(milliseconds: 300),
-                  backgroundColor: Colors.transparent,
-                  enableActiveFill: true,
-                  controller: _otpController,
-                  onChanged: (value) {
-                    // Handle input change
-                  },
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10, right: 10),
-                      child: Text(
-                        _isButtonDisabled
-                            ? 'Resend OTP in $_start seconds'
-                            : 'Enter your OTP',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: _isButtonDisabled ? kGrey : kBlack),
-                      ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 27),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const PhoneNumberScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: kBlack,
+                      size: 24,
                     ),
-                    GestureDetector(
-                      onTap: _isButtonDisabled ? null : resendCode,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10),
-                        child: Text(
-                          _isButtonDisabled ? '' : 'Resend Code',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: _isButtonDisabled ? kGrey : kRed),
+                  ),
+                  SizedBox(height: MediaQuery.sizeOf(context).height * 0.15),
+                  Text(
+                    'Verify OTP',
+                    style: TextStyle(
+                      fontFamily: kFamilyName,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 23,
+                      color: kPrimaryColor,
+                      height: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 52),
+                  const Text(
+                    'Enter the OTP to verify',
+                    style: TextStyle(
+                      fontFamily: kFamilyName,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 15,
+                      color: kBlack,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  PinCodeTextField(
+                    appContext: context,
+                    length: 6,
+                    obscureText: false,
+                    keyboardType: TextInputType.number,
+                    animationType: AnimationType.fade,
+                    textStyle: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    pinTheme: PinTheme(
+                      shape: PinCodeFieldShape.box,
+                      borderRadius: BorderRadius.circular(8),
+                      fieldHeight: 72,
+                      fieldWidth: 44,
+                      borderWidth: 1.5,
+                      selectedColor: kPrimaryColor,
+                      activeColor: Colors.grey.shade300,
+                      inactiveColor: Colors.grey.shade300,
+                      activeFillColor: kWhite,
+                      selectedFillColor: kWhite,
+                      inactiveFillColor: kWhite,
+                    ),
+                    animationDuration: const Duration(milliseconds: 300),
+                    backgroundColor: Colors.transparent,
+                    enableActiveFill: true,
+                    controller: _otpController,
+                    onChanged: (value) {},
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _isButtonDisabled
+                            ? 'Resend OTP in $_formattedTimer seconds'
+                            : 'Didn\'t receive the OTP?',
+                        style: TextStyle(
+                          fontFamily: kFamilyName,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 13,
+                          color: Colors.grey.shade500,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 80),
-                  child: SizedBox(
-                    height: 47,
-                    width: double.infinity,
-                    child: customButton(
-                      label: 'CONTINUE',
-                      onPressed: isLoading
-                          ? () {}
-                          : () {
-                              _handleOtpVerification(context, ref);
-                            },
-                      fontSize: 16,
+                      GestureDetector(
+                        onTap: _isButtonDisabled ? null : resendCode,
+                        child: Text(
+                          'Resend OTP',
+                          style: TextStyle(
+                            fontFamily: kFamilyName,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13,
+                            color: _isButtonDisabled
+                                ? Colors.grey.shade400
+                                : kPrimaryColor,
+                            decoration: _isButtonDisabled
+                                ? TextDecoration.none
+                                : TextDecoration.underline,
+                            decorationColor: kPrimaryColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 34),
+                    child: SizedBox(
+                      height: 45,
+                      width: double.infinity,
+                      child: customButton(
+                        label: 'Verify OTP',
+                        onPressed: isLoading
+                            ? () {}
+                            : () {
+                                _handleOtpVerification(context, ref);
+                              },
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-          // Loading overlay
           if (isLoading)
             Container(
               color: kBlack54,
@@ -455,8 +499,8 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
       String savedId = responseMap['userId'];
 
       if (savedToken.isNotEmpty && savedId.isNotEmpty) {
-  await SecureStorage.write('token', savedToken);
-  await SecureStorage.write('id', savedId);
+        await SecureStorage.write('token', savedToken);
+        await SecureStorage.write('id', savedId);
         token = savedToken;
         id = savedId;
         log('savedToken: $savedToken');
@@ -482,12 +526,11 @@ class ProfileCompletionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kPrimaryLightColor,
+      backgroundColor: kWhite,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Replace SvgPicture.asset with any image you are using
             SvgPicture.asset('assets/svg/images/letsgetstarted.svg'),
             SizedBox(
               height: 10,
@@ -523,8 +566,6 @@ class ProfileCompletionScreen extends StatelessWidget {
             TextButton(
               onPressed: () {
                 NavigationService navigationService = NavigationService();
-                // _mobileController.dispose();
-                // _otpController.dispose();
                 navigationService.pushNamedReplacement('MainPage');
               },
               child: Text(

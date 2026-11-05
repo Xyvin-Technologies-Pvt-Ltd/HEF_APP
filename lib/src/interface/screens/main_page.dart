@@ -24,8 +24,8 @@ import 'package:hef/src/interface/screens/main_pages/chat_page.dart';
 import 'package:hef/src/interface/screens/main_pages/home_page.dart';
 import 'package:hef/src/interface/screens/main_pages/login_page.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
 import 'package:hef/src/interface/screens/no_chapter_condition_page.dart';
-
 
 class IconResolver extends StatelessWidget {
   final String iconPath;
@@ -56,7 +56,7 @@ class IconResolver extends StatelessWidget {
     } else {
       return SvgPicture.asset(
         iconPath,
-        // color: color,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
         height: height,
         width: width,
       );
@@ -98,36 +98,128 @@ class _MainPageState extends ConsumerState<MainPage> {
     });
   }
 
-  List<String> _inactiveIcons = [];
-  List<String> _activeIcons = [];
   Future<void> _initialize({required UserModel user}) async {
     _widgetOptions = <Widget>[
-      HomePage(
-        user: user,
-      ),
+      HomePage(user: user),
       BusinessPage(),
-      ProfilePage(user: user),
-      NewsPage(),
       PeoplePage(),
+      const AnalyticsPage(
+        initialTab: 'sent',
+        requestType: 'One v One Meeting',
+      ),
+      ProfilePage(user: user),
     ];
-    _activeIcons = [
-      'assets/svg/icons/active_home.svg',
-      'assets/svg/icons/active_business.svg',
-      'assets/svg/icons/active_analytics.svg',
-      'assets/svg/icons/active_news.svg',
-      'assets/svg/icons/active_chat.svg',
-    ];
-    _inactiveIcons = [
-      'assets/svg/icons/inactive_home.svg',
-      'assets/svg/icons/inactive_business.svg',
-      'assets/svg/icons/inactive_analytics.svg',
-      'assets/svg/icons/inactive_news.svg',
-      'assets/svg/icons/inactive_chat.svg',
-    ];
-
     await SecureStorage.write('id', user.uid ?? '');
     id = user.uid ?? '';
     log('main page user id:$id');
+  }
+
+  Widget _navigationIcon(
+    int index, {
+    required bool selected,
+    required double iconSize,
+    required Color iconColor,
+  }) {
+    if (index == 2) {
+      return Icon(Icons.groups_outlined, color: iconColor, size: iconSize);
+    }
+    if (index == 3) {
+      return Icon(Icons.swap_horiz, color: iconColor, size: iconSize);
+    }
+    if (index == 4) {
+      return Icon(Icons.person_outline, color: iconColor, size: iconSize);
+    }
+
+    final asset = selected
+        ? 'assets/svg/icons/active_${index == 0 ? 'home' : 'business'}.svg'
+        : 'assets/svg/icons/inactive_${index == 0 ? 'home' : 'business'}.svg';
+    return SvgPicture.asset(
+      asset,
+      height: iconSize,
+      width: iconSize,
+      colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+    );
+  }
+
+  Widget _buildBottomNavigationBar(int selectedIndex) {
+    const inactiveColor = Color(0xFF929CAA);
+    const selectedColor = Color(0xFFFF6D00);
+    const labels = [
+      'Home',
+      'Business',
+      'Community',
+      '1-1 Meetings',
+      'Profile',
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.sizeOf(context).width;
+        final cornerRadius = width * (36 / 390);
+
+        return Material(
+          color: Colors.white,
+          elevation: 8,
+          shadowColor: Colors.black26,
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(cornerRadius)),
+          clipBehavior: Clip.antiAlias,
+          child: SafeArea(
+            top: false,
+            child: SizedBox(
+              height: 64,
+              child: Row(
+                children: List.generate(labels.length, (index) {
+                  final isSelected = index == selectedIndex;
+                  final color = isSelected ? selectedColor : inactiveColor;
+                  return Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        _onItemTapped(index);
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _navigationIcon(
+                            index,
+                            selected: isSelected,
+                            iconSize: 24,
+                            iconColor: color,
+                          ),
+                          const SizedBox(height: 4),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 2),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                labels[index],
+                                maxLines: 1,
+                                style: TextStyle(
+                                  color: color,
+                                  fontFamily: 'Helvetica',
+                                  fontSize: 11,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  height: 1.1,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildStatusPage(String status, UserModel user) {
@@ -135,93 +227,10 @@ class _MainPageState extends ConsumerState<MainPage> {
     switch (status.toLowerCase()) {
       case 'active':
         return Scaffold(
-          body: Center(
-            child: _widgetOptions.elementAt(selectedIndex),
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            items: List.generate(5, (index) {
-              return BottomNavigationBarItem(
-                backgroundColor: Colors.white,
-                icon: index == 2 // Assuming profile is the third item
-                     ? user.image != null && user.image != ''
-                         ? Container(
-                             padding: EdgeInsets.all(2),
-                             decoration: BoxDecoration(
-                               shape: BoxShape.circle,
-                               border: Border.all(color: Colors.grey, width: 2),
-                             ),
-                             child: CircleAvatar(
-                               backgroundImage: NetworkImage(
-                                 user.image ?? '',
-                               ),
-                               radius: 13,
-                             ),
-                           )
-                         : Container(
-                             padding: EdgeInsets.all(2),
-                             decoration: BoxDecoration(
-                               shape: BoxShape.circle,
-                               border: Border.all(color: Colors.grey, width: 2),
-                             ),
-                             child: SvgPicture.asset(
-                               'assets/svg/icons/dummy_person_small.svg',
-                               height: 26,
-                               width: 26,
-                             ),
-                           )
-                     : IconResolver(
-                         iconPath: _inactiveIcons[index],
-                         color: selectedIndex == index
-                             ? kPrimaryColor
-                             : Colors.grey,
-                       ),
-                activeIcon: index == 2
-                     ? user.image != null && user.image != ''
-                         ? Container(
-                             padding: EdgeInsets.all(2),
-                             decoration: BoxDecoration(
-                               shape: BoxShape.circle,
-                               border: Border.all(color: Colors.grey, width: 2),
-                             ),
-                             child: CircleAvatar(
-                               backgroundImage: NetworkImage(
-                                 user.image ?? '',
-                               ),
-                               radius: 13,
-                             ),
-                           )
-                         : Container(
-                             padding: EdgeInsets.all(2),
-                             decoration: BoxDecoration(
-                               shape: BoxShape.circle,
-                               border: Border.all(color: Colors.grey, width: 2),
-                             ),
-                             child: SvgPicture.asset(
-                               'assets/svg/icons/dummy_person_small.svg',
-                               height: 26,
-                               width: 26,
-                             ),
-                           )
-                     : IconResolver(
-                         iconPath: _activeIcons[index], color: kPrimaryColor),
-                label: [
-                  'Home',
-                  'Business',
-                  'Profile',
-                  'News',
-                  'Members'
-                ][index],
-              );
-            }),
-            currentIndex: selectedIndex,
-            selectedItemColor: kPrimaryColor,
-            unselectedItemColor: Colors.grey,
-            onTap: (index) {
-              HapticFeedback.selectionClick();
-              _onItemTapped(index);
-            },
-            showUnselectedLabels: true,
-          ),
+          backgroundColor: Colors.white,
+          extendBody: true,
+          body: _widgetOptions.elementAt(selectedIndex),
+          bottomNavigationBar: _buildBottomNavigationBar(selectedIndex),
         );
 
       case 'inactive':
@@ -284,10 +293,9 @@ class _MainPageState extends ConsumerState<MainPage> {
                   SizedBox(height: 10),
                   TextButton(
                     onPressed: () async {
-                   
-                   await SecureStorage.delete('token');
-                   await SecureStorage.delete('id');
-                  
+                      await SecureStorage.delete('token');
+                      await SecureStorage.delete('id');
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -360,10 +368,9 @@ class _MainPageState extends ConsumerState<MainPage> {
                   SizedBox(height: 20),
                   TextButton(
                     onPressed: () async {
-                  
-                   await SecureStorage.delete('token');
-                   await SecureStorage.delete('id');
-                  
+                      await SecureStorage.delete('token');
+                      await SecureStorage.delete('id');
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -434,10 +441,9 @@ class _MainPageState extends ConsumerState<MainPage> {
                   SizedBox(height: 20),
                   TextButton(
                     onPressed: () async {
-               
-                   await SecureStorage.delete('token');
-                   await SecureStorage.delete('id');
-                  
+                      await SecureStorage.delete('token');
+                      await SecureStorage.delete('id');
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -509,9 +515,8 @@ class _MainPageState extends ConsumerState<MainPage> {
           return PhoneNumberScreen();
         },
         data: (user) {
-            if(user.fcm==null || user.fcm==''){
-               
-      editUser({"fcm": fcmToken,"name":user.name,"phone":user.phone});
+          if (user.fcm == null || user.fcm == '') {
+            editUser({"fcm": fcmToken, "name": user.name, "phone": user.phone});
           }
           subscriptionType = user.subscription ?? 'free';
           _initialize(user: user);

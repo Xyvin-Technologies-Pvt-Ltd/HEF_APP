@@ -4,8 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hef/src/data/api_routes/events_api/events_api.dart';
+import 'package:hef/src/data/api_routes/chapter_api/chapter_details.dart';
 import 'package:hef/src/data/api_routes/news_api/news_api.dart';
 import 'package:hef/src/data/api_routes/notification_api/notification_api.dart';
 import 'package:hef/src/data/api_routes/promotion_api/promotion_api.dart';
@@ -17,27 +16,24 @@ import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/promotion_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/router/nav_router.dart';
-import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/pdf_services.dart';
 import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
 import 'package:hef/src/interface/components/Drawer/drawer.dart';
 import 'package:hef/src/interface/components/common/custom_video.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_news.dart';
-import 'package:hef/src/interface/components/custom_widgets/event_Card.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/components/shimmers/promotion_shimmers.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
 import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/chapters.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:sidebarx/sidebarx.dart';
+import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hef/src/interface/components/shimmers/dashboard_shimmer.dart';
-import 'package:hef/src/interface/components/ModalSheets/date_filter_sheet.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
-import 'package:hef/src/interface/screens/web_view_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -54,7 +50,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   int _currentBannerIndex = 0;
   int _currentNoticeIndex = 0;
   int _currentPosterIndex = 0;
-  int _currentEventIndex = 0;
   int _currentVideoIndex = 0;
 
   bool isDownloading = false;
@@ -170,7 +165,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Consumer(
       builder: (context, ref, child) {
         final asyncPromotions = ref.watch(fetchPromotionsProvider);
-        final asyncEvents = ref.watch(fetchEventsProvider);
         final asyncNews = ref.watch(fetchNewsProvider);
         final asyncUserDashBoardDetails = ref.watch(
             getUserDashboardProvider(startDate: startDate, endDate: endDate));
@@ -178,7 +172,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           color: kPrimaryColor,
           onRefresh: () async {
             ref.invalidate(fetchPromotionsProvider);
-            ref.invalidate(fetchEventsProvider);
+            ref.invalidate(fetchNewsProvider);
+            ref.invalidate(getUserDashboardProvider);
           },
           child: AdvancedDrawer(
             drawer: customDrawer(user: widget.user, context: context),
@@ -206,7 +201,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               borderRadius: const BorderRadius.all(Radius.circular(16)),
             ),
             child: Scaffold(
-              backgroundColor: kScaffoldColor,
+              backgroundColor: kWhite,
               body: asyncPromotions.when(
                 data: (promotions) {
                   final banners = promotions
@@ -222,18 +217,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                       .where((promo) => promo.type == 'video')
                       .toList();
                   final filteredVideos = videos
-                      .where((video) => video.link!.startsWith('http'))
+                      .where((video) =>
+                          video.link != null && video.link!.startsWith('http'))
                       .toList();
+                  final videoCardHeight =
+                      (MediaQuery.sizeOf(context).width - 32) * 9 / 16;
 
                   return SafeArea(
                     child: Container(
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image:
-                              AssetImage('assets/jpgs/scaffoldBackground.jpg'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                      color: kWhite,
                       child: Stack(
                         children: [
                           SingleChildScrollView(
@@ -241,41 +233,25 @@ class _HomePageState extends ConsumerState<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  height: 45.0, // Match the toolbarHeight
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/jpgs/scaffoldBackground.jpg'),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
+                                  height: 68,
+                                  color: kWhite,
                                   child: Row(
                                     children: [
-                                      // Leading section
                                       Padding(
                                         padding:
-                                            const EdgeInsets.only(left: 10),
-                                        child: InkWell(
-                                          onTap: () => _advancedDrawerController
-                                              .showDrawer(),
-                                          child: SizedBox(
-                                            width: 60, // Match the leadingWidth
-                                            child: ValueListenableBuilder<
-                                                AdvancedDrawerValue>(
-                                              valueListenable:
-                                                  _advancedDrawerController,
-                                              builder: (_, value, __) {
-                                                return AnimatedSwitcher(
-                                                    duration: const Duration(
-                                                        milliseconds: 250),
-                                                    child: Icon(Icons.menu));
-                                              },
-                                            ),
+                                            const EdgeInsets.only(left: 16),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: Image.asset(
+                                            'assets/pngs/hef_logo_square.png',
+                                            width: 40,
+                                            height: 40,
+                                            fit: BoxFit.cover,
                                           ),
                                         ),
                                       ),
                                       const Spacer(),
-                                      // Actions section
                                       Consumer(
                                         builder: (context, ref, child) {
                                           final asyncNotifications = ref.watch(
@@ -314,65 +290,60 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                           read: false,
                                                           cleared: false),
                                                 );
-                                                return userNotification?.read ??
-                                                    false;
+                                                return !(userNotification
+                                                        ?.read ??
+                                                    false);
                                               });
 
-                                              return Stack(
-                                                children: [
-                                                  IconButton(
-                                                    icon: hasUnread
-                                                        ? const Icon(
-                                                            Icons
-                                                                .notification_add_outlined,
-                                                            color: kRed)
-                                                        : const Icon(Icons
-                                                            .notifications_none_outlined),
-                                                    onPressed: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                const NotificationPage()),
-                                                      );
-                                                    },
-                                                  ),
-                                                  if (visibleNotifications
-                                                      .isNotEmpty)
-                                                    Positioned(
-                                                      right: 0,
-                                                      top: 0,
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(2),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.red,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                        ),
-                                                        constraints:
-                                                            const BoxConstraints(
-                                                          minWidth: 18,
-                                                          minHeight: 18,
-                                                        ),
-                                                        child: Text(
-                                                          '${visibleNotifications.length}',
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 12,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                          textAlign:
-                                                              TextAlign.center,
+                                              return SizedBox(
+                                                width: 44,
+                                                height: 44,
+                                                child: Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(
+                                                          color: const Color(
+                                                              0xFFE9EAEC),
                                                         ),
                                                       ),
                                                     ),
-                                                ],
+                                                    IconButton(
+                                                      padding: EdgeInsets.zero,
+                                                      icon: const Icon(
+                                                        Icons
+                                                            .notifications_none_outlined,
+                                                        size: 21,
+                                                      ),
+                                                      onPressed: () {
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                const NotificationPage(),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                    if (hasUnread)
+                                                      Positioned(
+                                                        right: 10,
+                                                        top: 10,
+                                                        child: Container(
+                                                          width: 7,
+                                                          height: 7,
+                                                          decoration:
+                                                              const BoxDecoration(
+                                                            color: Colors.red,
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
                                               );
                                             },
                                             loading: () => const Center(
@@ -384,191 +355,148 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         },
                                       ),
                                       InkWell(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const WebViewScreen(
-                                                color: kPrimaryColor,
-                                                url:
-                                                    'https://www.hefconnect.com/',
-                                                title: 'HEF Connect',
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child: Image.asset(
-                                            scale: 5,
-                                            'assets/pngs/new_logo.png'),
+                                        onTap: () => _advancedDrawerController
+                                            .showDrawer(),
+                                        child: Container(
+                                          width: 44,
+                                          height: 44,
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 8),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                                color: const Color(0xFFE9EAEC)),
+                                          ),
+                                          child: const Icon(
+                                            Icons.menu_rounded,
+                                            color: kBlack,
+                                            size: 23,
+                                          ),
+                                        ),
                                       ),
-                                      const SizedBox(
-                                        width: 20,
-                                      )
+                                      const SizedBox(width: 14),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 20),
                                 Padding(
                                   padding:
-                                      const EdgeInsets.only(left: 15, top: 10),
-                                  child: Text('Welcome, ',
-                                      style: kLargeTitleB.copyWith(
-                                          color: kTextHeadColor)),
-                                ),
-
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 15, top: 10, bottom: 10),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        '${widget.user.name ?? ''}',
-                                        style: kBodyTitleR.copyWith(
-                                            color: kTextHeadColor),
+                                      const EdgeInsets.fromLTRB(16, 10, 16, 16),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(14),
+                                    onTap: () => ref
+                                        .read(selectedIndexProvider.notifier)
+                                        .updateIndex(2),
+                                    child: Container(
+                                      height: 48,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16),
+                                      decoration: BoxDecoration(
+                                        color: kWhite,
+                                        border: Border.all(
+                                            color: const Color(0xFFE4E6EA)),
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
-                                      if (widget.user.adminType != null &&
-                                          widget.user.adminType != "")
-                                        Text(
-                                          ' - (${widget.user.adminType?.toUpperCase() ?? ''})',
-                                          style: kBodyTitleR.copyWith(
-                                              color: kTextHeadColor),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 15, top: 10, bottom: 10),
-                                  child: Row(
-                                    children: [
-                                      Text('DASHBOARD', style: kSmallTitleR),
-                                      const Spacer(),
-                                      if (widget.user.adminType != null &&
-                                          widget.user.adminType != "")
-                                        Stack(
-                                          children: [
-                                            IconButton(
-                                                icon: isDownloading
-                                                    ? const SizedBox(
-                                                        width: 20,
-                                                        height: 20,
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                          strokeWidth: 2,
-                                                          color: kPrimaryColor,
-                                                        ),
-                                                      )
-                                                    : const Icon(
-                                                        Icons.download),
-                                                onPressed: isDownloading
-                                                    ? null
-                                                    : downloadPDF),
-                                          ],
-                                        ),
-                                      Stack(
+                                      child: Row(
                                         children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.filter_list),
-                                            onPressed: () {
-                                              showModalBottomSheet(
-                                                context: context,
-                                                isScrollControlled: true,
-                                                backgroundColor:
-                                                    Colors.transparent,
-                                                builder: (context) =>
-                                                    DateFilterSheet(
-                                                  onApply:
-                                                      (String? newStartDate,
-                                                          String? newEndDate) {
-                                                    setState(() {
-                                                      startDate = newStartDate;
-                                                      endDate = newEndDate;
-                                                    });
-
-                                                    ref.invalidate(
-                                                        getUserDashboardProvider);
-                                                  },
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          if (startDate != null ||
-                                              endDate != null)
-                                            Positioned(
-                                              right: 12,
-                                              top: 12,
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.all(2),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.red,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                constraints:
-                                                    const BoxConstraints(
-                                                  minWidth: 8,
-                                                  minHeight: 8,
-                                                ),
+                                          Icon(Icons.search_rounded,
+                                              color: Colors.grey.shade600,
+                                              size: 22),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              'Search by members, service, category, product...',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: Colors.grey.shade500,
+                                                fontSize: 14,
                                               ),
                                             ),
+                                          ),
                                         ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(16, 4, 16, 2),
+                                  child: Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        const TextSpan(
+                                          text: 'Welcome back,\n',
+                                          style: TextStyle(
+                                            color: Color(0xFF111820),
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w700,
+                                            height: 1.25,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: widget.user.name ?? '',
+                                          style: const TextStyle(
+                                            color: Color(0xFF111820),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        if ((widget.user.adminType ?? '')
+                                            .isNotEmpty)
+                                          TextSpan(
+                                            text:
+                                                ' - (${widget.user.adminType})',
+                                            style: TextStyle(
+                                              color: Colors.grey.shade600,
+                                              fontSize: 15,
+                                              fontStyle: FontStyle.italic,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
                                 asyncUserDashBoardDetails.when(
                                   data: (userDashboard) {
                                     return Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 20, right: 20),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16),
                                       child: Column(
                                         children: [
                                           Row(
                                             children: [
                                               Expanded(
                                                 child: _buildStatCard(
-                                                  'BUSINESS GIVEN',
-                                                  '${userDashboard.businessGiven}',
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                  width:
-                                                      8), // Optional spacing between cards
-                                              Expanded(
-                                                child: _buildStatCard(
                                                   'BUSINESS RECEIVED',
                                                   '${userDashboard.businessReceived}',
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: _buildStatCard(
+                                                  'BUSINESS GIVEN',
+                                                  '${userDashboard.businessGiven}',
                                                 ),
                                               ),
                                             ],
                                           ),
                                           Row(
                                             children: [
-                                              Expanded(
-                                                child: _buildStatCard(
-                                                  'REFERRALS GIVEN',
-                                                  '${userDashboard.referralGiven}',
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                  width:
-                                                      8), // Optional spacing between cards
                                               Expanded(
                                                 child: _buildStatCard(
                                                   'REFERRALS RECEIVED',
                                                   '${userDashboard.referralReceived}',
                                                 ),
                                               ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
+                                              const SizedBox(width: 12),
                                               Expanded(
                                                 child: _buildStatCard(
-                                                  'ONE V ONE MEETINGS',
-                                                  '${userDashboard.oneToOneCount}',
+                                                  'REFERRALS GIVEN',
+                                                  '${userDashboard.referralGiven}',
                                                 ),
                                               ),
                                             ],
@@ -586,34 +514,46 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 ),
 
                                 // Banner Carousel
-                                if (banners.isNotEmpty)
-                                  Column(
-                                    children: [
-                                      CarouselSlider(
-                                        items: banners.map((banner) {
-                                          return _buildBanners(
-                                              context: context, banner: banner);
-                                        }).toList(),
-                                        options: CarouselOptions(
-                                          pauseAutoPlayOnTouch: true,
-                                          height: 175,
-                                          scrollPhysics: banners.length > 1
-                                              ? null
-                                              : const NeverScrollableScrollPhysics(),
-                                          autoPlay:
-                                              banners.length > 1 ? true : false,
-                                          viewportFraction: 1,
-                                          autoPlayInterval:
-                                              const Duration(seconds: 5),
-                                          onPageChanged: (index, reason) {
-                                            setState(() {
-                                              _currentBannerIndex = index;
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                    ],
+                                if (banners.isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  CarouselSlider(
+                                    items: banners.map((banner) {
+                                      return _buildBanners(
+                                          context: context, banner: banner);
+                                    }).toList(),
+                                    options: CarouselOptions(
+                                      pauseAutoPlayOnTouch: true,
+                                      height: 180,
+                                      enlargeCenterPage: false,
+                                      scrollPhysics: banners.length > 1
+                                          ? null
+                                          : const NeverScrollableScrollPhysics(),
+                                      autoPlay:
+                                          banners.length > 1 ? true : false,
+                                      viewportFraction: 1,
+                                      autoPlayInterval:
+                                          const Duration(seconds: 5),
+                                      onPageChanged: (index, reason) {
+                                        setState(() {
+                                          _currentBannerIndex = index;
+                                        });
+                                      },
+                                    ),
                                   ),
+                                  if (banners.length > 1)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 12),
+                                      child: _buildDotIndicator(
+                                        _currentBannerIndex,
+                                        banners.length,
+                                        kPrimaryColor,
+                                      ),
+                                    ),
+                                ],
+
+                                const SizedBox(height: 18),
+                                _buildChapterFinder(),
+                                _buildChapterLeadership(),
 
                                 const SizedBox(height: 16),
 
@@ -649,11 +589,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         height: 10,
                                       ),
                                       if (notices.length > 1)
-                                        _buildDotIndicator(
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 8),
+                                          child: _buildDotIndicator(
                                             _currentNoticeIndex,
                                             notices.length,
-                                            const Color.fromARGB(
-                                                255, 39, 38, 38)),
+                                            kPrimaryColor,
+                                          ),
+                                        ),
                                     ],
                                   ),
 
@@ -667,14 +611,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               .asMap()
                                               .entries
                                               .map((entry) {
-                                            int index = entry.key;
-                                            Promotion poster = entry.value;
-
+                                            final index = entry.key;
+                                            final poster = entry.value;
                                             return KeyedSubtree(
                                               key: ValueKey(index),
                                               child: customPoster(
-                                                  context: context,
-                                                  poster: poster),
+                                                context: context,
+                                                poster: poster,
+                                              ),
                                             );
                                           }).toList(),
                                           options: CarouselOptions(
@@ -693,111 +637,22 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               });
                                             },
                                           ),
-                                        )
+                                        ),
+                                        if (posters.length > 1)
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 10),
+                                            child: _buildDotIndicator(
+                                              _currentPosterIndex,
+                                              posters.length,
+                                              kPrimaryColor,
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
 
-                                // Events Carousel
-                                asyncEvents.when(
-                                    data: (events) {
-                                      // Filter out completed events
-                                      final activeEvents = events
-                                          .where((event) =>
-                                              event.status?.toLowerCase() !=
-                                              'completed')
-                                          .toList();
-
-                                      return activeEvents.isNotEmpty
-                                          ? Column(
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 15,
-                                                              top: 10),
-                                                      child: Text(
-                                                          'Latest Events',
-                                                          style: kSubHeadingB
-                                                              .copyWith(
-                                                                  color:
-                                                                      kTextHeadColor)),
-                                                    ),
-                                                  ],
-                                                ),
-                                                CarouselSlider(
-                                                  items:
-                                                      activeEvents.map((event) {
-                                                    return Container(
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.95,
-                                                      height:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.95 *
-                                                              9 /
-                                                              16,
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          navigationService
-                                                              .pushNamed(
-                                                                  'ViewMoreEvent',
-                                                                  arguments:
-                                                                      event);
-                                                        },
-                                                        child: eventWidget(
-                                                          withImage: true,
-                                                          context: context,
-                                                          event: event,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                                  options: CarouselOptions(
-                                                    height: 300,
-                                                    scrollPhysics: events
-                                                                .length >
-                                                            1
-                                                        ? null
-                                                        : const NeverScrollableScrollPhysics(),
-                                                    autoPlay: events.length > 1
-                                                        ? true
-                                                        : false,
-                                                    pauseAutoPlayOnTouch: true,
-                                                    viewportFraction: 1,
-                                                    autoPlayInterval:
-                                                        const Duration(
-                                                            seconds: 3),
-                                                    onPageChanged:
-                                                        (index, reason) {
-                                                      setState(() {
-                                                        _currentEventIndex =
-                                                            index;
-                                                      });
-                                                    },
-                                                  ),
-                                                ),
-                                                // _buildDotIndicator(_currentEventIndex,
-                                                //     events.length, Colors.red),
-                                              ],
-                                            )
-                                          : const SizedBox();
-                                    },
-                                    loading: () =>
-                                        const Center(child: LoadingAnimation()),
-                                    error: (error, stackTrace) {
-                                      print(error);
-                                      print(stackTrace);
-                                      return const SizedBox();
-                                    }),
-
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 8),
 
                                 asyncNews.when(
                                   data: (news) {
@@ -814,27 +669,37 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                 child: Row(
                                                   children: [
                                                     Text('Latest News',
-                                                        style: kSubHeadingB
-                                                            .copyWith(
-                                                                color:
-                                                                    kTextHeadColor)),
+                                                        style: kSubHeadingB.copyWith(
+                                                            color: const Color(
+                                                                0xFF111820))),
                                                     const Spacer(),
                                                     InkWell(
-                                                      onTap: () => ref
-                                                          .read(
-                                                              selectedIndexProvider
-                                                                  .notifier)
-                                                          .updateIndex(3),
+                                                      onTap: () {
+                                                        Navigator.of(context)
+                                                            .push(
+                                                          MaterialPageRoute(
+                                                            builder: (_) =>
+                                                                const NewsPage(),
+                                                          ),
+                                                        );
+                                                      },
                                                       child: const Text(
-                                                          'see all',
-                                                          style: kSmallTitleR),
+                                                        'See all',
+                                                        style: TextStyle(
+                                                          color:
+                                                              Color(0xFF111820),
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                        ),
+                                                      ),
                                                     )
                                                   ],
                                                 ),
                                               ),
                                               const SizedBox(height: 10),
                                               SizedBox(
-                                                height: 180,
+                                                height: 186,
                                                 child: ListView.builder(
                                                   controller:
                                                       ScrollController(),
@@ -858,18 +723,25 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                         child: newsCard(
                                                           onTap: () {
                                                             ref
-                                                                .read(selectedIndexProvider
-                                                                    .notifier)
-                                                                .updateIndex(3);
-                                                            ref
                                                                 .read(currentNewsIndexProvider
                                                                     .notifier)
                                                                 .state = index;
+                                                            Navigator.of(
+                                                                    context)
+                                                                .push(
+                                                              MaterialPageRoute(
+                                                                builder: (_) =>
+                                                                    const NewsPage(),
+                                                              ),
+                                                            );
                                                           },
                                                           imageUrl:
                                                               individualNews
                                                                       .media ??
                                                                   '',
+                                                          createdAt:
+                                                              individualNews
+                                                                  .createdAt,
                                                           title: individualNews
                                                                   .title ??
                                                               '',
@@ -888,9 +760,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   error: (error, stackTrace) =>
                                       const SizedBox(),
                                 ),
-                                SizedBox(
-                                  height: 20,
-                                ),
+                                const SizedBox(height: 20),
                                 // Videos Carousel
                                 if (filteredVideos.isNotEmpty)
                                   Column(
@@ -901,10 +771,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               context: context, video: video);
                                         }).toList(),
                                         options: CarouselOptions(
-                                          height: 225,
-                                          scrollPhysics: videos.length > 1
-                                              ? null
-                                              : const NeverScrollableScrollPhysics(),
+                                          height: videoCardHeight,
+                                          scrollPhysics:
+                                              filteredVideos.length > 1
+                                                  ? null
+                                                  : const NeverScrollableScrollPhysics(),
                                           viewportFraction: 1,
                                           pauseAutoPlayOnTouch: true,
                                           onPageChanged: (index, reason) {
@@ -914,15 +785,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           },
                                         ),
                                       ),
-                                      if (videos.length > 1)
-                                        _buildDotIndicator(
+                                      if (filteredVideos.length > 1)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 10),
+                                          child: _buildDotIndicator(
                                             _currentVideoIndex,
                                             filteredVideos.length,
-                                            Colors.black),
+                                            kPrimaryColor,
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 SizedBox(
-                                  height: 20,
+                                  height: 28 +
+                                      MediaQuery.paddingOf(context).bottom,
                                 ),
                               ],
                             ),
@@ -932,21 +809,25 @@ class _HomePageState extends ConsumerState<HomePage> {
                               padding: const EdgeInsets.all(16.0),
                               child: Align(
                                 alignment: Alignment.bottomRight,
-                                child: Container(
-                                  padding: const EdgeInsets.all(13),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: kPrimaryColor,
-                                  ),
+                                child: Material(
+                                  color: kPrimaryColor,
+                                  shape: const CircleBorder(),
+                                  elevation: 4,
+                                  shadowColor: kPrimaryColor.withOpacity(0.4),
                                   child: InkWell(
+                                    customBorder: const CircleBorder(),
                                     onTap: () {
                                       navigationService
                                           .pushNamed('MemberCreation');
                                     },
-                                    child: const Icon(
-                                      Icons.person_add_alt_1_outlined,
-                                      color: kWhite,
-                                      size: 27,
+                                    child: const SizedBox(
+                                      width: 56,
+                                      height: 56,
+                                      child: Icon(
+                                        Icons.person_add_alt_1,
+                                        color: kWhite,
+                                        size: 26,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -970,6 +851,42 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _buildStatCard(String title, String value) {
+    final presentation = switch (title) {
+      'BUSINESS RECEIVED' => (
+          'Business Received',
+          'assets/pngs/dashboard_business_received.png',
+          const Color(0xFF12B3A8),
+          true,
+          'vs LM',
+        ),
+      'BUSINESS GIVEN' => (
+          'Business Given',
+          'assets/pngs/dashboard_business_given.png',
+          const Color(0xFFFA6D08),
+          true,
+          'vs LM',
+        ),
+      'REFERRALS RECEIVED' => (
+          'Ref. Received',
+          'assets/pngs/dashboard_referral_received.png',
+          const Color(0xFF8A9199),
+          false,
+          'All active logs',
+        ),
+      'REFERRALS GIVEN' => (
+          'Ref. Given',
+          'assets/pngs/dashboard_referral_given.png',
+          const Color(0xFF8A9199),
+          false,
+          'Awaiting input',
+        ),
+      _ => (title, '', kPrimaryColor, false, ''),
+    };
+    final numericValue = int.tryParse(value);
+    final displayValue = numericValue == null
+        ? value
+        : NumberFormat.decimalPattern().format(numericValue);
+
     return InkWell(
       onTap: () {
         String? initialTab;
@@ -993,7 +910,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             requestType = 'Referral';
             break;
           case 'ONE V ONE MEETINGS':
-            initialTab = 'sent'; // or 'received' based on your preference
+            initialTab = 'sent';
             requestType = 'One v One Meeting';
             break;
         }
@@ -1013,53 +930,359 @@ class _HomePageState extends ConsumerState<HomePage> {
         }
       },
       child: Container(
+        height: 112,
         width: double.infinity,
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.fromLTRB(14, 12, 12, 10),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          color: kWhite,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE9EAEC)),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 0,
-              blurRadius: 5,
-              offset: const Offset(0, 1),
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              title,
-              style: kSmallerTitleR.copyWith(color: kBlack54, fontSize: 11),
-              textAlign: TextAlign.start,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    presentation.$1,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                presentation.$2.isEmpty
+                    ? Icon(Icons.swap_horiz_rounded,
+                        color: presentation.$3, size: 28)
+                    : Image.asset(
+                        presentation.$2,
+                        width: 34,
+                        height: 34,
+                        fit: BoxFit.contain,
+                      ),
+              ],
             ),
-            const SizedBox(height: 5),
+            const Spacer(),
             Text(
-              value,
-              style: kDisplayTitleB.copyWith(
-                  color: const Color(0xFF512DB4), fontSize: 20),
+              displayValue,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF151D28),
+                fontSize: 26,
+                fontWeight: FontWeight.w800,
+                height: 1,
+              ),
             ),
+            const SizedBox(height: 6),
+            if (presentation.$4)
+              Row(
+                children: [
+                  Icon(Icons.arrow_drop_up, color: presentation.$3, size: 18),
+                  Flexible(
+                    child: Text(
+                      presentation.$5,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: presentation.$3,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            else
+              Text(
+                presentation.$5,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: presentation.$3,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  // Method to build a dot indicator for carousels
+  void _openChapterFinder() {
+    final district = widget.user.chapter?.district;
+    if (district?.id != null && district?.name != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ChaptersPage(
+            districtId: district!.id!,
+            districtName: district.name!,
+          ),
+        ),
+      );
+      return;
+    }
+    ref.read(selectedIndexProvider.notifier).updateIndex(2);
+  }
+
+  Widget _buildChapterFinder() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: _openChapterFinder,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 150),
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEAF9F9),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFD4F1F1)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Row(
+                      children: [
+                        Text(
+                          'Find A Chapter',
+                          style: TextStyle(
+                            color: Color(0xFF1E2937),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(Icons.info_outline,
+                            color: Color(0xFF8A9AAA), size: 18),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Connect with members in your and outside of the Chapter.',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.blueGrey.shade600,
+                        fontSize: 13,
+                        height: 1.3,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: _openChapterFinder,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF009E91),
+                        side: const BorderSide(color: Color(0xFF8FE5E2)),
+                        backgroundColor: kWhite,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 9),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                      ),
+                      child: const Text(
+                        'Find a Chapter',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 66,
+                height: 66,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFD3F4F2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.map_outlined,
+                    color: Color(0xFF079B91), size: 34),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _adminInitials(String initials) {
+    return Container(
+      color: const Color(0xFFFFEEE2),
+      alignment: Alignment.center,
+      child: Text(
+        initials,
+        style: const TextStyle(
+          color: kPrimaryColor,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChapterLeadership() {
+    final chapterId = widget.user.chapter?.id;
+    if (chapterId == null || chapterId.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return ref.watch(fetchChapterDetailsProvider(chapterId)).when(
+          data: (chapter) {
+            if (chapter.admins.isEmpty) return const SizedBox.shrink();
+            return Container(
+              margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+              decoration: BoxDecoration(
+                color: kWhite,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFE9EAEC)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(5),
+                        child: Image.asset(
+                          'assets/pngs/hef_logo_square.png',
+                          width: 22,
+                          height: 22,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${widget.user.chapter?.name ?? 'HEF'} District Committee',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF202833),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right,
+                          color: Color(0xFF9AA0A6), size: 24),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: chapter.admins.map((admin) {
+                        final name = admin.user.name.trim();
+                        final imageUrl = admin.user.image;
+                        final initials = name.isEmpty
+                            ? '?'
+                            : name
+                                .split(RegExp(r'\s+'))
+                                .take(2)
+                                .map((part) => part[0])
+                                .join()
+                                .toUpperCase();
+                        return SizedBox(
+                          width: 86,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 56,
+                                  height: 56,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: const Color(0xFFE9EAEC),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(11),
+                                    child: imageUrl != null &&
+                                            imageUrl.isNotEmpty
+                                        ? Image.network(
+                                            imageUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    _adminInitials(initials),
+                                          )
+                                        : _adminInitials(initials),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  name.isEmpty ? 'Member' : name,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Color(0xFF111820),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  admin.role,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (error, stackTrace) => const SizedBox.shrink(),
+        );
+  }
+
   Widget _buildDotIndicator(int currentIndex, int itemCount, Color color) {
     return Center(
-      child: SmoothPageIndicator(
-        controller: PageController(initialPage: currentIndex),
+      child: AnimatedSmoothIndicator(
+        activeIndex: currentIndex,
         count: itemCount,
-        effect: WormEffect(
-          dotHeight: 10,
-          dotWidth: 10,
+        effect: ExpandingDotsEffect(
+          dotHeight: 7,
+          dotWidth: 7,
+          expansionFactor: 3.5,
+          spacing: 6,
           activeDotColor: color,
-          dotColor: Colors.grey,
+          dotColor: const Color(0xFFD0D3D8),
         ),
       ),
     );
@@ -1068,53 +1291,36 @@ class _HomePageState extends ConsumerState<HomePage> {
 
 Widget _buildBanners(
     {required BuildContext context, required Promotion banner}) {
-  return Container(
-    width: MediaQuery.sizeOf(context).width / 1.15,
-    child: AspectRatio(
-      aspectRatio: 2 / 1, // Custom aspect ratio as 2:1
-      child: Stack(
-        clipBehavior: Clip.none, // This allows overflow
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter,
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Image.network(
+        banner.media ?? '',
+        width: double.infinity,
+        height: 180,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
             child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Image.network(
-                banner.media ?? '',
-                fit: BoxFit.fill,
-                errorBuilder: (context, error, stackTrace) {
-                  return Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                      ),
-                    ),
-                  );
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  }
-
-                  return Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                  );
-                },
-              ),
+              height: 180,
+              color: Colors.grey[300],
             ),
-          ),
-        ],
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 180,
+              color: Colors.grey[300],
+            ),
+          );
+        },
       ),
     ),
   );
@@ -1124,13 +1330,10 @@ Widget customPoster({
   required BuildContext context,
   required Promotion poster,
 }) {
-  return Container(
+  return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(10),
-    ),
     child: ClipRRect(
-      borderRadius: BorderRadius.circular(10), // Apply the border radius here
+      borderRadius: BorderRadius.circular(16),
       child: AspectRatio(
         aspectRatio: 19 / 20,
         child: Image.network(
@@ -1140,26 +1343,15 @@ Widget customPoster({
             return Shimmer.fromColors(
               baseColor: Colors.grey[300]!,
               highlightColor: Colors.grey[100]!,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.grey,
-                ),
-              ),
+              child: Container(color: Colors.grey[300]),
             );
           },
           loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) {
-              return child; // Image loaded successfully
-            }
-            // While the image is loading, show shimmer effect
+            if (loadingProgress == null) return child;
             return Shimmer.fromColors(
               baseColor: Colors.grey[300]!,
               highlightColor: Colors.grey[100]!,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.grey,
-                ),
-              ),
+              child: Container(color: Colors.grey[300]),
             );
           },
         ),
@@ -1172,100 +1364,71 @@ Widget customNotice({
   required BuildContext context,
   required Promotion notice,
 }) {
+  final message = notice.description?.trim().isNotEmpty == true
+      ? notice.description!.trim()
+      : notice.title ?? '';
+
   return Padding(
-    padding: const EdgeInsets.symmetric(
-        horizontal: 16), // Adjust spacing between posters
-    child: Container(
-      width: MediaQuery.of(context).size.width - 32,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: kPrimaryLightColor,
-        boxShadow: [
-          BoxShadow(
-            color: kBlack.withOpacity(0.2),
-            blurRadius: 10,
-            spreadRadius: 0,
-            offset: const Offset(
-                0, 5), // Horizontal (0), Vertical (5) for bottom shadow
-          ),
-        ],
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(
-          color: kPrimaryColor,
-          width: 1.0,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () async {
+        final link = notice.link;
+        final url = link == null ? null : Uri.tryParse(link);
+        if (url == null || !await canLaunchUrl(url)) return;
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width - 32,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF8F3),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFFFD8C2)),
         ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Text(
-                    'Notice',
-                    style: kSubHeadingB.copyWith(color: kTextHeadColor),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: Container(
-                      width: 70, // Width of the line
-                      height: 1, // Thickness of the line
-                      color: kPrimaryColor // Line color
-                      ),
-                ),
-                const SizedBox(height: 4),
-                Center(
-                  child: Text(
-                    notice.title!,
-                    style: kSmallTitleB.copyWith(color: kBlack),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Center(
-                  child: Container(
-                      width: 70, // Width of the line
-                      height: 1, // Thickness of the line
-                      color: kPrimaryColor // Line color
-                      ),
-                ),
-                const SizedBox(height: 8),
-                MediaQuery(
-                  data: MediaQuery.of(context).copyWith(textScaleFactor: .9),
-                  child: Text(
-                    notice.description?.trim() ?? '',
-                    style:
-                        const TextStyle(color: kGreyDark // Set the font color
-                            ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                GestureDetector(
-                    onTap: () async {
-                      // CHANGE: add async function
-                      final Uri url = Uri.parse(
-                          notice.link ?? ''); // CHANGE: parse the link
-                      if (await canLaunchUrl(url)) {
-                        // CHANGE: check if the link can be launched
-                        await launchUrl(url,
-                            mode: LaunchMode
-                                .externalApplication); // CHANGE: open in browser
-                      } else {
-                        // Optionally show an error/snackbar
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Could not launch link')),
-                        );
-                      }
-                    },
-                    child: Text('Know more >'))
-              ],
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFE9DA),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.campaign_outlined,
+                color: kPrimaryColor,
+                size: 25,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Notice',
+                    style: TextStyle(
+                      color: kPrimaryColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    message,
+                    style: const TextStyle(
+                      color: Color(0xFF536477),
+                      fontSize: 14,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );

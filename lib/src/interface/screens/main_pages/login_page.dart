@@ -52,7 +52,7 @@ class PhoneNumberScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: MediaQuery.sizeOf(context).height * 0.20),
-                    Text(
+                    const Text(
                       'Login',
                       style: TextStyle(
                         fontFamily: kFamilyName,

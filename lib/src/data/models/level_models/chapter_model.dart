@@ -22,9 +22,13 @@ class ChapterDetailsModel {
       id: json['_id'] ?? '',
       name: json['name'] ?? '',
       districtId: json['districtId'] ?? '',
-      admins: (json['admins'] as List?)?.map((e) => Admin.fromJson(e)).toList() ?? [],
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime(1970, 1, 1),
-      updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime(1970, 1, 1),
+      admins:
+          (json['admins'] as List?)?.map((e) => Admin.fromJson(e)).toList() ??
+              [],
+      createdAt:
+          DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime(1970, 1, 1),
+      updatedAt:
+          DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime(1970, 1, 1),
       version: json['__v'] ?? 0,
     );
   }
@@ -94,11 +98,13 @@ class AdminDetails {
   final String id;
   final String name;
   final String phone;
+  final String? image;
 
   AdminDetails({
     required this.id,
     required this.name,
     required this.phone,
+    this.image,
   });
 
   factory AdminDetails.fromJson(Map<String, dynamic> json) {
@@ -106,6 +112,7 @@ class AdminDetails {
       id: json['_id'] ?? '',
       name: json['name'] ?? '',
       phone: json['phone'] ?? '',
+      image: json['image'] as String?,
     );
   }
 
@@ -114,6 +121,7 @@ class AdminDetails {
       '_id': id,
       'name': name,
       'phone': phone,
+      'image': image,
     };
   }
 }

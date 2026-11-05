@@ -6,12 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
-import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/notifiers/people_notifier.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
-import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_textFormField.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:intl/intl.dart';
@@ -111,27 +109,66 @@ class _SendAnalyticRequestPageState
     return response;
   }
 
-  Widget _buildRequiredLabel(String label) {
-    return RichText(
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+  Widget _buildRequiredLabel(String label, {bool required = true}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text.rich(
+        TextSpan(
+          text: label,
+          style: const TextStyle(
+            color: Color(0xFF3C4148),
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            height: 1.2,
           ),
-          const TextSpan(
-            text: ' *',
-            style: TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
+          children: [
+            if (required) const TextSpan(text: ' *'),
+          ],
+        ),
       ),
     );
+  }
+
+  static const Color _iconOrange = Color(0xFFE07020);
+  static const Color _hintColor = Color(0xFFA0A6B0);
+  static const Color _borderColor = Color(0xFFE4E6EA);
+
+  InputDecoration _fieldDecoration({
+    String? hint,
+    Widget? prefix,
+    Widget? suffix,
+  }) {
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: _borderColor),
+    );
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(
+        color: _hintColor,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ),
+      prefixIcon: prefix,
+      prefixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      suffixIcon: suffix,
+      filled: true,
+      fillColor: kWhite,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      border: border,
+      enabledBorder: border,
+      focusedBorder: border,
+      errorBorder: border.copyWith(
+        borderSide: const BorderSide(color: Color(0xFFE57373)),
+      ),
+      focusedErrorBorder: border.copyWith(
+        borderSide: const BorderSide(color: Color(0xFFE57373)),
+      ),
+    );
+  }
+
+  Widget _orangeIcon(IconData icon) {
+    return Icon(icon, color: _iconOrange, size: 20);
   }
 
   final countryCodeProvider = StateProvider<String?>((ref) => '91');
@@ -190,26 +227,49 @@ class _SendAnalyticRequestPageState
       });
 
     return Scaffold(
+      backgroundColor: kWhite,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: kWhite,
+        surfaceTintColor: kWhite,
         centerTitle: true,
-        title: Text(
-          widget.isReceived ? "Receive Request" : "Send Request",
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-        ),
         elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1C1C1C), size: 22),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Create new request',
+          style: TextStyle(
+            color: Color(0xFF1C1C1C),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: Color(0xFFF1F1F1)),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildRequiredLabel('Request Type'),
-              const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                hint: const Text('Choose Type'),
+                isExpanded: true,
+                icon: const Icon(Icons.keyboard_arrow_down,
+                    color: Color(0xFF8E939A)),
+                hint: const Text(
+                  'Choose Type',
+                  style: TextStyle(color: _hintColor, fontSize: 14),
+                ),
                 value: selectedRequestType,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -228,56 +288,24 @@ class _SendAnalyticRequestPageState
                     selectedRequestType = value;
                   });
                 },
-                decoration: InputDecoration(
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  floatingLabelBehavior: FloatingLabelBehavior.never,
-                  fillColor: Colors.white,
-                  filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                        color: Color.fromARGB(255, 212, 209, 209)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                        color: Color.fromARGB(255, 223, 220, 220)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                        color: Color.fromARGB(255, 212, 209, 209)),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                        color: Color.fromARGB(255, 223, 220, 220)),
-                  ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                decoration: _fieldDecoration(
+                  prefix: _orangeIcon(Icons.description_outlined),
                 ),
               ),
 
               const SizedBox(height: 16),
 
-              // Direct Member Selection
-              _buildRequiredLabel(widget.isReceived ? 'Sender' : 'Member'),
-              const SizedBox(height: 10),
+              _buildRequiredLabel('Sender'),
 
-              // Search Field
               Focus(
                 focusNode: _searchFocusNode,
                 child: TextFormField(
                   controller: memberSearchController,
-                  decoration: InputDecoration(
-                    hintText: selectedMember != null
-                        ? 'Tap to change member'
-                        : 'Search Members',
-                    prefixIcon: const Icon(Icons.search),
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 16),
-                    suffixIcon: selectedMember != null
+                  style: const TextStyle(fontSize: 14, color: Color(0xFF1C1C1C)),
+                  decoration: _fieldDecoration(
+                    hint: 'Search Members',
+                    prefix: const Icon(Icons.search, color: _hintColor, size: 20),
+                    suffix: selectedMember != null
                         ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -388,54 +416,99 @@ class _SendAnalyticRequestPageState
               else
                 const SizedBox.shrink(),
 
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 16),
 
               _buildRequiredLabel('Title'),
-              CustomTextFormField(
-                textController: titleController,
-                labelText: 'Eg - Construction related',
+              TextFormField(
+                controller: titleController,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF1C1C1C)),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a title';
                   }
                   return null;
                 },
-              ),
-
-              // if (selectedRequestType == 'Business' ||
-              //     selectedRequestType == 'Referral')
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10.0),
-                    // if (selectedRequestType != 'Referral')
-                      _buildRequiredLabel('Amount'),
-                    // if (selectedRequestType != 'Referral')
-                      CustomTextFormField(
-                        textInputType: const TextInputType.numberWithOptions(),
-                        textController: amountController,
-                        labelText: 'Eg - 50000',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter an amount';
-                          }
-                          return null;
-                        },
-                      ),
-                  ],
+                decoration: _fieldDecoration(
+                  hint: 'Eg - Construction related',
+                  prefix: _orangeIcon(Icons.sell_outlined),
                 ),
-
-              // if (selectedRequestType != 'Referral')
-                const SizedBox(height: 10.0),
-
-              Text(
-                'Description',
-                style: kSmallTitleB,
               ),
-              CustomTextFormField(
-                textController: descriptionController,
-                labelText: 'Eg - Business closed for purchase of materials',
-                maxLines: 4,
+
+              const SizedBox(height: 16),
+              _buildRequiredLabel('Amount', required: false),
+              TextFormField(
+                controller: amountController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                style: const TextStyle(fontSize: 14, color: Color(0xFF1C1C1C)),
+                decoration: _fieldDecoration(
+                  hint: 'Eg - 50000',
+                  prefix: _orangeIcon(Icons.currency_rupee),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+              _buildRequiredLabel('Description', required: false),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: descriptionController,
+                builder: (context, value, _) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: kWhite,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: _borderColor),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+                    child: Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 1, right: 10),
+                              child: _orangeIcon(Icons.article_outlined),
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                controller: descriptionController,
+                                maxLines: 4,
+                                maxLength: 500,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF1C1C1C),
+                                  height: 1.35,
+                                ),
+                                decoration: const InputDecoration(
+                                  isCollapsed: true,
+                                  counterText: '',
+                                  hintText:
+                                      'Eg - Business closed for purchase of materials',
+                                  hintStyle: TextStyle(
+                                    color: _hintColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.35,
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '${value.text.length}/500',
+                            style: const TextStyle(
+                              color: Color(0xFFB0B4BA),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 10),
@@ -834,31 +907,56 @@ class _SendAnalyticRequestPageState
                   ],
                 ),
 
-              const SizedBox(height: 20.0),
-              customButton(
-                label: 'Send Request',
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              8,
+              16,
+              12 + MediaQuery.paddingOf(context).bottom,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF86808),
+                  foregroundColor: kWhite,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 onPressed: () async {
                   if (_formKey.currentState!.validate() &&
                       selectedMember != null) {
                     String? response =
                         await createAnalytic(countryCode ?? '91');
                     if (response != null && response.contains('success')) {
-                      Navigator.pop(context);
+                      if (context.mounted) Navigator.pop(context);
                     } else {
-                      SnackbarService service = SnackbarService();
-                      service.showSnackBar(response ?? 'Error');
+                      SnackbarService().showSnackBar(response ?? 'Error');
                     }
                   } else if (selectedMember == null) {
-                    SnackbarService service = SnackbarService();
-                    service.showSnackBar('Please select a member');
+                    SnackbarService().showSnackBar('Please select a member');
                   }
                 },
+                child: const Text(
+                  'Sent Request',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
-                            const SizedBox(height: 20.0),
-
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

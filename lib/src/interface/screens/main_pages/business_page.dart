@@ -10,7 +10,7 @@ import 'package:hef/src/data/models/notification_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
 import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/interface/components/Drawer/drawer.dart';
-import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
+import 'package:hef/src/interface/screens/main_pages/business_activity_page.dart';
 import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
@@ -27,15 +27,21 @@ class _BusinessPageState extends ConsumerState<BusinessPage> {
   final _numberFormat = NumberFormat.decimalPattern('en_US');
 
   void _openAnalytics({
-    required String initialTab,
+    required String title,
+    required String searchHint,
+    required String listType,
     required String requestType,
+    required bool showAdd,
   }) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AnalyticsPage(
-          initialTab: initialTab,
+        builder: (context) => BusinessActivityPage(
+          title: title,
+          searchHint: searchHint,
+          listType: listType,
           requestType: requestType,
+          showAdd: showAdd,
         ),
       ),
     );
@@ -106,32 +112,44 @@ class _BusinessPageState extends ConsumerState<BusinessPage> {
                     icon: 'assets/pngs/dashboard_business_received.png',
                     title: 'Business Received',
                     onTap: () => _openAnalytics(
-                      initialTab: 'received',
+                      title: 'Business Received',
+                      searchHint: 'Search business, referrals...',
+                      listType: 'received',
                       requestType: 'Business',
+                      showAdd: false,
                     ),
                   ),
                   _buildLink(
                     icon: 'assets/pngs/dashboard_business_given_blue.png',
                     title: 'Business Given',
                     onTap: () => _openAnalytics(
-                      initialTab: 'sent',
+                      title: 'Business Given',
+                      searchHint: 'Search, referrals...',
+                      listType: 'sent',
                       requestType: 'Business',
+                      showAdd: true,
                     ),
                   ),
                   _buildLink(
                     icon: 'assets/pngs/dashboard_referral_received.png',
                     title: 'Reference Received',
                     onTap: () => _openAnalytics(
-                      initialTab: 'received',
+                      title: 'Reference Received',
+                      searchHint: 'Search, referrals...',
+                      listType: 'received',
                       requestType: 'Referral',
+                      showAdd: false,
                     ),
                   ),
                   _buildLink(
                     icon: 'assets/pngs/dashboard_referral_given.png',
                     title: 'Reference Given',
                     onTap: () => _openAnalytics(
-                      initialTab: 'sent',
+                      title: 'Reference Given',
+                      searchHint: 'Search, referrals...',
+                      listType: 'sent',
                       requestType: 'Referral',
+                      showAdd: true,
                     ),
                   ),
                   SizedBox(

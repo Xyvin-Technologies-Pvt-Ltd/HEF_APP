@@ -17,6 +17,7 @@ class BlockReportDropdown extends ConsumerWidget {
   final String? userId;
   final VoidCallback? onBlockStatusChanged;
   final bool? isBlocked;
+  final bool compact;
 
   const BlockReportDropdown({
     this.onBlockStatusChanged,
@@ -26,13 +27,18 @@ class BlockReportDropdown extends ConsumerWidget {
     this.feed,
     this.isBlocked,
     this.product,
+    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DropdownButtonHideUnderline(
       child: DropdownButton2(
-        customButton: const Icon(Icons.more_vert), // Trigger icon
+        customButton: Icon(
+          Icons.more_vert,
+          size: compact ? 16 : 24,
+          color: compact ? const Color(0xFF3C4250) : null,
+        ),
         items: [
           const DropdownMenuItem(
             value: 'report',
@@ -109,8 +115,21 @@ class BlockReportDropdown extends ConsumerWidget {
           }
         },
         buttonStyleData: ButtonStyleData(
+          height: compact ? 28 : null,
+          width: compact ? 28 : null,
+          padding: compact ? EdgeInsets.zero : null,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            color: compact ? Colors.white : null,
+            borderRadius: BorderRadius.circular(compact ? 14 : 10),
+            boxShadow: compact
+                ? const [
+                    BoxShadow(
+                      color: Color(0x1A000000),
+                      blurRadius: 4,
+                      offset: Offset(0, 1),
+                    ),
+                  ]
+                : null,
           ),
         ),
         dropdownStyleData: DropdownStyleData(

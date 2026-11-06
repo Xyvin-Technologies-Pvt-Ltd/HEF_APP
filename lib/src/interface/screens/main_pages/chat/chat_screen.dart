@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -26,6 +27,7 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'dart:io';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class IndividualPage extends ConsumerStatefulWidget {
   IndividualPage({required this.receiver, required this.sender, super.key});
@@ -358,15 +360,139 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
     }
   }
 
+  Future<void> _callReceiver(String? phone) async {
+    final trimmed = phone?.trim() ?? '';
+    if (trimmed.isEmpty) return;
+    final uri = Uri(scheme: 'tel', path: trimmed);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
+  Widget _headerIdentity({
+    required VoidCallback? onProfile,
+    required String? phone,
+  }) {
+    final name = Text(
+      widget.receiver.name ?? '',
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: Color(0xFF1A1A1A),
+        height: 1.15,
+      ),
+    );
+
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () => Navigator.pop(context),
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.compact,
+          constraints: const BoxConstraints(minWidth: 36, minHeight: 40),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            size: 20,
+            color: Color(0xFF1A1A1A),
+          ),
+        ),
+        const SizedBox(width: 2),
+        ClipOval(
+          child: Container(
+            width: 40,
+            height: 40,
+            color: const Color(0xFFF3F3F3),
+            child: Image.network(
+              widget.receiver.image ?? '',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return SvgPicture.asset(
+                    'assets/svg/icons/dummy_person_small.svg');
+              },
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: GestureDetector(
+            onTap: onProfile,
+            behavior: HitTestBehavior.opaque,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                name,
+                const SizedBox(height: 2),
+                const Row(
+                  children: [
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Color(0xFF25C45E),
+                        shape: BoxShape.circle,
+                      ),
+                      child: SizedBox(width: 8, height: 8),
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      'Online',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF25C45E),
+                        height: 1.1,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: () => _callReceiver(phone),
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.compact,
+          constraints: const BoxConstraints(minWidth: 36, minHeight: 40),
+          icon: const Icon(
+            Icons.phone_outlined,
+            size: 22,
+            color: Color(0xFF1A1A1A),
+          ),
+        ),
+        IconButton(
+          onPressed: () {},
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.compact,
+          constraints: const BoxConstraints(minWidth: 36, minHeight: 40),
+          icon: const Icon(
+            Icons.videocam_outlined,
+            size: 24,
+            color: Color(0xFF1A1A1A),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildDeletedBubble({required bool isOwn}) {
     return Align(
       alignment: isOwn ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        margin: EdgeInsets.only(
+          left: isOwn ? 56 : 16,
+          right: isOwn ? 16 : 56,
+          top: 8,
+          bottom: 8,
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isOwn ? const Color(0xFFE6FFE2) : const Color(0xFFF2F2F2),
-          borderRadius: BorderRadius.circular(12),
+          color: isOwn ? const Color(0xFFE2F9DC) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: isOwn
+              ? null
+              : Border.all(color: const Color(0xFFE6E4E0)),
         ),
         child: const Text(
           'This message was deleted',
@@ -432,12 +558,32 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
       child: Stack(
         children: [
           Scaffold(
-            appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(60),
-                child: AppBar(
+            appBar: AppBar(
+                  toolbarHeight: 68,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  shadowColor: Colors.transparent,
+                  surfaceTintColor: Colors.white,
+                  backgroundColor: Colors.white,
+                  systemOverlayStyle: SystemUiOverlayStyle.dark,
+                  automaticallyImplyLeading: false,
+                  titleSpacing: 4,
+                  leadingWidth: 0,
+                  centerTitle: false,
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(1),
+                    child: Container(
+                      height: 1,
+                      color: const Color(0xFFF0EEEB),
+                    ),
+                  ),
                   actions: [
                     PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert), // The three-dot icon
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: Color(0xFF1A1A1A),
+                        size: 24,
+                      ),
                       onSelected: (value) {
                         if (value == 'report') {
                           showReportPersonDialog(
@@ -494,50 +640,15 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                           0, 40), // Optional: adjust the position of the menu
                     )
                   ],
-                  elevation: 1,
-                  shadowColor: Colors.white,
-                  backgroundColor: Colors.white,
-                  leadingWidth: 90,
-                  titleSpacing: 0,
-                  leading: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Icon(
-                          Icons.arrow_back_ios,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ClipOval(
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          child: Image.network(
-                            widget.receiver.image ?? '',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return SvgPicture.asset(
-                                  'assets/svg/icons/dummy_person_small.svg');
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                   title: Consumer(
                     builder: (context, ref, child) {
                       final asyncUser = ref.watch(
                           fetchUserDetailsProvider(widget.receiver.id ?? ''));
                       return asyncUser.when(
                         data: (user) {
-                          return GestureDetector(
-                            onTap: () {
+                          return _headerIdentity(
+                            phone: user.phone,
+                            onProfile: () {
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
@@ -551,40 +662,25 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                 ),
                               );
                             },
-                            child: Text(
-                              '${widget.receiver.name ?? ''}',
-                              style: const TextStyle(fontSize: 18),
-                            ),
                           );
                         },
-                        loading: () => Text(
-                          '${widget.receiver.name ?? ''}',
-                          style: const TextStyle(fontSize: 18),
+                        loading: () => _headerIdentity(
+                          phone: null,
+                          onProfile: null,
                         ),
                         error: (error, stackTrace) {
-                          // Handle error state
-                          return const Center(
-                            child: Text(
-                                'Something went wrong please try again later'),
+                          return _headerIdentity(
+                            phone: null,
+                            onProfile: null,
                           );
                         },
                       );
                     },
                   ),
-                )),
-            body: Container(
-              decoration: const BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    Color(0xFFFBFAF8),
-                    Color(0xFFE8D5B5),
-                  ],
-                  center: Alignment.center,
-                  radius: 0.8,
-                ),
-              ),
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
+            ),
+            backgroundColor: const Color(0xFFFEFDF9),
+            body: ColoredBox(
+              color: const Color(0xFFFEFDF9),
               child: PopScope(
                 child: Column(
                   children: [
@@ -593,6 +689,7 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                           ? ListView.builder(
                               reverse: true,
                               controller: _scrollController,
+                              padding: const EdgeInsets.symmetric(vertical: 6),
                               itemCount: messages.length,
                               itemBuilder: (context, index) {
                                 final message =
@@ -717,171 +814,140 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                             alignment: Alignment.bottomCenter,
                             child: Stack(children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 12.0),
-                                color: kScaffoldColor,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Card(
-                                        elevation: 1,
-                                        color: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          side: const BorderSide(
-                                            color: Color.fromARGB(
-                                                255, 220, 215, 215),
-                                            width: 0.5,
+                                color: Colors.white,
+                                padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                                child: SafeArea(
+                                  top: false,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          constraints: const BoxConstraints(
+                                            minHeight: 48,
+                                            maxHeight: 150,
                                           ),
-                                          borderRadius:
-                                              BorderRadius.circular(15.0),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0, vertical: 5.0),
-                                          child: Container(
-                                            constraints: const BoxConstraints(
-                                              maxHeight:
-                                                  150, // Limit the height
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(26),
+                                            border: Border.all(
+                                              color: const Color(0xFFE8E8E8),
                                             ),
-                                            child: Scrollbar(
-                                              thumbVisibility: true,
-                                              child: SingleChildScrollView(
-                                                scrollDirection: Axis.vertical,
-                                                reverse:
-                                                    true, // Start from bottom
-                                                child: Row(
-                                                  children: [
-                                                    // Emoji button
-                                                    SizedBox(
-                                                      width: 40,
-                                                      child: IconButton(
-                                                        padding:
-                                                            EdgeInsets.zero,
-                                                        constraints:
-                                                            BoxConstraints(),
-                                                        icon: Icon(
-                                                          _showEmojiKeyboard
-                                                              ? Icons.keyboard
-                                                              : Icons
-                                                                  .emoji_emotions_outlined,
-                                                          size: 22,
-                                                          color:
-                                                              Colors.grey[600],
-                                                        ),
-                                                        onPressed: () {
-                                                          setState(() {
-                                                            _showEmojiKeyboard =
-                                                                !_showEmojiKeyboard;
-                                                          });
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 2),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              IconButton(
+                                                padding: EdgeInsets.zero,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                  minWidth: 40,
+                                                  minHeight: 48,
+                                                ),
+                                                icon: Icon(
+                                                  _showEmojiKeyboard
+                                                      ? Icons.keyboard_alt_outlined
+                                                      : Icons
+                                                          .sentiment_satisfied_outlined,
+                                                  size: 24,
+                                                  color:
+                                                      const Color(0xFF6B6E76),
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _showEmojiKeyboard =
+                                                        !_showEmojiKeyboard;
+                                                  });
 
-                                                          if (_showEmojiKeyboard) {
-                                                            FocusScope.of(
-                                                                    context)
-                                                                .unfocus();
-                                                          } else {
-                                                            FocusScope.of(
-                                                                    context)
-                                                                .requestFocus(
-                                                                    focusNode);
-                                                          }
-                                                        },
-                                                      ),
+                                                  if (_showEmojiKeyboard) {
+                                                    FocusScope.of(context)
+                                                        .unfocus();
+                                                  } else {
+                                                    FocusScope.of(context)
+                                                        .requestFocus(
+                                                            focusNode);
+                                                  }
+                                                },
+                                              ),
+                                              Expanded(
+                                                child: TextField(
+                                                  controller: _controller,
+                                                  focusNode: focusNode,
+                                                  keyboardType:
+                                                      TextInputType.multiline,
+                                                  maxLines: null,
+                                                  minLines: 1,
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    color: Color(0xFF1A1A1A),
+                                                  ),
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    border: InputBorder.none,
+                                                    isCollapsed: true,
+                                                    hintText:
+                                                        'Type a message...',
+                                                    hintStyle: TextStyle(
+                                                      fontSize: 15,
+                                                      color: Color(0xFFA3A4A8),
                                                     ),
-                                                    // Text field
-                                                    Expanded(
-                                                      child: TextField(
-                                                        controller: _controller,
-                                                        focusNode: focusNode,
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .multiline,
-                                                        maxLines: null,
-                                                        minLines: 1,
-                                                        decoration:
-                                                            const InputDecoration(
-                                                          border:
-                                                              InputBorder.none,
-                                                          hintText:
-                                                              "Type a message",
-                                                          contentPadding:
-                                                              EdgeInsets
-                                                                  .symmetric(
-                                                                      horizontal:
-                                                                          8),
-                                                        ),
-                                                        onChanged: (text) {
-                                                          setState(() {});
-                                                        },
-                                                      ),
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                      horizontal: 4,
+                                                      vertical: 14,
                                                     ),
-                                                    // Simplified attachment options
-                                                    Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        SizedBox(
-                                                          width: 32,
-                                                          child: IconButton(
-                                                            padding:
-                                                                EdgeInsets.zero,
-                                                            constraints:
-                                                                BoxConstraints(),
-                                                            icon: const Icon(
-                                                                Icons
-                                                                    .attach_file,
-                                                                size: 20,
-                                                                color: Colors
-                                                                    .grey),
-                                                            onPressed:
-                                                                _handleAttachment,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: 32,
-                                                          child: IconButton(
-                                                            padding:
-                                                                EdgeInsets.zero,
-                                                            constraints:
-                                                                BoxConstraints(),
-                                                            icon: const Icon(
-                                                                Icons
-                                                                    .camera_alt,
-                                                                size: 20,
-                                                                color: Colors
-                                                                    .grey),
-                                                            onPressed:
-                                                                _takePicture,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
+                                                  ),
+                                                  onChanged: (text) {
+                                                    setState(() {});
+                                                  },
                                                 ),
                                               ),
-                                            ),
+                                              IconButton(
+                                                padding: EdgeInsets.zero,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                  minWidth: 36,
+                                                  minHeight: 48,
+                                                ),
+                                                icon: const Icon(
+                                                  Icons.attach_file,
+                                                  size: 22,
+                                                  color: Color(0xFF6B6E76),
+                                                ),
+                                                onPressed: _handleAttachment,
+                                              ),
+                                              IconButton(
+                                                padding: EdgeInsets.zero,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                  minWidth: 36,
+                                                  minHeight: 48,
+                                                ),
+                                                icon: const Icon(
+                                                  Icons.photo_camera_outlined,
+                                                  size: 22,
+                                                  color: Color(0xFF6B6E76),
+                                                ),
+                                                onPressed: _takePicture,
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        right: 2,
-                                        left: 2,
-                                      ),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: kPrimaryColor,
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        child: IconButton(
-                                          icon: _controller.text.isEmpty
-                                              ? Icon(Icons.mic,
-                                                  color: Colors
-                                                      .white) // COMMAND: mic icon when text empty
-                                              : Icon(Icons.send,
-                                                  color: Colors
-                                                      .white), // COMMAND: send icon when typing
-                                          onPressed: () async {
+                                      const SizedBox(width: 12),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 0),
+                                        child: Material(
+                                          color: kPrimaryColor,
+                                          shape: const CircleBorder(),
+                                          child: InkWell(
+                                            customBorder: const CircleBorder(),
+                                            onTap: () async {
                                             if (_controller.text.isEmpty) {
                                               if (!_isRecording) {
                                                 await _voiceRecorder.init();
@@ -911,17 +977,27 @@ class _IndividualPageState extends ConsumerState<IndividualPage> {
                                                 );
                                               }
                                             } else {
-                                              // COMMAND: send text message
                                               sendMessage();
                                               _controller.clear();
-                                              setState(
-                                                  () {}); // refresh to toggle back to mic icon
+                                              setState(() {});
                                             }
-                                          },
+                                            },
+                                            child: SizedBox(
+                                              width: 48,
+                                              height: 48,
+                                              child: Icon(
+                                                _controller.text.isEmpty
+                                                    ? Icons.mic_rounded
+                                                    : Icons.send_rounded,
+                                                color: Colors.white,
+                                                size: 24,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
 

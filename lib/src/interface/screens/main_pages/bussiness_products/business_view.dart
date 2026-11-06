@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
-import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/business_model.dart';
 import 'package:hef/src/data/models/chat_model.dart';
@@ -23,10 +22,8 @@ import 'package:hef/src/data/notifiers/user_notifier.dart';
 import 'package:hef/src/interface/components/Dialogs/upgrade_dialog.dart';
 import 'package:hef/src/interface/components/DropDown/block_repor_dropDown.dart';
 import 'package:hef/src/interface/components/ModalSheets/addBusinessSheet.dart';
-import 'package:hef/src/interface/components/ModalSheets/business_details.dart';
-import 'package:hef/src/interface/components/animations/widget_animations.dart';
-import 'package:hef/src/interface/components/custom_widgets/user_tile.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:hef/src/interface/components/common/community_chrome.dart';
+import 'package:intl/intl.dart';
 import 'package:hef/src/data/services/image_upload.dart';
 import 'package:image_cropper/image_cropper.dart';
 
@@ -41,7 +38,9 @@ class BusinessView extends ConsumerStatefulWidget {
 
 class _BusinessViewState extends ConsumerState<BusinessView> {
   final TextEditingController feedContentController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  String _query = '';
   @override
   void initState() {
     super.initState();
@@ -59,6 +58,14 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
         _scrollController.position.maxScrollExtent) {
       ref.read(businessNotifierProvider.notifier).fetchMoreFeed();
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    feedContentController.dispose();
+    super.dispose();
   }
 
   File? _feedImage;
@@ -107,11 +114,47 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
 
   // Example method to filter feeds
   List<Business> filterFeeds(List<Business> feeds) {
-    if (selectedFilter == 'All') {
-      return feeds;
-    } else {
-      return feeds.where((feed) => feed.type == selectedFilter).toList();
-    }
+    final typed = selectedFilter == 'All'
+        ? feeds
+        : feeds.where((feed) => feed.type == selectedFilter).toList();
+    final query = _query.trim().toLowerCase();
+    if (query.isEmpty) return typed;
+    return typed
+        .where((feed) => (feed.content ?? '').toLowerCase().contains(query))
+        .toList();
+  }
+
+  void _showFeedFilter() {
+    const options = ['All', 'Information', 'Job', 'Funding', 'Requirement'];
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              for (final option in options)
+                ListTile(
+                  title: Text(option),
+                  trailing: selectedFilter == option
+                      ? const Icon(Icons.check, color: kCommunityOrange)
+                      : null,
+                  onTap: () {
+                    setState(() => selectedFilter = option);
+                    Navigator.pop(context);
+                  },
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -123,14 +166,25 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
 
     return RefreshIndicator(
       backgroundColor: Colors.white,
-      color: Colors.red,
+      color: kCommunityOrange,
       onRefresh: () =>
           ref.read(businessNotifierProvider.notifier).refreshFeed(),
       child: Scaffold(
+        backgroundColor: Colors.white,
         body: Stack(
           children: [
             Column(
               children: [
+                const SizedBox(height: 8),
+                CommunitySearchRow(
+                  controller: _searchController,
+                  hint: 'Search by Name, city, state...',
+                  filterActive: selectedFilter != 'All',
+                  onFilter: _showFeedFilter,
+                  onChanged: (value) => setState(() => _query = value),
+                  onSubmitted: (value) => setState(() => _query = value),
+                ),
+                const SizedBox(height: 8),
                 // SingleChildScrollView(
                 //   scrollDirection: Axis.horizontal,
                 //   child: Padding(
@@ -156,7 +210,8 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
                           ? const Center(child: Text('No FEEDS'))
                           : ListView.builder(
                               controller: _scrollController,
-                              padding: const EdgeInsets.all(16.0),
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 4, 16, 16),
                               itemCount: filteredFeeds.length +
                                   2, // +2 for Ad and spacer
                               itemBuilder: (context, index) {
@@ -167,7 +222,7 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
                                 }
 
                                 if (index == filteredFeeds.length + 1) {
-                                  return const SizedBox(height: 80);
+                                  return const SizedBox(height: 120);
                                 }
 
                                 final feed = filteredFeeds[index];
@@ -186,8 +241,8 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
               ],
             ),
             Positioned(
-              right: 30,
-              bottom: 30,
+              right: 16,
+              bottom: 96,
               child: GestureDetector(
                 onTap: () {
                   if (subscriptionType != 'free') {
@@ -200,15 +255,16 @@ class _BusinessViewState extends ConsumerState<BusinessView> {
                   }
                 },
                 child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: kPrimaryColor,
+                  width: 56,
+                  height: 56,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: kCommunityOrange,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.add,
                     color: Colors.white,
-                    size: 27,
+                    size: 28,
                   ),
                 ),
               ),
@@ -581,112 +637,260 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
     super.dispose();
   }
 
-  bool _isExpanded = false;
+  Future<void> _submitComment() async {
+    final text = commentController.text.trim();
+    if (text.isEmpty || widget.business.id == null) return;
+    FocusScope.of(context).unfocus();
+    await postComment(feedId: widget.business.id!, comment: text);
+    await ref.read(businessNotifierProvider.notifier).refreshFeed();
+    commentController.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 16.0),
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(color: Color.fromARGB(255, 213, 208, 208)),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: buildUserInfo(widget.author, widget.business, context),
+    final company = (widget.author.company != null &&
+            widget.author.company!.isNotEmpty)
+        ? widget.author.company!.first.name?.trim()
+        : null;
+    final created = widget.business.createdAt?.toLocal();
+    final stamp = created == null
+        ? ''
+        : DateFormat('h:mm a · MMM d, yyyy').format(created);
+    final me = ref.watch(userProvider).asData?.value;
+    final commentCount = widget.business.comments?.length ?? 0;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFEEEEF2)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 3),
           ),
-          if (widget.withImage)
-            Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10),
-              child: _buildPostImage(widget.business.media!),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 5),
-                ExpandableText(text: widget.business.content ?? ''),
-                const SizedBox(height: 16),
-                _buildActionButtons(),
-                GestureDetector(
-                  onTap: () => _openCommentModal(),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10, top: 5),
-                    child: Text(
-                      'View all ${widget.business.comments?.length ?? 0} comments',
-                      style:
-                          const TextStyle(color: Colors.grey, fontSize: 14.5),
+                ClipOval(
+                  child: SizedBox(
+                    width: 42,
+                    height: 42,
+                    child: Image.network(
+                      widget.author.image ?? '',
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => SvgPicture.asset(
+                        'assets/svg/icons/dummy_person_small.svg',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-                  child: Row(
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipOval(
-                        child: Container(
-                            width: 30,
-                            height: 30,
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                            child: SvgPicture.asset(
-                                'assets/svg/icons/dummy_person_small.svg')),
-                      ),
-                      GestureDetector(
-                        onTap: () => _openCommentModal(),
-                        child: const Padding(
-                          padding: EdgeInsets.only(
-                            left: 10,
-                          ),
-                          child: Text(
-                            'Add a comment...',
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 129, 128, 128)),
-                          ),
+                      Text(
+                        widget.author.name ?? 'Unknown User',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: kCommunityText,
                         ),
                       ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () => _openCommentModal(),
-                        child: const Row(
-                          children: [
-                            Text(
-                              '❤️',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text('🙌'),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Icon(
-                              Icons.add_circle_outline_sharp,
-                              color: Colors.grey,
-                              size: 16,
-                            ),
-                          ],
+                      if (company != null && company.isNotEmpty)
+                        Text(
+                          company.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.4,
+                            color: kCommunityMuted,
+                          ),
                         ),
-                      )
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-                  child: Text(
-                    '${timeAgo(widget.business.createdAt!)}',
-                    style: const TextStyle(fontSize: 13),
+                if (stamp.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      stamp,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: kCommunityMuted,
+                      ),
+                    ),
                   ),
-                ),
+                if (widget.business.author == id)
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(Icons.more_vert, size: 20),
+                    color: const Color(0xFF6B7280),
+                    onPressed: () => _showDeleteDialog(widget.business.id!),
+                  )
+                else
+                  const SizedBox(width: 4),
+                if (widget.business.author != id)
+                  BlockReportDropdown(
+                    isBlocked: false,
+                    feed: widget.business,
+                  ),
               ],
             ),
-          ),
-        ],
+            if (widget.withImage && (widget.business.media ?? '').isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 10, right: 4),
+                child: _buildPostImage(widget.business.media!),
+              ),
+            if ((widget.business.content ?? '').trim().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 10, right: 4),
+                child: ExpandableText(
+                  text: widget.business.content ?? '',
+                  readMoreColor: kCommunityOrange,
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, right: 4),
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: _openCommentModal,
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.chat_bubble_outline,
+                          size: 20,
+                          color: Color(0xFF6B7280),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$commentCount',
+                          style: const TextStyle(
+                            color: Color(0xFF6B7280),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (widget.business.author != id) ...[
+                    const SizedBox(width: 16),
+                    InkWell(
+                      onTap: () => widget.onShare(),
+                      child: const Icon(
+                        Icons.send_outlined,
+                        size: 20,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  InkWell(
+                    onTap: _toggleLike,
+                    child: Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,
+                      size: 20,
+                      color: isLiked ? Colors.red : const Color(0xFF6B7280),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text('👏', style: TextStyle(fontSize: 18)),
+                  const SizedBox(width: 10),
+                  InkWell(
+                    onTap: _openCommentModal,
+                    child: const Icon(
+                      Icons.add,
+                      size: 20,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, right: 4),
+              child: Row(
+                children: [
+                  ClipOval(
+                    child: SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: Image.network(
+                        me?.image ?? '',
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => SvgPicture.asset(
+                          'assets/svg/icons/dummy_person_small.svg',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: commentController,
+                      onSubmitted: (_) => _submitComment(),
+                      style: const TextStyle(fontSize: 13),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: 'Add a comment...',
+                        hintStyle: const TextStyle(
+                          color: Color(0xFFB0B6BE),
+                          fontSize: 13,
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF3F4F6),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (widget.business.createdAt != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8, left: 2),
+                child: Text(
+                  timeAgo(widget.business.createdAt!),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: kCommunityMuted,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -698,7 +902,7 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
         alignment: Alignment.center,
         children: [
           AspectRatio(
-            aspectRatio: 4 / 5,
+            aspectRatio: 16 / 9,
             child: ClipRRect(
               borderRadius:
                   BorderRadius.circular(10), // Ensure border radius is applied
@@ -746,59 +950,6 @@ class _ReusableBusinessPostState extends ConsumerState<ReusableBusinessPost>
     );
   }
 
-  Widget _buildActionButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                // IconButton(
-                //   icon: Icon(
-                //     isLiked ? Icons.favorite : Icons.favorite_border,
-                //     color: isLiked ? Colors.red : Colors.black,
-                //   ),
-                //   onPressed: _toggleLike,
-                // ),
-                IconButton(
-                  icon: SvgPicture.asset('assets/svg/icons/comment.svg'),
-                  onPressed: _openCommentModal,
-                ),
-                if (widget.business.author != id)
-                  IconButton(
-                    icon: SvgPicture.asset('assets/svg/icons/share.svg'),
-                    onPressed: () => widget.onShare(),
-                  ),
-                SizedBox(
-                  width: 190,
-                ),
-                if (widget.business.author == id)
-                  IconButton(
-                    icon: Icon(Icons.delete_outline),
-                    onPressed: () => _showDeleteDialog(widget.business.id!),
-                  ),
-              ],
-            ),
-            // Padding(
-            //   padding: const EdgeInsets.only(left: 10, right: 10),
-            //   child: Text(
-            //     '${widget.business.likes?.length ?? 0} Likes',
-            //     style: const TextStyle(fontWeight: FontWeight.w600),
-            //   ),
-            // ),
-          ],
-        ),
-        const Spacer(),
-        if (widget.business.author != id)
-          BlockReportDropdown(
-            isBlocked: false,
-            feed: widget.business,
-          )
-      ],
-    );
-  }
 }
 
 class ReusableFeedPostSkeleton extends StatelessWidget {

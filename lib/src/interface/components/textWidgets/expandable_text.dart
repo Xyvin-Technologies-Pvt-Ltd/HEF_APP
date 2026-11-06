@@ -5,7 +5,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ExpandableText extends StatefulWidget {
   final String text;
-  const ExpandableText({super.key, required this.text});
+  final Color readMoreColor;
+  const ExpandableText({
+    super.key,
+    required this.text,
+    this.readMoreColor = Colors.blue,
+  });
 
   @override
   State<ExpandableText> createState() => _ExpandableTextState();
@@ -92,7 +97,7 @@ class _ExpandableTextState extends State<ExpandableText> {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 _isExpanded ? 'Read less' : 'Read more',
-                style: const TextStyle(color: Colors.blue),
+                style: TextStyle(color: widget.readMoreColor),
               ),
             ),
           ),

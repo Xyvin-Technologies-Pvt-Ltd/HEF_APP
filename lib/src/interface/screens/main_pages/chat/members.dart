@@ -3,27 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hef/src/data/api_routes/chat_api/chat_api.dart';
 import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
-import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/chat_model.dart';
 import 'package:hef/src/data/notifiers/people_notifier.dart';
 import 'package:hef/src/data/notifiers/business_category_notifier.dart';
-import 'package:hef/src/data/api_routes/business_category_api.dart/business_category_api_service.dart';
-import 'package:hef/src/data/models/business_category_model.dart';
-import 'package:hef/src/interface/components/Buttons/primary_button.dart';
+import 'package:hef/src/interface/components/common/community_chrome.dart';
 
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
 import 'package:hef/src/interface/screens/main_pages/chat/chat_screen.dart';
+import 'package:hef/src/interface/screens/main_pages/chat/member_details_sheet.dart';
 import 'package:hef/src/interface/screens/main_pages/profile/profile_preview.dart';
-import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
 import 'package:hef/src/data/models/user_model.dart';
-import 'package:shimmer/shimmer.dart';
 
 import 'dart:async';
-import 'dart:developer';
-import 'package:flutter/scheduler.dart';
 
 class MembersPage extends ConsumerStatefulWidget {
   const MembersPage({super.key});
@@ -36,7 +30,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _tagController = TextEditingController();
-  FocusNode _searchFocus = FocusNode();
+  final FocusNode _searchFocus = FocusNode();
   Timer? _debounce;
   String? selectedDistrictId;
   String? selectedDistrictName;
@@ -46,6 +40,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   String? selectedChapter;
   String? businessTagSearch;
   List<String> selectedTags = [];
+  String _directoryFilter = 'chapter';
 
   @override
   void initState() {
@@ -101,8 +96,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
     String? tempChapterName = selectedChapter;
     String? tempCategoryName = selectedCategoryName;
     String? tempCategoryId = selectedCategoryId;
+    final tempTags = List<String>.from(selectedTags);
 
-    // Ensure categories are loaded when filter sheet opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(businessCategoryNotifierProvider.notifier).fetchMoreCategories();
     });
@@ -110,678 +105,251 @@ class _MembersPageState extends ConsumerState<MembersPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Handle bar
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
+      backgroundColor: Colors.transparent,
+      barrierColor: const Color(0x66000000),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x14000000),
+                      blurRadius: 18,
+                      offset: Offset(0, -4),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Filter Members',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (tempDistrictName != null ||
-                        selectedTags.isNotEmpty ||
-                        tempChapterName != null ||
-                        tempCategoryName != null)
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            tempDistrictId = null;
-                            tempDistrictName = null;
-                            tempChapterId = null;
-                            tempChapterName = null;
-                            tempCategoryName = null;
-                            tempCategoryId = null;
-                            selectedTags.clear();
-                          });
-                          ref
-                              .read(peopleNotifierProvider.notifier)
-                              .setCategory(null);
-                          ref
-                              .read(peopleNotifierProvider.notifier)
-                              .setDistrict(null);
-                          ref
-                              .read(peopleNotifierProvider.notifier)
-                              .setChapter(null);
-                          ref.read(peopleNotifierProvider.notifier).setTags([]);
-                        },
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.red[400],
-                        ),
-                        child: const Text('Reset'),
-                      ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                const Divider(),
-
-                // Filter Options
-                Flexible(
-                  child: SingleChildScrollView(
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Theme(
-                          data: Theme.of(context).copyWith(
-                            dividerColor: Colors.transparent,
-                          ),
-                          child: ExpansionTile(
-                            tilePadding: EdgeInsets.zero,
-                            childrenPadding: EdgeInsets.zero,
-                            title: Row(
-                              children: [
-                                const Icon(Icons.location_on_outlined),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Chapter',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                if (tempChapterName != null) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue[50],
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      '1 selected',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.blue[700],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
+                        Center(
+                          child: Container(
+                            width: 44,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFB2B5BE),
+                              borderRadius: BorderRadius.circular(4),
                             ),
-                            children: [
-                              Consumer(
-                                builder: (context, ref, child) {
-                                  final asyncChapters =
-                                      ref.watch(fetchChaptersProvider);
-                                  return asyncChapters.when(
-                                    data: (chapters) {
-                                      log('Fetched chapters: $chapters');
-                                      return ListView.builder(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: chapters.length,
-                                        itemBuilder: (context, index) {
-                                          final chapter = chapters[index];
-                                          return ListTile(
-                                            dense: true,
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 12),
-                                            title: Text(
-                                              chapter.name ??
-                                                  chapter.shortCode ??
-                                                  '',
-                                              style: TextStyle(
-                                                color:
-                                                    tempChapterId == chapter.id
-                                                        ? Colors.blue[700]
-                                                        : null,
-                                              ),
-                                            ),
-                                            trailing:
-                                                tempChapterId == chapter.id
-                                                    ? Icon(Icons.check_circle,
-                                                        color: Colors.blue[700])
-                                                    : null,
-                                            onTap: () {
-                                              setState(() {
-                                                tempChapterId = chapter.id;
-                                                tempChapterName = chapter.name;
-                                              });
-                                            },
-                                          );
-                                        },
-                                      );
-                                    },
-                                    loading: () =>
-                                        const Center(child: LoadingAnimation()),
-                                    error: (error, stackTrace) =>
-                                        const SizedBox(),
-                                  );
-                                },
-                              ),
-                            ],
                           ),
                         ),
-                        const Divider(),
-
-                        //category
-                        Theme(
-                          data: Theme.of(context).copyWith(
-                            dividerColor: Colors.transparent,
-                          ),
-                          child: ExpansionTile(
-                            tilePadding: EdgeInsets.zero,
-                            childrenPadding: EdgeInsets.zero,
-                            title: Row(
-                              children: [
-                                const Icon(Icons.category),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Business Category',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                        const SizedBox(height: 18),
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'Filter',
+                                style: TextStyle(
+                                  fontFamily: kFamilyName,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF12141A),
+                                  height: 1.2,
                                 ),
-                                if (tempCategoryName != null) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue[50],
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      '1 selected',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.blue[700],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                            children: [
-                              Consumer(
-                                builder: (context, ref, child) {
-                                  final businessCategories = ref
-                                      .watch(businessCategoryNotifierProvider);
-                                  final notifier = ref.read(
-                                      businessCategoryNotifierProvider
-                                          .notifier);
-
-                                  // Ensure categories are loaded
-                                  WidgetsBinding.instance
-                                      .addPostFrameCallback((_) {
-                                    if (businessCategories.isEmpty) {
-                                      notifier.fetchMoreCategories();
-                                    }
-                                  });
-
-                                  if (businessCategories.isEmpty) {
-                                    return const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(16.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            CircularProgressIndicator(),
-                                            SizedBox(height: 8),
-                                            Text('Loading categories...'),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  }
-
-                                  log('Categories from provider: $businessCategories');
-                                  log('Categories length: ${businessCategories.length}');
-
-                                  return ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: businessCategories.length,
-                                    itemBuilder: (context, index) {
-                                      final category =
-                                          businessCategories[index];
-                                      return ListTile(
-                                        dense: true,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 12),
-                                        title: Text(
-                                          category.name ?? '',
-                                          style: TextStyle(
-                                            color: tempCategoryId == category.id
-                                                ? Colors.blue[700]
-                                                : null,
-                                          ),
-                                        ),
-                                        trailing: tempCategoryId == category.id
-                                            ? Icon(Icons.check_circle,
-                                                color: Colors.blue[700])
-                                            : null,
-                                        onTap: () {
-                                          setState(() {
-                                            tempCategoryId = category.id;
-                                            tempCategoryName = category.name;
-                                          });
-                                        },
-                                      );
-                                    },
-                                  );
-                                },
                               ),
-                            ],
-                          ),
-                        ),
-                        Divider(),
-                        Theme(
-                          data: Theme.of(context).copyWith(
-                            dividerColor: Colors.transparent,
-                          ),
-                          child: ExpansionTile(
-                            tilePadding: EdgeInsets.zero,
-                            childrenPadding: EdgeInsets.zero,
-                            title: Row(
-                              children: [
-                                const Icon(Icons.location_city),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'District',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setSheetState(() {
+                                  tempDistrictId = null;
+                                  tempDistrictName = null;
+                                  tempChapterId = null;
+                                  tempChapterName = null;
+                                  tempCategoryName = null;
+                                  tempCategoryId = null;
+                                  tempTags.clear();
+                                });
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: kPrimaryColor,
+                                padding: EdgeInsets.zero,
+                                minimumSize: const Size(0, 32),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                textStyle: const TextStyle(
+                                  fontFamily: kFamilyName,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                if (tempDistrictName != null) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
+                              ),
+                              child: const Text('Clear All'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 22),
+                        const _FilterLabel('Chapter'),
+                        const SizedBox(height: 8),
+                        _FilterField(
+                          icon: Icons.map_outlined,
+                          hint: 'Select Chapter',
+                          value: tempChapterName,
+                          onTap: () async {
+                            final choice = await _openFilterPicker(
+                              title: 'Select Chapter',
+                              selectedId: tempChapterId,
+                              kind: _MemberFilterKind.chapter,
+                            );
+                            if (!sheetContext.mounted || choice == null) return;
+                            setSheetState(() {
+                              tempChapterId = choice.id;
+                              tempChapterName = choice.label;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 18),
+                        const _FilterLabel('Business Category'),
+                        const SizedBox(height: 8),
+                        _FilterField(
+                          icon: Icons.work_outline,
+                          hint: 'Select Business Category',
+                          value: tempCategoryName,
+                          onTap: () async {
+                            final choice = await _openFilterPicker(
+                              title: 'Select Business Category',
+                              selectedId: tempCategoryId,
+                              kind: _MemberFilterKind.category,
+                            );
+                            if (!sheetContext.mounted || choice == null) return;
+                            setSheetState(() {
+                              tempCategoryId = choice.id;
+                              tempCategoryName = choice.label;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 18),
+                        const _FilterLabel('District'),
+                        const SizedBox(height: 8),
+                        _FilterField(
+                          icon: Icons.location_on_outlined,
+                          hint: 'Select District',
+                          value: tempDistrictName,
+                          onTap: () async {
+                            final choice = await _openFilterPicker(
+                              title: 'Select District',
+                              selectedId: tempDistrictId,
+                              kind: _MemberFilterKind.district,
+                            );
+                            if (!sheetContext.mounted || choice == null) return;
+                            setSheetState(() {
+                              tempDistrictId = choice.id;
+                              tempDistrictName = choice.label;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 50,
+                                child: TextButton(
+                                  onPressed: () => Navigator.pop(sheetContext),
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color(0xFFFFECE6),
+                                    foregroundColor: kPrimaryColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue[50],
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      '1 selected',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.blue[700],
-                                      ),
+                                    textStyle: const TextStyle(
+                                      fontFamily: kFamilyName,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                ],
-                              ],
-                            ),
-                            children: [
-                              Consumer(
-                                builder: (context, ref, child) {
-                                  final asyncDistricts =
-                                      ref.watch(fetchDistrictsProvider);
-                                  return asyncDistricts.when(
-                                    data: (districts) {
-                                      return ListView.builder(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: districts.length,
-                                        itemBuilder: (context, index) {
-                                          final district = districts[index];
-                                          return ListTile(
-                                            dense: true,
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 12),
-                                            title: Text(
-                                              district.name,
-                                              style: TextStyle(
-                                                color: tempDistrictId ==
-                                                        district.id
-                                                    ? Colors.blue[700]
-                                                    : null,
-                                              ),
-                                            ),
-                                            trailing:
-                                                tempDistrictId == district.id
-                                                    ? Icon(Icons.check_circle,
-                                                        color: Colors.blue[700])
-                                                    : null,
-                                            onTap: () {
-                                              setState(() {
-                                                tempDistrictId = district.id;
-                                                tempDistrictName =
-                                                    district.name;
-                                              });
-                                            },
-                                          );
-                                        },
-                                      );
-                                    },
-                                    loading: () =>
-                                        const Center(child: LoadingAnimation()),
-                                    error: (error, stackTrace) =>
-                                        const SizedBox(),
-                                  );
-                                },
+                                  child: const Text('Cancel'),
+                                ),
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: SizedBox(
+                                height: 50,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedDistrictId = tempDistrictId;
+                                      selectedDistrictName = tempDistrictName;
+                                      selectedChapterId = tempChapterId;
+                                      selectedChapter = tempChapterName;
+                                      selectedCategoryName = tempCategoryName;
+                                      selectedCategoryId = tempCategoryId;
+                                      selectedTags
+                                        ..clear()
+                                        ..addAll(tempTags);
+                                    });
+                                    ref
+                                        .read(peopleNotifierProvider.notifier)
+                                        .searchUsers(
+                                          _searchController.text,
+                                          districtFilter: tempDistrictId,
+                                          chapterFilter: tempChapterId,
+                                          categoryFilter: tempCategoryId,
+                                          tagsFilter: tempTags.isNotEmpty
+                                              ? tempTags
+                                              : null,
+                                        );
+                                    Navigator.pop(sheetContext);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    elevation: 0,
+                                    backgroundColor: kPrimaryColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    textStyle: const TextStyle(
+                                      fontFamily: kFamilyName,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  child: const Text('Apply'),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        // const Divider(),
-                        // ExpansionTile(
-                        //   tilePadding: EdgeInsets.zero,
-                        //   childrenPadding: EdgeInsets.zero,
-                        //   title: Row(
-                        //     children: [
-                        //       const Icon(Icons.tag),
-                        //       const SizedBox(width: 8),
-                        //       const Text(
-                        //         'Business Tags',
-                        //         style: TextStyle(
-                        //           fontSize: 16,
-                        //           fontWeight: FontWeight.w500,
-                        //         ),
-                        //       ),
-                        //       if (selectedTags.isNotEmpty) ...[
-                        //         const SizedBox(width: 8),
-                        //         Container(
-                        //           padding: const EdgeInsets.symmetric(
-                        //             horizontal: 8,
-                        //             vertical: 2,
-                        //           ),
-                        //           decoration: BoxDecoration(
-                        //             color: Colors.blue[50],
-                        //             borderRadius: BorderRadius.circular(12),
-                        //           ),
-                        //           child: Text(
-                        //             '${selectedTags.length} selected',
-                        //             style: TextStyle(
-                        //               fontSize: 12,
-                        //               color: Colors.blue[700],
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       ],
-                        //     ],
-                        //   ),
-                        //   children: [
-                        //     Padding(
-                        //       padding: const EdgeInsets.only(
-                        //         left: 12,
-                        //         right: 12,
-                        //         bottom: 16,
-                        //       ),
-                        //       child: Column(
-                        //         children: [
-                        //           TextField(
-                        //             controller: _tagController,
-                        //             decoration: InputDecoration(
-                        //               hintText: 'Search business tags',
-                        //               contentPadding:
-                        //                   const EdgeInsets.symmetric(
-                        //                 horizontal: 12,
-                        //                 vertical: 8,
-                        //               ),
-                        //               border: OutlineInputBorder(
-                        //                 borderRadius: BorderRadius.circular(8),
-                        //                 borderSide: BorderSide(
-                        //                     color: Colors.grey[300]!),
-                        //               ),
-                        //               enabledBorder: OutlineInputBorder(
-                        //                 borderRadius: BorderRadius.circular(8),
-                        //                 borderSide: BorderSide(
-                        //                     color: Colors.grey[300]!),
-                        //               ),
-                        //             ),
-                        //             onChanged: (value) {
-                        //               if (value.endsWith(' ')) {
-                        //                 final tag = value.trim();
-                        //                 if (tag.isNotEmpty) {
-                        //                   setState(() {
-                        //                     if (!selectedTags.contains(tag)) {
-                        //                       selectedTags.add(tag);
-                        //                     }
-                        //                     _tagController.clear();
-                        //                     businessTagSearch = null;
-                        //                   });
-                        //                 }
-                        //               } else {
-                        //                 setState(() {
-                        //                   businessTagSearch = value;
-                        //                 });
-                        //               }
-                        //             },
-                        //           ),
-                        //           const SizedBox(height: 12),
-                        //           if (selectedTags.isNotEmpty)
-                        //             Wrap(
-                        //               spacing: 8,
-                        //               runSpacing: 8,
-                        //               children: selectedTags
-                        //                   .map((tag) => Chip(
-                        //                         label: Text(tag),
-                        //                         deleteIcon: const Icon(
-                        //                             Icons.close,
-                        //                             size: 16),
-                        //                         onDeleted: () {
-                        //                           setState(() {
-                        //                             selectedTags.remove(tag);
-                        //                           });
-                        //                         },
-                        //                         backgroundColor:
-                        //                             Colors.blue[50],
-                        //                         side: BorderSide(
-                        //                             color: Colors.blue[200]!),
-                        //                         labelStyle: TextStyle(
-                        //                             color: Colors.blue[700]),
-                        //                       ))
-                        //                   .toList(),
-                        //             ),
-                        //           const SizedBox(height: 12),
-                        //           if (businessTagSearch?.isNotEmpty ?? false)
-                        //             Consumer(
-                        //               builder: (context, ref, child) {
-                        //                 final asyncBusinessTags = ref.watch(
-                        //                   searchBusinessTagsProvider(
-                        //                       search: businessTagSearch),
-                        //                 );
-                        //                 return asyncBusinessTags.when(
-                        //                   data: (businessTags) {
-                        //                     log('Business tags response: $businessTags');
-                        //                     if (businessTags.isEmpty)
-                        //                       return const SizedBox.shrink();
-                        //                     return Container(
-                        //                       constraints: const BoxConstraints(
-                        //                         maxHeight: 250,
-                        //                       ),
-                        //                       decoration: BoxDecoration(
-                        //                         color: Colors.white,
-                        //                         borderRadius:
-                        //                             BorderRadius.circular(8),
-                        //                         boxShadow: [
-                        //                           BoxShadow(
-                        //                             color: Colors.grey
-                        //                                 .withOpacity(0.1),
-                        //                             spreadRadius: 1,
-                        //                             blurRadius: 4,
-                        //                             offset: const Offset(0, 2),
-                        //                           ),
-                        //                         ],
-                        //                       ),
-                        //                       child: ListView.builder(
-                        //                         shrinkWrap: true,
-                        //                         padding: EdgeInsets.zero,
-                        //                         itemCount: businessTags.length,
-                        //                         itemBuilder: (context, index) {
-                        //                           final tag =
-                        //                               businessTags[index];
-                        //                           log('Building tag at index $index: $tag');
-                        //                           return Material(
-                        //                             color: Colors.transparent,
-                        //                             child: InkWell(
-                        //                               onTap: () {
-                        //                                 setState(() {
-                        //                                   if (selectedTags
-                        //                                       .contains(tag)) {
-                        //                                     selectedTags
-                        //                                         .remove(tag);
-                        //                                   } else {
-                        //                                     selectedTags
-                        //                                         .add(tag ?? '');
-                        //                                   }
-                        //                                   _tagController
-                        //                                       .clear();
-                        //                                   businessTagSearch =
-                        //                                       null;
-                        //                                 });
-                        //                                 ref
-                        //                                     .read(
-                        //                                         peopleNotifierProvider
-                        //                                             .notifier)
-                        //                                     .setTags(
-                        //                                         selectedTags);
-                        //                               },
-                        //                               child: Padding(
-                        //                                 padding:
-                        //                                     const EdgeInsets
-                        //                                         .symmetric(
-                        //                                   horizontal: 12,
-                        //                                   vertical: 8,
-                        //                                 ),
-                        //                                 child: Row(
-                        //                                   children: [
-                        //                                     Icon(
-                        //                                       selectedTags
-                        //                                               .contains(
-                        //                                                   tag)
-                        //                                           ? Icons
-                        //                                               .check_circle
-                        //                                           : Icons.tag,
-                        //                                       size: 16,
-                        //                                       color: selectedTags
-                        //                                               .contains(
-                        //                                                   tag)
-                        //                                           ? Colors
-                        //                                               .blue[700]
-                        //                                           : Colors.grey[
-                        //                                               600],
-                        //                                     ),
-                        //                                     const SizedBox(
-                        //                                         width: 8),
-                        //                                     Text(
-                        //                                       tag ?? '',
-                        //                                       style: TextStyle(
-                        //                                         color: selectedTags
-                        //                                                 .contains(
-                        //                                                     tag)
-                        //                                             ? Colors.blue[
-                        //                                                 700]
-                        //                                             : Colors.grey[
-                        //                                                 800],
-                        //                                         fontSize: 14,
-                        //                                       ),
-                        //                                     ),
-                        //                                   ],
-                        //                                 ),
-                        //                               ),
-                        //                             ),
-                        //                           );
-                        //                         },
-                        //                       ),
-                        //                     );
-                        //                   },
-                        //                   loading: () => const Center(
-                        //                     child: Padding(
-                        //                       padding: EdgeInsets.all(8.0),
-                        //                       child: LoadingAnimation(),
-                        //                     ),
-                        //                   ),
-                        //                   error: (_, __) =>
-                        //                       const SizedBox.shrink(),
-                        //                 );
-                        //               },
-                        //             ),
-                        //         ],
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
                       ],
                     ),
                   ),
                 ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
-                // Apply Button
-                const SizedBox(height: 16),
-                SizedBox(
-                    width: double.infinity,
-                    child: customButton(
-                      label: 'Apply',
-                      onPressed: () {
-                        setState(() {
-                          selectedDistrictId = tempDistrictId;
-                          selectedDistrictName = tempDistrictName;
-                          selectedChapterId = tempChapterId;
-                          selectedChapter = tempChapterName;
-                          selectedCategoryName = tempCategoryName;
-                          selectedCategoryId = tempCategoryId;
-                        });
-
-                        // Only call searchUsers to avoid multiple API calls
-                        final notifier =
-                            ref.read(peopleNotifierProvider.notifier);
-                        notifier.searchUsers(
-                          _searchController.text,
-                          districtFilter: tempDistrictId,
-                          chapterFilter: tempChapterId,
-                          categoryFilter: tempCategoryId,
-                          tagsFilter:
-                              selectedTags.isNotEmpty ? selectedTags : null,
-                        );
-
-                        Navigator.pop(context);
-                      },
-                    )),
-              ],
-            ),
-          ),
-        ),
+  Future<_FilterChoice?> _openFilterPicker({
+    required String title,
+    required String? selectedId,
+    required _MemberFilterKind kind,
+  }) {
+    return showModalBottomSheet<_FilterChoice>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
+      builder: (context) {
+        return _MemberFilterPicker(
+          title: title,
+          selectedId: selectedId,
+          kind: kind,
+        );
+      },
     );
   }
 
@@ -812,147 +380,39 @@ class _MembersPageState extends ConsumerState<MembersPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Search Bar with Filter
-            Container(
-              padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          focusNode: _searchFocus,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            prefixIcon: const Icon(Icons.search),
-                            hintText: 'Search Members',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 216, 211, 211),
-                              ),
-                            ),
+      body: Column(
+        children: [
+          const SizedBox(height: 8),
+          CommunitySearchRow(
+            controller: _searchController,
+            focusNode: _searchFocus,
+            hint: 'Search by Name, city, state...',
+            onChanged: _onSearchChanged,
+            onSubmitted: _onSearchSubmitted,
+            onFilter: _showFilterBottomSheet,
+            filterActive: true,
+          ),
+          _buildDirectoryFilters(),
+          Expanded(
+            child: isFirstLoad
+                ? const Center(child: LoadingAnimation())
+                : sortedUsers.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No Members Found',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          onChanged: _onSearchChanged,
-                          onSubmitted: _onSearchSubmitted,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color.fromARGB(255, 216, 211, 211),
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.filter_list,
-                            color: selectedDistrictName != null ||
-                                    selectedChapter != null ||
-                                    selectedTags.isNotEmpty ||
-                                    selectedCategoryName != null
-                                ? Colors.blue
-                                : Colors.grey,
-                          ),
-                          onPressed: _showFilterBottomSheet,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (selectedDistrictName != null ||
-                      selectedTags.isNotEmpty ||
-                      selectedChapter != null ||
-                      selectedCategoryName != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              if (selectedChapter != null)
-                                Chip(
-                                  label: Text(selectedChapter!),
-                                  onDeleted: () {
-                                    setState(() {
-                                      selectedChapter = null;
-                                      selectedChapterId = null;
-                                    });
-                                    ref
-                                        .read(peopleNotifierProvider.notifier)
-                                        .setChapter(null);
-                                  },
-                                ),
-                              //category
-
-                              if (selectedCategoryName != null)
-                                Chip(
-                                  label: Text(selectedCategoryName!),
-                                  onDeleted: () {
-                                    setState(() {
-                                      selectedCategoryName = null;
-                                      selectedCategoryId = null;
-                                    });
-                                    ref
-                                        .read(peopleNotifierProvider.notifier)
-                                        .setCategory(null);
-                                  },
-                                ),
-
-                              if (selectedDistrictName != null)
-                                Chip(
-                                  label: Text(selectedDistrictName!),
-                                  onDeleted: () {
-                                    setState(() {
-                                      selectedDistrictId = null;
-                                      selectedDistrictName = null;
-                                    });
-                                    ref
-                                        .read(peopleNotifierProvider.notifier)
-                                        .setDistrict(null);
-                                  },
-                                ),
-                              ...selectedTags.map((tag) => Chip(
-                                    label: Text(tag),
-                                    onDeleted: () {
-                                      setState(() {
-                                        selectedTags.remove(tag);
-                                      });
-                                      ref
-                                          .read(peopleNotifierProvider.notifier)
-                                          .setTags(selectedTags);
-                                    },
-                                  )),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            if (isFirstLoad)
-              const Center(child: LoadingAnimation())
-            else if (sortedUsers.isNotEmpty)
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+                      )
+                    : ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.only(top: 4, bottom: 110),
                 itemCount: sortedUsers.length + (isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == sortedUsers.length) {
-                    return Center(child: LoadingAnimation());
+                    return const Center(child: LoadingAnimation());
                   }
                   final user = sortedUsers[index];
                   final asyncUserChat = asyncChats.when(
@@ -986,134 +446,489 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                         orElse: () => Participant(),
                       );
 
-                      return Column(
-                        children: [
-                          ListTile(
-                            leading: SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: ClipOval(
-                                child: Image.network(
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) {
-                                      return child;
-                                    }
-                                    return Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[300],
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  user.image ?? '',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return SvgPicture.asset(
-                                        'assets/svg/icons/dummy_person_small.svg');
-                                  },
-                                ),
-                              ),
-                            ),
-                            title: Text(
-                              '${user.name ?? ''}',
-                            ),
-                            subtitle: Text('${user.chapter?.name ?? ''}',
-                                style:
-                                    kSmallerTitleB.copyWith(color: kGreyDark)),
-                            trailing: SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: IconButton(
-                                icon: const Icon(Icons.chat_bubble_outline),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => IndividualPage(
-                                        receiver: receiver!,
-                                        sender: sender!,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
+                      return _memberCard(
+                        user: user,
+                        onOpen: () => _openMemberDetails(
+                          user,
+                          onMessage: () => _openDirectChat(
+                            receiver: receiver!,
+                            sender: sender!,
                           ),
-                          const Divider(
-                            thickness: 1,
-                            color: Color.fromARGB(255, 227, 221, 221),
-                            height: 1,
-                          ),
-                        ],
+                        ),
+                        onChat: () => _openDirectChat(
+                          receiver: receiver!,
+                          sender: sender!,
+                        ),
                       );
                     },
-                    loading: () => const SizedBox.shrink(),
-                    error: (error, stackTrace) => Text('Error loading chats'),
+                    loading: () => _memberCard(
+                      user: user,
+                      onOpen: () => _openMemberDetails(
+                        user,
+                        onMessage: () => _openDirectChat(
+                          receiver: Participant(
+                            id: user.uid,
+                            name: user.name ?? '',
+                            image: user.image,
+                          ),
+                          sender: Participant(id: id),
+                        ),
+                      ),
+                      onChat: () => _openDirectChat(
+                        receiver: Participant(
+                          id: user.uid,
+                          name: user.name ?? '',
+                          image: user.image,
+                        ),
+                        sender: Participant(id: id),
+                      ),
+                    ),
+                    error: (_, __) => _memberCard(
+                      user: user,
+                      onOpen: () => _openMemberDetails(user, onMessage: () {}),
+                      onChat: () {},
+                    ),
                   );
 
-                  return GestureDetector(
-                    onTap: () async {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  ProfilePreview(user: user)));
-                      // Navigate immediately with current user data
-                      // final profilePreview = ProfilePreview(user: user);
-
-                      // Navigator.of(context).push(
-                      //   MaterialPageRoute(
-                      //     builder: (context) {
-                      //       // Fetch complete user data in background
-                      //       WidgetsBinding.instance.addPostFrameCallback((_) {
-                      //         ref
-                      //             .read(fetchUserDetailsProvider(user.uid ?? '')
-                      //                 .future)
-                      //             .then((completeUser) {
-                      //           if (context.mounted &&
-                      //               Navigator.canPop(context)) {
-                      //             // Update the profile preview with complete data
-                      //             Navigator.of(context).pushReplacement(
-                      //               MaterialPageRoute(
-                      //                 builder: (context) =>
-                      //                     ProfilePreview(user: completeUser),
-                      //               ),
-                      //             );
-                      //           }
-                      //         }).catchError((error) {
-                      //           // Silently handle error - keep original data
-                      //           print(
-                      //               'Error fetching complete user data: $error');
-                      //         });
-                      //       });
-
-                      //       return profilePreview;
-                      //     },
-                      //   ),
-                      // );
-                    },
-                    child: asyncUserChat,
-                  );
+                  return asyncUserChat;
                 },
-              )
-            else
-              const Column(
-                children: [
-                  SizedBox(height: 100),
-                  Text(
-                    'No Members Found',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ],
               ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openDirectChat({
+    required Participant receiver,
+    required Participant sender,
+  }) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => IndividualPage(
+          receiver: receiver,
+          sender: sender,
+        ),
+      ),
+    );
+  }
+
+  void _openMemberDetails(UserModel user, {required VoidCallback onMessage}) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: const Color(0x66000000),
+      builder: (sheetContext) {
+        return MemberDetailsSheet(
+          user: user,
+          onMessage: () {
+            Navigator.pop(sheetContext);
+            onMessage();
+          },
+          onViewProfile: () {
+            Navigator.pop(sheetContext);
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ProfilePreview(user: user),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _applyDirectoryFilters() {
+    ref.read(peopleNotifierProvider.notifier).searchUsers(
+          _searchController.text,
+          districtFilter: selectedDistrictId,
+          chapterFilter: selectedChapterId,
+          categoryFilter: selectedCategoryId,
+          tagsFilter: selectedTags.isNotEmpty ? selectedTags : null,
+        );
+  }
+
+  void _resetDirectory() {
+    setState(() {
+      selectedDistrictId = null;
+      selectedDistrictName = null;
+      selectedChapterId = null;
+      selectedChapter = null;
+      selectedCategoryId = null;
+      selectedCategoryName = null;
+      selectedTags = [];
+    });
+    _applyDirectoryFilters();
+  }
+
+  Widget _modeChip({
+    required String label,
+    required IconData icon,
+    required String mode,
+  }) {
+    final selected = _directoryFilter == mode;
+    final color = selected ? kCommunityOrange : const Color(0xFF6B7280);
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _directoryFilter = mode),
+        child: Container(
+          height: 38,
+          decoration: BoxDecoration(
+            color: selected ? kCommunityOrangeSoft : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: selected ? kCommunityOrange : kCommunityBorder,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 15, color: color),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _choiceChip(String label, bool selected, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 170),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? kCommunityNavy : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: selected ? kCommunityNavy : const Color(0xFFE5E7EB),
+            ),
+          ),
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: selected ? Colors.white : const Color(0xFF4B5563),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDirectoryFilters() {
+    final showingLabel = _directoryFilter == 'category'
+        ? 'categories'
+        : _directoryFilter == 'district'
+            ? 'districts'
+            : 'chapters';
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Row(
+            children: [
+              _modeChip(
+                label: 'Chapter',
+                icon: Icons.people_alt_outlined,
+                mode: 'chapter',
+              ),
+              const SizedBox(width: 8),
+              _modeChip(
+                label: 'Business Category',
+                icon: Icons.business_center_outlined,
+                mode: 'category',
+              ),
+              const SizedBox(width: 8),
+              _modeChip(
+                label: 'District',
+                icon: Icons.location_on_outlined,
+                mode: 'district',
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 38,
+          child: _directoryFilter == 'category'
+              ? _categoryChips()
+              : _directoryFilter == 'district'
+                  ? _districtChips()
+                  : _chapterChips(),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Showing $_directoryCount $showingLabel',
+                  style: const TextStyle(
+                    color: Color(0xFF6B7280),
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: _resetDirectory,
+                behavior: HitTestBehavior.opaque,
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.refresh_rounded,
+                      size: 16,
+                      color: kCommunityOrange,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'Reset',
+                      style: TextStyle(
+                        color: kCommunityOrange,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  int _directoryCount = 0;
+
+  Widget _chapterChips() {
+    final asyncChapters = ref.watch(fetchChaptersProvider);
+    return asyncChapters.when(
+      data: (chapters) {
+        _directoryCount = chapters.length;
+        return ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            _choiceChip('All', selectedChapterId == null, () {
+              setState(() {
+                selectedChapterId = null;
+                selectedChapter = null;
+              });
+              _applyDirectoryFilters();
+            }),
+            ...chapters.map(
+              (chapter) => _choiceChip(
+                chapter.name ?? chapter.shortCode ?? 'Chapter',
+                selectedChapterId == chapter.id,
+                () {
+                  setState(() {
+                    selectedChapterId = chapter.id;
+                    selectedChapter = chapter.name;
+                  });
+                  _applyDirectoryFilters();
+                },
+              ),
+            ),
           ],
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _categoryChips() {
+    final categories = ref.watch(businessCategoryNotifierProvider);
+    _directoryCount = categories.length;
+    return ListView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      children: [
+        _choiceChip('All', selectedCategoryId == null, () {
+          setState(() {
+            selectedCategoryId = null;
+            selectedCategoryName = null;
+          });
+          _applyDirectoryFilters();
+        }),
+        ...categories.map(
+          (category) => _choiceChip(
+            category.name,
+            selectedCategoryId == category.id,
+            () {
+              setState(() {
+                selectedCategoryId = category.id;
+                selectedCategoryName = category.name;
+              });
+              _applyDirectoryFilters();
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _districtChips() {
+    final asyncDistricts = ref.watch(fetchDistrictsProvider);
+    return asyncDistricts.when(
+      data: (districts) {
+        _directoryCount = districts.length;
+        return ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            _choiceChip('All', selectedDistrictId == null, () {
+              setState(() {
+                selectedDistrictId = null;
+                selectedDistrictName = null;
+              });
+              _applyDirectoryFilters();
+            }),
+            ...districts.map(
+              (district) => _choiceChip(
+                district.name,
+                selectedDistrictId == district.id,
+                () {
+                  setState(() {
+                    selectedDistrictId = district.id;
+                    selectedDistrictName = district.name;
+                  });
+                  _applyDirectoryFilters();
+                },
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _memberCard({
+    required UserModel user,
+    required VoidCallback onOpen,
+    required VoidCallback onChat,
+  }) {
+    final meta = memberCompanyMeta(user);
+    final chapter = memberChapterLabel(user);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+      child: Material(
+        color: Colors.white,
+        elevation: 0.6,
+        shadowColor: const Color(0x14000000),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFFEEEEF2)),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onOpen,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+            child: Row(
+              children: [
+                ClipOval(
+                  child: SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Image.network(
+                      user.image ?? '',
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => SvgPicture.asset(
+                        'assets/svg/icons/dummy_person_small.svg',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.name ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w700,
+                          color: kCommunityText,
+                        ),
+                      ),
+                      if (meta.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          meta,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: Color(0xFF8B939E),
+                          ),
+                        ),
+                      ],
+                      if (chapter.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          chapter,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: kCommunityMuted,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                InkWell(
+                  onTap: onChat,
+                  customBorder: const CircleBorder(),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
+                    child: const Icon(
+                      Icons.chat_bubble_outline,
+                      size: 18,
+                      color: Color(0xFF9AA1AB),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -1127,5 +942,324 @@ class _MembersPageState extends ConsumerState<MembersPage> {
     _debounce?.cancel();
     _searchFocus.dispose();
     super.dispose();
+  }
+}
+
+enum _MemberFilterKind { chapter, category, district }
+
+class _FilterChoice {
+  final String id;
+  final String label;
+
+  const _FilterChoice({required this.id, required this.label});
+}
+
+class _FilterLabel extends StatelessWidget {
+  final String text;
+
+  const _FilterLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontFamily: kFamilyName,
+        fontSize: 15,
+        fontWeight: FontWeight.w700,
+        color: Color(0xFF12141A),
+        height: 1.2,
+      ),
+    );
+  }
+}
+
+class _FilterField extends StatelessWidget {
+  final IconData icon;
+  final String hint;
+  final String? value;
+  final VoidCallback onTap;
+
+  const _FilterField({
+    required this.icon,
+    required this.hint,
+    required this.value,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasValue = value != null && value!.trim().isNotEmpty;
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: Color(0xFFE6E6E6)),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: SizedBox(
+          height: 52,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              children: [
+                Icon(icon, color: kPrimaryColor, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    hasValue ? value! : hint,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: kFamilyName,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: hasValue
+                          ? const Color(0xFF12141A)
+                          : const Color(0xFFA0A5AD),
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: Color(0xFF8B9098),
+                  size: 22,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MemberFilterPicker extends ConsumerStatefulWidget {
+  final String title;
+  final String? selectedId;
+  final _MemberFilterKind kind;
+
+  const _MemberFilterPicker({
+    required this.title,
+    required this.selectedId,
+    required this.kind,
+  });
+
+  @override
+  ConsumerState<_MemberFilterPicker> createState() =>
+      _MemberFilterPickerState();
+}
+
+class _MemberFilterPickerState extends ConsumerState<_MemberFilterPicker> {
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottom),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.62,
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 44,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFB2B5BE),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontFamily: kFamilyName,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF12141A),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) => setState(() => _query = value.trim()),
+                style: const TextStyle(
+                  fontFamily: kFamilyName,
+                  fontSize: 14,
+                  color: Color(0xFF12141A),
+                ),
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: 'Search',
+                  hintStyle: const TextStyle(
+                    fontFamily: kFamilyName,
+                    color: Color(0xFFA0A5AD),
+                    fontSize: 14,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: Color(0xFFB0B6BE),
+                    size: 20,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE6E6E6)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE6E6E6)),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(child: _options()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _options() {
+    switch (widget.kind) {
+      case _MemberFilterKind.chapter:
+        final asyncChapters = ref.watch(fetchChaptersProvider);
+        return asyncChapters.when(
+          data: (chapters) {
+            final options = chapters
+                .where((chapter) => (chapter.id ?? '').isNotEmpty)
+                .map(
+                  (chapter) => _FilterChoice(
+                    id: chapter.id!,
+                    label: (chapter.name ?? chapter.shortCode ?? '').trim(),
+                  ),
+                )
+                .where((option) => option.label.isNotEmpty)
+                .toList();
+            return _optionList(options);
+          },
+          loading: () => const Center(child: LoadingAnimation()),
+          error: (_, __) => const _PickerMessage('Unable to load chapters'),
+        );
+      case _MemberFilterKind.category:
+        final categories = ref.watch(businessCategoryNotifierProvider);
+        final loading =
+            ref.read(businessCategoryNotifierProvider.notifier).isLoading;
+        if (categories.isEmpty && loading) {
+          return const Center(child: LoadingAnimation());
+        }
+        final options = categories
+            .where((category) => category.id.isNotEmpty)
+            .map(
+              (category) => _FilterChoice(
+                id: category.id,
+                label: category.name.trim(),
+              ),
+            )
+            .where((option) => option.label.isNotEmpty)
+            .toList();
+        return _optionList(options, emptyLabel: 'No categories found');
+      case _MemberFilterKind.district:
+        final asyncDistricts = ref.watch(fetchDistrictsProvider);
+        return asyncDistricts.when(
+          data: (districts) {
+            final options = districts
+                .where((district) => district.id.isNotEmpty)
+                .map(
+                  (district) => _FilterChoice(
+                    id: district.id,
+                    label: district.name.trim(),
+                  ),
+                )
+                .where((option) => option.label.isNotEmpty)
+                .toList();
+            return _optionList(options, emptyLabel: 'No districts found');
+          },
+          loading: () => const Center(child: LoadingAnimation()),
+          error: (_, __) => const _PickerMessage('Unable to load districts'),
+        );
+    }
+  }
+
+  Widget _optionList(List<_FilterChoice> options, {String? emptyLabel}) {
+    final query = _query.toLowerCase();
+    final visible = query.isEmpty
+        ? options
+        : options
+            .where((option) => option.label.toLowerCase().contains(query))
+            .toList();
+    if (visible.isEmpty) {
+      return _PickerMessage(emptyLabel ?? 'No results found');
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+      itemCount: visible.length,
+      itemBuilder: (context, index) {
+        final option = visible[index];
+        final selected = option.id == widget.selectedId;
+        return ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text(
+            option.label,
+            style: TextStyle(
+              fontFamily: kFamilyName,
+              fontSize: 15,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected ? kPrimaryColor : const Color(0xFF12141A),
+            ),
+          ),
+          trailing: selected
+              ? const Icon(Icons.check, color: kPrimaryColor, size: 20)
+              : null,
+          onTap: () => Navigator.pop(context, option),
+        );
+      },
+    );
+  }
+}
+
+class _PickerMessage extends StatelessWidget {
+  final String text;
+
+  const _PickerMessage(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontFamily: kFamilyName,
+            fontSize: 14,
+            color: Color(0xFF8B93A0),
+          ),
+        ),
+      ),
+    );
   }
 }

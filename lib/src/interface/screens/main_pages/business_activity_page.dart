@@ -209,8 +209,9 @@ class _BusinessActivityPageState extends ConsumerState<BusinessActivityPage> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      backgroundColor: Colors.white,
       builder: (context) {
         return AnalyticsModalSheet(
           analytic: analytic,

@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
-import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/analytics_model.dart';
 import 'package:hef/src/data/services/launch_url.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
-import 'package:hef/src/interface/components/Buttons/primary_button.dart';
 import 'package:intl/intl.dart';
 
 class AnalyticsModalSheet extends ConsumerWidget {
@@ -24,102 +22,130 @@ class AnalyticsModalSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     AnalyticsApiService analyticsApiService = AnalyticsApiService();
     NavigationService navigationService = NavigationService();
+    final description = (analytic.description ?? '').trim();
+    final canEdit = _shouldShowActionButtons();
+
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 25, top: 10),
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        bottom: 16 + MediaQuery.paddingOf(context).bottom,
+      ),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Drag Indicator
+            const SizedBox(height: 8),
             Center(
               child: Container(
                 height: 4,
-                width: 60,
+                width: 42,
                 decoration: BoxDecoration(
-                  color: kBlack54,
+                  color: const Color(0xFFD1D5DB),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            // User Info Row
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: NetworkImage(analytic.userImage ?? ''),
-                ),
-                const SizedBox(width: 16),
+                _avatar(analytic.userImage),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text(
-                        analytic.username ?? '',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              analytic.username?.trim().isNotEmpty == true
+                                  ? analytic.username!
+                                  : 'Member',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Color(0xFF111827),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                                height: 1.15,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              analytic.title?.trim().isNotEmpty == true
+                                  ? analytic.title!
+                                  : '-',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Color(0xFF9CA3AF),
+                                fontSize: 12,
+                                height: 1.2,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Text(
-                        analytic.title ?? '',
-                        style: const TextStyle(color: Colors.grey),
-                      ),
+                      if (canEdit) ...[
+                        const SizedBox(width: 30),
+                        _editButton(navigationService),
+                      ],
                     ],
                   ),
                 ),
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close, color: Color(0xFF111827), size: 20),
+                ),
               ],
             ),
-            const SizedBox(height: 24),
-            // Details Section
-
+            const SizedBox(height: 14),
+            const Divider(height: 1, thickness: 1, color: Color(0xFFF1F2F4)),
             _buildDetailRow('Request Type', analytic.type ?? ''),
             _buildDetailRow('Title', analytic.title ?? ''),
-            if (analytic.date != null && analytic.time != null)
+            if (analytic.date != null)
               _buildDetailRow(
-                  'Date',
-                  DateFormat("d'th' MMMM yyyy")
-                      .format(analytic.date!.toLocal())),
-            if (analytic.time != null)
-              _buildDetailRow('Time', ' ${analytic.time}'),
+                'Date',
+                DateFormat('MMM d yyyy').format(analytic.date!.toLocal()),
+              ),
+            if (analytic.time != null && analytic.time!.trim().isNotEmpty)
+              _buildDetailRow('Time', analytic.time!.trim()),
             if (analytic.amount != null)
-              _buildDetailRow('Amount', analytic.amount.toString() ?? ''),
-            if (analytic.status == 'meeting_scheduled' &&
-                analytic.meetingLink != null)
+              _buildDetailRow(
+                'Amount',
+                '₹${analytic.amount!.toStringAsFixed(2)}',
+              ),
+            if (analytic.meetingLink != null &&
+                analytic.meetingLink!.trim().isNotEmpty)
               InkWell(
-                  onTap: () {
-                    launchURL(analytic.meetingLink ?? '');
-                  },
-                  child: _buildDetailRow(
-                      'Meeting Link', analytic.meetingLink ?? '')),
-            _buildDetailRow('Status', analytic.status ?? '',
-                statusColor: _getStatusColor(analytic.status ?? '')),
-            const SizedBox(height: 8),
+                onTap: () => launchURL(analytic.meetingLink ?? ''),
+                child: _buildDetailRow('Meeting Link', analytic.meetingLink!),
+              ),
+            _buildStatusRow(analytic.status ?? ''),
+            const SizedBox(height: 18),
             const Text(
               'Description',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            SelectableText(
-              analytic.description ?? '',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            if ((analytic.description ?? '').trim().isNotEmpty)
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: () {
-                    Clipboard.setData(
-                        ClipboardData(text: analytic.description ?? ''));
-                    SnackbarService().showSnackBar('Copied to clipboard');
-                  },
-                  icon: const Icon(Icons.copy, size: 16, color: kGreyDark),
-                  label: const Text('Copy', style: TextStyle(color: kGreyDark)),
-                ),
+              style: TextStyle(
+                color: Color(0xFF111827),
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
               ),
-            const SizedBox(height: 15),
-
+            ),
+            const SizedBox(height: 10),
+            Text(
+              description.isEmpty ? '-' : description,
+              style: const TextStyle(
+                color: Color(0xFF878C98),
+                fontSize: 14,
+                height: 1.35,
+              ),
+            ),
             if (analytic.referral?.name != '' &&
                 analytic.referral?.name != null)
               const Text(
@@ -144,100 +170,205 @@ class AnalyticsModalSheet extends ConsumerWidget {
             if (analytic.referral?.info != '' &&
                 analytic.referral?.info != null)
               _buildDetailRow('info', analytic.referral?.info ?? ''),
-            const SizedBox(height: 20),
-            // Action buttons section with consistent layout
-            if (_shouldShowActionButtons())
-              _buildActionButtonsSection(
-                  analyticsApiService, navigationService, ref),
-            // Status change buttons - Available for both sender and receiver
-            if (tabBarType != 'history' &&
-                analytic.status != 'rejected' &&
-                analytic.status != 'completed')
-              _buildStatusActionButtons(
-                  analyticsApiService, navigationService, ref),
+            const SizedBox(height: 8),
+            ..._actionButtons(analyticsApiService, navigationService, ref),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value,
-      {Color? statusColor, bool selectable = true}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(color: Colors.grey),
-          ),
-          const Spacer(),
-          if (statusColor != null)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: statusColor,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Text(
-                value,
-                style: TextStyle(color: kWhite),
-              ),
-            )
-          else
-            Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: selectable
-                        ? SelectableText(
-                            value,
-                            textAlign: TextAlign.right,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          )
-                        : Text(
-                            value,
-                            textAlign: TextAlign.right,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                  ),
-                  if (selectable && value.trim().isNotEmpty)
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 32,
-                        minHeight: 32,
-                      ),
-                      icon: const Icon(Icons.copy, size: 16, color: kGreyDark),
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: value));
-                        SnackbarService().showSnackBar('Copied to clipboard');
-                      },
-                    ),
-                ],
-              ),
-            ),
-        ],
+  Widget _avatar(String? url) {
+    const size = 44.0;
+    final image = url != null && url.isNotEmpty
+        ? Image.network(
+            url,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _avatarFallback(),
+          )
+        : _avatarFallback();
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(width: size, height: size, child: image),
+    );
+  }
+
+  Widget _avatarFallback() {
+    return const ColoredBox(
+      color: Color(0xFFF1F2F4),
+      child: Icon(Icons.person, color: Color(0xFFB0B4BA), size: 26),
+    );
+  }
+
+  Widget _editButton(NavigationService navigationService) {
+    return OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFFF86808),
+        side: const BorderSide(color: Color(0xFFF6C48A)),
+        backgroundColor: const Color(0xFFFFFAF3),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+        minimumSize: const Size(0, 26),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: const StadiumBorder(),
+      ),
+      onPressed: () {
+        navigationService.pop();
+        navigationService.pushNamed(
+          'EditAnalyticRequest',
+          arguments: {
+            'analytic': analytic,
+            'isReceived': tabBarType == 'received',
+          },
+        );
+      },
+      icon: const Icon(Icons.edit_outlined, size: 13),
+      label: const Text(
+        'Edit',
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case "accepted":
-        return kGreen;
-      case "rejected":
-        return kRed;
-      case "meeting_scheduled":
-        return Color(0xFF2B74E1);
+  Widget _buildDetailRow(String label, String value) {
+    final shown = value.trim().isEmpty ? '-' : value;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Color(0xFF9CA3AF),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  shown,
+                  textAlign: TextAlign.right,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF1F2534),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              if (shown != '-')
+                InkWell(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: shown));
+                    SnackbarService().showSnackBar('Copied to clipboard');
+                  },
+                  borderRadius: BorderRadius.circular(6),
+                  child: const Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: Icon(
+                      Icons.copy_outlined,
+                      size: 16,
+                      color: Color(0xFFC4C8D0),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const Divider(height: 1, thickness: 1, color: Color(0xFFF1F2F4)),
+      ],
+    );
+  }
+
+  Widget _buildStatusRow(String raw) {
+    final style = _statusStyle(raw);
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          child: Row(
+            children: [
+              const Text(
+                'Status',
+                style: TextStyle(
+                  color: Color(0xFF9CA3AF),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const Spacer(),
+              if (style.label.isNotEmpty)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: style.background,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    style.label,
+                    style: TextStyle(
+                      color: style.foreground,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+      ],
+    );
+  }
+
+  _StatusStyle _statusStyle(String raw) {
+    final value = raw.trim().toLowerCase();
+    if (value.isEmpty) {
+      return const _StatusStyle('', Colors.transparent, Colors.transparent);
+    }
+    final label = value
+        .split(RegExp(r'[_\s]+'))
+        .where((part) => part.isNotEmpty)
+        .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+        .join(' ');
+    switch (value) {
+      case 'accepted':
+      case 'completed':
+        return _StatusStyle(
+          label,
+          const Color(0xFFD0F8E4),
+          const Color(0xFF188464),
+        );
+      case 'pending':
+        return _StatusStyle(
+          label,
+          const Color(0xFFFCF8E0),
+          const Color(0xFFA89858),
+        );
+      case 'rejected':
+        return _StatusStyle(
+          label,
+          const Color(0xFFFDECEC),
+          const Color(0xFFE15B5B),
+        );
+      case 'meeting_scheduled':
+        return const _StatusStyle(
+          'Meeting Scheduled',
+          Color(0xFFE8F1FC),
+          Color(0xFF2B74E1),
+        );
       default:
-        return Colors.grey;
+        return _StatusStyle(
+          label,
+          const Color(0xFFF3F4F6),
+          const Color(0xFF8A8F98),
+        );
     }
   }
 
@@ -249,182 +380,137 @@ class AnalyticsModalSheet extends ConsumerWidget {
         analytic.status != 'rejected';
   }
 
-  // Build the action buttons section (Edit and Cancel buttons)
-  Widget _buildActionButtonsSection(AnalyticsApiService analyticsApiService,
-      NavigationService navigationService, WidgetRef ref) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Edit button for sent requests (only sender can edit)
-        if ((tabBarType == 'sent' || analytic.user_id == id) &&
-            analytic.status != 'completed' &&
-            analytic.status != 'rejected')
-          SizedBox(
-            width: double.infinity,
-            child: customButton(
-              sideColor: Colors.blue,
-              buttonColor: Colors.blue,
-              label: 'Edit Request',
-              onPressed: () {
-                navigationService.pop();
-                navigationService.pushNamed(
-                  'EditAnalyticRequest',
-                  arguments: {
-                    'analytic': analytic,
-                    'isReceived': tabBarType == 'received',
-                  },
-                );
-              },
-            ),
-          ),
+  List<Widget> _actionButtons(
+    AnalyticsApiService analyticsApiService,
+    NavigationService navigationService,
+    WidgetRef ref,
+  ) {
+    final isReceiver = analytic.canAccept ?? tabBarType == 'received';
+    final openStatus = tabBarType != 'history' &&
+        analytic.status != 'rejected' &&
+        analytic.status != 'completed';
+    final showComplete = openStatus &&
+        analytic.status == 'accepted' &&
+        analytic.type != 'One v One Meeting';
+    final showAccept = isReceiver &&
+        openStatus &&
+        analytic.type != 'One v One Meeting' &&
+        analytic.status != 'accepted';
+    final showSchedule = isReceiver &&
+        openStatus &&
+        analytic.type == 'One v One Meeting' &&
+        analytic.status != 'meeting_scheduled';
+    final showMeetingComplete =
+        openStatus && analytic.status == 'meeting_scheduled';
+    final showReject = isReceiver && openStatus;
+    final showCancel = (tabBarType == 'sent' || analytic.user_id == id) &&
+        analytic.status != 'completed' &&
+        analytic.status != 'rejected';
 
-        // Cancel/Delete button - only for sender
-        if (tabBarType == 'sent' || analytic.user_id == id)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: SizedBox(
-              width: double.infinity,
-              child: customButton(
-                sideColor: kRedDark,
-                buttonColor: kRedDark,
-                label: 'Cancel Request',
-                onPressed: () async {
-                  await analyticsApiService.deleteAnalytic(
-                      analyticId: analytic.id ?? '');
-                  ref.invalidate(fetchAnalyticsProvider);
-                  navigationService.pop();
-                },
-              ),
-            ),
-          ),
-      ],
-    );
+    Future<void> updateStatus(String action) async {
+      await analyticsApiService.updateAnalyticStatus(
+        analyticId: analytic.id ?? '',
+        action: action,
+      );
+      ref.invalidate(fetchAnalyticsProvider);
+      navigationService.pop();
+    }
+
+    return [
+      if (showAccept)
+        _outlineAction(
+          label: 'Accept',
+          color: const Color(0xFF16A34A),
+          onPressed: () => updateStatus('accepted'),
+        ),
+      if (showSchedule)
+        _outlineAction(
+          label: 'Schedule',
+          color: const Color(0xFF2B74E1),
+          onPressed: () => updateStatus('meeting_scheduled'),
+        ),
+      if (showComplete || showMeetingComplete)
+        _outlineAction(
+          label: showMeetingComplete ? 'Complete' : 'Mark as Completed',
+          color: const Color(0xFF16A34A),
+          onPressed: () => updateStatus('completed'),
+        ),
+      if (showReject)
+        _textAction(
+          label: 'Reject',
+          onPressed: () => updateStatus('rejected'),
+        ),
+      if (showCancel)
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: _textAction(
+          label: 'Cancel Request',
+          onPressed: () async {
+            await analyticsApiService.deleteAnalytic(
+              analyticId: analytic.id ?? '',
+            );
+            ref.invalidate(fetchAnalyticsProvider);
+            navigationService.pop();
+          },
+        ),
+        ),
+    ];
   }
 
-  // Build status action buttons (Accept, Reject, Schedule, Complete)
-  Widget _buildStatusActionButtons(AnalyticsApiService analyticsApiService,
-      NavigationService navigationService, WidgetRef ref) {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // First row of buttons
-          Row(
-            children: [
-              // Reject button (for non-scheduled meetings)
-              if (analytic.status != 'meeting_scheduled')
-                Expanded(
-                  child: customButton(
-                    sideColor: kRedDark,
-                    buttonColor: kRedDark,
-                    label: 'Reject',
-                    onPressed: () async {
-                      await analyticsApiService.updateAnalyticStatus(
-                          analyticId: analytic.id ?? '', action: 'rejected');
-                      ref.invalidate(fetchAnalyticsProvider);
-                      navigationService.pop();
-                    },
-                  ),
-                ),
-
-              // Accept button (for non-meeting types) or Schedule button (for meetings)
-              if (analytic.type != 'One v One Meeting' &&
-                  analytic.status != 'accepted')
-                Expanded(
-                  child: customButton(
-                    sideColor: kGreen,
-                    buttonColor: kGreen,
-                    label: 'Accept',
-                    onPressed: () async {
-                      await analyticsApiService.updateAnalyticStatus(
-                          analyticId: analytic.id ?? '', action: 'accepted');
-                      ref.invalidate(fetchAnalyticsProvider);
-                      navigationService.pop();
-                    },
-                  ),
-                )
-              else if (analytic.type == 'One v One Meeting' &&
-                  analytic.status != 'meeting_scheduled')
-                Expanded(
-                  child: customButton(
-                    sideColor: kBlue,
-                    buttonColor: kBlue,
-                    label: 'Schedule',
-                    onPressed: () async {
-                      await analyticsApiService.updateAnalyticStatus(
-                          analyticId: analytic.id ?? '',
-                          action: 'meeting_scheduled');
-                      ref.invalidate(fetchAnalyticsProvider);
-                      navigationService.pop();
-                    },
-                  ),
-                ),
-            ].where((widget) => widget != null).cast<Widget>().toList(),
+  Widget _outlineAction({
+    required String label,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: SizedBox(
+        width: double.infinity,
+        height: 46,
+        child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: color,
+            side: BorderSide(color: color, width: 1.2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
-
-          // Second row for meeting scheduled actions
-          if (analytic.status == 'meeting_scheduled')
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: customButton(
-                      sideColor: kRedDark,
-                      buttonColor: kRedDark,
-                      label: 'Reject',
-                      onPressed: () async {
-                        await analyticsApiService.updateAnalyticStatus(
-                            analyticId: analytic.id ?? '', action: 'rejected');
-                        ref.invalidate(fetchAnalyticsProvider);
-                        navigationService.pop();
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: customButton(
-                      sideColor: kGreen,
-                      buttonColor: kGreen,
-                      label: 'Complete',
-                      onPressed: () async {
-                        await analyticsApiService.updateAnalyticStatus(
-                            analyticId: analytic.id ?? '', action: 'completed');
-                        ref.invalidate(fetchAnalyticsProvider);
-                        navigationService.pop();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          // Third row for accepted status (Mark as Completed button)
-          if (analytic.status == 'accepted' &&
-              analytic.type != 'One v One Meeting')
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: SizedBox(
-                width: double.infinity,
-                child: customButton(
-                  sideColor: kGreen,
-                  buttonColor: kGreen,
-                  label: 'Mark as Completed',
-                  onPressed: () async {
-                    await analyticsApiService.updateAnalyticStatus(
-                        analyticId: analytic.id ?? '', action: 'completed');
-                    ref.invalidate(fetchAnalyticsProvider);
-                    navigationService.pop();
-                  },
-                ),
-              ),
-            ),
-          SizedBox(
-            height: 10,
-          )
-        ],
+          onPressed: onPressed,
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          ),
+        ),
       ),
     );
   }
+
+  Widget _textAction({
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 42,
+      child: TextButton(
+        onPressed: onPressed,
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFFEC4444),
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusStyle {
+  final String label;
+  final Color background;
+  final Color foreground;
+
+  const _StatusStyle(this.label, this.background, this.foreground);
 }

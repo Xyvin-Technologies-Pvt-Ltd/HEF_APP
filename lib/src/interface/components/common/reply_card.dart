@@ -184,8 +184,90 @@ class ReplyCard extends StatelessWidget {
     );
   }
 
+  static const _messageStyle = TextStyle(
+    fontSize: 15,
+    height: 1.25,
+    color: Color(0xFF2C2C2C),
+    fontWeight: FontWeight.w400,
+  );
+
+  static const _timeStyle = TextStyle(
+    fontSize: 11,
+    height: 1.2,
+    color: Color(0xFFAAABAF),
+    fontWeight: FontWeight.w400,
+  );
+
+  Widget _buildImageCard(BuildContext context, Attachment attachment) {
+    final heroTag = 'reply_${attachment.url}_$time';
+    final width = MediaQuery.sizeOf(context).width * 0.72;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 48, top: 8, bottom: 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          width: width,
+          padding: const EdgeInsets.fromLTRB(6, 6, 6, 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE6E4E0)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () => _openAttachmentViewer(context, attachment, heroTag),
+                child: Hero(
+                  tag: heroTag,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: AspectRatio(
+                      aspectRatio: 1.1,
+                      child: Image.network(
+                        attachment.url,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: const Color(0xFFF2F2F2),
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.broken_image_outlined,
+                              color: Color(0xFF9A9A9A)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (message.trim().isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                  child: Text(message, style: _messageStyle),
+                ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 6, 0),
+                child: Text(time, style: _timeStyle),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final firstAttachment = (attachments != null && attachments!.isNotEmpty)
+        ? attachments!.first
+        : null;
+    if (firstAttachment?.type == 'image' && product == null && business == null) {
+      return _buildImageCard(context, firstAttachment!);
+    }
+
+    final isVoice = firstAttachment?.type == 'voice';
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
     Widget buildAttachment() {
       if (attachments != null && attachments!.isNotEmpty) {
         final attachment = attachments!.first;
@@ -247,8 +329,7 @@ class ReplyCard extends StatelessWidget {
           case "voice":
             return VoiceMessagePlayer(
               audioUrl: attachment.url,
-              backgroundColor: kWhite.withOpacity(0.8),
-              iconColor: kPrimaryColor,
+              useWaveform: true,
             );
           case "video":
             return GestureDetector(
@@ -269,37 +350,37 @@ class ReplyCard extends StatelessWidget {
               ),
             );
           default:
-            return Text(message);
+            return Text(message, style: _messageStyle);
         }
       } else {
-        return Text(message, style: const TextStyle(fontSize: 16, color: Colors.black87));
+        return Text(message, style: _messageStyle);
       }
     }
 
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: isVoice ? 32 : 56,
+        top: 9,
+        bottom: 9,
+      ),
       child: Align(
         alignment: Alignment.centerLeft,
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.7,
+            maxWidth: isVoice ? screenWidth * 0.78 : screenWidth * 0.75,
+            minWidth: isVoice ? screenWidth * 0.72 : 0,
           ),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            padding: EdgeInsets.fromLTRB(isVoice ? 10 : 14, 12, 14, 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F2F2),
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 1,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFE6E4E0)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 if (product?.image != null)
                   ClipRRect(
@@ -345,21 +426,11 @@ class ReplyCard extends StatelessWidget {
                     ],
                   ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 5),
+                  padding: const EdgeInsets.only(top: 2),
                   child: buildAttachment(),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      time,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
+                const SizedBox(height: 4),
+                Text(time, style: _timeStyle),
               ],
             ),
           ),

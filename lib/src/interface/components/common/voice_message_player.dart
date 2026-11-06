@@ -7,11 +7,15 @@ class VoiceMessagePlayer extends StatefulWidget {
   final Color? backgroundColor;
   final Color? iconColor;
 
+  /// Waveform row used inside chat bubbles (play, bars, duration, speed).
+  final bool useWaveform;
+
   const VoiceMessagePlayer({
     Key? key,
     required this.audioUrl,
     this.backgroundColor,
     this.iconColor,
+    this.useWaveform = false,
   }) : super(key: key);
 
   @override
@@ -24,6 +28,13 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
   bool _isLoading = false;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
+  double _playbackRate = 1.0;
+
+  static const List<double> _waveform = [
+    0.35, 0.62, 0.48, 0.9, 0.55, 1.0, 0.42, 0.78, 0.5, 0.88,
+    0.46, 0.72, 0.38, 0.66, 0.52, 0.84, 0.44, 0.7, 0.32, 0.58,
+    0.4, 0.76, 0.48, 0.64, 0.3, 0.5, 0.36, 0.62,
+  ];
 
   @override
   void initState() {
@@ -85,6 +96,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
         } else {
           await _audioPlayer.resume();
         }
+        await _audioPlayer.setPlaybackRate(_playbackRate);
         
         setState(() {
           _isPlaying = true;
@@ -103,11 +115,128 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
     }
   }
 
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final minutes = twoDigits(duration.inMinutes.remainder(60));
-    final seconds = twoDigits(duration.inSeconds.remainder(60));
-    return '$minutes:$seconds';
+  String _formatDuration(Duration duration, {bool padded = false}) {
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds =
+        duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    final minuteText =
+        padded ? minutes.toString().padLeft(2, '0') : '$minutes';
+    return '$minuteText:$seconds';
+  }
+
+  String get _speedLabel {
+    if (_playbackRate == 2.0) return '2x';
+    if (_playbackRate == 1.5) return '1.5x';
+    return '1x';
+  }
+
+  Future<void> _cycleSpeed() async {
+    final next = _playbackRate == 1.0
+        ? 1.5
+        : _playbackRate == 1.5
+            ? 2.0
+            : 1.0;
+    setState(() => _playbackRate = next);
+    if (_isPlaying) {
+      try {
+        await _audioPlayer.setPlaybackRate(next);
+      } catch (_) {}
+    }
+  }
+
+  Widget _buildWaveform() {
+    final progress = _duration.inMilliseconds > 0
+        ? (_position.inMilliseconds / _duration.inMilliseconds).clamp(0.0, 1.0)
+        : 0.0;
+    final playedCount = (progress * _waveform.length).round();
+    const played = Color(0xFFFA6D08);
+    const pending = Color(0xFFD5D5D5);
+
+    return SizedBox(
+      height: 28,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          for (var i = 0; i < _waveform.length; i++)
+            Expanded(
+              child: Align(
+                alignment: Alignment.center,
+                child: Container(
+                  width: 2.5,
+                  height: 6 + (22 * _waveform[i]),
+                  decoration: BoxDecoration(
+                    color: i < playedCount ? played : pending,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWaveformPlayer() {
+    final shown = _duration == Duration.zero ? Duration.zero : _duration;
+
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: _togglePlayPause,
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFA6D08),
+              shape: BoxShape.circle,
+            ),
+            child: _isLoading
+                ? const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(kWhite),
+                    ),
+                  )
+                : Icon(
+                    _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                    color: kWhite,
+                    size: 28,
+                  ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(child: _buildWaveform()),
+        const SizedBox(width: 8),
+        Text(
+          _formatDuration(shown),
+          style: const TextStyle(
+            fontSize: 13,
+            color: Color(0xFF56575B),
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: _cycleSpeed,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F1F1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              _speedLabel,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF6E7176),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -118,6 +247,8 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.useWaveform) return _buildWaveformPlayer();
+
     final progress = _duration.inMilliseconds > 0
         ? _position.inMilliseconds / _duration.inMilliseconds
         : 0.0;
@@ -173,7 +304,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
                 const SizedBox(height: 4),
                 Text(
                   _duration != Duration.zero
-                      ? '${_formatDuration(_position)} / ${_formatDuration(_duration)}'
+                      ? '${_formatDuration(_position, padded: true)} / ${_formatDuration(_duration, padded: true)}'
                       : 'Voice message',
                   style: const TextStyle(
                     fontSize: 12,

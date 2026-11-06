@@ -105,6 +105,9 @@ flutter:
       fonts:
         - asset: assets/fonts/Helvetica.ttf
           weight: 400
+    - family: GreatVibes
+      fonts:
+        - asset: assets/fonts/GreatVibes-Regular.ttf
   assets:
     - assets/
     - assets/svg/icons/

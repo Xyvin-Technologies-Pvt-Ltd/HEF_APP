@@ -572,7 +572,7 @@ class _EditUserState extends ConsumerState<EditUser> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-          backgroundColor: kScaffoldColor,
+          backgroundColor: const Color(0xFFF7F8FA),
           body: asyncUser.when(
             loading: () {
               return const EditUserShimmer();
@@ -658,37 +658,71 @@ class _EditUserState extends ConsumerState<EditUser> {
                           key: _formKey,
                           child: Column(
                             children: [
-                              Container(
-                                child: AppBar(
-                                  scrolledUnderElevation: 0,
-                                  backgroundColor: kScaffoldColor,
-                                  elevation: 0,
-                                  leadingWidth: 50,
-                                  leading: Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: SizedBox(
-                                      width: 100,
-                                      height: 100,
-                                      child: Image.asset(
-                                          scale: 5, 'assets/pngs/new_logo.png'),
-                                    ),
+                              AppBar(
+                                scrolledUnderElevation: 0,
+                                backgroundColor: Colors.white,
+                                surfaceTintColor: Colors.white,
+                                elevation: 0,
+                                centerTitle: true,
+                                leading: IconButton(
+                                  onPressed: () {
+                                    ref.read(userProvider.notifier).refreshUser();
+                                    navigateBasedOnPreviousPage();
+                                  },
+                                  icon: const Icon(Icons.arrow_back, color: Colors.black),
+                                ),
+                                title: const Text(
+                                  'Edit Profile',
+                                  style: TextStyle(
+                                    fontFamily: kFamilyName,
+                                    color: Color(0xFF1C1F26),
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700,
                                   ),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () {
-                                          ref
-                                              .read(userProvider.notifier)
-                                              .refreshUser();
-                                          navigateBasedOnPreviousPage();
-                                        },
-                                        child: Icon(
-                                          Icons.close,
-                                          color: Colors.red,
-                                        )),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                                child: Row(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(6),
+                                      child: Image.asset(
+                                        'assets/pngs/hef_logo_square.png',
+                                        width: 28,
+                                        height: 28,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Member ID: ${(user.memberId ?? '').isEmpty ? '—' : user.memberId}',
+                                        style: const TextStyle(
+                                          fontFamily: kFamilyName,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF1C1F26),
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton.icon(
+                                      onPressed: () => _pickFile(imageType: 'profile'),
+                                      icon: const Icon(Icons.photo_camera_outlined, size: 16),
+                                      label: const Text('Update Profile Photo'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: kPrimaryColor,
+                                        textStyle: const TextStyle(
+                                          fontFamily: kFamilyName,
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 35),
+                              const SizedBox(height: 12),
                               FormField<File>(
                                 builder: (FormFieldState<File> state) {
                                   return Center(
@@ -883,7 +917,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                   Padding(
                                     padding: const EdgeInsets.only(
                                         top: 60, left: 16, bottom: 10),
-                                    child: Text('Personal Details',
+                                    child: Text('Basic Information',
                                         style: kSubHeadingB.copyWith(
                                             color: const Color(0xFF2C2829))),
                                   ),
@@ -1022,7 +1056,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                     top: 20, left: 20, bottom: 15),
                                 child: Row(
                                   children: [
-                                    Text('Contact',
+                                    Text('Contact Information',
                                         style: kSubHeadingB.copyWith(
                                             color: const Color(0xFF2C2829))),
                                   ],
@@ -1082,7 +1116,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                     top: 20, left: 20, bottom: 15),
                                 child: Row(
                                   children: [
-                                    Text('Social Media',
+                                    Text('Social Media & Web Links',
                                         style: kSubHeadingB.copyWith(
                                             color: const Color(0xFF2C2829))),
                                   ],
@@ -2399,7 +2433,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                               height: 50,
                               child: customButton(
                                   fontSize: 16,
-                                  label: 'Save & Proceed',
+                                  label: 'Save Changes',
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
                                       SnackbarService snackbarService =

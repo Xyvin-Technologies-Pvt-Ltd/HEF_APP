@@ -14,6 +14,7 @@ class AnalyticsModel {
   final DateTime? date;
   final String? meetingLink;
   final String? location;
+  final bool? canAccept;
 
   AnalyticsModel({
     this.id,
@@ -31,6 +32,7 @@ class AnalyticsModel {
     this.date,
     this.meetingLink,
     this.location,
+    this.canAccept,
   });
 
   factory AnalyticsModel.fromJson(Map<String, dynamic> json) {
@@ -51,6 +53,7 @@ class AnalyticsModel {
       date: json['date'] != null ? DateTime.tryParse(json['date']) : null,
       meetingLink: json['meetingLink'] as String?,
       location: json['location'] as String?,
+      canAccept: json['canAccept'] as bool?,
     );
   }
 
@@ -71,6 +74,7 @@ class AnalyticsModel {
       'date': date?.toIso8601String(),
       'meetingLink': meetingLink,
       'location': location,
+      'canAccept': canAccept,
     };
   }
 

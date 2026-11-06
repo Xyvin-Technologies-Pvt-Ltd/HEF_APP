@@ -26,7 +26,8 @@ import 'package:hef/src/interface/components/loading_indicator/loading_indicator
 import 'package:hef/src/interface/components/shimmers/promotion_shimmers.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
 import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
-import 'package:hef/src/interface/screens/main_pages/menuPages/levels/chapters.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/find_chapter_page.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/levels/know_your_team_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -1023,19 +1024,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _openChapterFinder() {
-    final district = widget.user.chapter?.district;
-    if (district?.id != null && district?.name != null) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ChaptersPage(
-            districtId: district!.id!,
-            districtName: district.name!,
-          ),
-        ),
-      );
-      return;
-    }
-    ref.read(selectedIndexProvider.notifier).updateIndex(2);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const FindChapterPage(),
+      ),
+    );
   }
 
   Widget _buildChapterFinder() {
@@ -1158,33 +1151,44 @@ class _HomePageState extends ConsumerState<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(5),
-                        child: Image.asset(
-                          'assets/pngs/hef_logo_square.png',
-                          width: 22,
-                          height: 22,
-                          fit: BoxFit.cover,
+                  InkWell(
+                    onTap: () {
+                      final chapterId = widget.user.chapter?.id;
+                      if (chapterId == null || chapterId.isEmpty) return;
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => KnowYourTeamPage(chapterId: chapterId),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${widget.user.chapter?.name ?? 'HEF'} District Committee',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Color(0xFF202833),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(5),
+                          child: Image.asset(
+                            'assets/pngs/hef_logo_square.png',
+                            width: 22,
+                            height: 22,
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      ),
-                      const Icon(Icons.chevron_right,
-                          color: Color(0xFF9AA0A6), size: 24),
-                    ],
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${widget.user.chapter?.name ?? 'HEF'} District Committee',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFF202833),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right,
+                            color: Color(0xFF9AA0A6), size: 24),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                   SingleChildScrollView(

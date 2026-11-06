@@ -9,6 +9,8 @@ class Product {
   final num? moq;
   final String? productPriceType;
   final String? status;
+  final String? categoryId;
+  final String? categoryName;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -23,6 +25,8 @@ class Product {
     this.moq,
     this.productPriceType,
     this.status,
+    this.categoryId,
+    this.categoryName,
     this.createdAt,
     this.updatedAt,
   });
@@ -35,6 +39,8 @@ class Product {
             ? (sellerData['_id'] ?? sellerData['id'])?.toString()
             : null;
 
+    final category = _readCategory(json);
+
     return Product(
       id: json['_id'] as String?,
       seller: sellerId,
@@ -46,6 +52,8 @@ class Product {
       moq: json['moq'] as num?,
       productPriceType: json['units'] as String?,
       status: json['status'] as String?,
+      categoryId: category.$1,
+      categoryName: category.$2,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
@@ -53,6 +61,25 @@ class Product {
           ? DateTime.parse(json['updatedAt'] as String)
           : null,
     );
+  }
+
+  static (String?, String?) _readCategory(Map<String, dynamic> json) {
+    final raw = json['category'] ?? json['productCategory'];
+    String? id;
+    String? name;
+    if (raw is Map) {
+      id = (raw['_id'] ?? raw['id'])?.toString();
+      name = (raw['name'] ?? raw['title'])?.toString();
+    } else if (raw is String && raw.trim().isNotEmpty && raw != 'null') {
+      id = raw.trim();
+    }
+    final named = json['categoryName'] ?? json['category_name'];
+    if (named is String && named.trim().isNotEmpty && named != 'null') {
+      name = named.trim();
+    }
+    if (id != null && id.isEmpty) id = null;
+    if (name != null && name.isEmpty) name = null;
+    return (id, name);
   }
 
   Map<String, dynamic> toJson() {

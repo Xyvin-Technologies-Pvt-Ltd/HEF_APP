@@ -73,6 +73,22 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
           ),
           // Drawer Items
 
+          if (_canUploadMar(user))
+            _buildDrawerItem(
+              icon: 'assets/svg/icons/terms.svg',
+              label: 'MAR',
+              onTap: () {
+                navigationService.pushNamed('MarUpload');
+              },
+            ),
+          if ((user.role ?? '').toLowerCase() == 'b2b_coordinator')
+            _buildDrawerItem(
+              icon: 'assets/svg/icons/my_requirements.svg',
+              label: 'Business',
+              onTap: () {
+                navigationService.pushNamed('ChapterBusiness');
+              },
+            ),
           _buildDrawerItem(
             icon: 'assets/svg/icons/analytics.svg',
             label: 'Analytics',
@@ -330,6 +346,11 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
       ),
     ),
   );
+}
+
+bool _canUploadMar(UserModel user) {
+  final role = (user.role ?? '').trim().toLowerCase();
+  return role == 'president' || role == 'secretary' || role == 'treasurer';
 }
 
 Widget _buildDrawerItem({

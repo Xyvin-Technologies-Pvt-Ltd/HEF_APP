@@ -516,6 +516,8 @@ class AnalyticsPdfService {
         return 'Sent Requests Report';
       case 'history':
         return 'All Requests History Report';
+      case 'chapter':
+        return 'Chapter Business Report';
       default:
         return 'Analytics Report';
     }

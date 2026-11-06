@@ -86,7 +86,7 @@ class AnalyticsApiService {
   }
 
   /// Update Analytics Status
-  Future<void> updateAnalyticStatus({
+  Future<String?> updateAnalyticStatus({
     required String analyticId,
     required String? action,
   }) async {
@@ -96,16 +96,62 @@ class AnalyticsApiService {
 
     try {
       final response = await http.post(url, headers: _headers(), body: body);
+      final decoded = json.decode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         log('$action successfully applied');
-      } else {
-        log('Failed to update analytic status: ${response.statusCode}');
-        log('Response: ${response.body}');
+        return 'success';
       }
+      log('Failed to update analytic status: ${response.statusCode}');
+      log('Response: ${response.body}');
+      return decoded['message']?.toString() ?? 'Failed to update status';
     } catch (e) {
       log('Error updating analytic status: $e');
+      return e.toString();
     }
+  }
+
+  static Future<List<AnalyticsModel>> fetchChapterBusiness({
+    String? startDate,
+    String? endDate,
+    int pageNo = 1,
+    int limit = 20,
+  }) async {
+    final queryParams = <String, String>{
+      'pageNo': pageNo.toString(),
+      'limit': limit.toString(),
+    };
+    if (startDate?.isNotEmpty ?? false) queryParams['startDate'] = startDate!;
+    if (endDate?.isNotEmpty ?? false) queryParams['endDate'] = endDate!;
+
+    final url = _baseUrl.replace(
+      path: '${_baseUrl.path}/chapter-business',
+      queryParameters: queryParams,
+    );
+    log('Fetching chapter business from: $url');
+    final response = await http.get(url, headers: _headers());
+    final decoded = json.decode(response.body);
+    final message = decoded is Map ? decoded['message']?.toString() : null;
+
+    if (response.statusCode == 200) {
+      final List data = decoded['data'] ?? [];
+      return data.map((item) => AnalyticsModel.fromJson(item)).toList();
+    }
+
+    // The live API does not have /chapter-business until that backend is
+    // deployed. The existing analytics list already includes a B2B
+    // coordinator's pending chapter business.
+    if (response.statusCode == 404) {
+      log('Chapter business route missing ($message). Using analytics list.');
+      return fetchAnalytics(
+        requestType: 'Business',
+        startDate: startDate,
+        endDate: endDate,
+        pageNo: pageNo,
+        limit: limit,
+      );
+    }
+    throw Exception(message ?? 'Failed to fetch chapter business');
   }
 
   /// Update Analytic

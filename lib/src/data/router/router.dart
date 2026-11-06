@@ -25,6 +25,8 @@ import 'package:hef/src/interface/screens/main_pages/menuPages/levels/level_memb
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/profile_analytics.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/states.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/levels/zones.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/chapter_business_page.dart';
+import 'package:hef/src/interface/screens/main_pages/menuPages/mar_upload_page.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_businesses.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_events.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/my_products.dart';
@@ -142,6 +144,10 @@ Route<dynamic> generateRoute(RouteSettings? settings) {
       return MaterialPageRoute(builder: (context) => MyBusinessesPage());
     case 'AnalyticsPage':
       return MaterialPageRoute(builder: (context) => AnalyticsPage());
+    case 'ChapterBusiness':
+      return MaterialPageRoute(builder: (context) => const ChapterBusinessPage());
+    case 'MarUpload':
+      return MaterialPageRoute(builder: (context) => const MarUploadPage());
     case 'SendAnalyticRequest':
       final args = settings?.arguments as Map<String, dynamic>?;
       final bool isReceived = args?['isReceived'] as bool? ?? false;

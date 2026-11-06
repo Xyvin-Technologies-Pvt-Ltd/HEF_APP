@@ -15,6 +15,8 @@ class AnalyticsModel {
   final String? meetingLink;
   final String? location;
   final bool? canAccept;
+  final String? senderName;
+  final String? receiverName;
 
   AnalyticsModel({
     this.id,
@@ -33,6 +35,8 @@ class AnalyticsModel {
     this.meetingLink,
     this.location,
     this.canAccept,
+    this.senderName,
+    this.receiverName,
   });
 
   factory AnalyticsModel.fromJson(Map<String, dynamic> json) {
@@ -54,6 +58,8 @@ class AnalyticsModel {
       meetingLink: json['meetingLink'] as String?,
       location: json['location'] as String?,
       canAccept: json['canAccept'] as bool?,
+      senderName: json['senderName'] as String?,
+      receiverName: json['receiverName'] as String?,
     );
   }
 
@@ -75,6 +81,8 @@ class AnalyticsModel {
       'meetingLink': meetingLink,
       'location': location,
       'canAccept': canAccept,
+      'senderName': senderName,
+      'receiverName': receiverName,
     };
   }
 

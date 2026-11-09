@@ -900,6 +900,21 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       ),
       child: Scaffold(
         backgroundColor: Colors.white,
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 78),
+          child: FloatingActionButton(
+            onPressed: () {
+              NavigationService().pushNamed(
+                'SendAnalyticRequest',
+                arguments: {'isReceived': false},
+              );
+            },
+            backgroundColor: const Color(0xFFFF6A00),
+            elevation: 6,
+            shape: const CircleBorder(),
+            child: const Icon(Icons.add, color: kWhite, size: 30),
+          ),
+        ),
         body: SafeArea(
           bottom: false,
           child: Column(

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -72,7 +73,12 @@ class _MarUploadPageState extends State<MarUploadPage> {
       allowedExtensions: LevelRoleUploadApi.allowedExtensions.toList(),
       allowMultiple: false,
     );
-    final path = result?.files.single.path;
+    final picked = result?.files.single;
+    final path = picked?.path;
+    log(
+      'Picked file: name=${picked?.name}, path=$path, size=${picked?.size}, extension=${picked?.extension}',
+      name: 'MAR Upload',
+    );
     if (path == null || !mounted) return;
     final file = File(path);
     if (await file.length() > 15 * 1024 * 1024) {
@@ -91,16 +97,22 @@ class _MarUploadPageState extends State<MarUploadPage> {
     setState(() => _uploading = true);
     try {
       final month = DateFormat('MMMM yyyy').format(_month);
+      final title = 'MAR - $month';
+      log(
+        'Starting MAR upload: title=$title, path=${file.path}, exists=${await file.exists()}, size=${await file.length()}',
+        name: 'MAR Upload',
+      );
       await LevelRoleUploadApi.uploadMar(
         file: file,
-        title: 'MAR - $month',
+        title: title,
         description: 'Monthly Analysis Report for $month',
       );
       if (!mounted) return;
       setState(() => _file = null);
       _message('Monthly Analysis Report uploaded');
       await _load();
-    } catch (error) {
+    } catch (error, stackTrace) {
+      log('MAR upload failed: $error', name: 'MAR Upload', stackTrace: stackTrace);
       _message(_clean(error));
     } finally {
       if (mounted) setState(() => _uploading = false);

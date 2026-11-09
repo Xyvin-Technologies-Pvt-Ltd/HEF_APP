@@ -20,7 +20,16 @@ import 'package:hef/src/data/models/user_model.dart';
 import 'dart:async';
 
 class MembersPage extends ConsumerStatefulWidget {
-  const MembersPage({super.key});
+  final String? initialCategoryId;
+  final String? initialCategoryName;
+  final List<String>? initialTags;
+
+  const MembersPage({
+    super.key,
+    this.initialCategoryId,
+    this.initialCategoryName,
+    this.initialTags,
+  });
 
   @override
   ConsumerState<MembersPage> createState() => _MembersPageState();
@@ -42,15 +51,40 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   List<String> selectedTags = [];
   String _directoryFilter = 'chapter';
 
+  bool get _standalone =>
+      widget.initialCategoryId != null ||
+      (widget.initialCategoryName != null &&
+          widget.initialCategoryName!.trim().isNotEmpty) ||
+      (widget.initialTags != null && widget.initialTags!.isNotEmpty);
+
   @override
   void initState() {
     super.initState();
+    selectedCategoryId = widget.initialCategoryId;
+    selectedCategoryName = widget.initialCategoryName;
+    if (widget.initialTags != null && widget.initialTags!.isNotEmpty) {
+      selectedTags = List<String>.from(widget.initialTags!);
+    }
+    if (selectedCategoryId != null && selectedCategoryId!.isNotEmpty) {
+      _directoryFilter = 'category';
+    }
     _scrollController.addListener(_onScroll);
     _fetchInitialUsers();
     _fetchCategories();
   }
 
   Future<void> _fetchInitialUsers() async {
+    final hasCategory =
+        selectedCategoryId != null && selectedCategoryId!.isNotEmpty;
+    final hasTags = selectedTags.isNotEmpty;
+    if (hasCategory || hasTags) {
+      await ref.read(peopleNotifierProvider.notifier).searchUsers(
+            '',
+            categoryFilter: hasCategory ? selectedCategoryId : null,
+            tagsFilter: hasTags ? selectedTags : null,
+          );
+      return;
+    }
     await ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
   }
 
@@ -380,6 +414,29 @@ class _MembersPageState extends ConsumerState<MembersPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: _standalone
+          ? AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: kCommunityText),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              title: Text(
+                selectedCategoryName?.trim().isNotEmpty == true
+                    ? selectedCategoryName!
+                    : selectedTags.isNotEmpty
+                        ? selectedTags.first
+                        : 'Members',
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: kCommunityText,
+                ),
+              ),
+            )
+          : null,
       body: Column(
         children: [
           const SizedBox(height: 8),

@@ -438,3 +438,43 @@ void showProductDetails(
     ),
   );
 }
+
+void openProductDetailsPage({
+  required BuildContext context,
+  required Product product,
+  required Participant sender,
+  required Participant receiver,
+}) {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text(
+            product.name?.trim().isNotEmpty == true
+                ? product.name!
+                : 'Product Details',
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          centerTitle: false,
+        ),
+        body: ProductDetailsModal(
+          receiver: receiver,
+          sender: sender,
+          product: product,
+        ),
+      ),
+    ),
+  );
+}

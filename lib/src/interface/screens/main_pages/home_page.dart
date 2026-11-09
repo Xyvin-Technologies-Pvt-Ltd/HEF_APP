@@ -15,7 +15,6 @@ import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/globals.dart';
 import 'package:hef/src/data/models/promotion_model.dart';
 import 'package:hef/src/data/models/user_model.dart';
-import 'package:hef/src/data/router/nav_router.dart';
 import 'package:hef/src/data/services/navgitor_service.dart';
 import 'package:hef/src/data/services/pdf_services.dart';
 import 'package:hef/src/data/api_routes/analytics_api/analytics_api.dart';
@@ -35,6 +34,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hef/src/interface/components/shimmers/dashboard_shimmer.dart';
 import 'package:hef/src/interface/screens/main_pages/menuPages/analytics/analytics.dart';
+import 'package:hef/src/interface/screens/main_pages/global_search_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -384,9 +384,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       const EdgeInsets.fromLTRB(16, 10, 16, 16),
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(14),
-                                    onTap: () => ref
-                                        .read(selectedIndexProvider.notifier)
-                                        .updateIndex(2),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const GlobalSearchPage(),
+                                        ),
+                                      );
+                                    },
                                     child: Container(
                                       height: 48,
                                       padding: const EdgeInsets.symmetric(
@@ -405,7 +411,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           const SizedBox(width: 12),
                                           Expanded(
                                             child: Text(
-                                              'Search by members, service, category, product...',
+                                              'Search by members, category, chapter, product...',
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(

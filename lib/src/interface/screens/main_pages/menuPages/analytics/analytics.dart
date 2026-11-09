@@ -906,7 +906,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
             onPressed: () {
               NavigationService().pushNamed(
                 'SendAnalyticRequest',
-                arguments: {'isReceived': false},
+                arguments: {
+                  'isReceived': false,
+                  'requestType': 'One v One Meeting',
+                },
               );
             },
             backgroundColor: const Color(0xFFFF6A00),

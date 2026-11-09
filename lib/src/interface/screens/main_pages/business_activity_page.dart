@@ -264,7 +264,10 @@ class _BusinessActivityPageState extends ConsumerState<BusinessActivityPage> {
               onPressed: () {
                 NavigationService().pushNamed(
                   'SendAnalyticRequest',
-                  arguments: {'isReceived': false},
+                  arguments: {
+                    'isReceived': false,
+                    'requestType': widget.requestType,
+                  },
                 );
               },
               backgroundColor: const Color(0xFFFF6A00),

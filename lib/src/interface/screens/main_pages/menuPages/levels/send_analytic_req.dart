@@ -19,13 +19,15 @@ import 'package:shimmer/shimmer.dart';
 
 class SendAnalyticRequestPage extends ConsumerStatefulWidget {
   final bool isReceived;
+  final String? requestType;
 
   SendAnalyticRequestPage({
     super.key,
     required this.isReceived, // Default to false
+    this.requestType,
   }) {
     // Log the isReceived value in constructor
-    log('SendAnalyticRequestPage - Constructor isReceived: $isReceived',
+    log('SendAnalyticRequestPage - Constructor isReceived: $isReceived, requestType: $requestType',
         name: 'Analytics Navigation');
   }
 
@@ -176,6 +178,7 @@ class _SendAnalyticRequestPageState
   @override
   void initState() {
     super.initState();
+    selectedRequestType = widget.requestType;
     // Initialize people notifier
     ref.read(peopleNotifierProvider.notifier).fetchMoreUsers();
     memberSearchController.addListener(_onMemberSearchChanged);
@@ -264,8 +267,10 @@ class _SendAnalyticRequestPageState
               _buildRequiredLabel('Request Type'),
               DropdownButtonFormField<String>(
                 isExpanded: true,
-                icon: const Icon(Icons.keyboard_arrow_down,
-                    color: Color(0xFF8E939A)),
+                icon: Icon(Icons.keyboard_arrow_down,
+                    color: widget.requestType != null
+                        ? const Color(0xFFC5C9D0)
+                        : const Color(0xFF8E939A)),
                 hint: const Text(
                   'Choose Type',
                   style: TextStyle(color: _hintColor, fontSize: 14),
@@ -283,13 +288,19 @@ class _SendAnalyticRequestPageState
                           child: Text(reqType),
                         ))
                     .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedRequestType = value;
-                  });
-                },
+                onChanged: widget.requestType != null
+                    ? null
+                    : (value) {
+                        setState(() {
+                          selectedRequestType = value;
+                        });
+                      },
                 decoration: _fieldDecoration(
                   prefix: _orangeIcon(Icons.description_outlined),
+                ).copyWith(
+                  fillColor: widget.requestType != null
+                      ? const Color(0xFFF7F8FA)
+                      : kWhite,
                 ),
               ),
 

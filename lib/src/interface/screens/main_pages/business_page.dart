@@ -86,7 +86,10 @@ class _BusinessPageState extends ConsumerState<BusinessPage> {
             onPressed: () {
               NavigationService().pushNamed(
                 'SendAnalyticRequest',
-                arguments: {'isReceived': false},
+                arguments: {
+                  'isReceived': false,
+                  'requestType': 'Business',
+                },
               );
             },
             backgroundColor: const Color(0xFFFF6A00),

@@ -597,24 +597,51 @@ class _MembersPageState extends ConsumerState<MembersPage> {
   }
 
   void _applyDirectoryFilters() {
+    // Directory modes are mutually exclusive — only apply the active mode filter.
+    final isChapter = _directoryFilter == 'chapter';
+    final isCategory = _directoryFilter == 'category';
+    final isDistrict = _directoryFilter == 'district';
     ref.read(peopleNotifierProvider.notifier).searchUsers(
           _searchController.text,
-          districtFilter: selectedDistrictId,
-          chapterFilter: selectedChapterId,
-          categoryFilter: selectedCategoryId,
-          tagsFilter: selectedTags.isNotEmpty ? selectedTags : null,
+          districtFilter: isDistrict ? selectedDistrictId : null,
+          chapterFilter: isChapter ? selectedChapterId : null,
+          categoryFilter: isCategory ? selectedCategoryId : null,
+          tagsFilter: isCategory && selectedTags.isNotEmpty ? selectedTags : null,
         );
+  }
+
+  void _clearChapterSelection() {
+    selectedChapterId = null;
+    selectedChapter = null;
+  }
+
+  void _clearCategorySelection() {
+    selectedCategoryId = null;
+    selectedCategoryName = null;
+    selectedTags = [];
+  }
+
+  void _clearDistrictSelection() {
+    selectedDistrictId = null;
+    selectedDistrictName = null;
+  }
+
+  void _switchDirectoryFilter(String mode) {
+    if (_directoryFilter == mode) return;
+    setState(() {
+      _directoryFilter = mode;
+      if (mode != 'chapter') _clearChapterSelection();
+      if (mode != 'category') _clearCategorySelection();
+      if (mode != 'district') _clearDistrictSelection();
+    });
+    _applyDirectoryFilters();
   }
 
   void _resetDirectory() {
     setState(() {
-      selectedDistrictId = null;
-      selectedDistrictName = null;
-      selectedChapterId = null;
-      selectedChapter = null;
-      selectedCategoryId = null;
-      selectedCategoryName = null;
-      selectedTags = [];
+      _clearChapterSelection();
+      _clearCategorySelection();
+      _clearDistrictSelection();
     });
     _applyDirectoryFilters();
   }
@@ -628,7 +655,7 @@ class _MembersPageState extends ConsumerState<MembersPage> {
     final color = selected ? kCommunityOrange : const Color(0xFF6B7280);
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _directoryFilter = mode),
+        onTap: () => _switchDirectoryFilter(mode),
         child: Container(
           height: 38,
           decoration: BoxDecoration(
@@ -790,8 +817,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
           children: [
             _choiceChip('All', selectedChapterId == null, () {
               setState(() {
-                selectedChapterId = null;
-                selectedChapter = null;
+                _clearChapterSelection();
+                _clearCategorySelection();
+                _clearDistrictSelection();
               });
               _applyDirectoryFilters();
             }),
@@ -803,6 +831,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                   setState(() {
                     selectedChapterId = chapter.id;
                     selectedChapter = chapter.name;
+                    _clearCategorySelection();
+                    _clearDistrictSelection();
                   });
                   _applyDirectoryFilters();
                 },
@@ -825,8 +855,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
       children: [
         _choiceChip('All', selectedCategoryId == null, () {
           setState(() {
-            selectedCategoryId = null;
-            selectedCategoryName = null;
+            _clearCategorySelection();
+            _clearChapterSelection();
+            _clearDistrictSelection();
           });
           _applyDirectoryFilters();
         }),
@@ -838,6 +869,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
               setState(() {
                 selectedCategoryId = category.id;
                 selectedCategoryName = category.name;
+                selectedTags = [];
+                _clearChapterSelection();
+                _clearDistrictSelection();
               });
               _applyDirectoryFilters();
             },
@@ -858,8 +892,9 @@ class _MembersPageState extends ConsumerState<MembersPage> {
           children: [
             _choiceChip('All', selectedDistrictId == null, () {
               setState(() {
-                selectedDistrictId = null;
-                selectedDistrictName = null;
+                _clearDistrictSelection();
+                _clearChapterSelection();
+                _clearCategorySelection();
               });
               _applyDirectoryFilters();
             }),
@@ -871,6 +906,8 @@ class _MembersPageState extends ConsumerState<MembersPage> {
                   setState(() {
                     selectedDistrictId = district.id;
                     selectedDistrictName = district.name;
+                    _clearChapterSelection();
+                    _clearCategorySelection();
                   });
                   _applyDirectoryFilters();
                 },

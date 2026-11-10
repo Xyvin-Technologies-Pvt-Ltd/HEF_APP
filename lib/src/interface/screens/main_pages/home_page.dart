@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/chapter_api/chapter_details.dart';
+import 'package:hef/src/data/api_routes/events_api/events_api.dart';
 import 'package:hef/src/data/api_routes/news_api/news_api.dart';
 import 'package:hef/src/data/api_routes/notification_api/notification_api.dart';
 import 'package:hef/src/data/api_routes/promotion_api/promotion_api.dart';
@@ -22,6 +23,8 @@ import 'package:hef/src/interface/components/Drawer/drawer.dart';
 import 'package:hef/src/interface/components/common/custom_video.dart';
 import 'package:hef/src/interface/components/custom_widgets/custom_news.dart';
 import 'package:hef/src/interface/components/loading_indicator/loading_indicator.dart';
+import 'package:hef/src/data/models/events_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:hef/src/interface/components/shimmers/promotion_shimmers.dart';
 import 'package:hef/src/interface/screens/main_pages/news_page.dart';
 import 'package:hef/src/interface/screens/main_pages/notification_page.dart';
@@ -52,6 +55,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   int _currentNoticeIndex = 0;
   int _currentPosterIndex = 0;
   int _currentVideoIndex = 0;
+  int _currentEventIndex = 0;
 
   bool isDownloading = false;
 
@@ -166,6 +170,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Consumer(
       builder: (context, ref, child) {
         final asyncPromotions = ref.watch(fetchPromotionsProvider);
+        final asyncEvents = ref.watch(fetchEventsProvider);
         final asyncNews = ref.watch(fetchNewsProvider);
         final asyncUserDashBoardDetails = ref.watch(
             getUserDashboardProvider(startDate: startDate, endDate: endDate));
@@ -173,6 +178,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           color: kPrimaryColor,
           onRefresh: () async {
             ref.invalidate(fetchPromotionsProvider);
+            ref.invalidate(fetchEventsProvider);
             ref.invalidate(fetchNewsProvider);
             ref.invalidate(getUserDashboardProvider);
           },
@@ -560,6 +566,37 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                                 const SizedBox(height: 18),
                                 _buildChapterFinder(),
+
+                                // Events Carousel
+                                asyncEvents.when(
+                                  data: (events) {
+                                    final activeEvents = events
+                                        .where((event) =>
+                                            event.status?.toLowerCase() !=
+                                            'completed')
+                                        .toList();
+
+                                    if (activeEvents.isEmpty) {
+                                      return const SizedBox.shrink();
+                                    }
+
+                                    return _buildEventsSection(
+                                      events: activeEvents,
+                                      onOpen: (event) {
+                                        navigationService.pushNamed(
+                                          'ViewMoreEvent',
+                                          arguments: event,
+                                        );
+                                      },
+                                    );
+                                  },
+                                  loading: () => const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 24),
+                                    child: Center(child: LoadingAnimation()),
+                                  ),
+                                  error: (_, __) => const SizedBox.shrink(),
+                                ),
+
                                 _buildChapterLeadership(),
 
                                 const SizedBox(height: 16),
@@ -1037,6 +1074,69 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  Widget _buildEventsSection({
+    required List<Event> events,
+    required void Function(Event event) onOpen,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Latest Events',
+              style: TextStyle(
+                color: Color(0xFF202833),
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          CarouselSlider.builder(
+            itemCount: events.length,
+            itemBuilder: (context, index, _) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _HomeEventCard(
+                  event: events[index],
+                  onTap: () => onOpen(events[index]),
+                ),
+              );
+            },
+            options: CarouselOptions(
+              height: 286,
+              viewportFraction: 1,
+              enableInfiniteScroll: events.length > 1,
+              autoPlay: events.length > 1,
+              autoPlayInterval: const Duration(seconds: 4),
+              pauseAutoPlayOnTouch: true,
+              scrollPhysics: events.length > 1
+                  ? null
+                  : const NeverScrollableScrollPhysics(),
+              onPageChanged: (index, reason) {
+                setState(() => _currentEventIndex = index);
+              },
+            ),
+          ),
+          if (events.length > 1)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Center(
+                child: _buildDotIndicator(
+                  _currentEventIndex,
+                  events.length,
+                  kPrimaryColor,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildChapterFinder() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1442,4 +1542,188 @@ Widget customNotice({
       ),
     ),
   );
+}
+
+class _HomeEventCard extends StatelessWidget {
+  final Event event;
+  final VoidCallback onTap;
+
+  const _HomeEventCard({
+    required this.event,
+    required this.onTap,
+  });
+
+  String get _statusLabel {
+    final status = event.status?.toLowerCase() ?? '';
+    if (status == 'pending') return 'Upcoming';
+    if (status.isEmpty) return 'Event';
+    return status[0].toUpperCase() + status.substring(1);
+  }
+
+  Color get _statusColor {
+    switch (event.status?.toLowerCase()) {
+      case 'live':
+        return const Color(0xFF2D8D00);
+      case 'completed':
+        return const Color(0xFF6B7280);
+      case 'cancelled':
+        return const Color(0xFFE4483E);
+      default:
+        return kPrimaryColor;
+    }
+  }
+
+  String get _dateText {
+    final raw = event.eventDate ?? event.startDate ?? event.startTime;
+    if (raw == null) return 'Date TBA';
+    return DateFormat('MMM d, yyyy').format(raw.toLocal());
+  }
+
+  String get _timeText {
+    final raw = event.startTime ?? event.eventDate ?? event.startDate;
+    if (raw == null) return 'Time TBA';
+    return DateFormat('hh:mm a').format(raw.toLocal());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final venue = event.venue?.trim() ?? '';
+
+    return Material(
+      color: kWhite,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE9EAEC)),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: event.image ?? '',
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(color: Colors.grey[300]),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: const Color(0xFFFFF4EA),
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.event_outlined,
+                          color: kPrimaryColor,
+                          size: 36,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: _statusColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          _statusLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.eventName?.trim().isNotEmpty == true
+                          ? event.eventName!
+                          : 'Untitled Event',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF1E2937),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_today_outlined,
+                            size: 14, color: kPrimaryColor),
+                        const SizedBox(width: 6),
+                        Text(
+                          _dateText,
+                          style: const TextStyle(
+                            color: Color(0xFF6B7280),
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        const Icon(Icons.access_time,
+                            size: 14, color: kPrimaryColor),
+                        const SizedBox(width: 6),
+                        Text(
+                          _timeText,
+                          style: const TextStyle(
+                            color: Color(0xFF6B7280),
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (venue.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on_outlined,
+                              size: 14, color: kPrimaryColor),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              venue,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Color(0xFF6B7280),
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

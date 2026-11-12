@@ -329,14 +329,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
-  contact_add:
-    dependency: "direct main"
-    description:
-      name: contact_add
-      sha256: "4040db328c9bdd875a04c926adb83437765d2c3e1797e091525e0a6ed691418a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
   convert:
     dependency: transitive
     description:

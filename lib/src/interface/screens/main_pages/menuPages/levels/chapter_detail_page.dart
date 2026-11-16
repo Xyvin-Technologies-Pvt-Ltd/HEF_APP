@@ -261,7 +261,7 @@ class _ChapterDetailPageState extends ConsumerState<ChapterDetailPage> {
   }
 
   Widget _tabBar() {
-    const labels = ['Committee', 'Members', 'Meeting'];
+    const labels = ['PST', 'Members', 'Meeting'];
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Container(

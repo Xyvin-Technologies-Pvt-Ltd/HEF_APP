@@ -424,7 +424,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     TextSpan(
                                       children: [
                                         const TextSpan(
-                                          text: 'Welcome back,\n',
+                                          text: 'Namste,\n',
                                           style: TextStyle(
                                             color: Color(0xFF111820),
                                             fontSize: 22,

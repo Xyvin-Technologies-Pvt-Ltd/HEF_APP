@@ -249,96 +249,54 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
           // Footer
           Padding(
             padding: const EdgeInsets.all(15.0),
-            child: Center(
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const WebViewScreen(
-                            color: Colors.blue,
-                            url: 'https://www.skybertech.com/',
-                            title: 'Skybertech',
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: kGrey),
-                          color: const Color.fromARGB(255, 246, 246, 246)),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                top: 10, left: 22, right: 22),
-                            child: Text(
-                              'Powered by',
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                          ),
-                          Image.asset(
-                            scale: 15,
-                            'assets/pngs/skybertechlogo.png',
-                          ),
-                        ],
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WebViewScreen(
+                        color: Color(0xFFD4AF37),
+                        url: 'https://businessconnectdigital.com/',
+                        title: 'Business Connect',
                       ),
                     ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: kGrey),
+                    color: const Color.fromARGB(255, 246, 246, 246),
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const WebViewScreen(
-                            color: Colors.deepPurpleAccent,
-                            url: 'https://www.acutendeavors.com/',
-                            title: 'ACUTE ENDEAVORS',
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 2, bottom: 3),
+                          child: Text(
+                            'Developed by',
+                            style:
+                                TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: kGrey),
-                          color: const Color.fromARGB(255, 246, 246, 246)),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 8),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2, bottom: 3),
-                              child: Text(
-                                'Developed by',
-                                style:
-                                    TextStyle(fontSize: 12, color: Colors.grey),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 7),
-                              child: Image.asset(
-                                scale: 6,
-                                'assets/pngs/acutelogo.png',
-                              ),
-                            ),
-                          ],
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 7),
+                          child: Image.asset(
+                            'assets/pngs/business_connect_logo.png',
+                            width: 100,
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),

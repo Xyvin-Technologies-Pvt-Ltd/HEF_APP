@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/chapter_api/chapter_details.dart';
+import 'package:hef/src/data/api_routes/levels_api/levels_api.dart';
 import 'package:hef/src/data/constants/color_constants.dart';
 import 'package:hef/src/data/constants/style_constants.dart';
 import 'package:hef/src/data/models/chapter_directory_model.dart';
@@ -19,6 +20,10 @@ class _FindChapterPageState extends ConsumerState<FindChapterPage> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
   String? _district;
+  String? _districtId;
+  Set<String>? _districtChapterIds;
+  Set<String>? _districtChapterNames;
+  bool _loadingDistrictFilter = false;
 
   @override
   void dispose() {
@@ -68,6 +73,9 @@ class _FindChapterPageState extends ConsumerState<FindChapterPage> {
           Expanded(
             child: chapters.when(
               data: (items) {
+                if (_loadingDistrictFilter) {
+                  return const Center(child: LoadingAnimation());
+                }
                 final visible = _applyFilters(items);
                 if (visible.isEmpty) {
                   return const Center(
@@ -130,12 +138,27 @@ class _FindChapterPageState extends ConsumerState<FindChapterPage> {
 
   List<ChapterDirectoryItem> _applyFilters(List<ChapterDirectoryItem> items) {
     final query = _query.trim().toLowerCase();
+    final selectedDistrict = _district?.trim().toLowerCase();
     return items.where((chapter) {
       final matchesQuery = query.isEmpty ||
           chapter.name.toLowerCase().contains(query) ||
           chapter.location.toLowerCase().contains(query);
-      final matchesDistrict =
-          _district == null || chapter.districtName == _district;
+      if (selectedDistrict == null) return matchesQuery;
+
+      final matchesResolvedIds = _districtChapterIds != null &&
+          (_districtChapterIds!.contains(chapter.id) ||
+              (_districtChapterNames
+                      ?.contains(chapter.name.trim().toLowerCase()) ??
+                  false));
+      final matchesLocal = (_districtId != null &&
+              _districtId!.isNotEmpty &&
+              chapter.districtId == _districtId) ||
+          chapter.districtName.trim().toLowerCase() == selectedDistrict ||
+          chapter.location.toLowerCase().startsWith(selectedDistrict);
+
+      final matchesDistrict = _districtChapterIds != null
+          ? matchesResolvedIds || matchesLocal
+          : matchesLocal;
       return matchesQuery && matchesDistrict;
     }).toList();
   }
@@ -215,13 +238,35 @@ class _FindChapterPageState extends ConsumerState<FindChapterPage> {
   }
 
   Future<void> _openFilters(List<ChapterDirectoryItem> chapters) async {
-    final districts = chapters
-        .map((chapter) => chapter.districtName.trim())
-        .where((name) => name.isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort();
-    final selected = await showModalBottomSheet<String?>(
+    final districtOptions = <({String id, String name})>[];
+    final seen = <String>{};
+
+    void addOption({required String id, required String name}) {
+      final trimmed = name.trim();
+      if (trimmed.isEmpty) return;
+      final key = id.isNotEmpty ? id : trimmed.toLowerCase();
+      if (!seen.add(key)) return;
+      districtOptions.add((id: id, name: trimmed));
+    }
+
+    try {
+      final fetched = await ref.read(fetchDistrictsProvider.future);
+      for (final district in fetched) {
+        addOption(id: district.id, name: district.name);
+      }
+    } catch (_) {}
+
+    for (final chapter in chapters) {
+      addOption(id: chapter.districtId, name: chapter.districtName);
+    }
+
+    if (!mounted) return;
+
+    districtOptions.sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
+
+    final selected = await showModalBottomSheet<({String id, String name})?>(
       context: context,
       backgroundColor: kWhite,
       shape: const RoundedRectangleBorder(
@@ -259,7 +304,10 @@ class _FindChapterPageState extends ConsumerState<FindChapterPage> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () => Navigator.pop(context, ''),
+                      onPressed: () => Navigator.pop(
+                        context,
+                        (id: '', name: ''),
+                      ),
                       child: const Text(
                         'Clear',
                         style: TextStyle(
@@ -272,7 +320,7 @@ class _FindChapterPageState extends ConsumerState<FindChapterPage> {
                   ],
                 ),
               ),
-              if (districts.isEmpty)
+              if (districtOptions.isEmpty)
                 const Padding(
                   padding: EdgeInsets.fromLTRB(20, 0, 20, 24),
                   child: Text(
@@ -287,13 +335,15 @@ class _FindChapterPageState extends ConsumerState<FindChapterPage> {
                 Flexible(
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: districts.length,
+                    itemCount: districtOptions.length,
                     itemBuilder: (context, index) {
-                      final district = districts[index];
-                      final active = district == _district;
+                      final district = districtOptions[index];
+                      final active = district.name == _district ||
+                          (district.id.isNotEmpty &&
+                              district.id == _districtId);
                       return ListTile(
                         title: Text(
-                          district,
+                          district.name,
                           style: const TextStyle(
                             fontFamily: kFamilyName,
                             fontSize: 15,
@@ -315,7 +365,56 @@ class _FindChapterPageState extends ConsumerState<FindChapterPage> {
       },
     );
     if (!mounted || selected == null) return;
-    setState(() => _district = selected.isEmpty ? null : selected);
+    await _applyDistrictSelection(selected);
+  }
+
+  Future<void> _applyDistrictSelection(
+    ({String id, String name}) selected,
+  ) async {
+    if (selected.name.isEmpty && selected.id.isEmpty) {
+      setState(() {
+        _district = null;
+        _districtId = null;
+        _districtChapterIds = null;
+        _districtChapterNames = null;
+        _loadingDistrictFilter = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _district = selected.name;
+      _districtId = selected.id.isEmpty ? null : selected.id;
+      _districtChapterIds = null;
+      _districtChapterNames = null;
+      _loadingDistrictFilter = selected.id.isNotEmpty;
+    });
+
+    if (selected.id.isEmpty) return;
+
+    try {
+      final levels =
+          await ref.read(fetchLevelDataProvider(selected.id, 'district').future);
+      if (!mounted) return;
+      setState(() {
+        _districtChapterIds = levels
+            .map((level) => level.id.trim())
+            .where((id) => id.isNotEmpty)
+            .toSet();
+        _districtChapterNames = levels
+            .map((level) => level.name.trim().toLowerCase())
+            .where((name) => name.isNotEmpty)
+            .toSet();
+        _loadingDistrictFilter = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _districtChapterIds = <String>{};
+        _districtChapterNames = <String>{};
+        _loadingDistrictFilter = false;
+      });
+    }
   }
 }
 
@@ -396,6 +495,39 @@ class _ChapterCard extends StatelessWidget {
                             ),
                           ),
                         ),
+                        if (chapter.districtName.trim().isNotEmpty) ...[
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6),
+                            child: Text(
+                              '•',
+                              style: TextStyle(
+                                fontFamily: kFamilyName,
+                                color: Color(0xFF8B93A0),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          const Icon(
+                            Icons.location_on_outlined,
+                            size: 15,
+                            color: Color(0xFF9AA3AF),
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              chapter.districtName.trim(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: kFamilyName,
+                                color: Color(0xFF8B93A0),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],

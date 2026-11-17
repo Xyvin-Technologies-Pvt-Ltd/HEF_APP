@@ -3,6 +3,7 @@ class ChapterDirectoryItem {
   final String name;
   final String location;
   final String districtName;
+  final String districtId;
   final int memberCount;
   final String? image;
   final DateTime? createdAt;
@@ -12,6 +13,7 @@ class ChapterDirectoryItem {
     required this.name,
     required this.location,
     required this.districtName,
+    this.districtId = '',
     required this.memberCount,
     this.image,
     this.createdAt,

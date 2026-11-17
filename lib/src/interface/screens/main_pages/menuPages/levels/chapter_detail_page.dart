@@ -516,7 +516,6 @@ class _ChapterDetailPageState extends ConsumerState<ChapterDetailPage> {
                           member: member,
                           company: _companyName(member),
                           location: _memberLocation(member),
-                          onCall: () => _call(member.phone ?? ''),
                           onOpen: () => _openProfile(
                             user: member,
                             userId: member.uid ?? '',
@@ -1043,14 +1042,12 @@ class _MemberCard extends StatelessWidget {
   final UserModel member;
   final String company;
   final String location;
-  final VoidCallback onCall;
   final VoidCallback onOpen;
 
   const _MemberCard({
     required this.member,
     required this.company,
     required this.location,
-    required this.onCall,
     required this.onOpen,
   });
 
@@ -1117,22 +1114,6 @@ class _MemberCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              SizedBox(
-                width: 36,
-                height: 36,
-                child: OutlinedButton(
-                  onPressed: onCall,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: kPrimaryColor,
-          side: const BorderSide(color: kPrimaryColor),
-          padding: EdgeInsets.zero,
-          minimumSize: const Size(36, 36),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          shape: const CircleBorder(),
-        ),
-                  child: const Icon(Icons.phone_outlined, size: 18),
-                ),
-              ),
               const Icon(Icons.chevron_right, color: Color(0xFFC5CAD1), size: 22),
             ],
           ),

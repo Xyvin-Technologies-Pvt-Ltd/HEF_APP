@@ -81,15 +81,28 @@ class ChapterApiService {
     final responses = await Future.wait([
       http.get(Uri.parse('$baseUrl/hierarchy/chapter/list'), headers: headers),
       http.get(Uri.parse('$baseUrl/user/list?limit=1000'), headers: headers),
+      http.get(Uri.parse('$baseUrl/hierarchy/district/list'), headers: headers),
     ]);
 
     final chaptersJson = _decodeList(responses[0]);
     final usersJson = _decodeList(responses[1]);
+    final districtsJson = _decodeList(responses[2]);
     if (chaptersJson.isEmpty && usersJson.isEmpty) {
       throw Exception('Unable to load chapters');
     }
 
     final directory = <String, _ChapterAccumulator>{};
+    final districtNamesById = <String, String>{};
+
+    for (final item in districtsJson) {
+      if (item is! Map) continue;
+      final map = Map<String, dynamic>.from(item);
+      final id = (map['_id'] ?? map['id'] ?? '').toString().trim();
+      final name = (map['name'] ?? '').toString().trim();
+      if (id.isNotEmpty && name.isNotEmpty) {
+        districtNamesById[id] = name;
+      }
+    }
 
     for (final item in chaptersJson) {
       if (item is Map) {
@@ -115,6 +128,92 @@ class ChapterApiService {
         Map<String, dynamic>.from(chapter),
         memberId: userId,
       );
+    }
+
+    final districtIdsByName = <String, String>{
+      for (final entry in districtNamesById.entries)
+        entry.value.trim().toLowerCase(): entry.key,
+    };
+
+    for (final entry in directory.values) {
+      if (entry.districtName.isEmpty && entry.districtId.isNotEmpty) {
+        final resolved = districtNamesById[entry.districtId];
+        if (resolved != null && resolved.isNotEmpty) {
+          entry.districtName = resolved;
+        } else {
+          // Some payloads store the district name in districtId.
+          final namedId = districtIdsByName[entry.districtId.toLowerCase()];
+          if (namedId != null) {
+            entry.districtName = districtNamesById[namedId] ?? entry.districtId;
+            entry.districtId = namedId;
+          }
+        }
+      }
+
+      if (entry.districtId.isEmpty && entry.districtName.isNotEmpty) {
+        final namedId = districtIdsByName[entry.districtName.toLowerCase()];
+        if (namedId != null) entry.districtId = namedId;
+      }
+
+      if (entry.districtId.isEmpty && entry.location.isNotEmpty) {
+        final locationLower = entry.location.toLowerCase();
+        for (final district in districtNamesById.entries) {
+          final nameLower = district.value.toLowerCase();
+          if (locationLower == nameLower ||
+              locationLower.startsWith('$nameLower,')) {
+            entry.districtId = district.key;
+            entry.districtName = district.value;
+            break;
+          }
+        }
+      }
+
+      if (entry.location.isEmpty && entry.districtName.isNotEmpty) {
+        entry.location = entry.districtName;
+      }
+    }
+
+    // Chapter list often omits/mismatches districtIds. Resolve district names
+    // the same way the filter does: chapters under each district.
+    if (districtNamesById.isNotEmpty) {
+      final chapterDistrictById = <String, ({String id, String name})>{};
+      final chapterDistrictByName = <String, ({String id, String name})>{};
+
+      await Future.wait(districtNamesById.entries.map((district) async {
+        try {
+          final response = await http.get(
+            Uri.parse('$baseUrl/hierarchy/levels/${district.key}/district'),
+            headers: headers,
+          );
+          for (final item in _decodeList(response)) {
+            if (item is! Map) continue;
+            final map = Map<String, dynamic>.from(item);
+            final chapterId =
+                (map['_id'] ?? map['id'] ?? '').toString().trim();
+            final chapterName = (map['name'] ?? '').toString().trim();
+            final link = (id: district.key, name: district.value);
+            if (chapterId.isNotEmpty) {
+              chapterDistrictById[chapterId] = link;
+            }
+            if (chapterName.isNotEmpty) {
+              chapterDistrictByName[chapterName.toLowerCase()] = link;
+            }
+          }
+        } catch (error) {
+          log('Failed to resolve district ${district.key}: $error');
+        }
+      }));
+
+      for (final entry in directory.values) {
+        final link = chapterDistrictById[entry.id] ??
+            chapterDistrictByName[entry.name.trim().toLowerCase()];
+        if (link == null) continue;
+        entry.districtId = link.id;
+        entry.districtName = link.name;
+        if (entry.location.isEmpty) {
+          entry.location = link.name;
+        }
+      }
     }
 
     final items = directory.values.map((entry) => entry.toItem()).toList()
@@ -181,11 +280,14 @@ void _mergeChapter(
   );
   if (current.name.trim().isEmpty) current.name = name.trim();
   if (name.trim().isNotEmpty) current.name = name.trim();
-  if (current.location.isEmpty && location.$1.isNotEmpty) {
-    current.location = location.$1;
+  if (current.location.isEmpty && location.location.isNotEmpty) {
+    current.location = location.location;
   }
-  if (current.districtName.isEmpty && location.$2.isNotEmpty) {
-    current.districtName = location.$2;
+  if (current.districtName.isEmpty && location.districtName.isNotEmpty) {
+    current.districtName = location.districtName;
+  }
+  if (current.districtId.isEmpty && location.districtId.isNotEmpty) {
+    current.districtId = location.districtId;
   }
   if ((current.image == null || current.image!.isEmpty) && image != null) {
     current.image = image;
@@ -199,12 +301,26 @@ void _mergeChapter(
   }
 }
 
-(String, String) _readLocation(Map<String, dynamic> json) {
-  final district = json['districtId'] ?? json['district'];
+({String location, String districtName, String districtId}) _readLocation(
+  Map<String, dynamic> json,
+) {
+  final district = json['districtId'] ??
+      json['district'] ??
+      json['DistrictId'] ??
+      json['District'];
   if (district is Map) {
-    final districtName = (district['name'] ?? '').toString().trim();
+    final districtMap = Map<String, dynamic>.from(district);
+    final districtName = (districtMap['name'] ?? districtMap['Name'] ?? '')
+        .toString()
+        .trim();
+    final districtId = (districtMap['_id'] ??
+            districtMap['id'] ??
+            districtMap['Name'] ??
+            '')
+        .toString()
+        .trim();
     var stateName = '';
-    final zone = district['zoneId'] ?? district['zone'];
+    final zone = districtMap['zoneId'] ?? districtMap['zone'];
     if (zone is Map) {
       final state = zone['stateId'] ?? zone['state'];
       if (state is Map) {
@@ -214,10 +330,32 @@ void _mergeChapter(
     final location = [districtName, stateName]
         .where((part) => part.isNotEmpty)
         .join(', ');
-    return (location, districtName);
+    return (
+      location: location,
+      districtName: districtName,
+      districtId: districtId,
+    );
   }
-  final fallback = (json['location'] ?? json['address'] ?? '').toString().trim();
-  return (fallback, '');
+  final fallback =
+      (json['location'] ?? json['address'] ?? '').toString().trim();
+  if (district is String && district.trim().isNotEmpty) {
+    return (
+      location: fallback,
+      districtName: '',
+      districtId: district.trim(),
+    );
+  }
+  if (district != null) {
+    final raw = district.toString().trim();
+    if (raw.isNotEmpty && raw != 'null' && !raw.startsWith('{')) {
+      return (
+        location: fallback,
+        districtName: '',
+        districtId: raw,
+      );
+    }
+  }
+  return (location: fallback, districtName: '', districtId: '');
 }
 
 String? _readImage(Map<String, dynamic> json) {
@@ -243,6 +381,7 @@ class _ChapterAccumulator {
   String name;
   String location = '';
   String districtName = '';
+  String districtId = '';
   String? image;
   DateTime? createdAt;
   int apiMemberCount = 0;
@@ -260,6 +399,7 @@ class _ChapterAccumulator {
       name: name,
       location: location,
       districtName: districtName,
+      districtId: districtId,
       memberCount: counted > apiMemberCount ? counted : apiMemberCount,
       image: image,
       createdAt: createdAt,

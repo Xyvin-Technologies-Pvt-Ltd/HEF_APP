@@ -167,10 +167,7 @@ class _PeoplePageState extends ConsumerState<PeoplePage> {
               width: 40,
               height: 40,
               margin: const EdgeInsets.only(right: 16),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFE9EAEC)),
-              ),
+              alignment: Alignment.center,
               child: const Icon(Icons.menu_rounded, color: kBlack, size: 22),
             ),
           ),
@@ -186,14 +183,6 @@ class _PeoplePageState extends ConsumerState<PeoplePage> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFE9EAEC)),
-            ),
-          ),
           IconButton(
             padding: EdgeInsets.zero,
             icon: const Icon(Icons.notifications_none_outlined, size: 22),
@@ -225,32 +214,29 @@ class _PeoplePageState extends ConsumerState<PeoplePage> {
 
   Widget _buildTabs() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
+      padding: const EdgeInsets.fromLTRB(16, 2, 16, 6),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(_labels.length, (index) {
           final selected = index == _index;
-          return Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _select(index),
-              child: Center(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: selected ? kCommunityOrangeSoft : Colors.transparent,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    _labels[index],
-                    maxLines: 1,
-                    style: TextStyle(
-                      color: selected ? kCommunityOrange : kCommunityMuted,
-                      fontSize: 15,
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                      height: 1.1,
-                    ),
-                  ),
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _select(index),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: selected ? kCommunityOrangeSoft : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                _labels[index],
+                maxLines: 1,
+                softWrap: false,
+                style: TextStyle(
+                  color: selected ? kCommunityOrange : kCommunityMuted,
+                  fontSize: 15,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  height: 1.1,
                 ),
               ),
             ),

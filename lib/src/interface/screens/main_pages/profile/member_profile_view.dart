@@ -985,29 +985,54 @@ class _MemberProfileViewState extends ConsumerState<MemberProfileView> {
       padding: EdgeInsets.fromLTRB(16, 10, 16, 10 + bottomInset),
       child: Row(
         children: [
-          if (!_isOwnProfile)
-          Material(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              onTap: _onSecondaryAction,
+          if (!_isOwnProfile) ...[
+            Material(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              child: Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: kPrimaryColor, width: 1.4),
-                ),
-                alignment: Alignment.center,
-                child: const CustomPaint(
-                  size: Size(22, 14),
-                  painter: _ConnectPainter(),
+              child: InkWell(
+                onTap: _onSecondaryAction,
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kPrimaryColor, width: 1.4),
+                  ),
+                  alignment: Alignment.center,
+                  child: SvgPicture.asset(
+                    'assets/svg/icons/chat_bubble.svg',
+                    width: 22,
+                    height: 22,
+                  ),
                 ),
               ),
             ),
-          ),
-          if (!_isOwnProfile) const SizedBox(width: 12),
+            const SizedBox(width: 12),
+            Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                onTap: _callMember,
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kPrimaryColor, width: 1.4),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.phone_outlined,
+                    color: kPrimaryColor,
+                    size: 22,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+          ],
           Expanded(
             child: Material(
               color: kPrimaryColor,
@@ -1080,6 +1105,25 @@ class _MemberProfileViewState extends ConsumerState<MemberProfileView> {
         ),
       ),
     );
+  }
+
+  void _callMember() {
+    String? phone = _phones.isNotEmpty ? _phones.first : null;
+    if (phone == null) {
+      for (final company in user.company ?? const <Company>[]) {
+        if (_hasText(company.phone)) {
+          phone = company.phone!.trim();
+          break;
+        }
+      }
+    }
+    if (phone == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Phone number is not available')),
+      );
+      return;
+    }
+    launchPhone(phone);
   }
 
   void _writeReview() {
@@ -1394,25 +1438,3 @@ class _IdCardPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class _ConnectPainter extends CustomPainter {
-  const _ConnectPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final stroke = Paint()
-      ..color = kPrimaryColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.6
-      ..strokeCap = StrokeCap.round;
-    final fill = Paint()..color = kPrimaryColor;
-    final y = size.height / 2;
-    final left = Offset(size.width * 0.22, y);
-    final right = Offset(size.width * 0.78, y);
-    canvas.drawLine(left, right, stroke);
-    canvas.drawCircle(left, 3.1, fill);
-    canvas.drawCircle(right, 3.1, fill);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

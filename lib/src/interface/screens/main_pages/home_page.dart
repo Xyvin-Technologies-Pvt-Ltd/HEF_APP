@@ -308,15 +308,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                 child: Stack(
                                                   alignment: Alignment.center,
                                                   children: [
-                                                    Container(
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        border: Border.all(
-                                                          color: const Color(
-                                                              0xFFE9EAEC),
-                                                        ),
-                                                      ),
-                                                    ),
                                                     IconButton(
                                                       padding: EdgeInsets.zero,
                                                       icon: const Icon(
@@ -369,11 +360,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           height: 44,
                                           margin: const EdgeInsets.symmetric(
                                               horizontal: 8),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                                color: const Color(0xFFE9EAEC)),
-                                          ),
                                           child: const Icon(
                                             Icons.menu_rounded,
                                             color: kBlack,
@@ -1169,7 +1155,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        Icon(Icons.info_outline,
+                        Icon(Icons.search,
                             color: Color(0xFF8A9AAA), size: 18),
                       ],
                     ),
@@ -1215,6 +1201,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                 child: const Icon(Icons.map_outlined,
                     color: Color(0xFF079B91), size: 34),
               ),
+              const SizedBox(width: 4),
+              const Icon(Icons.arrow_forward_ios,
+                  color: Color(0xFF8A9AAA), size: 14),
             ],
           ),
         ),

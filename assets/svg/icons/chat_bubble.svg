@@ -1,0 +1,13 @@
+<svg width="22" height="22" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Bubble frame with bottom-left tail -->
+  <path
+    d="M1.5 1.5H14.5V10.75C14.5 11.1642 14.1642 11.5 13.75 11.5H9.85L12.6 14.5H10.9L7.7 11.5H2.25C1.83579 11.5 1.5 11.1642 1.5 10.75V1.5Z"
+    stroke="#FA6D08"
+    stroke-width="1.5"
+    stroke-linejoin="round"
+  />
+  <!-- Text lines -->
+  <path d="M3.75 4.25H12.25" stroke="#FA6D08" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M3.75 6.75H12.25" stroke="#FA6D08" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M3.75 9.25H8.75" stroke="#FA6D08" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

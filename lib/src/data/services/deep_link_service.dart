@@ -1,6 +1,5 @@
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hef/src/data/api_routes/events_api/events_api.dart';
 import 'package:hef/src/data/api_routes/group_chat_api/group_api.dart';
 import 'package:hef/src/data/api_routes/user_api/user_data/user_data.dart';
@@ -127,48 +126,47 @@ class DeepLinkService {
           if (pathSegments.length > 1) {
             final eventId = pathSegments[1];
             try {
-              final event = await EventApiService. fetchEventById(eventId);
+              final event = await EventApiService.fetchEventById(eventId);
               NavigationService.navigatorKey.currentState
                   ?.pushNamed('ViewMoreEvent', arguments: event);
             } catch (e) {
               debugPrint('Error fetching event: $e');
-              _showError('Unable to load profile');
+              _showError('Unable to load event');
             }
+          } else {
+            NavigationService.navigatorKey.currentState
+                ?.pushNamed('MyEvents');
           }
           break;
 
         case 'my_feeds':
-          try {
-            NavigationService.navigatorKey.currentState
-                ?.pushNamed('MyBusinesses');
-          } catch (e) {
-            debugPrint('Error fetching requirement: $e');
-            _showError('Unable to load profile');
-          }
-
+          NavigationService.navigatorKey.currentState
+              ?.pushNamed('MyBusinesses');
           break;
         case 'my_products':
-          try {
-            NavigationService.navigatorKey.currentState
-                ?.pushNamed('MyProducts');
-          } catch (e) {
-            debugPrint('Error fetching requirement: $e');
-            _showError('Unable to load profile');
-          }
-        case 'my_subscription':
-          try {
-            NavigationService.navigatorKey.currentState
-                ?.pushNamed('MySubscriptionPage');
-          } catch (e) {
-            debugPrint('Error fetching requirement: $e');
-            _showError('Unable to load profile');
-          }
-
+          NavigationService.navigatorKey.currentState
+              ?.pushNamed('MyProducts');
           break;
-
+        case 'my_subscription':
+        case 'my_subscriptions':
+          NavigationService.navigatorKey.currentState
+              ?.pushNamed('MySubscriptionPage');
+          break;
+        case 'analytic':
+        case 'analytics':
+          NavigationService.navigatorKey.currentState
+              ?.pushNamed('AnalyticsPage');
+          break;
+        case 'news':
+          NavigationService.navigatorKey.currentState?.pushNamed('News');
+          break;
+        case 'notification':
+        case 'general':
+          NavigationService.navigatorKey.currentState
+              ?.pushNamed('NotificationPage');
+          break;
         case 'mainpage':
           break;
-
         default:
           NavigationService.navigatorKey.currentState
               ?.pushNamed('NotificationPage');
@@ -189,25 +187,40 @@ class DeepLinkService {
     }
   }
 
-  String? getDeepLinkPath(String screen, {String? id}) {
-    switch (screen) {
+  /// Builds a deep-link URI from FCM `data.screen` (+ optional `data.id`).
+  /// Always returns a navigable path so notification taps never no-op.
+  String getDeepLinkPath(String screen, {String? id}) {
+    final normalized = screen.trim().toLowerCase();
+    final safeId = (id != null && id.isNotEmpty) ? id : null;
+
+    switch (normalized) {
       case 'chat':
-        return id != null ? 'hef://app/chat/$id' : 'hef://app/chat';
+        return safeId != null ? 'hef://app/chat/$safeId' : 'hef://app/chat';
       case 'group_chat':
-        return id != null ? 'hef://app/group_chat/$id' : 'hef://app/group_chat';
+        return safeId != null
+            ? 'hef://app/group_chat/$safeId'
+            : 'hef://app/group_chat';
       case 'event':
-        return id != null ? 'hef://app/event/$id' : 'hef://app/event';
+        return safeId != null ? 'hef://app/event/$safeId' : 'hef://app/event';
       case 'my_subscription':
+      case 'my_subscriptions':
         return 'hef://app/my_subscription';
       case 'my_products':
         return 'hef://app/my_products';
       case 'my_feeds':
         return 'hef://app/my_feeds';
+      case 'analytic':
+      case 'analytics':
+        return 'hef://app/analytics';
+      case 'news':
+        return safeId != null ? 'hef://app/news/$safeId' : 'hef://app/news';
       case 'mainpage':
         return 'hef://app/mainpage';
-
+      case 'notification':
+      case 'general':
+        return 'hef://app/notification';
       default:
-        return null;
+        return 'hef://app/notification';
     }
   }
 }

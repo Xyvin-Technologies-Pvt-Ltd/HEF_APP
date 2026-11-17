@@ -124,12 +124,15 @@ class NotificationService {
     return ActiveChatTracker.instance.isViewingChat(chatId, isGroup: isGroup);
   }
 
-  String? _deepLinkFromMessage(RemoteMessage message) {
-    if (!message.data.containsKey('screen')) return null;
-    final screen = message.data['screen']?.toString();
-    if (screen == null || screen.isEmpty) return null;
+  String _deepLinkFromMessage(RemoteMessage message) {
+    final screen = message.data['screen']?.toString() ??
+        message.data['tag']?.toString() ??
+        'notification';
     final idValue = message.data['id']?.toString();
-    return _deepLinkService.getDeepLinkPath(screen, id: idValue);
+    return _deepLinkService.getDeepLinkPath(
+      screen.isEmpty ? 'notification' : screen,
+      id: idValue,
+    );
   }
 
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
@@ -181,8 +184,10 @@ class NotificationService {
   }
 
   void _queueOrNavigate(String? deepLink) {
-    if (deepLink == null || deepLink.isEmpty) return;
-    final uri = Uri.parse(deepLink);
+    final link = (deepLink == null || deepLink.isEmpty)
+        ? _deepLinkService.getDeepLinkPath('notification')
+        : deepLink;
+    final uri = Uri.parse(link);
     if (!DeepLinkService.hasNavigatorOverlay()) {
       _deepLinkService.setPendingDeepLink(uri);
       return;
@@ -192,8 +197,8 @@ class NotificationService {
 
   void _handleMessageOpenedApp(RemoteMessage message) {
     try {
-      final deepLink = _deepLinkFromMessage(message);
-      _queueOrNavigate(deepLink);
+      debugPrint('Notification opened app: ${message.data}');
+      _queueOrNavigate(_deepLinkFromMessage(message));
     } catch (e) {
       debugPrint('Message opened app handling error: $e');
     }
@@ -201,9 +206,8 @@ class NotificationService {
 
   void _handleNotificationTap(NotificationResponse response) {
     try {
-      if (response.payload != null && response.payload!.isNotEmpty) {
-        _queueOrNavigate(response.payload);
-      }
+      debugPrint('Local notification tap payload: ${response.payload}');
+      _queueOrNavigate(response.payload);
     } catch (e) {
       debugPrint('Notification tap handling error: $e');
     }
@@ -211,16 +215,30 @@ class NotificationService {
 
   Future<void> _handleInitialMessage() async {
     try {
+      // Cold-start from a local notification (foreground-shown tray item).
+      final launchDetails = await flutterLocalNotificationsPlugin
+          .getNotificationAppLaunchDetails();
+      if (launchDetails?.didNotificationLaunchApp == true &&
+          (launchDetails?.notificationResponse?.payload?.isNotEmpty ??
+              false)) {
+        debugPrint(
+            'Queuing local-notification launch deep link: ${launchDetails!.notificationResponse!.payload}');
+        _deepLinkService.setPendingDeepLink(
+          Uri.parse(launchDetails.notificationResponse!.payload!),
+        );
+        return;
+      }
+
+      // Cold-start from an FCM system notification.
       final RemoteMessage? initialMessage =
           await FirebaseMessaging.instance.getInitialMessage();
       if (initialMessage == null) return;
 
-      debugPrint('Queuing initial message deep link');
-      final deepLink = _deepLinkFromMessage(initialMessage);
-      if (deepLink != null) {
-        // Always defer cold-start until Splash/auth completes.
-        _deepLinkService.setPendingDeepLink(Uri.parse(deepLink));
-      }
+      debugPrint('Queuing initial FCM deep link: ${initialMessage.data}');
+      // Always defer cold-start until Splash/auth completes.
+      _deepLinkService.setPendingDeepLink(
+        Uri.parse(_deepLinkFromMessage(initialMessage)),
+      );
     } catch (e) {
       debugPrint('Initial message handling error: $e');
     }

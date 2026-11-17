@@ -1237,6 +1237,20 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  String _formatRole(String role) {
+    final trimmed = role.trim();
+    if (trimmed.isEmpty) return '';
+    return trimmed
+        .replaceAll('_', ' ')
+        .split(RegExp(r'\s+'))
+        .map((word) {
+          if (word.isEmpty) return word;
+          final lower = word.toLowerCase();
+          return '${lower[0].toUpperCase()}${lower.substring(1)}';
+        })
+        .join(' ');
+  }
+
   Widget _buildChapterLeadership() {
     final chapterId = widget.user.chapter?.id;
     if (chapterId == null || chapterId.isEmpty) {
@@ -1356,7 +1370,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  admin.role,
+                                  _formatRole(admin.role),
                                   textAlign: TextAlign.center,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,

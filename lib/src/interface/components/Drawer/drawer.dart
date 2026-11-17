@@ -193,10 +193,6 @@ Widget customDrawer({required UserModel user, required BuildContext context}) {
           //   label: 'My Transactions',
           //   onTap: () {},
           // ),
-
-          SizedBox(
-            height: 40,
-          ),
           if (user.phone != '+919645398555')
             _buildDrawerItem(
               icon: 'assets/svg/icons/about_us.svg',

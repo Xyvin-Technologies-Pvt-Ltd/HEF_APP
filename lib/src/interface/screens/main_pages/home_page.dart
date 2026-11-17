@@ -905,8 +905,8 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
       'BUSINESS GIVEN' => (
           'Business Given',
-          'assets/pngs/dashboard_business_given.png',
-          const Color(0xFFFA6D08),
+          'assets/pngs/dashboard_business_given_blue.png',
+          const Color(0xFF1F7ED0),
           true,
           'vs LM',
         ),

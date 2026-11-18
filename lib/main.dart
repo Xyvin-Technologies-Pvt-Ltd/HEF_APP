@@ -14,18 +14,53 @@ import 'package:hef/src/data/utils/secure_storage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  debugPrint("HEF: Starting app initialization...");
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.playIntegrity,
-    appleProvider: AppleProvider.debug,
-  );
-  await loadSecureData();
-  await dotenv.load(fileName: ".env");
-  await NotificationService().initialize();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint("HEF: Firebase initialized");
+  } catch (e) {
+    debugPrint("HEF: Firebase init error: $e");
+  }
+
+  try {
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: AndroidProvider.playIntegrity,
+      appleProvider: AppleProvider.debug,
+    );
+    debugPrint("HEF: AppCheck activated");
+  } catch (e) {
+    debugPrint("HEF: AppCheck error: $e");
+  }
+
+  try {
+    await loadSecureData();
+    debugPrint("HEF: Secure data loaded");
+  } catch (e) {
+    debugPrint("HEF: Secure data error: $e");
+  }
+
+  try {
+    await dotenv.load(fileName: ".env");
+    debugPrint("HEF: Dotenv loaded");
+  } catch (e) {
+    debugPrint("HEF: Dotenv error: $e");
+  }
+
+  debugPrint("HEF: Calling runApp...");
   runApp(ProviderScope(child: MyApp()));
+
+  try {
+    NotificationService().initialize().then((_) {
+      debugPrint("HEF: NotificationService initialized");
+    }).catchError((e) {
+      debugPrint("HEF: NotificationService error: $e");
+    });
+  } catch (e) {
+    debugPrint("HEF: NotificationService trigger error: $e");
+  }
 }
 
 class MyApp extends StatelessWidget {

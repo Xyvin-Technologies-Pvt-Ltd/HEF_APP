@@ -53,6 +53,19 @@ post_install do |installer|
       if deployment_target.nil? || Gem::Version.new(deployment_target) < Gem::Version.new('15.5')
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.5'
       end
+
+      # Allow arm64 on Apple Silicon simulators
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
     end
   end
+  installer.pods_project.build_configurations.each do |config|
+    config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
+  end
+  installer.aggregate_targets.each do |target|
+    target.xcconfigs.each do |config_name, config_file|
+      config_file.attributes['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
+      config_file.save_as(Pathname.new(File.join(installer.sandbox.target_support_files_dir(target.name), "#{target.name}.#{config_name.downcase}.xcconfig")))
+    end
+  end
+  system("python3 #{File.join(File.dirname(__FILE__), 'patch_mlkit_for_simulator.py')}")
 end

@@ -83,10 +83,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   void proceedWithAppFlow() {
+    debugPrint("SPLASH: proceedWithAppFlow called");
     checkAppVersion(context).then((_) {
+      debugPrint("SPLASH: checkAppVersion completed, isAppUpdateRequired=$isAppUpdateRequired, hasVersionCheckError=$hasVersionCheckError");
       if (!isAppUpdateRequired && !hasVersionCheckError) {
         initialize();
       }
+    }).catchError((e) {
+      debugPrint("SPLASH: checkAppVersion caught error: $e");
+      initialize();
     });
   }
 

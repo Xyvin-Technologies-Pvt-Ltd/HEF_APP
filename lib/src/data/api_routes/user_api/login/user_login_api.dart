@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hef/src/data/services/snackbar_service.dart';
 import 'package:http/http.dart' as http;
@@ -12,57 +14,93 @@ import 'package:hef/src/data/globals.dart';
 Future<Map<String, String>> submitPhoneNumber(
     String countryCode, BuildContext context, String phone) async {
   FirebaseAuth auth = FirebaseAuth.instance;
+
+  // On iOS Simulator, physical APNs notifications cannot be received.
+  // Enabling appVerificationDisabledForTesting allows testing phone auth on simulators.
+  if (kDebugMode && Platform.isIOS) {
+    try {
+      await auth.setSettings(appVerificationDisabledForTesting: true);
+      debugPrint('submitPhoneNumber: set appVerificationDisabledForTesting=true for iOS debug');
+    } catch (e) {
+      debugPrint('submitPhoneNumber: failed to set auth settings: $e');
+    }
+  }
+
   Completer<String> verificationIdcompleter = Completer<String>();
   Completer<String> resendTokencompleter = Completer<String>();
-  log('phone:+$countryCode$phone');
-  await auth.verifyPhoneNumber(
-    phoneNumber: '+$countryCode$phone',
-    verificationCompleted: (PhoneAuthCredential credential) async {
-      // Handle automatic verification completion if needed
-    },
-    verificationFailed: (FirebaseAuthException e) {
-      print(e.message.toString());
-      verificationIdcompleter.complete(''); // Verification failed
-      resendTokencompleter.complete('');
-    },
-    codeSent: (String verificationId, int? resendToken) {
-      log(verificationId);
+  Completer<String> errorCompleter = Completer<String>();
+  final fullPhoneNumber = '+$countryCode$phone';
+  debugPrint('submitPhoneNumber: starting verification for $fullPhoneNumber');
 
-      verificationIdcompleter.complete(verificationId);
-      resendTokencompleter.complete(resendToken.toString());
-    },
-    codeAutoRetrievalTimeout: (String verificationID) {
-      if (!verificationIdcompleter.isCompleted) {
-        verificationIdcompleter.complete(''); // Timeout without sending code
-      }
-    },
-  );
+  try {
+    await auth.verifyPhoneNumber(
+      phoneNumber: fullPhoneNumber,
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        debugPrint('submitPhoneNumber: verificationCompleted automatically for $fullPhoneNumber');
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        debugPrint('FirebaseAuthException in verifyPhoneNumber: code=${e.code}, message=${e.message}, details=${e.stackTrace}');
+        if (!verificationIdcompleter.isCompleted) {
+          verificationIdcompleter.complete('');
+          resendTokencompleter.complete('');
+          errorCompleter.complete('[${e.code}] ${e.message ?? 'Unknown Firebase error'}');
+        }
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        debugPrint('submitPhoneNumber: codeSent! verificationId: $verificationId, resendToken: $resendToken');
+        if (!verificationIdcompleter.isCompleted) {
+          verificationIdcompleter.complete(verificationId);
+          resendTokencompleter.complete(resendToken?.toString() ?? '');
+          errorCompleter.complete('');
+        }
+      },
+      codeAutoRetrievalTimeout: (String verificationID) {
+        debugPrint('submitPhoneNumber: codeAutoRetrievalTimeout: $verificationID');
+        if (!verificationIdcompleter.isCompleted) {
+          verificationIdcompleter.complete('');
+          resendTokencompleter.complete('');
+          errorCompleter.complete('Timeout without receiving verification code');
+        }
+      },
+    );
+  } catch (e, stack) {
+    debugPrint('submitPhoneNumber unexpected error: $e\n$stack');
+    if (!verificationIdcompleter.isCompleted) {
+      verificationIdcompleter.complete('');
+      resendTokencompleter.complete('');
+      errorCompleter.complete(e.toString());
+    }
+  }
+
+  final verificationId = await verificationIdcompleter.future;
+  final resendToken = await resendTokencompleter.future;
+  final error = await errorCompleter.future;
 
   return {
-    "verificationId": await verificationIdcompleter.future,
-    "resendToken": await resendTokencompleter.future
+    "verificationId": verificationId,
+    "resendToken": resendToken,
+    "error": error,
   };
 }
 
 void resendOTP(String phoneNumber, String verificationId, String resendToken) {
   FirebaseAuth auth = FirebaseAuth.instance;
+  debugPrint('resendOTP: resending code to +91$phoneNumber');
   auth.verifyPhoneNumber(
     phoneNumber: '+91$phoneNumber',
-    forceResendingToken: int.parse(resendToken),
+    forceResendingToken: int.tryParse(resendToken),
     timeout: const Duration(seconds: 60),
     verificationCompleted: (PhoneAuthCredential credential) {
-      // Auto-retrieval or instant verification
+      debugPrint('resendOTP: Auto-retrieval or instant verification completed');
     },
     verificationFailed: (FirebaseAuthException e) {
-      // Handle error
-      print("Resend verification failed: ${e.message}");
+      debugPrint("resendOTP failed: code=${e.code}, message=${e.message}");
     },
     codeSent: (String verificationId, int? resendToken) {
-      resendToken = resendToken;
-      print("Resend verification Sucess");
+      debugPrint("resendOTP: codeSent success! verificationId=$verificationId");
     },
     codeAutoRetrievalTimeout: (String verificationId) {
-      verificationId = verificationId;
+      debugPrint("resendOTP: codeAutoRetrievalTimeout: $verificationId");
     },
   );
 }

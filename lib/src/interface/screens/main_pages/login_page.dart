@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -194,74 +193,70 @@ class PhoneNumberScreen extends ConsumerWidget {
 
   Future<void> _handleOtpGeneration(BuildContext context, WidgetRef ref) async {
     SnackbarService snackbarService = SnackbarService();
-    final countryCode = ref.watch(countryCodeProvider);
+    final countryCode = ref.watch(countryCodeProvider) ?? '91';
+    final rawPhone = _mobileController.text.trim();
     FocusScope.of(context).unfocus();
     ref.read(loadingProvider.notifier).startLoading();
 
-    bool userExists =
-        await UserService.checkUser('+$countryCode${_mobileController.text}');
+    final fullNumber = '+$countryCode$rawPhone';
+    debugPrint('LOGIN: Checking if user exists: $fullNumber');
+
+    bool userExists = false;
+    try {
+      userExists = await UserService.checkUser(fullNumber);
+      debugPrint('LOGIN: UserService.checkUser returned: $userExists');
+    } catch (e, stack) {
+      debugPrint('LOGIN: UserService.checkUser failed with error: $e\n$stack');
+    }
+
     if (userExists) {
       try {
-        if (countryCode == '971') {
-          if (_mobileController.text.length != 9) {
-            snackbarService.showSnackBar('Please Enter valid mobile number');
-          } else {
-            final data = await submitPhoneNumber(
-                countryCode == '971'
-                    ? 9710.toString()
-                    : countryCode ?? 91.toString(),
-                context,
-                _mobileController.text);
-            final verificationId = data['verificationId'];
-            final resendToken = data['resendToken'];
-            if (verificationId != null && verificationId.isNotEmpty) {
-              log('Otp Sent successfully');
-
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => OTPScreen(
-                  phone: _mobileController.text,
-                  verificationId: verificationId,
-                  resendToken: resendToken ?? '',
-                ),
-              ));
-            } else {
-              snackbarService.showSnackBar('Failed');
-            }
-          }
-        } else if (countryCode != '971') {
-          if (_mobileController.text.length != 10) {
-            snackbarService.showSnackBar('Please Enter valid mobile number');
-          } else {
-            final data = await submitPhoneNumber(
-                countryCode == '971'
-                    ? 9710.toString()
-                    : countryCode ?? 971.toString(),
-                context,
-                _mobileController.text);
-            final verificationId = data['verificationId'];
-            final resendToken = data['resendToken'];
-            if (verificationId != null && verificationId.isNotEmpty) {
-              log('Otp Sent successfully');
-
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => OTPScreen(
-                  phone: _mobileController.text,
-                  verificationId: verificationId,
-                  resendToken: resendToken ?? '',
-                ),
-              ));
-            } else {
-              snackbarService.showSnackBar('Failed');
-            }
-          }
+        if (countryCode == '971' && rawPhone.length != 9) {
+          debugPrint('LOGIN: Invalid phone length for 971: expected 9 digits, got ${rawPhone.length}');
+          snackbarService.showSnackBar('Please Enter valid mobile number (9 digits)');
+          return;
+        } else if (countryCode != '971' && rawPhone.length != 10) {
+          debugPrint('LOGIN: Invalid phone length: expected 10 digits, got ${rawPhone.length}');
+          snackbarService.showSnackBar('Please Enter valid mobile number (10 digits)');
+          return;
         }
-      } catch (e) {
-        log(e.toString());
+
+        final formattedCountryCode = countryCode == '971' ? '9710' : countryCode;
+        debugPrint('LOGIN: Submitting phone number: code=$formattedCountryCode, phone=$rawPhone');
+
+        final data = await submitPhoneNumber(
+            formattedCountryCode,
+            context,
+            rawPhone);
+
+        final verificationId = data['verificationId'];
+        final resendToken = data['resendToken'];
+        final failureReason = data['error'];
+
+        if (verificationId != null && verificationId.isNotEmpty) {
+          debugPrint('LOGIN: OTP sent successfully, verificationId=$verificationId');
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => OTPScreen(
+              phone: rawPhone,
+              verificationId: verificationId,
+              resendToken: resendToken ?? '',
+            ),
+          ));
+        } else {
+          final errorMsg = failureReason != null && failureReason.isNotEmpty
+              ? failureReason
+              : 'Unknown error occurred (verificationId is empty)';
+          debugPrint('LOGIN: OTP generation failed! Failure reason: $errorMsg');
+          snackbarService.showSnackBar('Failed');
+        }
+      } catch (e, stack) {
+        debugPrint('LOGIN: Exception in _handleOtpGeneration: $e\n$stack');
         snackbarService.showSnackBar('Failed');
       } finally {
         ref.read(loadingProvider.notifier).stopLoading();
       }
     } else {
+      debugPrint('LOGIN: User $fullNumber does not exist');
       snackbarService.showSnackBar('User does not exists');
       ref.read(loadingProvider.notifier).stopLoading();
     }
@@ -487,33 +482,35 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
     ref.read(loadingProvider.notifier).startLoading();
 
     try {
-      print(_otpController.text);
+      final code = _otpController.text.trim();
+      debugPrint('LOGIN: Verifying OTP "$code" with verificationId=${widget.verificationId}');
 
       Map<String, dynamic> responseMap = await verifyOTP(
           verificationId: widget.verificationId,
           fcmToken: fcmToken,
-          smsCode: _otpController.text,
+          smsCode: code,
           context: context);
 
-      String savedToken = responseMap['token'];
-      String savedId = responseMap['userId'];
+      debugPrint('LOGIN: verifyOTP returned: $responseMap');
+      String? savedToken = responseMap['token'];
+      String? savedId = responseMap['userId'];
 
-      if (savedToken.isNotEmpty && savedId.isNotEmpty) {
+      if (savedToken != null && savedToken.isNotEmpty && savedId != null && savedId.isNotEmpty) {
         await SecureStorage.write('token', savedToken);
         await SecureStorage.write('id', savedId);
         token = savedToken;
         id = savedId;
-        log('savedToken: $savedToken');
-        log('savedId: $savedId');
+        debugPrint('LOGIN: Verification success! savedId=$savedId');
         ref.read(userProvider.notifier).refreshUser();
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => ProfileCompletionScreen()));
+            MaterialPageRoute(builder: (context) => const ProfileCompletionScreen()));
       } else {
-        // CustomSnackbar.showSnackbar(context, 'Wrong OTP');
+        debugPrint('LOGIN: OTP verification failed! Server response did not contain valid token/userId: $responseMap');
+        SnackbarService().showSnackBar('Wrong OTP');
       }
-    } catch (e) {
-      log(e.toString());
-      // CustomSnackbar.showSnackbar(context, 'Wrong OTP');
+    } catch (e, stack) {
+      debugPrint('LOGIN: Exception during _handleOtpVerification: $e\n$stack');
+      SnackbarService().showSnackBar('Wrong OTP');
     } finally {
       ref.read(loadingProvider.notifier).stopLoading();
     }

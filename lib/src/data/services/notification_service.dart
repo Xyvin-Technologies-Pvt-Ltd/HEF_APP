@@ -37,9 +37,9 @@ class NotificationService {
           AndroidInitializationSettings('@mipmap/ic_launcher');
       const DarwinInitializationSettings iosInitializationSetting =
           DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
       );
       const InitializationSettings initSettings = InitializationSettings(
         android: initializationSettingsAndroid,
@@ -49,18 +49,28 @@ class NotificationService {
       await flutterLocalNotificationsPlugin.initialize(
         initSettings,
         onDidReceiveNotificationResponse: _handleNotificationTap,
+      ).timeout(
+        const Duration(seconds: 3),
+        onTimeout: () {
+          debugPrint('flutterLocalNotificationsPlugin.initialize timed out');
+          return true;
+        },
       );
 
       await _ensureAndroidChannel();
 
       // Keep iOS from auto-presenting FCM banners in foreground so we can
       // suppress notifications for the currently open conversation.
-      await FirebaseMessaging.instance
-          .setForegroundNotificationPresentationOptions(
-        alert: false,
-        badge: true,
-        sound: false,
-      );
+      try {
+        await FirebaseMessaging.instance
+            .setForegroundNotificationPresentationOptions(
+          alert: false,
+          badge: true,
+          sound: false,
+        ).timeout(const Duration(seconds: 2));
+      } catch (e) {
+        debugPrint('setForegroundNotificationPresentationOptions error: $e');
+      }
 
       FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
         debugPrint('New FCM Token: $newToken');
@@ -69,7 +79,12 @@ class NotificationService {
 
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
       FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
-      await _handleInitialMessage();
+      await _handleInitialMessage().timeout(
+        const Duration(seconds: 2),
+        onTimeout: () {
+          debugPrint('_handleInitialMessage timed out');
+        },
+      );
     } catch (e) {
       debugPrint('Notification initialization error: $e');
     }
